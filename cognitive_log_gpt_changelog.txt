@@ -1,0 +1,73 @@
+================================================================================
+COGNITIVE LOG GPT - SYSTEM PROMPT VERSION HISTORY
+================================================================================
+
+This file tracks all versions of the Cognitive Log GPT system prompt.
+Each entry includes: Version, DateTime, and Changes made.
+
+================================================================================
+
+VERSION: 2.0
+DATETIME: 2026-01-01T18:45:00Z
+STATUS: CURRENT
+--------------------------------------------------------------------------------
+CHANGES:
+  - ADDED: Explicit "TOOL FIRST, TEXT SECOND" rule to force immediate API call
+  - ADDED: Execution sequence diagram showing tool invocation must happen BEFORE any text response
+  - ADDED: "ALWAYS INVOKE FIRST" rule - action must be called as first action, no pre-processing
+  - ADDED: Failure response format with explicit error messaging to user
+  - ADDED: "FAIL LOUDLY" principle - never pretend logging worked if it didn't
+  - ADDED: Edge cases table for handling various input scenarios
+  - ADDED: Inference guidelines with categorized options for easier selection
+  - ADDED: Structured response format with emoji markers for clarity
+  - CHANGED: Removed "Zero Interaction Policy" language, replaced with "ASSUME YES"
+  - CHANGED: Response format now shows Type, Mode, and Energy inline
+  - CHANGED: Simplified confirmation to single actionable insight
+  - FIXED: Issue where GPT would respond with "logged" but not actually invoke tool
+  - FIXED: Ambiguity about when tool should be called (now explicit: FIRST)
+
+REASON FOR UPDATE:
+  User reported that GPT sometimes says "logged" without actually calling the
+  createLog action. Root cause: GPT was generating response text before invoking
+  the tool, and sometimes skipping the tool entirely. New prompt enforces
+  tool-first execution pattern.
+
+================================================================================
+
+VERSION: 1.0
+DATETIME: 2025-12-XX (Original)
+STATUS: DEPRECATED
+--------------------------------------------------------------------------------
+ORIGINAL PROMPT:
+  - Basic auto-log functionality
+  - Output schema mapping
+  - Zero interaction policy
+  - Example payload generation
+
+KNOWN ISSUES:
+  - GPT would sometimes respond "logged" without actually invoking tool
+  - No explicit failure handling
+  - Ambiguous execution order (tool vs text response)
+  - No edge case handling
+
+================================================================================
+
+UPCOMING CHANGES (PLANNED):
+--------------------------------------------------------------------------------
+  - [ ] Add retry logic instructions for transient API failures
+  - [ ] Add support for "undo last log" command
+  - [ ] Add support for viewing recent entries
+  - [ ] Add support for editing last entry
+  - [ ] Consider adding mood trend summary on request
+
+================================================================================
+
+HOW TO UPDATE THIS FILE:
+--------------------------------------------------------------------------------
+1. Create new version entry at the TOP (below the header)
+2. Use format: VERSION: X.X / DATETIME: ISO format / STATUS: CURRENT
+3. Mark previous version as DEPRECATED
+4. List all CHANGES with prefixes: ADDED, CHANGED, FIXED, REMOVED
+5. Include REASON FOR UPDATE explaining why changes were made
+
+================================================================================
