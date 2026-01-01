@@ -17,8 +17,8 @@ from datetime import datetime
 import os
 from dotenv import load_dotenv
 
-# Load environment variables from .env
-load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env'))
+# Load environment variables from .env (in parent AirTable folder)
+load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '.env'))
 
 # Configuration (from .env)
 API_KEY = os.getenv('AIRTABLE_API_KEY')

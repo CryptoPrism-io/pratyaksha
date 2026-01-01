@@ -1,0 +1,514 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Din Charya - Priority Management API",
+    "description": "Airtable API for managing priorities and tasks",
+    "version": "v1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.airtable.com/v0/appxNIbOfc9wPEU0i"
+    }
+  ],
+  "paths": {
+    "/tbljgR0pbY8OEtMZg": {
+      "get": {
+        "operationId": "listPriorities",
+        "summary": "List all priorities",
+        "description": "Retrieves priorities from Airtable. Use filterByFormula to filter by Horizon or Status.",
+        "parameters": [
+          {
+            "name": "filterByFormula",
+            "in": "query",
+            "description": "Airtable formula to filter records. Examples: {Horizon}='Day', {Status}='Active', AND({Horizon}='Day',{Status}='Active')",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort[0][field]",
+            "in": "query",
+            "description": "Field to sort by",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "Rank"
+            }
+          },
+          {
+            "name": "sort[0][direction]",
+            "in": "query",
+            "description": "Sort direction",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["asc", "desc"],
+              "default": "asc"
+            }
+          },
+          {
+            "name": "maxRecords",
+            "in": "query",
+            "description": "Maximum number of records to return",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of priorities",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PriorityListResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createPriority",
+        "summary": "Create a new priority",
+        "description": "Creates a new priority in the Priorities table",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePriorityRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created priority",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PriorityRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tbljgR0pbY8OEtMZg/{recordId}": {
+      "patch": {
+        "operationId": "updatePriority",
+        "summary": "Update a priority",
+        "description": "Updates an existing priority by record ID",
+        "parameters": [
+          {
+            "name": "recordId",
+            "in": "path",
+            "required": true,
+            "description": "The Airtable record ID of the priority",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePriorityRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated priority",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PriorityRecord"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deletePriority",
+        "summary": "Delete a priority",
+        "description": "Deletes a priority by record ID",
+        "parameters": [
+          {
+            "name": "recordId",
+            "in": "path",
+            "required": true,
+            "description": "The Airtable record ID of the priority",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted priority confirmation"
+          }
+        }
+      }
+    },
+    "/tbl6mUGqsLzXKc6vP": {
+      "get": {
+        "operationId": "listTasks",
+        "summary": "List all tasks",
+        "description": "Retrieves tasks from Airtable",
+        "parameters": [
+          {
+            "name": "filterByFormula",
+            "in": "query",
+            "description": "Airtable formula to filter records",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "maxRecords",
+            "in": "query",
+            "description": "Maximum number of records to return",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of tasks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskListResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createTask",
+        "summary": "Create a new task",
+        "description": "Creates a new task linked to a priority",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTaskRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tbl6mUGqsLzXKc6vP/{recordId}": {
+      "patch": {
+        "operationId": "updateTask",
+        "summary": "Update a task",
+        "description": "Updates an existing task by record ID",
+        "parameters": [
+          {
+            "name": "recordId",
+            "in": "path",
+            "required": true,
+            "description": "The Airtable record ID of the task",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTaskRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskRecord"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteTask",
+        "summary": "Delete a task",
+        "description": "Deletes a task by record ID",
+        "parameters": [
+          {
+            "name": "recordId",
+            "in": "path",
+            "required": true,
+            "description": "The Airtable record ID of the task",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted task confirmation"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "PriorityFields": {
+        "type": "object",
+        "properties": {
+          "Title": {
+            "type": "string",
+            "description": "The priority name (3-10 words)"
+          },
+          "Horizon": {
+            "type": "string",
+            "enum": ["Day", "Week", "Month"],
+            "description": "Time horizon for the priority"
+          },
+          "Status": {
+            "type": "string",
+            "enum": ["Active", "Done", "Deferred", "Dropped"],
+            "description": "Current status of the priority"
+          },
+          "Rank": {
+            "type": "integer",
+            "description": "Priority order (1 = highest)"
+          },
+          "Why": {
+            "type": "string",
+            "description": "Motivation anchor - why this matters"
+          },
+          "Due Date": {
+            "type": "string",
+            "format": "date",
+            "description": "Optional deadline (YYYY-MM-DD)"
+          },
+          "Category": {
+            "type": "string",
+            "enum": ["Work", "Personal", "Health", "Growth", "Relationship"],
+            "description": "Life area category"
+          }
+        },
+        "required": ["Title", "Horizon", "Status"]
+      },
+      "CreatePriorityRequest": {
+        "type": "object",
+        "properties": {
+          "fields": {
+            "$ref": "#/components/schemas/PriorityFields"
+          }
+        },
+        "required": ["fields"]
+      },
+      "UpdatePriorityRequest": {
+        "type": "object",
+        "properties": {
+          "fields": {
+            "type": "object",
+            "properties": {
+              "Title": {
+                "type": "string"
+              },
+              "Horizon": {
+                "type": "string",
+                "enum": ["Day", "Week", "Month"]
+              },
+              "Status": {
+                "type": "string",
+                "enum": ["Active", "Done", "Deferred", "Dropped"]
+              },
+              "Rank": {
+                "type": "integer"
+              },
+              "Why": {
+                "type": "string"
+              },
+              "Due Date": {
+                "type": "string",
+                "format": "date"
+              },
+              "Category": {
+                "type": "string",
+                "enum": ["Work", "Personal", "Health", "Growth", "Relationship"]
+              }
+            }
+          }
+        },
+        "required": ["fields"]
+      },
+      "PriorityRecord": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Airtable record ID"
+          },
+          "createdTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fields": {
+            "$ref": "#/components/schemas/PriorityFields"
+          }
+        }
+      },
+      "PriorityListResponse": {
+        "type": "object",
+        "properties": {
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PriorityRecord"
+            }
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset for next page"
+          }
+        }
+      },
+      "TaskFields": {
+        "type": "object",
+        "properties": {
+          "Task": {
+            "type": "string",
+            "description": "The task description"
+          },
+          "Priority Link": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Array containing the Priority record ID"
+          },
+          "Status": {
+            "type": "string",
+            "enum": ["Todo", "Doing", "Done"],
+            "description": "Task status"
+          },
+          "Notes": {
+            "type": "string",
+            "description": "Additional context"
+          }
+        },
+        "required": ["Task", "Status"]
+      },
+      "CreateTaskRequest": {
+        "type": "object",
+        "properties": {
+          "fields": {
+            "$ref": "#/components/schemas/TaskFields"
+          }
+        },
+        "required": ["fields"]
+      },
+      "UpdateTaskRequest": {
+        "type": "object",
+        "properties": {
+          "fields": {
+            "type": "object",
+            "properties": {
+              "Task": {
+                "type": "string"
+              },
+              "Priority Link": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "Status": {
+                "type": "string",
+                "enum": ["Todo", "Doing", "Done"]
+              },
+              "Notes": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": ["fields"]
+      },
+      "TaskRecord": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Airtable record ID"
+          },
+          "createdTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fields": {
+            "$ref": "#/components/schemas/TaskFields"
+          }
+        }
+      },
+      "TaskListResponse": {
+        "type": "object",
+        "properties": {
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaskRecord"
+            }
+          },
+          "offset": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Airtable Personal Access Token"
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ]
+}

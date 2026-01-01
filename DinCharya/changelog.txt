@@ -1,0 +1,50 @@
+================================================================================
+DIN CHARYA GPT - SYSTEM PROMPT VERSION HISTORY
+================================================================================
+
+This file tracks all versions of the Din Charya GPT system prompt.
+Each entry includes: Version, DateTime, and Changes made.
+
+================================================================================
+
+VERSION: 1.0
+DATETIME: 2026-01-01T21:30:00Z
+STATUS: CURRENT
+--------------------------------------------------------------------------------
+CHANGES:
+  - INITIAL: Created Din Charya GPT system prompt
+  - ADDED: Core identity and behaviors
+  - ADDED: Action definitions (createPriority, createTask, listPriorities, updatePriority, updateTask)
+  - ADDED: Response patterns with examples
+  - ADDED: Auto-prioritization logic
+  - ADDED: Edge case handling
+  - ADDED: Tone guidelines
+  - ADDED: Daily ritual triggers (morning, evening, weekly review)
+
+DESIGN DECISIONS:
+  - Voice-first: Optimized for natural speech input
+  - Action-oriented: Always end with next step
+  - Horizon-based: Day/Week/Month as primary organization
+  - Minimal friction: Assume intent, don't ask for confirmation
+
+================================================================================
+
+UPCOMING CHANGES (PLANNED):
+--------------------------------------------------------------------------------
+  - [ ] Add support for recurring priorities
+  - [ ] Add "weekly review" automation
+  - [ ] Add time estimation fields
+  - [ ] Add priority templates (e.g., "start my morning routine")
+  - [ ] Integration with calendar for time blocking
+
+================================================================================
+
+HOW TO UPDATE THIS FILE:
+--------------------------------------------------------------------------------
+1. Create new version entry at the TOP (below the header)
+2. Use format: VERSION: X.X / DATETIME: ISO format / STATUS: CURRENT
+3. Mark previous version as DEPRECATED
+4. List all CHANGES with prefixes: ADDED, CHANGED, FIXED, REMOVED
+5. Include DESIGN DECISIONS explaining key choices
+
+================================================================================

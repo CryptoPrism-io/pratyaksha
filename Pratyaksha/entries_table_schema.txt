@@ -1,0 +1,401 @@
+ENTRIES TABLE SCHEMA
+====================
+
+Base: cognition (appMzFpUZLuZs9VGc)
+Table: Entries (tblhKYssgHtjpmbni)
+View: viwyaZVF5fznvFkTV
+
+================================================================================
+FIELDS
+================================================================================
+
+1. Name
+   Type: singleLineText
+   Description: Entry name/title
+
+2. Type
+   Type: singleSelect
+   Options:
+     - Emotional
+     - Cognitive
+     - Family
+     - Work
+     - Relationship
+     - Health
+     - Creativity
+     - Social
+     - Reflection
+     - Decision
+     - Avoidance
+     - Growth
+     - Stress
+     - Communication
+     - Routine
+
+3. Timestamp
+   Type: date
+   Format: Local
+
+4. Date
+   Type: date
+   Format: Local
+
+5. Meta Flag
+   Type: singleLineText
+
+6. Is Summary?
+   Type: checkbox
+   Icon: thumbsUp (green)
+
+7. Inferred Mode
+   Type: singleSelect
+   Options:
+     - Reflective
+     - Withdrawn
+     - Overthinking
+     - Hopeful
+     - Conflicted
+     - Numb
+     - Anxious
+     - Calm
+     - Grounded
+     - Agitated
+     - Disconnected
+     - Self-critical
+     - Compassionate
+     - Curious
+     - Defensive
+
+8. Inferred Energy
+   Type: singleSelect
+   Options:
+     - Very Low
+     - Low
+     - Moderate
+     - Balanced
+     - High
+     - Elevated
+     - Scattered
+     - Drained
+     - Flat
+     - Restorative
+
+9. Energy Shape
+   Type: singleSelect
+   Options:
+     - Flat
+     - Heavy
+     - Chaotic
+     - Rising
+     - Collapsing
+     - Expanding
+     - Contracted
+     - Uneven
+     - Centered
+     - Cyclical
+     - Stabilized
+     - Pulsing
+
+10. Contradiction
+    Type: singleSelect
+    Options:
+      - Connection vs. Avoidance
+      - Hope vs. Hopelessness
+      - Anger vs. Shame
+      - Control vs. Surrender
+      - Confidence vs. Doubt
+      - Independence vs. Belonging
+      - Closeness vs. Distance
+      - Expression vs. Silence
+      - Self-care vs. Obligation
+      - Ideal vs. Reality
+      - Action vs. Fear
+      - Growth vs. Comfort
+
+11. Text
+    Type: multilineText
+    Description: Main journal entry content
+
+12. Snapshot
+    Type: singleLineText
+
+13. Loops
+    Type: multilineText
+
+14. Next Action
+    Type: singleLineText
+
+15. Summary (AI)
+    Type: multilineText
+
+16. Actionable Insights (AI)
+    Type: multilineText
+
+================================================================================
+COMPUTED FIELDS (Formulas)
+================================================================================
+
+17. Entry Length (Words)
+    Type: formula
+    Formula: IF({Text}, LEN(TRIM({Text}))-LEN(SUBSTITUTE(TRIM({Text}), ' ', ''))+1, 0)
+    Result: Number (precision 0)
+
+18. Days Since Entry
+    Type: formula
+    Formula: IF({Date}, DATETIME_DIFF(TODAY(), {Date}, 'days'), BLANK())
+    Result: Number (precision 0)
+
+19. Is Recent?
+    Type: formula
+    Formula: IF({Date}, IF(DATETIME_DIFF(TODAY(), {Date}, 'days')<=7, 'Yes', 'No'), 'No')
+    Result: Text
+
+================================================================================
+AI-POWERED FIELDS
+================================================================================
+
+20. Entry Sentiment (AI)
+    Type: aiText
+    Output: Positive, Negative, or Neutral
+    Based on: Text field
+
+21. Entry Theme Tags (AI)
+    Type: aiText
+    Output: 2-4 comma-separated theme tags
+    Based on: Text field
+
+================================================================================
+API ACCESS
+================================================================================
+
+Base ID: appMzFpUZLuZs9VGc
+Table ID: tblhKYssgHtjpmbni
+API Key: patggDpNT7RqFfQLW.ef22afb20239d90eca2d58e9e8f21ac28bfb05d61bea3b312a0d3939ee21613d
+
+Example Python usage:
+  from pyairtable import Api
+  api = Api('YOUR_API_KEY')
+  table = api.table('appMzFpUZLuZs9VGc', 'tblhKYssgHtjpmbni')
+  records = table.all()
+
+================================================================================
+VISUALIZATION PLAN - MIND DASHBOARD
+================================================================================
+
+PURPOSE: Transform cognitive journal entries into visual representations of
+mental patterns, emotional states, and psychological insights.
+
+--------------------------------------------------------------------------------
+1. EMOTIONAL TIMELINE (Line/Area Chart)
+--------------------------------------------------------------------------------
+   Fields Used: Date, Entry Sentiment (AI), Inferred Energy
+   Purpose: Track emotional trajectory over time
+
+   Visualizations:
+   - Line chart: Sentiment score (-1 to +1) over days/weeks
+   - Area chart: Energy levels stacked by type
+   - Dual-axis: Overlay sentiment with energy for correlation
+
+   Insights Gained:
+   - Identify emotional cycles (weekly, monthly patterns)
+   - Spot recovery patterns after negative episodes
+   - Track overall emotional health trajectory
+
+--------------------------------------------------------------------------------
+2. MODE DISTRIBUTION (Donut/Pie Chart)
+--------------------------------------------------------------------------------
+   Fields Used: Inferred Mode
+   Purpose: Understand dominant mental states
+
+   Visualizations:
+   - Donut chart: Percentage breakdown of all modes
+   - Stacked bar: Mode distribution by week/month
+   - Comparison: This week vs last week
+
+   Insights Gained:
+   - Which mental states dominate your thinking
+   - Balance between positive modes (Hopeful, Calm, Grounded) vs
+     negative modes (Anxious, Withdrawn, Overthinking)
+   - Trend shifts in dominant modes
+
+--------------------------------------------------------------------------------
+3. ENERGY SHAPE RADAR (Spider/Radar Chart)
+--------------------------------------------------------------------------------
+   Fields Used: Energy Shape
+   Purpose: Visualize mental geometry and flow patterns
+
+   Visualizations:
+   - Radar chart: Frequency of each energy shape
+   - Animated transition: How shapes shift within a day
+   - Comparison radar: Morning vs Evening energy shapes
+
+   Insights Gained:
+   - Mental stability patterns (Centered, Stabilized vs Chaotic, Uneven)
+   - Growth indicators (Rising, Expanding vs Collapsing, Contracted)
+   - Energy flow tendencies
+
+--------------------------------------------------------------------------------
+4. CONTRADICTION SANKEY (Flow Diagram)
+--------------------------------------------------------------------------------
+   Fields Used: Contradiction, Type, Inferred Mode
+   Purpose: Map internal conflicts and their contexts
+
+   Visualizations:
+   - Sankey diagram: Type -> Contradiction -> Mode flow
+   - Chord diagram: Which contradictions co-occur
+   - Heatmap: Contradiction frequency by entry type
+
+   Insights Gained:
+   - Which life areas trigger which internal conflicts
+   - Recurring tension patterns
+   - Resolution pathways (which contradictions lead to positive modes)
+
+--------------------------------------------------------------------------------
+5. ENTRY TYPE HEATMAP (Calendar Heatmap)
+--------------------------------------------------------------------------------
+   Fields Used: Date, Type, Entry Sentiment (AI)
+   Purpose: Calendar view of mental activity
+
+   Visualizations:
+   - GitHub-style heatmap: Entry frequency by day
+   - Color-coded by sentiment (green=positive, red=negative)
+   - Hover details: Type and mode for each day
+
+   Insights Gained:
+   - Journaling consistency patterns
+   - Day-of-week emotional patterns
+   - Identify high-stress periods
+
+--------------------------------------------------------------------------------
+6. THEME TAG CLOUD (Word Cloud)
+--------------------------------------------------------------------------------
+   Fields Used: Entry Theme Tags (AI)
+   Purpose: Surface recurring themes and concerns
+
+   Visualizations:
+   - Word cloud: Tag frequency determines size
+   - Clustered bubbles: Related themes grouped
+   - Timeline: How themes shift over weeks
+
+   Insights Gained:
+   - Top concerns and focus areas
+   - Emerging vs fading themes
+   - Theme-sentiment correlation
+
+--------------------------------------------------------------------------------
+7. ENERGY-MODE MATRIX (Bubble Chart)
+--------------------------------------------------------------------------------
+   Fields Used: Inferred Energy, Inferred Mode, Entry Length (Words)
+   Purpose: Map the relationship between energy and mental mode
+
+   Visualizations:
+   - Scatter plot: Energy (x) vs Mode (y)
+   - Bubble size: Entry word count (more words = bigger bubble)
+   - Color: Sentiment
+
+   Insights Gained:
+   - Which energy levels produce which modes
+   - Correlation between verbosity and emotional state
+   - Optimal energy-mode combinations
+
+--------------------------------------------------------------------------------
+8. DAILY RHYTHM CHART (Stacked Bar/Stream)
+--------------------------------------------------------------------------------
+   Fields Used: Timestamp, Type, Inferred Energy
+   Purpose: Understand intra-day patterns
+
+   Visualizations:
+   - Stacked bar: Entry types by hour of day
+   - Stream graph: Energy flow throughout typical day
+   - Clock visualization: Radial chart of entry times
+
+   Insights Gained:
+   - When you journal most (morning vs evening)
+   - Time-of-day emotional patterns
+   - Optimal reflection times
+
+--------------------------------------------------------------------------------
+9. CONTRADICTION RESOLUTION TRACKER (Progress/Gauge)
+--------------------------------------------------------------------------------
+   Fields Used: Contradiction, Date, Entry Sentiment (AI)
+   Purpose: Track progress on internal conflicts
+
+   Visualizations:
+   - Gauge charts: Balance meter for each contradiction
+   - Progress bars: Movement toward resolution
+   - Trend arrows: Improving vs worsening conflicts
+
+   Insights Gained:
+   - Which conflicts are being worked through
+   - Stagnant vs progressing areas
+   - Celebrate resolved tensions
+
+--------------------------------------------------------------------------------
+10. INSIGHT ACTION TRACKER (Kanban/List)
+--------------------------------------------------------------------------------
+    Fields Used: Next Action, Actionable Insights (AI), Is Summary?
+    Purpose: Connect insights to actions
+
+    Visualizations:
+    - Kanban board: Pending -> In Progress -> Done actions
+    - List view: AI insights with linked actions
+    - Completion rate: Actions taken vs identified
+
+    Insights Gained:
+    - Accountability for self-improvement
+    - Pattern between insights and action-taking
+    - Highlight neglected recommendations
+
+================================================================================
+DASHBOARD LAYOUT RECOMMENDATION
+================================================================================
+
++------------------------------------------------------------------+
+|  HEADER: Date Range Selector | Filters | Quick Stats             |
++------------------------------------------------------------------+
+|                              |                                    |
+|  1. EMOTIONAL TIMELINE       |  2. MODE DISTRIBUTION              |
+|     (Large - spans 60%)      |     (Medium - 40%)                 |
+|                              |                                    |
++------------------------------+------------------------------------+
+|                              |                                    |
+|  3. ENERGY SHAPE RADAR       |  4. CONTRADICTION SANKEY           |
+|     (Medium - 40%)           |     (Medium - 60%)                 |
+|                              |                                    |
++------------------------------+------------------------------------+
+|                                                                   |
+|  5. ENTRY TYPE HEATMAP (Full Width - Calendar View)               |
+|                                                                   |
++------------------------------------------------------------------+
+|                              |                                    |
+|  6. THEME CLOUD              |  7. ENERGY-MODE MATRIX             |
+|     (Medium - 50%)           |     (Medium - 50%)                 |
+|                              |                                    |
++------------------------------+------------------------------------+
+|                              |                                    |
+|  9. CONTRADICTION TRACKER    |  10. INSIGHT ACTIONS               |
+|     (Small - 40%)            |      (Medium - 60%)                |
+|                              |                                    |
++------------------------------------------------------------------+
+
+================================================================================
+RECOMMENDED TECH STACK FOR FRONTEND
+================================================================================
+
+Framework:     React + TypeScript (or Next.js for SSR)
+Charts:        Recharts, Victory, or D3.js
+Calendar:      react-calendar-heatmap
+Word Cloud:    react-wordcloud
+Sankey:        D3-sankey or Recharts
+UI Components: Tailwind CSS + shadcn/ui
+Data Fetching: React Query + Airtable API
+State:         Zustand or React Context
+
+================================================================================
+DATA REFRESH STRATEGY
+================================================================================
+
+- Real-time: WebSocket or polling every 30s for new entries
+- Cached: Store last 100 entries locally
+- Computed: Pre-calculate aggregations on API response
+- Filters: Client-side filtering for responsiveness
