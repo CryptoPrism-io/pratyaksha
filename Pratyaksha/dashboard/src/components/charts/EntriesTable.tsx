@@ -237,6 +237,11 @@ export function EntriesTable({ filters, selectedIndex: externalSelectedIndex, on
         if (entry.inferredMode !== filters.mode) return false
       }
 
+      // Energy filter
+      if (filters?.energy && filters.energy !== "all") {
+        if (entry.inferredEnergy !== filters.energy) return false
+      }
+
       return true
     })
   }, [entries, filters])

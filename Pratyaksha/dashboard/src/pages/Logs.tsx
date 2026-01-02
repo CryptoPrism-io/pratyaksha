@@ -1,4 +1,5 @@
-import { useState, useMemo, useRef } from "react"
+import { useState, useMemo, useRef, useEffect } from "react"
+import { useSearchParams } from "react-router-dom"
 import { LogEntryForm } from "../components/logs/LogEntryForm"
 import { EntriesTable } from "../components/charts/EntriesTable"
 import { FilterBar, type FilterState } from "../components/filters/FilterBar"
@@ -10,21 +11,44 @@ const DEFAULT_FILTERS: FilterState = {
   type: "all",
   sentiment: "all",
   mode: "all",
+  energy: "all",
 }
 
 export function Logs() {
-  const { data: entries } = useEntries()
+  const { data: entries, refetch, isFetching } = useEntries()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS)
   const searchInputRef = useRef<HTMLInputElement>(null)
+  const [urlFiltersApplied, setUrlFiltersApplied] = useState(false)
 
-  // Extract unique types and modes from entries
-  const { availableTypes, availableModes } = useMemo(() => {
-    if (!entries) return { availableTypes: [], availableModes: [] }
+  // Read URL params on mount and apply filters
+  useEffect(() => {
+    if (urlFiltersApplied) return
+
+    const modeParam = searchParams.get("mode")
+    const energyParam = searchParams.get("energy")
+
+    if (modeParam || energyParam) {
+      setFilters(prev => ({
+        ...prev,
+        mode: modeParam || "all",
+        energy: energyParam || "all",
+      }))
+      // Clear URL params after applying
+      setSearchParams({}, { replace: true })
+    }
+    setUrlFiltersApplied(true)
+  }, [searchParams, setSearchParams, urlFiltersApplied])
+
+  // Extract unique types, modes, and energies from entries
+  const { availableTypes, availableModes, availableEnergies } = useMemo(() => {
+    if (!entries) return { availableTypes: [], availableModes: [], availableEnergies: [] }
 
     const types = [...new Set(entries.map((e) => e.type).filter(Boolean))]
     const modes = [...new Set(entries.map((e) => e.inferredMode).filter(Boolean))]
+    const energies = [...new Set(entries.map((e) => e.inferredEnergy).filter(Boolean))]
 
-    return { availableTypes: types, availableModes: modes }
+    return { availableTypes: types, availableModes: modes, availableEnergies: energies }
   }, [entries])
 
   // Calculate filtered entries count
@@ -49,6 +73,7 @@ export function Logs() {
       if (filters.type !== "all" && entry.type !== filters.type) return false
       if (filters.sentiment !== "all" && !entry.sentimentAI?.toLowerCase().includes(filters.sentiment.toLowerCase())) return false
       if (filters.mode !== "all" && entry.inferredMode !== filters.mode) return false
+      if (filters.energy !== "all" && entry.inferredEnergy !== filters.energy) return false
       return true
     }).length
   }, [entries, filters])
@@ -77,9 +102,12 @@ export function Logs() {
             onFiltersChange={setFilters}
             availableTypes={availableTypes}
             availableModes={availableModes}
+            availableEnergies={availableEnergies}
             searchInputRef={searchInputRef}
             entries={entries || []}
             filteredCount={filteredEntriesCount}
+            onRefresh={() => refetch()}
+            isRefreshing={isFetching}
           />
 
           {/* Entries Table */}

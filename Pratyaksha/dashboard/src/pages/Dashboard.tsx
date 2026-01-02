@@ -11,11 +11,11 @@ import { exportAsCSV } from "../lib/export"
 // Chart imports
 import { EmotionalTimeline } from "../components/charts/EmotionalTimeline"
 import { ModeDistribution } from "../components/charts/ModeDistribution"
-import { EnergyRadar } from "../components/charts/EnergyRadar"
+import { EnergyRadarGroup } from "../components/charts/EnergyRadarGroup"
 import { ContradictionFlow } from "../components/charts/ContradictionFlow"
 import { ActivityCalendar } from "../components/charts/ActivityCalendar"
 import { ThemeCloud } from "../components/charts/ThemeCloud"
-import { EnergyModeMatrix } from "../components/charts/EnergyModeMatrix"
+import { EnergyModeBubble } from "../components/charts/EnergyModeBubble"
 import { DailyRhythm } from "../components/charts/DailyRhythm"
 import { ContradictionTracker } from "../components/charts/ContradictionTracker"
 import { InsightActions } from "../components/charts/InsightActions"
@@ -117,7 +117,7 @@ export function Dashboard() {
           <ModeDistribution />
         </ChartCard>
 
-        {/* Row 2: Contradiction Flow + Activity Calendar + Energy Radar */}
+        {/* Row 2: Contradiction Flow + Activity Calendar */}
         <ChartCard
           title="Contradiction Flow"
           description="Type → Contradiction → Mode"
@@ -129,34 +129,35 @@ export function Dashboard() {
         <ChartCard
           title="Activity Calendar"
           description="Monthly entry overview"
-          colSpan={4}
+          colSpan={8}
         >
           <ActivityCalendar />
         </ChartCard>
 
+        {/* Row 3: Energy Patterns - Full width with 3 category radars */}
         <ChartCard
           title="Energy Patterns"
-          description="Energy shape distribution"
-          colSpan={4}
+          description="Growth, Stability & Challenge patterns with benchmarks"
+          colSpan={12}
         >
-          <EnergyRadar />
+          <EnergyRadarGroup />
         </ChartCard>
 
-        {/* Row 4: Theme Cloud + Energy-Mode Matrix */}
+        {/* Row 4: Energy-Mode Matrix + Theme Cloud */}
+        <ChartCard
+          title="Energy-Mode Matrix"
+          description="Click a bubble to filter logs"
+          colSpan={6}
+        >
+          <EnergyModeBubble />
+        </ChartCard>
+
         <ChartCard
           title="Theme Tags"
           description="Most frequent themes"
           colSpan={6}
         >
           <ThemeCloud />
-        </ChartCard>
-
-        <ChartCard
-          title="Energy-Mode Matrix"
-          description="Correlation analysis"
-          colSpan={6}
-        >
-          <EnergyModeMatrix />
         </ChartCard>
 
         {/* Row 5: Daily Rhythm + Contradiction Tracker */}

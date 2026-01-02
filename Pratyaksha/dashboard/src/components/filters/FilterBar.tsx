@@ -1,5 +1,5 @@
 import { useState, type RefObject } from "react"
-import { Search, X, Calendar, Filter } from "lucide-react"
+import { Search, X, Calendar, Filter, RefreshCw } from "lucide-react"
 import { Input } from "../ui/input"
 import { Button } from "../ui/button"
 import {
@@ -24,6 +24,7 @@ export interface FilterState {
   type: string
   sentiment: string
   mode: string
+  energy: string
 }
 
 interface FilterBarProps {
@@ -31,10 +32,13 @@ interface FilterBarProps {
   onFiltersChange: (filters: FilterState) => void
   availableTypes: string[]
   availableModes: string[]
+  availableEnergies?: string[]
   className?: string
   searchInputRef?: RefObject<HTMLInputElement>
   entries?: Entry[]
   filteredCount?: number
+  onRefresh?: () => void
+  isRefreshing?: boolean
 }
 
 const DATE_RANGE_OPTIONS = [
@@ -56,10 +60,13 @@ export function FilterBar({
   onFiltersChange,
   availableTypes,
   availableModes,
+  availableEnergies = [],
   className,
   searchInputRef,
   entries = [],
   filteredCount,
+  onRefresh,
+  isRefreshing = false,
 }: FilterBarProps) {
   const [isExpanded, setIsExpanded] = useState(false)
 
@@ -77,6 +84,7 @@ export function FilterBar({
       type: "all",
       sentiment: "all",
       mode: "all",
+      energy: "all",
     })
   }
 
@@ -86,6 +94,7 @@ export function FilterBar({
     filters.type !== "all",
     filters.sentiment !== "all",
     filters.mode !== "all",
+    filters.energy !== "all",
   ].filter(Boolean).length
 
   return (
@@ -148,6 +157,20 @@ export function FilterBar({
             </SelectContent>
           </Select>
         </div>
+
+        {/* Refresh button */}
+        {onRefresh && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onRefresh}
+            disabled={isRefreshing}
+            className="min-h-[36px] min-w-[36px] px-2"
+            aria-label="Refresh entries"
+          >
+            <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+          </Button>
+        )}
 
         {/* Filter toggle button */}
         <Popover open={isExpanded} onOpenChange={setIsExpanded}>
@@ -233,6 +256,29 @@ export function FilterBar({
                 </Select>
               </div>
 
+              {/* Energy filter */}
+              {availableEnergies.length > 0 && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Energy Level</label>
+                  <Select
+                    value={filters.energy}
+                    onValueChange={(value) => updateFilter("energy", value)}
+                  >
+                    <SelectTrigger aria-label="Filter by energy level">
+                      <SelectValue placeholder="All energy levels" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All energy levels</SelectItem>
+                      {availableEnergies.map((energy) => (
+                        <SelectItem key={energy} value={energy}>
+                          {energy}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
               {/* Clear all button */}
               {activeFilterCount > 0 && (
                 <Button
@@ -291,6 +337,12 @@ export function FilterBar({
             <FilterPill
               label={`Mode: ${filters.mode}`}
               onRemove={() => updateFilter("mode", "all")}
+            />
+          )}
+          {filters.energy !== "all" && (
+            <FilterPill
+              label={`Energy: ${filters.energy}`}
+              onRemove={() => updateFilter("energy", "all")}
             />
           )}
         </div>

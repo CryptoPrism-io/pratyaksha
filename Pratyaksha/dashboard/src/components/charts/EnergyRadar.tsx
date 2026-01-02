@@ -52,9 +52,9 @@ export function EnergyRadar() {
         <Radar
           name="Count"
           dataKey="count"
-          stroke="hsl(var(--secondary))"
-          fill="hsl(var(--secondary))"
-          fillOpacity={0.3}
+          stroke="hsl(var(--primary))"
+          fill="hsl(var(--primary))"
+          fillOpacity={0.4}
         />
         <Tooltip
           contentStyle={{

@@ -92,26 +92,42 @@ export function ActivityCalendar() {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4 items-start w-full">
+    <div className="flex flex-col lg:flex-row gap-4 items-start w-full h-full">
       {/* Calendar - shrinks to 70% when details shown */}
       <div
         className={cn(
-          "transition-all duration-300 ease-in-out",
+          "transition-all duration-300 ease-in-out w-full",
           selectedDateInfo ? "lg:w-[70%]" : "w-full"
         )}
       >
+        {/* Force full-width calendar with CSS */}
+        <style>{`
+          .full-width-calendar { width: 100% !important; }
+          .full-width-calendar > div { width: 100% !important; }
+          .full-width-calendar table { width: 100% !important; table-layout: fixed; }
+          .full-width-calendar thead { width: 100% !important; }
+          .full-width-calendar tbody { width: 100% !important; }
+          .full-width-calendar tr { width: 100% !important; display: flex !important; }
+          .full-width-calendar th, .full-width-calendar td { flex: 1 !important; display: flex !important; justify-content: center !important; align-items: center !important; }
+          .full-width-calendar th { padding: 0.5rem 0 !important; }
+          .full-width-calendar td { padding: 0.25rem !important; }
+          .full-width-calendar td button { width: 100% !important; aspect-ratio: 1 !important; max-width: 3rem !important; }
+        `}</style>
         <Calendar
           mode="single"
           selected={selectedDate}
           onSelect={setSelectedDate}
-          className="rounded-md border-0 p-0 w-full"
+          className="rounded-md border-0 p-0 w-full full-width-calendar"
           classNames={{
             root: "w-full",
-            months: "w-full",
+            months: "w-full flex flex-col",
             month: "w-full",
-            table: "w-full",
-            head_row: "w-full flex justify-between",
-            row: "w-full flex justify-between mt-1",
+            month_caption: "w-full flex justify-center",
+            table: "w-full border-collapse",
+            weekdays: "w-full flex",
+            weekday: "flex-1 text-center",
+            week: "w-full flex mt-1",
+            day: "flex-1 p-0",
           }}
           modifiers={{
             hasEntry: datesWithEntries,
@@ -129,7 +145,7 @@ export function ActivityCalendar() {
                 <button
                   {...props}
                   className={cn(
-                    "relative flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    "relative flex w-full aspect-square items-center justify-center rounded-lg text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     modifiers.selected && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground",
                     modifiers.today && !modifiers.selected && "bg-accent text-accent-foreground",
                     modifiers.outside && "text-muted-foreground opacity-50",
