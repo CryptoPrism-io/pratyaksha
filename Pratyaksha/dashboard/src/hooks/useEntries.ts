@@ -16,8 +16,9 @@ export function useEntries() {
   return useQuery({
     queryKey: ["entries"],
     queryFn: fetchEntries,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    refetchOnWindowFocus: false,
+    staleTime: 1000 * 30,       // 30 seconds
+    refetchInterval: 1000 * 30, // Poll every 30 seconds
+    refetchOnWindowFocus: true, // Refresh when switching back to tab
   })
 }
 

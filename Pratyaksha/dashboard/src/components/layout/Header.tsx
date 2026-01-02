@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom"
 import { Brain, LayoutDashboard, Home } from "lucide-react"
 import { cn } from "../../lib/utils"
+import { ThemeToggle } from "../theme-toggle"
 
 export function Header() {
   const location = useLocation()
@@ -16,7 +17,7 @@ export function Header() {
         </Link>
 
         {/* Navigation */}
-        <nav className="flex items-center gap-6">
+        <nav className="flex items-center gap-4 md:gap-6">
           <Link
             to="/"
             className={cn(
@@ -37,6 +38,9 @@ export function Header() {
             <LayoutDashboard className="h-4 w-4" />
             <span className="hidden sm:inline">Dashboard</span>
           </Link>
+          <div className="ml-2 border-l pl-2 md:ml-4 md:pl-4">
+            <ThemeToggle />
+          </div>
         </nav>
       </div>
     </header>
