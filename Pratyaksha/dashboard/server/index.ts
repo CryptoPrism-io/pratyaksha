@@ -1,4 +1,5 @@
 // Express Server Entry Point for Pratyaksha API
+import "dotenv/config"
 import express from "express"
 import cors from "cors"
 import path from "path"

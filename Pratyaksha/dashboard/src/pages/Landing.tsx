@@ -2,7 +2,6 @@ import { Link } from "react-router-dom"
 import {
   ArrowRight,
   Brain,
-  BarChart3,
   Calendar,
   Sparkles,
   Zap,

@@ -13,7 +13,7 @@ import { EmotionalTimeline } from "../components/charts/EmotionalTimeline"
 import { ModeDistribution } from "../components/charts/ModeDistribution"
 import { EnergyRadar } from "../components/charts/EnergyRadar"
 import { ContradictionFlow } from "../components/charts/ContradictionFlow"
-import { CalendarHeatmap } from "../components/charts/CalendarHeatmap"
+import { ActivityCalendar } from "../components/charts/ActivityCalendar"
 import { ThemeCloud } from "../components/charts/ThemeCloud"
 import { EnergyModeMatrix } from "../components/charts/EnergyModeMatrix"
 import { DailyRhythm } from "../components/charts/DailyRhythm"
@@ -117,30 +117,29 @@ export function Dashboard() {
           <ModeDistribution />
         </ChartCard>
 
-        {/* Row 2: Energy Radar + Contradiction Flow */}
+        {/* Row 2: Contradiction Flow + Activity Calendar + Energy Radar */}
+        <ChartCard
+          title="Contradiction Flow"
+          description="Type → Contradiction → Mode"
+          colSpan={4}
+        >
+          <ContradictionFlow />
+        </ChartCard>
+
+        <ChartCard
+          title="Activity Calendar"
+          description="Monthly entry overview"
+          colSpan={4}
+        >
+          <ActivityCalendar />
+        </ChartCard>
+
         <ChartCard
           title="Energy Patterns"
           description="Energy shape distribution"
           colSpan={4}
         >
           <EnergyRadar />
-        </ChartCard>
-
-        <ChartCard
-          title="Contradiction Flow"
-          description="Type → Contradiction → Mode"
-          colSpan={8}
-        >
-          <ContradictionFlow />
-        </ChartCard>
-
-        {/* Row 3: Calendar Heatmap (full width) */}
-        <ChartCard
-          title="Activity Calendar"
-          description="Journaling frequency and sentiment"
-          colSpan={12}
-        >
-          <CalendarHeatmap />
         </ChartCard>
 
         {/* Row 4: Theme Cloud + Energy-Mode Matrix */}
@@ -190,7 +189,7 @@ export function Dashboard() {
       <div className="fixed bottom-4 right-4 z-40 flex flex-col gap-3">
         {/* Add Entry FAB - Primary action */}
         <button
-          onClick={() => navigate("/log")}
+          onClick={() => navigate("/logs")}
           className="flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-5 py-3 shadow-lg hover:bg-primary/90 transition-all hover:scale-105 active:scale-95"
           aria-label="Add new entry"
         >
