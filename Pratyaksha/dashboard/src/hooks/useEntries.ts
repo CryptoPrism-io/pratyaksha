@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query"
-import { fetchEntries } from "../lib/airtable"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { fetchEntries, createEntry, type CreateEntryInput } from "../lib/airtable"
 import {
   toTimelineData,
   toModeDistribution,
@@ -118,4 +118,17 @@ export function useFilteredEntries(filter?: {
     data: filtered || [],
     ...rest,
   }
+}
+
+// Create entry mutation hook
+export function useCreateEntry() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (input: CreateEntryInput) => createEntry(input),
+    onSuccess: () => {
+      // Invalidate and refetch entries after successful creation
+      queryClient.invalidateQueries({ queryKey: ["entries"] })
+    },
+  })
 }

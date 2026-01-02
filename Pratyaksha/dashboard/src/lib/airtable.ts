@@ -100,6 +100,56 @@ function transformRecord(record: AirtableRecord): Entry {
   }
 }
 
+export interface CreateEntryInput {
+  text: string
+  type?: string
+  name?: string
+}
+
+export async function createEntry(input: CreateEntryInput): Promise<Entry> {
+  if (!API_KEY) {
+    throw new Error("No Airtable API key configured")
+  }
+
+  const now = new Date()
+  const dateStr = now.toISOString().split("T")[0]
+  const timestampStr = now.toISOString()
+
+  // Calculate word count
+  const wordCount = input.text.trim().split(/\s+/).filter(Boolean).length
+
+  // Generate a name from the text (first 50 chars or first sentence)
+  const generatedName = input.name ||
+    input.text.slice(0, 50).split(/[.!?]/)[0].trim() ||
+    "New Entry"
+
+  const response = await fetch(BASE_URL, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      fields: {
+        Name: generatedName,
+        Text: input.text,
+        Type: input.type || "Reflection",
+        Date: dateStr,
+        Timestamp: timestampStr,
+        "Entry Length (Words)": wordCount,
+      },
+    }),
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}))
+    throw new Error(`Airtable API error: ${response.status} - ${JSON.stringify(errorData)}`)
+  }
+
+  const data = await response.json()
+  return transformRecord(data)
+}
+
 export async function fetchEntries(): Promise<Entry[]> {
   if (!API_KEY) {
     console.warn("No Airtable API key found, using demo data")

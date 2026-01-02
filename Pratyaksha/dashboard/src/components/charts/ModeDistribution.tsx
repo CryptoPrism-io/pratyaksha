@@ -70,8 +70,8 @@ function CustomTooltip({ active, payload }: { active?: boolean; payload?: Array<
 
 function PieSkeleton() {
   return (
-    <div className="flex h-[250px] flex-col items-center justify-center gap-4">
-      <Skeleton className="h-32 w-32 rounded-full" />
+    <div className="flex h-[400px] flex-col items-center justify-center gap-4">
+      <Skeleton className="h-40 w-40 rounded-full" />
       <div className="flex flex-wrap justify-center gap-2">
         {[1, 2, 3, 4].map((i) => (
           <Skeleton key={i} className="h-4 w-16" />
@@ -99,7 +99,7 @@ export function ModeDistribution() {
 
   if (error) {
     return (
-      <div className="flex h-[250px] flex-col items-center justify-center gap-3">
+      <div className="flex h-[400px] flex-col items-center justify-center gap-3">
         <AlertCircle className="h-8 w-8 text-muted-foreground" />
         <p className="text-sm text-muted-foreground">Failed to load modes</p>
         <button
@@ -115,7 +115,7 @@ export function ModeDistribution() {
 
   if (data.length === 0) {
     return (
-      <div className="flex h-[250px] flex-col items-center justify-center gap-2 text-muted-foreground">
+      <div className="flex h-[400px] flex-col items-center justify-center gap-2 text-muted-foreground">
         <p className="text-sm">No mode data yet</p>
         <p className="text-xs">Modes will appear as you add entries</p>
       </div>
@@ -123,14 +123,14 @@ export function ModeDistribution() {
   }
 
   return (
-    <ResponsiveContainer width="100%" height={250}>
+    <ResponsiveContainer width="100%" height={400}>
       <PieChart>
         <Pie
           data={data}
           cx="50%"
           cy="50%"
-          innerRadius={50}
-          outerRadius={80}
+          innerRadius={70}
+          outerRadius={120}
           paddingAngle={2}
           dataKey="count"
           nameKey="mode"

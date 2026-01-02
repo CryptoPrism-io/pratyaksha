@@ -38,15 +38,16 @@ export function EnergyRadar() {
   }
 
   return (
-    <ResponsiveContainer width="100%" height={250}>
-      <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
+    <ResponsiveContainer width="100%" height={400}>
+      <RadarChart cx="50%" cy="50%" outerRadius="75%" data={data}>
         <PolarGrid stroke="hsl(var(--border))" />
         <PolarAngleAxis
           dataKey="shape"
-          tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }}
+          tick={{ fill: "hsl(var(--foreground))", fontSize: 12, fontWeight: 500 }}
         />
         <PolarRadiusAxis
-          tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }}
+          tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
+          tickCount={5}
         />
         <Radar
           name="Count"
