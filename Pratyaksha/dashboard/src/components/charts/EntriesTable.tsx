@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react"
+import { createPortal } from "react-dom"
 import { useEntries } from "../../hooks/useEntries"
 import { ChevronDown, ChevronUp, Eye, X, AlertCircle, RefreshCw } from "lucide-react"
 import type { Entry } from "../../lib/airtable"
@@ -82,100 +83,103 @@ interface EntryModalProps {
 }
 
 function EntryModal({ entry, onClose }: EntryModalProps) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-card p-6 shadow-xl">
-        <div className="mb-4 flex items-start justify-between">
-          <div>
-            <h3 className="text-xl font-semibold">{entry.name || "Untitled Entry"}</h3>
-            <p className="text-sm text-muted-foreground">
-              {new Date(entry.date).toLocaleDateString("en-US", {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
+  return createPortal(
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50">
+      <div className="flex min-h-full items-center justify-center p-4">
+        <div className="w-full max-w-2xl rounded-xl glass-card p-6 shadow-xl">
+          <div className="mb-4 flex items-start justify-between">
+            <div>
+              <h3 className="text-xl font-semibold">{entry.name || "Untitled Entry"}</h3>
+              <p className="text-sm text-muted-foreground">
+                {new Date(entry.date).toLocaleDateString("en-US", {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              aria-label="Close entry details"
+              className="rounded-full p-2 hover:bg-muted min-w-[44px] min-h-[44px] flex items-center justify-center"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          {/* Entry Text */}
+          <div className="mb-6 rounded-lg bg-muted/50 p-4">
+            <p className="whitespace-pre-wrap text-sm leading-relaxed">
+              {entry.text || "No content"}
             </p>
           </div>
-          <button
-            onClick={onClose}
-            aria-label="Close entry details"
-            className="rounded-full p-2 hover:bg-muted min-w-[44px] min-h-[44px] flex items-center justify-center"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
 
-        {/* Entry Text */}
-        <div className="mb-6 rounded-lg bg-muted/50 p-4">
-          <p className="whitespace-pre-wrap text-sm leading-relaxed">
-            {entry.text || "No content"}
-          </p>
-        </div>
-
-        {/* Metadata Grid */}
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="rounded-lg border p-3">
-            <p className="text-xs font-medium text-muted-foreground">Type</p>
-            <p className="font-medium">{entry.type || "—"}</p>
-          </div>
-          <div className="rounded-lg border p-3">
-            <p className="text-xs font-medium text-muted-foreground">Mode</p>
-            <p className="font-medium">{entry.inferredMode || "—"}</p>
-          </div>
-          <div className="rounded-lg border p-3">
-            <p className="text-xs font-medium text-muted-foreground">Energy</p>
-            <p className="font-medium">{entry.inferredEnergy || "—"}</p>
-          </div>
-          <div className="rounded-lg border p-3">
-            <p className="text-xs font-medium text-muted-foreground">Energy Shape</p>
-            <p className="font-medium">{entry.energyShape || "—"}</p>
-          </div>
-          <div className="rounded-lg border p-3">
-            <p className="text-xs font-medium text-muted-foreground">Sentiment</p>
-            <span className={`inline-block rounded-full px-2 py-1 text-xs font-medium ${SENTIMENT_BADGE[getSentimentType(entry.sentimentAI)]}`}>
-              {entry.sentimentAI || "—"}
-            </span>
-          </div>
-          <div className="rounded-lg border p-3">
-            <p className="text-xs font-medium text-muted-foreground">Contradiction</p>
-            <p className="font-medium">{entry.contradiction || "—"}</p>
-          </div>
-        </div>
-
-        {/* Tags */}
-        {entry.themeTagsAI.length > 0 && (
-          <div className="mt-4">
-            <p className="mb-2 text-xs font-medium text-muted-foreground">Theme Tags</p>
-            <div className="flex flex-wrap gap-2">
-              {entry.themeTagsAI.map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary"
-                >
-                  {tag}
-                </span>
-              ))}
+          {/* Metadata Grid */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="rounded-lg border p-3">
+              <p className="text-xs font-medium text-muted-foreground">Type</p>
+              <p className="font-medium">{entry.type || "—"}</p>
+            </div>
+            <div className="rounded-lg border p-3">
+              <p className="text-xs font-medium text-muted-foreground">Mode</p>
+              <p className="font-medium">{entry.inferredMode || "—"}</p>
+            </div>
+            <div className="rounded-lg border p-3">
+              <p className="text-xs font-medium text-muted-foreground">Energy</p>
+              <p className="font-medium">{entry.inferredEnergy || "—"}</p>
+            </div>
+            <div className="rounded-lg border p-3">
+              <p className="text-xs font-medium text-muted-foreground">Energy Shape</p>
+              <p className="font-medium">{entry.energyShape || "—"}</p>
+            </div>
+            <div className="rounded-lg border p-3">
+              <p className="text-xs font-medium text-muted-foreground">Sentiment</p>
+              <span className={`inline-block rounded-full px-2 py-1 text-xs font-medium ${SENTIMENT_BADGE[getSentimentType(entry.sentimentAI)]}`}>
+                {entry.sentimentAI || "—"}
+              </span>
+            </div>
+            <div className="rounded-lg border p-3">
+              <p className="text-xs font-medium text-muted-foreground">Contradiction</p>
+              <p className="font-medium">{entry.contradiction || "—"}</p>
             </div>
           </div>
-        )}
 
-        {/* Snapshot & Insights */}
-        {entry.snapshot && (
-          <div className="mt-4 rounded-lg border p-3">
-            <p className="text-xs font-medium text-muted-foreground">Snapshot</p>
-            <p className="mt-1 text-sm">{entry.snapshot}</p>
-          </div>
-        )}
+          {/* Tags */}
+          {entry.themeTagsAI.length > 0 && (
+            <div className="mt-4">
+              <p className="mb-2 text-xs font-medium text-muted-foreground">Theme Tags</p>
+              <div className="flex flex-wrap gap-2">
+                {entry.themeTagsAI.map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
 
-        {entry.actionableInsightsAI && (
-          <div className="mt-4 rounded-lg border border-accent/30 bg-accent/5 p-3">
-            <p className="text-xs font-medium text-accent">Actionable Insights</p>
-            <p className="mt-1 text-sm">{entry.actionableInsightsAI}</p>
-          </div>
-        )}
+          {/* Snapshot & Insights */}
+          {entry.snapshot && (
+            <div className="mt-4 rounded-lg border p-3">
+              <p className="text-xs font-medium text-muted-foreground">Snapshot</p>
+              <p className="mt-1 text-sm">{entry.snapshot}</p>
+            </div>
+          )}
+
+          {entry.actionableInsightsAI && (
+            <div className="mt-4 rounded-lg border border-accent/30 bg-accent/5 p-3">
+              <p className="text-xs font-medium text-accent">Actionable Insights</p>
+              <p className="mt-1 text-sm">{entry.actionableInsightsAI}</p>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
 
