@@ -219,7 +219,10 @@ h1, h2, h3, h4, h5, h6 {
     radial-gradient(ellipse 60% 60% at 80% 80%, rgba(236, 72, 153, 0.18) 0%, transparent 50%);
 }
 
-.dashboard-glass-bg > * {
+/* Content layers above the gradient background */
+.dashboard-glass-bg > header,
+.dashboard-glass-bg > main,
+.dashboard-glass-bg > .container {
   position: relative;
   z-index: 1;
 }
