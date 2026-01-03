@@ -84,9 +84,9 @@ interface EntryModalProps {
 
 function EntryModal({ entry, onClose }: EntryModalProps) {
   return createPortal(
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm">
       <div className="flex min-h-full items-center justify-center p-4">
-        <div className="w-full max-w-2xl rounded-xl glass-card p-6 shadow-xl">
+        <div className="w-full max-w-2xl rounded-xl bg-card p-6 shadow-2xl border">
           <div className="mb-4 flex items-start justify-between">
             <div>
               <h3 className="text-xl font-semibold">{entry.name || "Untitled Entry"}</h3>
