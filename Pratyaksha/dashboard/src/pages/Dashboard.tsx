@@ -201,21 +201,21 @@ export function Dashboard() {
         {/* Add Entry FAB - Primary action */}
         <button
           onClick={() => navigate("/logs")}
-          className="flex items-center gap-2 rounded-full bg-primary text-primary-foreground p-3 shadow-lg hover:bg-primary/90 transition-all hover:scale-105 active:scale-95 group-hover/fab:px-4"
+          className="flex items-center gap-0 group-hover/fab:gap-2 h-11 rounded-full bg-primary text-primary-foreground px-3 group-hover/fab:px-4 shadow-lg hover:bg-primary/90 transition-all hover:scale-105 active:scale-95"
           aria-label="Add new entry"
         >
-          <Plus className="h-5 w-5" />
-          <span className="text-sm font-medium max-w-0 overflow-hidden group-hover/fab:max-w-[100px] transition-all duration-200">Add Entry</span>
+          <Plus className="h-5 w-5 flex-shrink-0" />
+          <span className="text-sm font-medium max-w-0 overflow-hidden whitespace-nowrap group-hover/fab:max-w-[100px] transition-all duration-200">Add Entry</span>
         </button>
 
         {/* Keyboard shortcuts button */}
         <button
           onClick={() => setShowShortcuts(true)}
-          className="flex items-center gap-2 rounded-full bg-card border p-2.5 shadow-lg hover:bg-muted transition-all group-hover/fab:px-3"
+          className="flex items-center gap-0 group-hover/fab:gap-2 h-10 rounded-full bg-card border px-2.5 group-hover/fab:px-3 shadow-lg hover:bg-muted transition-all"
           aria-label="Show keyboard shortcuts"
         >
-          <Keyboard className="h-4 w-4" />
-          <span className="text-sm max-w-0 overflow-hidden group-hover/fab:max-w-[60px] transition-all duration-200">Press ?</span>
+          <Keyboard className="h-4 w-4 flex-shrink-0" />
+          <span className="text-sm max-w-0 overflow-hidden whitespace-nowrap group-hover/fab:max-w-[60px] transition-all duration-200">Press ?</span>
         </button>
       </div>
 
