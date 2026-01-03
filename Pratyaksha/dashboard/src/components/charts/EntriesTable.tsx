@@ -86,7 +86,7 @@ function EntryModal({ entry, onClose }: EntryModalProps) {
   return createPortal(
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm">
       <div className="flex min-h-full items-center justify-center p-4">
-        <div className="w-full max-w-2xl rounded-xl bg-card p-6 shadow-2xl border">
+        <div className="w-full max-w-2xl rounded-xl glass-card p-6 shadow-2xl">
           <div className="mb-4 flex items-start justify-between">
             <div>
               <h3 className="text-xl font-semibold">{entry.name || "Untitled Entry"}</h3>
@@ -171,9 +171,9 @@ function EntryModal({ entry, onClose }: EntryModalProps) {
           )}
 
           {entry.actionableInsightsAI && (
-            <div className="mt-4 rounded-lg border border-accent/30 bg-accent/5 p-3">
-              <p className="text-xs font-medium text-accent">Actionable Insights</p>
-              <p className="mt-1 text-sm">{entry.actionableInsightsAI}</p>
+            <div className="mt-4 rounded-lg border border-primary/30 bg-primary/10 p-3">
+              <p className="text-xs font-medium text-primary">Actionable Insights</p>
+              <p className="mt-1 text-sm text-foreground">{entry.actionableInsightsAI}</p>
             </div>
           )}
         </div>
