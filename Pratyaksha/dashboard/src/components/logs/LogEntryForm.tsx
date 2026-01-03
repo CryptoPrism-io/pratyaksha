@@ -139,7 +139,7 @@ export function LogEntryForm({ onSuccess }: LogEntryFormProps) {
   const wordCount = text.trim().split(/\s+/).filter(Boolean).length
 
   return (
-    <div className="rounded-xl border bg-card p-6 shadow-sm">
+    <div className="rounded-xl glass-card p-6">
       <div className="mb-4">
         <h2 className="text-xl font-semibold">Log New Entry</h2>
         <p className="text-sm text-muted-foreground mt-1">AI will automatically classify your entry</p>

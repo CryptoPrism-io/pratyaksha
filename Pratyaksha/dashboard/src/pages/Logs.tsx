@@ -79,7 +79,7 @@ export function Logs() {
   }, [entries, filters])
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen dashboard-glass-bg">
       {/* Screen reader only H1 */}
       <h1 className="sr-only">Pratyaksha Logs - Journal Entries</h1>
 
@@ -111,7 +111,7 @@ export function Logs() {
           />
 
           {/* Entries Table */}
-          <div className="rounded-xl border bg-card p-4 shadow-sm">
+          <div className="rounded-xl glass-card p-4">
             <EntriesTable filters={filters} />
           </div>
         </div>
