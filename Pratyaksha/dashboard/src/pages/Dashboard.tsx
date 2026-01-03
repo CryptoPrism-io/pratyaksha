@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
-import { DashboardGrid, ChartCard, StatCard } from "../components/layout/DashboardGrid"
+import { DashboardGrid, ChartCard } from "../components/layout/DashboardGrid"
 import { useStats, useEntries } from "../hooks/useEntries"
 import { Brain, FileText, TrendingUp, Activity, Keyboard, Plus } from "lucide-react"
 import { useTheme } from "next-themes"
@@ -62,7 +62,7 @@ export function Dashboard() {
   ])
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen dashboard-glass-bg">
       {/* Screen reader only H1 */}
       <h1 className="sr-only">Pratyaksha Dashboard - Cognitive Analytics</h1>
 
@@ -71,28 +71,28 @@ export function Dashboard() {
         <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
           {/* Compact Stats - Left side */}
           <div className="grid gap-3 grid-cols-2 md:grid-cols-4 flex-shrink-0">
-            <div className="flex items-center gap-3 bg-card border rounded-lg px-4 py-3">
+            <div className="flex items-center gap-3 glass-stat rounded-lg px-4 py-3">
               <FileText className="h-5 w-5 text-muted-foreground" />
               <div>
                 <p className="text-xs text-muted-foreground">Entries</p>
                 <p className="text-xl font-semibold">{isLoading ? "..." : stats?.totalEntries ?? 0}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 bg-card border rounded-lg px-4 py-3">
+            <div className="flex items-center gap-3 glass-stat rounded-lg px-4 py-3">
               <TrendingUp className="h-5 w-5 text-muted-foreground" />
               <div>
                 <p className="text-xs text-muted-foreground">Recent</p>
                 <p className="text-xl font-semibold">{isLoading ? "..." : stats?.recentEntries ?? 0}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 bg-card border rounded-lg px-4 py-3">
+            <div className="flex items-center gap-3 glass-stat rounded-lg px-4 py-3">
               <Brain className="h-5 w-5 text-muted-foreground" />
               <div>
                 <p className="text-xs text-muted-foreground">Avg Words</p>
                 <p className="text-xl font-semibold">{isLoading ? "..." : stats?.avgWordsPerEntry ?? 0}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 bg-card border rounded-lg px-4 py-3">
+            <div className="flex items-center gap-3 glass-stat rounded-lg px-4 py-3">
               <Activity className="h-5 w-5 text-muted-foreground" />
               <div>
                 <p className="text-xs text-muted-foreground">Positive</p>

@@ -60,7 +60,7 @@ export function ChartCard({
   return (
     <div
       className={cn(
-        "rounded-xl border bg-card p-4 shadow-sm card-hover",
+        "rounded-xl glass-card p-4 card-hover",
         "md:col-span-1",
         colSpanClass[colSpan],
         rowSpanClass[rowSpan],
