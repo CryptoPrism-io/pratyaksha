@@ -94,8 +94,8 @@ export const CONTRADICTIONS = [
 
 export type Contradiction = (typeof CONTRADICTIONS)[number]
 
-// Sentiment
-export const SENTIMENTS = ["Positive", "Negative", "Neutral", "Mixed"] as const
+// Sentiment (Note: Airtable only has these 3 options - "Mixed" is NOT supported)
+export const SENTIMENTS = ["Positive", "Negative", "Neutral"] as const
 export type Sentiment = (typeof SENTIMENTS)[number]
 
 // Agent Output Types

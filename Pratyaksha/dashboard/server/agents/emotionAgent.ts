@@ -73,8 +73,13 @@ Respond with JSON:
     ? response.data.energyShape
     : "Centered"
 
-  const validSentiment = SENTIMENTS.includes(response.data.sentimentAI as Sentiment)
-    ? response.data.sentimentAI
+  // Map "Mixed" to "Neutral" since Airtable doesn't have Mixed as an option
+  let sentimentValue = response.data.sentimentAI
+  if (sentimentValue === "Mixed") {
+    sentimentValue = "Neutral"
+  }
+  const validSentiment = SENTIMENTS.includes(sentimentValue as Sentiment)
+    ? sentimentValue
     : "Neutral"
 
   return {

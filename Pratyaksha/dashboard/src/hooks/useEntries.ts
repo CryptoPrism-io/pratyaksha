@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMemo } from "react"
 import { fetchEntries, createEntry, type CreateEntryInput } from "../lib/airtable"
 import {
   toTimelineData,
@@ -11,8 +12,11 @@ import {
   toSankeyData,
   calculateStats,
 } from "../lib/transforms"
+import { useDateFilter } from "../contexts/DateFilterContext"
+import { isDateInRange } from "../lib/dateFilters"
 
-export function useEntries() {
+// Fetch all entries (unfiltered)
+export function useEntriesRaw() {
   return useQuery({
     queryKey: ["entries"],
     queryFn: fetchEntries,
@@ -20,6 +24,23 @@ export function useEntries() {
     refetchInterval: 1000 * 30, // Poll every 30 seconds
     refetchOnWindowFocus: true, // Refresh when switching back to tab
   })
+}
+
+// Entries filtered by global date filter
+export function useEntries() {
+  const { data: entries, ...rest } = useEntriesRaw()
+  const { dateRange } = useDateFilter()
+
+  const filtered = useMemo(() => {
+    if (!entries) return undefined
+    if (!dateRange) return entries // "all" preset
+    return entries.filter((entry) => isDateInRange(entry.date, dateRange))
+  }, [entries, dateRange])
+
+  return {
+    data: filtered,
+    ...rest,
+  }
 }
 
 export function useTimelineData() {

@@ -21,6 +21,7 @@ import { ContradictionTracker } from "../components/charts/ContradictionTracker"
 import { InsightActions } from "../components/charts/InsightActions"
 import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts"
 import { KeyboardShortcutsDialog } from "../components/ui/keyboard-shortcuts-dialog"
+import { DateFilterBar } from "../components/filters/DateFilterBar"
 
 export function Dashboard() {
   const navigate = useNavigate()
@@ -65,42 +66,77 @@ export function Dashboard() {
       {/* Screen reader only H1 */}
       <h1 className="sr-only">Pratyaksha Dashboard - Cognitive Analytics</h1>
 
-      {/* Stats Row */}
+      {/* Combined Stats + Filter Row */}
       <div className="container mx-auto px-4 pt-6 md:px-6">
-        <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
-          <StatCard
-            title="Total Entries"
-            value={isLoading ? "..." : stats?.totalEntries ?? 0}
-            description="All time"
-            icon={<FileText className="h-4 w-4" />}
-          />
-          <StatCard
-            title="Recent Entries"
-            value={isLoading ? "..." : stats?.recentEntries ?? 0}
-            description="Last 7 days"
-            trend="up"
-            trendValue="+12%"
-            icon={<TrendingUp className="h-4 w-4" />}
-          />
-          <StatCard
-            title="Avg Words"
-            value={isLoading ? "..." : stats?.avgWordsPerEntry ?? 0}
-            description="Per entry"
-            icon={<Brain className="h-4 w-4" />}
-          />
-          <StatCard
-            title="Positive Ratio"
-            value={isLoading ? "..." : `${stats?.positiveRatio ?? 0}%`}
-            description={`${stats?.negativeRatio ?? 0}% negative`}
-            trend={stats && stats.positiveRatio > 50 ? "up" : "down"}
-            icon={<Activity className="h-4 w-4" />}
-          />
+        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+          {/* Compact Stats - Left side */}
+          <div className="grid gap-3 grid-cols-2 md:grid-cols-4 flex-shrink-0">
+            <div className="flex items-center gap-3 bg-card border rounded-lg px-4 py-3">
+              <FileText className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="text-xs text-muted-foreground">Entries</p>
+                <p className="text-xl font-semibold">{isLoading ? "..." : stats?.totalEntries ?? 0}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 bg-card border rounded-lg px-4 py-3">
+              <TrendingUp className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="text-xs text-muted-foreground">Recent</p>
+                <p className="text-xl font-semibold">{isLoading ? "..." : stats?.recentEntries ?? 0}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 bg-card border rounded-lg px-4 py-3">
+              <Brain className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="text-xs text-muted-foreground">Avg Words</p>
+                <p className="text-xl font-semibold">{isLoading ? "..." : stats?.avgWordsPerEntry ?? 0}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 bg-card border rounded-lg px-4 py-3">
+              <Activity className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="text-xs text-muted-foreground">Positive</p>
+                <p className="text-xl font-semibold">{isLoading ? "..." : `${stats?.positiveRatio ?? 0}%`}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Date Filter - Right side */}
+          <div className="flex-1 flex justify-end">
+            <DateFilterBar compact />
+          </div>
         </div>
       </div>
 
       {/* Charts Grid */}
       <DashboardGrid>
-        {/* Row 1: Timeline + Mode Distribution */}
+        {/* Row 1: Energy Patterns - Full width overview */}
+        <ChartCard
+          title="Energy Patterns"
+          description="Growth, Stability & Challenge patterns with benchmarks"
+          colSpan={12}
+        >
+          <EnergyRadarGroup />
+        </ChartCard>
+
+        {/* Row 2: Energy-Mode Matrix + Activity Calendar */}
+        <ChartCard
+          title="Energy-Mode Matrix"
+          description="Click a bubble to filter logs"
+          colSpan={6}
+        >
+          <EnergyModeBubble />
+        </ChartCard>
+
+        <ChartCard
+          title="Activity Calendar"
+          description="Monthly entry overview"
+          colSpan={6}
+        >
+          <ActivityCalendar />
+        </ChartCard>
+
+        {/* Row 3: Emotional Timeline + Mode Distribution */}
         <ChartCard
           title="Emotional Timeline"
           description="Sentiment trends over time"
@@ -117,41 +153,7 @@ export function Dashboard() {
           <ModeDistribution />
         </ChartCard>
 
-        {/* Row 2: Contradiction Flow + Activity Calendar */}
-        <ChartCard
-          title="Contradiction Flow"
-          description="Type → Contradiction → Mode"
-          colSpan={4}
-        >
-          <ContradictionFlow />
-        </ChartCard>
-
-        <ChartCard
-          title="Activity Calendar"
-          description="Monthly entry overview"
-          colSpan={8}
-        >
-          <ActivityCalendar />
-        </ChartCard>
-
-        {/* Row 3: Energy Patterns - Full width with 3 category radars */}
-        <ChartCard
-          title="Energy Patterns"
-          description="Growth, Stability & Challenge patterns with benchmarks"
-          colSpan={12}
-        >
-          <EnergyRadarGroup />
-        </ChartCard>
-
-        {/* Row 4: Energy-Mode Matrix + Theme Cloud */}
-        <ChartCard
-          title="Energy-Mode Matrix"
-          description="Click a bubble to filter logs"
-          colSpan={6}
-        >
-          <EnergyModeBubble />
-        </ChartCard>
-
+        {/* Row 4: Theme Cloud + Contradiction Tracker */}
         <ChartCard
           title="Theme Tags"
           description="Most frequent themes"
@@ -160,7 +162,15 @@ export function Dashboard() {
           <ThemeCloud />
         </ChartCard>
 
-        {/* Row 5: Daily Rhythm + Contradiction Tracker */}
+        <ChartCard
+          title="Contradiction Tracker"
+          description="Monitor recurring patterns"
+          colSpan={6}
+        >
+          <ContradictionTracker />
+        </ChartCard>
+
+        {/* Row 5: Daily Rhythm + Contradiction Flow + Insights */}
         <ChartCard
           title="Daily Rhythm"
           description="Entry patterns by time"
@@ -170,11 +180,11 @@ export function Dashboard() {
         </ChartCard>
 
         <ChartCard
-          title="Contradiction Tracker"
-          description="Monitor recurring patterns"
+          title="Contradiction Flow"
+          description="Type → Contradiction → Mode"
           colSpan={4}
         >
-          <ContradictionTracker />
+          <ContradictionFlow />
         </ChartCard>
 
         <ChartCard

@@ -59,8 +59,10 @@ export async function processEntry(
     const dateStr = now.toISOString().split("T")[0]
     const timestampStr = now.toISOString()
 
+    // Calculate word count
+    const wordCount = trimmedText.split(/\s+/).filter(word => word.length > 0).length
+
     // Combine all fields for Airtable
-    // Note: "Entry Length (Words)" is a formula field, so we don't send it
     const entryFields: AirtableEntryFields = {
       Name: intent.name,
       Type: finalType,
@@ -74,11 +76,13 @@ export async function processEntry(
       Snapshot: intent.snapshot,
       Loops: themes.loops || undefined,
       "Next Action": insights.nextAction,
+      "Meta Flag": "Web App",
       "Is Summary?": false,
       "Summary (AI)": insights.summaryAI,
       "Actionable Insights (AI)": insights.actionableInsightsAI,
       "Entry Sentiment (AI)": emotion.sentimentAI,
       "Entry Theme Tags (AI)": themes.themeTagsAI.join(", "),
+      "Entry Length (Words)": wordCount,
     }
 
     console.log("[Entry] Pushing to Airtable with fields:", JSON.stringify(entryFields, null, 2))
