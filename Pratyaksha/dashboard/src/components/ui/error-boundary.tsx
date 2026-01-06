@@ -1,6 +1,7 @@
 import { Component, type ReactNode } from "react"
 import { AlertCircle, RefreshCw } from "lucide-react"
 import { Button } from "./button"
+import { ERROR_MESSAGES } from "../../lib/errorMessages"
 
 interface ErrorBoundaryProps {
   children: ReactNode
@@ -42,9 +43,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         <div className="flex h-full min-h-[200px] flex-col items-center justify-center gap-4 rounded-lg bg-muted/30 p-6">
           <AlertCircle className="h-10 w-10 text-muted-foreground" />
           <div className="text-center">
-            <p className="font-medium text-foreground">Something went wrong</p>
-            <p className="text-sm text-muted-foreground">
-              {this.state.error?.message || "Failed to load this component"}
+            <p className="font-medium text-foreground">Oops! Something went wrong</p>
+            <p className="text-sm text-muted-foreground max-w-xs">
+              {ERROR_MESSAGES.GENERIC}
             </p>
           </div>
           <Button
@@ -77,7 +78,9 @@ export function ChartErrorBoundary({
       fallback={
         <div className="flex h-full min-h-[200px] flex-col items-center justify-center gap-3 text-muted-foreground">
           <AlertCircle className="h-8 w-8" />
-          <p className="text-sm">Failed to load {chartName || "chart"}</p>
+          <p className="text-sm text-center max-w-xs">
+            Unable to load {chartName || "chart"}. Try refreshing the page.
+          </p>
         </div>
       }
     >

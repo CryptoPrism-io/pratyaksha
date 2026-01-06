@@ -5,6 +5,77 @@ import { useSpeechRecognition } from "../../hooks/useSpeechRecognition"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { cn } from "../../lib/utils"
+import { ERROR_MESSAGES } from "../../lib/errorMessages"
+import confetti from "canvas-confetti"
+
+// Streak tracking utilities
+const STREAK_KEY = "pratyaksha-streak"
+const LAST_ENTRY_KEY = "pratyaksha-last-entry"
+
+function getStreakData(): { count: number; lastDate: string | null } {
+  const count = parseInt(localStorage.getItem(STREAK_KEY) || "0", 10)
+  const lastDate = localStorage.getItem(LAST_ENTRY_KEY)
+  return { count, lastDate }
+}
+
+function updateStreak(): { count: number; isFirst: boolean } {
+  const { count, lastDate } = getStreakData()
+  const today = new Date().toDateString()
+
+  // Check if first ever entry
+  const isFirst = count === 0 && !lastDate
+
+  if (lastDate === today) {
+    // Already logged today - no streak change
+    return { count, isFirst: false }
+  }
+
+  const yesterday = new Date()
+  yesterday.setDate(yesterday.getDate() - 1)
+
+  let newCount: number
+  if (lastDate === yesterday.toDateString()) {
+    // Continuing streak
+    newCount = count + 1
+  } else {
+    // Streak broken or first entry
+    newCount = 1
+  }
+
+  localStorage.setItem(STREAK_KEY, String(newCount))
+  localStorage.setItem(LAST_ENTRY_KEY, today)
+
+  return { count: newCount, isFirst }
+}
+
+function triggerConfetti() {
+  // Center burst
+  confetti({
+    particleCount: 100,
+    spread: 70,
+    origin: { y: 0.6 },
+  })
+
+  // Left side
+  setTimeout(() => {
+    confetti({
+      particleCount: 50,
+      angle: 60,
+      spread: 55,
+      origin: { x: 0 },
+    })
+  }, 150)
+
+  // Right side
+  setTimeout(() => {
+    confetti({
+      particleCount: 50,
+      angle: 120,
+      spread: 55,
+      origin: { x: 1 },
+    })
+  }, 300)
+}
 
 interface ProcessingStep {
   label: string
@@ -44,8 +115,8 @@ export function LogEntryForm({ onSuccess }: LogEntryFormProps) {
   // Show speech recognition errors to user
   useEffect(() => {
     if (speechError) {
-      toast.error("Voice Recording Error", {
-        description: speechError,
+      toast.error("Voice Recording Issue", {
+        description: ERROR_MESSAGES.VOICE_ERROR,
       })
     }
   }, [speechError])
@@ -85,7 +156,9 @@ export function LogEntryForm({ onSuccess }: LogEntryFormProps) {
 
   const handleSubmit = async () => {
     if (!text.trim()) {
-      toast.error("Please enter some text for your entry")
+      toast.error("Empty Entry", {
+        description: ERROR_MESSAGES.EMPTY_ENTRY,
+      })
       return
     }
 
@@ -118,16 +191,33 @@ export function LogEntryForm({ onSuccess }: LogEntryFormProps) {
       if (result.success) {
         // Invalidate entries query to refresh the list
         queryClient.invalidateQueries({ queryKey: ["entries"] })
-        toast.success("Entry logged with AI analysis!", {
-          description: `"${result.entry?.fields?.Name || "New Entry"}" has been saved.`,
-        })
+
+        // Update streak and check if first entry
+        const { count: streakCount, isFirst } = updateStreak()
+
+        // Trigger confetti for first entry
+        if (isFirst) {
+          triggerConfetti()
+          toast.success("Welcome to Pratyaksha!", {
+            description: "Your first entry has been logged. Your journey begins now!",
+            duration: 5000,
+          })
+        } else {
+          // Show streak toast
+          toast.success("Entry saved!", {
+            description: streakCount > 1
+              ? `Day ${streakCount} streak! Keep the momentum going.`
+              : `"${result.entry?.fields?.Name || "New Entry"}" has been logged.`,
+          })
+        }
+
         setText("")
         onSuccess?.()
       }
     } catch (error) {
       console.error("Failed to process entry:", error)
-      toast.error("Failed to log entry", {
-        description: error instanceof Error ? error.message : "Please try again.",
+      toast.error("Entry Not Saved", {
+        description: ERROR_MESSAGES.PROCESS_ENTRY,
       })
     } finally {
       clearInterval(stepInterval)
@@ -137,6 +227,8 @@ export function LogEntryForm({ onSuccess }: LogEntryFormProps) {
   }
 
   const wordCount = text.trim().split(/\s+/).filter(Boolean).length
+  const charCount = text.length
+  const MAX_CHARS = 5000
 
   return (
     <div className="rounded-xl glass-card p-6">
@@ -149,6 +241,12 @@ export function LogEntryForm({ onSuccess }: LogEntryFormProps) {
         <textarea
           value={text + (interimTranscript ? (text && !text.endsWith(" ") ? " " : "") + interimTranscript : "")}
           onChange={(e) => setText(e.target.value)}
+          onKeyDown={(e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === "Enter" && text.trim() && !isProcessing) {
+              e.preventDefault()
+              handleSubmit()
+            }
+          }}
           placeholder={
             isListening
               ? "Listening... speak now"
@@ -220,6 +318,12 @@ export function LogEntryForm({ onSuccess }: LogEntryFormProps) {
           <span className="text-sm text-muted-foreground">
             {wordCount} {wordCount === 1 ? "word" : "words"}
           </span>
+          <span className={cn(
+            "text-xs",
+            charCount > MAX_CHARS * 0.9 ? "text-destructive" : "text-muted-foreground"
+          )}>
+            {charCount.toLocaleString()}/{MAX_CHARS.toLocaleString()}
+          </span>
           {isListening && (
             <span className="flex items-center gap-2 text-sm text-primary">
               <span className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
@@ -228,7 +332,12 @@ export function LogEntryForm({ onSuccess }: LogEntryFormProps) {
           )}
           {!isSupported && (
             <span className="text-xs text-muted-foreground">
-              Voice input not supported in this browser
+              Voice input not supported
+            </span>
+          )}
+          {!isListening && (
+            <span className="hidden sm:inline text-xs text-muted-foreground">
+              Ctrl+Enter to submit
             </span>
           )}
         </div>

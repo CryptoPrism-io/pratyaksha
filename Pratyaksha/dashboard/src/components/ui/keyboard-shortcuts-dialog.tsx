@@ -7,6 +7,7 @@ interface KeyboardShortcutsDialogProps {
 }
 
 const shortcuts = [
+  { keys: ["N"], description: "New entry" },
   { keys: ["/"], description: "Focus search input" },
   { keys: ["T"], description: "Toggle dark/light mode" },
   { keys: ["Shift", "?"], description: "Show keyboard shortcuts" },

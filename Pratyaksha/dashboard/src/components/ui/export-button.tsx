@@ -9,6 +9,7 @@ import {
 import { exportAsCSV, exportAsJSON, generateExportSummary } from "../../lib/export"
 import type { Entry } from "../../lib/airtable"
 import { toast } from "sonner"
+import { ERROR_MESSAGES } from "../../lib/errorMessages"
 
 interface ExportButtonProps {
   entries: Entry[]
@@ -22,7 +23,9 @@ export function ExportButton({ entries, filteredCount, className }: ExportButton
 
   const handleExport = async (format: "csv" | "json") => {
     if (!entries.length) {
-      toast.error("No entries to export")
+      toast.error("Nothing to Export", {
+        description: ERROR_MESSAGES.EXPORT_NO_DATA,
+      })
       return
     }
 
@@ -42,7 +45,9 @@ export function ExportButton({ entries, filteredCount, className }: ExportButton
 
       setIsOpen(false)
     } catch (error) {
-      toast.error("Export failed. Please try again.")
+      toast.error("Export Failed", {
+        description: ERROR_MESSAGES.EXPORT_FAILED,
+      })
       console.error("Export error:", error)
     } finally {
       setIsExporting(false)

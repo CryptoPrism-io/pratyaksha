@@ -1,5 +1,12 @@
 import type { ReactNode } from "react"
 import { cn } from "../../lib/utils"
+import { Info } from "lucide-react"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip"
 
 interface DashboardGridProps {
   children: ReactNode
@@ -24,18 +31,22 @@ interface ChartCardProps {
   children: ReactNode
   title: string
   description?: string
+  tooltip?: string
   className?: string
   colSpan?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12
   rowSpan?: 1 | 2
+  "data-tour"?: string
 }
 
 export function ChartCard({
   children,
   title,
   description,
+  tooltip,
   className,
   colSpan = 6,
   rowSpan = 1,
+  "data-tour": dataTour,
 }: ChartCardProps) {
   const colSpanClass = {
     1: "lg:col-span-1",
@@ -59,6 +70,7 @@ export function ChartCard({
 
   return (
     <div
+      data-tour={dataTour}
       className={cn(
         "rounded-xl glass-card p-4 card-hover",
         "md:col-span-1",
@@ -68,7 +80,23 @@ export function ChartCard({
       )}
     >
       <div className="mb-4">
-        <h3 className="text-lg font-semibold tracking-tight">{title}</h3>
+        <div className="flex items-center gap-2">
+          <h3 className="text-lg font-semibold tracking-tight">{title}</h3>
+          {tooltip && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button className="text-muted-foreground hover:text-foreground transition-colors">
+                    <Info className="h-4 w-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-xs">
+                  <p className="text-sm">{tooltip}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
         {description && (
           <p className="text-sm text-muted-foreground">{description}</p>
         )}

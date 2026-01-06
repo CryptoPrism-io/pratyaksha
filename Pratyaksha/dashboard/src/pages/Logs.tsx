@@ -4,6 +4,7 @@ import { LogEntryForm } from "../components/logs/LogEntryForm"
 import { EntriesTable } from "../components/charts/EntriesTable"
 import { FilterBar, type FilterState } from "../components/filters/FilterBar"
 import { useEntries } from "../hooks/useEntries"
+import { OnboardingTour } from "../components/onboarding/OnboardingTour"
 
 const DEFAULT_FILTERS: FilterState = {
   search: "",
@@ -25,14 +26,20 @@ export function Logs() {
   useEffect(() => {
     if (urlFiltersApplied) return
 
+    const typeParam = searchParams.get("type")
     const modeParam = searchParams.get("mode")
     const energyParam = searchParams.get("energy")
+    const contradictionParam = searchParams.get("contradiction")
+    const tagParam = searchParams.get("tag")
 
-    if (modeParam || energyParam) {
+    if (typeParam || modeParam || energyParam || contradictionParam || tagParam) {
       setFilters(prev => ({
         ...prev,
+        type: typeParam || "all",
         mode: modeParam || "all",
         energy: energyParam || "all",
+        // Use search for contradiction or tag since there's no dedicated filter
+        search: tagParam || contradictionParam || prev.search,
       }))
       // Clear URL params after applying
       setSearchParams({}, { replace: true })
@@ -60,7 +67,9 @@ export function Logs() {
         const matchesSearch =
           entry.name?.toLowerCase().includes(searchLower) ||
           entry.text?.toLowerCase().includes(searchLower) ||
-          entry.type?.toLowerCase().includes(searchLower)
+          entry.type?.toLowerCase().includes(searchLower) ||
+          entry.contradiction?.toLowerCase().includes(searchLower) ||
+          entry.themeTagsAI?.some(tag => tag.toLowerCase().includes(searchLower))
         if (!matchesSearch) return false
       }
       if (filters.dateRange !== "all") {
@@ -83,9 +92,14 @@ export function Logs() {
       {/* Screen reader only H1 */}
       <h1 className="sr-only">Pratyaksha Logs - Journal Entries</h1>
 
+      {/* Onboarding Tour - continues from Dashboard */}
+      <OnboardingTour />
+
       <div className="container mx-auto space-y-8 px-4 py-6 md:px-6">
         {/* Log Entry Form - Above the fold */}
-        <LogEntryForm />
+        <div data-tour="log-entry-form">
+          <LogEntryForm />
+        </div>
 
         {/* Historical Entries Section */}
         <div className="space-y-4">
@@ -97,6 +111,7 @@ export function Logs() {
           </div>
 
           {/* Filters */}
+          <div data-tour="logs-filters">
           <FilterBar
             filters={filters}
             onFiltersChange={setFilters}
@@ -109,9 +124,10 @@ export function Logs() {
             onRefresh={() => refetch()}
             isRefreshing={isFetching}
           />
+          </div>
 
           {/* Entries Table */}
-          <div className="rounded-xl glass-card p-4">
+          <div data-tour="entries-table" className="rounded-xl glass-card p-4">
             <EntriesTable filters={filters} />
           </div>
         </div>

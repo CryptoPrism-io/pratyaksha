@@ -8,9 +8,13 @@ import {
   Tooltip,
 } from "recharts"
 import { useEnergyShapeData } from "../../hooks/useEntries"
+import { useFilterAwareEmptyState } from "../../hooks/useFilterAwareEmptyState"
+import { EmptyState } from "../ui/empty-state"
+import { Activity } from "lucide-react"
 
 export function EnergyRadar() {
   const { data, isLoading, error } = useEnergyShapeData()
+  const { getEmptyStateProps } = useFilterAwareEmptyState()
 
   if (isLoading) {
     return (
@@ -30,11 +34,13 @@ export function EnergyRadar() {
 
   const hasData = data.some((d) => d.count > 0)
   if (!hasData) {
-    return (
-      <div className="flex h-full items-center justify-center text-muted-foreground">
-        No data available
-      </div>
-    )
+    const emptyProps = getEmptyStateProps({
+      noDataTitle: "No energy data yet",
+      noDataDescription: "Log entries to visualize your energy shapes and patterns",
+      filteredTitle: "No energy data in selected range",
+      filteredDescription: "Try a different date range or log a new entry",
+    })
+    return <EmptyState icon={Activity} {...emptyProps} />
   }
 
   return (

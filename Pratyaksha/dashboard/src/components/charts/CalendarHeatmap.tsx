@@ -1,4 +1,7 @@
 import { useCalendarData } from "../../hooks/useEntries"
+import { useFilterAwareEmptyState } from "../../hooks/useFilterAwareEmptyState"
+import { EmptyState } from "../ui/empty-state"
+import { CalendarDays } from "lucide-react"
 
 const SENTIMENT_COLORS = {
   positive: "bg-positive/70",
@@ -9,6 +12,7 @@ const SENTIMENT_COLORS = {
 
 export function CalendarHeatmap() {
   const { data, isLoading, error } = useCalendarData()
+  const { getEmptyStateProps } = useFilterAwareEmptyState()
 
   if (isLoading) {
     return (
@@ -27,11 +31,13 @@ export function CalendarHeatmap() {
   }
 
   if (data.length === 0) {
-    return (
-      <div className="flex h-full items-center justify-center text-muted-foreground">
-        No data available
-      </div>
-    )
+    const emptyProps = getEmptyStateProps({
+      noDataTitle: "No activity yet",
+      noDataDescription: "Your journaling heatmap will appear as you log entries",
+      filteredTitle: "No activity in selected range",
+      filteredDescription: "Try a different date range or log a new entry",
+    })
+    return <EmptyState icon={CalendarDays} height="h-full" {...emptyProps} />
   }
 
   // Group by month for display

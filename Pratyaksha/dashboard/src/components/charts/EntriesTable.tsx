@@ -213,6 +213,7 @@ export function EntriesTable({ filters, selectedIndex: externalSelectedIndex, on
           entry.name?.toLowerCase().includes(searchLower) ||
           entry.text?.toLowerCase().includes(searchLower) ||
           entry.type?.toLowerCase().includes(searchLower) ||
+          entry.contradiction?.toLowerCase().includes(searchLower) ||
           entry.themeTagsAI?.some((tag) => tag.toLowerCase().includes(searchLower))
         if (!matchesSearch) return false
       }

@@ -133,20 +133,20 @@ Show total entry count as badge:
 
 ## Implementation Checklist
 
-- [ ] Fix `/log` → `/logs` link
-- [ ] Create `EmptyState` component
-- [ ] Add empty states to all charts
-- [ ] Add `N` keyboard shortcut
-- [ ] Install canvas-confetti
-- [ ] Add first entry confetti
-- [ ] Add streak localStorage tracking
-- [ ] Add streak toast
-- [ ] Add restart tour button
+- [x] Fix `/log` → `/logs` link
+- [x] Create `EmptyState` component
+- [x] Add empty states to all charts
+- [x] Add `N` keyboard shortcut
+- [x] Install canvas-confetti
+- [x] Add first entry confetti
+- [x] Add streak localStorage tracking
+- [x] Add streak toast
+- [x] Add restart tour button
 - [ ] Change date filter default
 - [ ] Add entry count badge
 
 ---
 
-## Estimated Total: ~16 hours
+## Completed: 2026-01-06
 
-Can be completed in 2 focused days.
+9 of 11 quick wins implemented. Remaining items are lower priority.

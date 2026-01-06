@@ -17,7 +17,7 @@ interface DateFilterProviderProps {
 
 export function DateFilterProvider({
   children,
-  defaultPreset = "thisWeek",
+  defaultPreset = "30",
 }: DateFilterProviderProps) {
   const [preset, setPresetState] = useState<DateRangePreset>(defaultPreset)
   const [customRange, setCustomRangeState] = useState<DateRange | null>(null)

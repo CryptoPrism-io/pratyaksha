@@ -28,17 +28,22 @@ const QUICK_PRESETS: DateRangePreset[] = ["today", "thisWeek", "thisMonth"]
 interface DateFilterBarProps {
   className?: string
   compact?: boolean
+  fullWidthMobile?: boolean
 }
 
-export function DateFilterBar({ className, compact = false }: DateFilterBarProps) {
+export function DateFilterBar({ className, compact = false, fullWidthMobile = false }: DateFilterBarProps) {
   const { preset, setPreset } = useDateFilter()
 
   // Compact mode: Quick buttons + dropdown for others
   if (compact) {
     return (
-      <div className={cn("flex items-center gap-2", className)}>
-        {/* Quick access buttons */}
-        <div className="hidden sm:flex items-center gap-1">
+      <div className={cn(
+        "flex items-center gap-2",
+        fullWidthMobile && "w-full md:w-auto",
+        className
+      )}>
+        {/* Quick access buttons - hidden on mobile */}
+        <div className="hidden md:flex items-center gap-1">
           {QUICK_PRESETS.map((p) => {
             const option = DATE_PRESETS.find((o) => o.value === p)!
             return (
@@ -60,8 +65,14 @@ export function DateFilterBar({ className, compact = false }: DateFilterBarProps
           value={preset}
           onValueChange={(value) => setPreset(value as DateRangePreset)}
         >
-          <SelectTrigger className="w-[140px] h-8" aria-label="Select date range">
-            <Calendar className="mr-2 h-3.5 w-3.5" />
+          <SelectTrigger
+            className={cn(
+              "h-9 md:h-8",
+              fullWidthMobile ? "w-full md:w-[140px]" : "w-[140px]"
+            )}
+            aria-label="Select date range"
+          >
+            <Calendar className="mr-2 h-4 w-4 md:h-3.5 md:w-3.5" />
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

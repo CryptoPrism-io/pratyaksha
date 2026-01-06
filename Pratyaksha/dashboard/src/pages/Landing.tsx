@@ -106,7 +106,7 @@ export function Landing() {
               </Link>
 
               <Link
-                to="/log"
+                to="/logs"
                 className="inline-flex items-center gap-2 rounded-full border border-primary/30 px-8 py-4 text-lg font-medium transition-all hover:bg-primary/10 hover:border-primary/50"
               >
                 Start Logging
@@ -114,9 +114,16 @@ export function Landing() {
             </div>
 
             {/* Stats */}
-            <div className="mt-16 grid grid-cols-3 gap-8 border-t border-border/50 pt-12 animate-slide-up animation-delay-800">
-              {stats.map((stat) => (
-                <div key={stat.label} className="text-center">
+            <div className="mt-16 grid grid-cols-3 gap-8 border-t border-border/50 pt-12">
+              {stats.map((stat, index) => (
+                <div
+                  key={stat.label}
+                  className="text-center animate-slide-up opacity-0"
+                  style={{
+                    animationDelay: `${800 + index * 150}ms`,
+                    animationFillMode: 'forwards'
+                  }}
+                >
                   <div className="text-3xl font-bold text-foreground md:text-4xl">{stat.value}</div>
                   <div className="text-sm text-muted-foreground">{stat.label}</div>
                 </div>

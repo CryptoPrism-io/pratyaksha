@@ -29,6 +29,150 @@ export function toTimelineData(entries: Entry[]): TimelinePoint[] {
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 }
 
+// Enriched Timeline Entry (individual dots)
+export interface EnrichedTimelineEntry {
+  id: string
+  date: string
+  timestamp: string         // Full timestamp for ordering
+  entryIndex: number        // Unique index for x-axis (each entry gets its own position)
+  sentiment: number         // -1 to 1 (with jitter applied)
+  rawSentiment: number      // Original -1 to 1
+  sentimentCategory: "positive" | "negative" | "neutral"
+  sentimentLabel: string    // "Positive" | "Negative" | "Neutral"
+  mode: string
+  snapshot: string
+  entryLength: number
+  text: string
+  name: string
+  themeTagsAI: string[]
+  actionableInsightsAI: string
+  energyShape: string
+}
+
+export interface EnrichedTimelineData {
+  entries: EnrichedTimelineEntry[]
+  trend: TimelinePoint[]
+  dateLabels: string[]
+}
+
+// Fixed Y positions for each sentiment (discrete, not continuous)
+// Positive at top (1), Neutral in middle (0), Negative at bottom (-1)
+function getSentimentYPosition(sentiment: string): number {
+  const lower = sentiment?.toLowerCase() || "neutral"
+  if (lower.includes("positive")) return 1
+  if (lower.includes("negative")) return -1
+  return 0
+}
+
+// Get sentiment category
+function getSentimentCategory(sentiment: string): "positive" | "negative" | "neutral" {
+  const lower = sentiment?.toLowerCase() || "neutral"
+  if (lower.includes("positive")) return "positive"
+  if (lower.includes("negative")) return "negative"
+  return "neutral"
+}
+
+// Apply small vertical jitter for consecutive entries with same sentiment
+// Since each entry now has its own x-position, we only jitter if multiple
+// consecutive entries have the same sentiment (to make the pattern visible)
+function applySmallJitter(entries: EnrichedTimelineEntry[]): EnrichedTimelineEntry[] {
+  // Group consecutive entries by sentiment
+  const result: EnrichedTimelineEntry[] = []
+  let currentGroup: EnrichedTimelineEntry[] = []
+  let currentSentiment: string | null = null
+
+  entries.forEach((entry) => {
+    if (entry.sentimentCategory === currentSentiment) {
+      currentGroup.push(entry)
+    } else {
+      // Process previous group
+      if (currentGroup.length > 0) {
+        if (currentGroup.length === 1) {
+          result.push(currentGroup[0])
+        } else {
+          // Apply small jitter for groups of same sentiment
+          const jitterStep = 0.2 / currentGroup.length
+          currentGroup.forEach((e, j) => {
+            result.push({
+              ...e,
+              sentiment: e.rawSentiment + (j - (currentGroup.length - 1) / 2) * jitterStep,
+            })
+          })
+        }
+      }
+      // Start new group
+      currentGroup = [entry]
+      currentSentiment = entry.sentimentCategory
+    }
+  })
+
+  // Process last group
+  if (currentGroup.length === 1) {
+    result.push(currentGroup[0])
+  } else if (currentGroup.length > 1) {
+    const jitterStep = 0.2 / currentGroup.length
+    currentGroup.forEach((e, j) => {
+      result.push({
+        ...e,
+        sentiment: e.rawSentiment + (j - (currentGroup.length - 1) / 2) * jitterStep,
+      })
+    })
+  }
+
+  return result
+}
+
+export function toEnrichedTimelineData(entries: Entry[]): EnrichedTimelineData {
+  // Sort entries by timestamp (or date + createdTime as fallback)
+  const sortedEntries = entries
+    .filter(e => e.sentimentAI)
+    .sort((a, b) => {
+      // Use timestamp if available, otherwise fall back to date + createdTime
+      const timeA = a.timestamp || a.date || a.createdTime
+      const timeB = b.timestamp || b.date || b.createdTime
+      return new Date(timeA).getTime() - new Date(timeB).getTime()
+    })
+
+  // Each entry gets its own unique x-position (no stacking)
+  const enrichedEntries: EnrichedTimelineEntry[] = sortedEntries.map((entry, index) => {
+    const yPosition = getSentimentYPosition(entry.sentimentAI)
+    return {
+      id: entry.id,
+      date: entry.date,
+      timestamp: entry.timestamp || entry.createdTime || entry.date,
+      entryIndex: index,           // Each entry has unique x position
+      sentiment: yPosition,        // Fixed position: 1, 0, or -1
+      rawSentiment: yPosition,
+      sentimentCategory: getSentimentCategory(entry.sentimentAI),
+      sentimentLabel: entry.sentimentAI,
+      mode: entry.inferredMode || "Unknown",
+      snapshot: entry.snapshot || entry.text?.slice(0, 100) || "",
+      entryLength: entry.entryLengthWords || 0,
+      text: entry.text || "",
+      name: entry.name || "Untitled",
+      themeTagsAI: entry.themeTagsAI || [],
+      actionableInsightsAI: entry.actionableInsightsAI || "",
+      energyShape: entry.energyShape || "",
+    }
+  })
+
+  // Apply small vertical jitter only for entries with same sentiment at similar positions
+  const jitteredEntries = applySmallJitter(enrichedEntries)
+
+  // Keep existing trend data for the background area
+  const trend = toTimelineData(entries)
+
+  // Get unique dates for x-axis labels
+  const uniqueDates = [...new Set(sortedEntries.map(e => e.date))]
+    .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
+
+  return {
+    entries: jitteredEntries,
+    trend,
+    dateLabels: uniqueDates,
+  }
+}
+
 // Mode Distribution data
 export interface ModeCount {
   mode: string
@@ -132,6 +276,86 @@ export function toTagCloudData(entries: Entry[]): TagCount[] {
     .map(([text, value]) => ({ text, value }))
     .sort((a, b) => b.value - a.value)
     .slice(0, 30) // Top 30 tags
+}
+
+// Enhanced Theme Tags with filtering options
+export type TagSortBy = "frequency" | "alphabetical" | "recent"
+export type TagSentimentFilter = "all" | "positive" | "neutral" | "negative"
+export type TagLimit = 10 | 20 | 30 | "all"
+
+export interface TagCloudOptions {
+  sortBy: TagSortBy
+  limit: TagLimit
+  sentiment: TagSentimentFilter
+}
+
+export interface EnrichedTagCount {
+  text: string
+  value: number
+  recentDate: string // Most recent entry date with this tag
+}
+
+export function toTagCloudDataEnriched(
+  entries: Entry[],
+  options: TagCloudOptions
+): EnrichedTagCount[] {
+  const { sortBy, limit, sentiment } = options
+
+  // Filter entries by sentiment if needed
+  let filteredEntries = entries
+  if (sentiment !== "all") {
+    filteredEntries = entries.filter((entry) => {
+      const entrySentiment = entry.sentimentAI?.toLowerCase() || ""
+      return entrySentiment.includes(sentiment)
+    })
+  }
+
+  // Build tag data with counts and most recent date
+  const tagData: Record<string, { count: number; recentDate: string }> = {}
+
+  filteredEntries.forEach((entry) => {
+    const entryDate = entry.timestamp || entry.date || entry.createdTime
+    entry.themeTagsAI?.forEach((tag) => {
+      const normalizedTag = tag.toLowerCase().trim()
+      if (normalizedTag) {
+        if (!tagData[normalizedTag]) {
+          tagData[normalizedTag] = { count: 0, recentDate: entryDate }
+        }
+        tagData[normalizedTag].count += 1
+        // Track most recent date
+        if (new Date(entryDate) > new Date(tagData[normalizedTag].recentDate)) {
+          tagData[normalizedTag].recentDate = entryDate
+        }
+      }
+    })
+  })
+
+  // Convert to array
+  let result: EnrichedTagCount[] = Object.entries(tagData).map(([text, data]) => ({
+    text,
+    value: data.count,
+    recentDate: data.recentDate,
+  }))
+
+  // Sort based on option
+  switch (sortBy) {
+    case "frequency":
+      result.sort((a, b) => b.value - a.value)
+      break
+    case "alphabetical":
+      result.sort((a, b) => a.text.localeCompare(b.text))
+      break
+    case "recent":
+      result.sort((a, b) => new Date(b.recentDate).getTime() - new Date(a.recentDate).getTime())
+      break
+  }
+
+  // Apply limit
+  if (limit !== "all") {
+    result = result.slice(0, limit)
+  }
+
+  return result
 }
 
 // Contradiction data

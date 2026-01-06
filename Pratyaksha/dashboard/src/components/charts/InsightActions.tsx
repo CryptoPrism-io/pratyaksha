@@ -1,5 +1,7 @@
 import { useEntries, useStats } from "../../hooks/useEntries"
-import { Lightbulb, Target, AlertCircle, CheckCircle } from "lucide-react"
+import { useFilterAwareEmptyState } from "../../hooks/useFilterAwareEmptyState"
+import { Lightbulb, Target, AlertCircle, CheckCircle, Sparkles } from "lucide-react"
+import { EmptyState } from "../ui/empty-state"
 
 interface Insight {
   type: "suggestion" | "warning" | "achievement" | "action"
@@ -10,6 +12,7 @@ interface Insight {
 export function InsightActions() {
   const { data: entries, isLoading: entriesLoading } = useEntries()
   const { data: stats, isLoading: statsLoading } = useStats()
+  const { getEmptyStateProps } = useFilterAwareEmptyState()
 
   const isLoading = entriesLoading || statsLoading
 
@@ -22,11 +25,13 @@ export function InsightActions() {
   }
 
   if (!entries || !stats) {
-    return (
-      <div className="flex h-full items-center justify-center text-muted-foreground">
-        No data available
-      </div>
-    )
+    const emptyProps = getEmptyStateProps({
+      noDataTitle: "No insights yet",
+      noDataDescription: "Log a few entries to unlock personalized AI insights",
+      filteredTitle: "No insights in selected range",
+      filteredDescription: "Try a different date range or log a new entry",
+    })
+    return <EmptyState icon={Sparkles} height="h-full" {...emptyProps} />
   }
 
   // Generate insights based on data

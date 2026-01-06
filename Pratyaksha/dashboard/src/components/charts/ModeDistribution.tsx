@@ -1,8 +1,11 @@
 import { useState, useCallback } from "react"
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, Sector } from "recharts"
 import { useModeDistribution } from "../../hooks/useEntries"
+import { useFilterAwareEmptyState } from "../../hooks/useFilterAwareEmptyState"
 import { Skeleton } from "../ui/skeleton"
-import { AlertCircle, RefreshCw } from "lucide-react"
+import { EmptyState } from "../ui/empty-state"
+import { AlertCircle, RefreshCw, PieChart as PieChartIcon } from "lucide-react"
+import { ERROR_MESSAGES } from "../../lib/errorMessages"
 
 const COLORS = [
   "hsl(160, 84%, 52%)",  // positive green
@@ -83,6 +86,7 @@ function PieSkeleton() {
 
 export function ModeDistribution() {
   const { data, isLoading, error, refetch } = useModeDistribution()
+  const { getEmptyStateProps } = useFilterAwareEmptyState()
   const [activeIndex, setActiveIndex] = useState<number | undefined>(undefined)
 
   const onPieEnter = useCallback((_: unknown, index: number) => {
@@ -101,25 +105,28 @@ export function ModeDistribution() {
     return (
       <div className="flex h-[400px] flex-col items-center justify-center gap-3">
         <AlertCircle className="h-8 w-8 text-muted-foreground" />
-        <p className="text-sm text-muted-foreground">Failed to load modes</p>
+        <p className="text-sm text-muted-foreground text-center max-w-xs">
+          {ERROR_MESSAGES.LOAD_MODES}
+        </p>
         <button
           onClick={() => refetch?.()}
           className="flex items-center gap-2 rounded-md bg-muted px-3 py-1.5 text-sm hover:bg-muted/80"
         >
           <RefreshCw className="h-3 w-3" />
-          Retry
+          Try Again
         </button>
       </div>
     )
   }
 
   if (data.length === 0) {
-    return (
-      <div className="flex h-[400px] flex-col items-center justify-center gap-2 text-muted-foreground">
-        <p className="text-sm">No mode data yet</p>
-        <p className="text-xs">Modes will appear as you add entries</p>
-      </div>
-    )
+    const emptyProps = getEmptyStateProps({
+      noDataTitle: "No mood data yet",
+      noDataDescription: "Log a few entries to see your cognitive mode patterns",
+      filteredTitle: "No modes in selected range",
+      filteredDescription: "Try a different date range or log a new entry",
+    })
+    return <EmptyState icon={PieChartIcon} {...emptyProps} />
   }
 
   return (
@@ -152,9 +159,16 @@ export function ModeDistribution() {
         </Pie>
         <Tooltip content={<CustomTooltip />} />
         <Legend
-          formatter={(value) => <span className="text-sm text-foreground">{value}</span>}
+          formatter={(value) => <span className="text-xs sm:text-sm text-foreground">{value}</span>}
           iconType="circle"
-          iconSize={10}
+          iconSize={8}
+          wrapperStyle={{
+            paddingTop: '8px',
+            fontSize: '12px'
+          }}
+          layout="horizontal"
+          align="center"
+          verticalAlign="bottom"
         />
       </PieChart>
     </ResponsiveContainer>

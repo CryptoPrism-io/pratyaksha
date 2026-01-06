@@ -8,9 +8,13 @@ import {
   ResponsiveContainer,
 } from "recharts"
 import { useEntries } from "../../hooks/useEntries"
+import { useFilterAwareEmptyState } from "../../hooks/useFilterAwareEmptyState"
+import { EmptyState } from "../ui/empty-state"
+import { Calendar } from "lucide-react"
 
 export function DailyRhythm() {
   const { data: entries, isLoading, error } = useEntries()
+  const { getEmptyStateProps } = useFilterAwareEmptyState()
 
   if (isLoading) {
     return (
@@ -29,11 +33,13 @@ export function DailyRhythm() {
   }
 
   if (!entries || entries.length === 0) {
-    return (
-      <div className="flex h-full items-center justify-center text-muted-foreground">
-        No data available
-      </div>
-    )
+    const emptyProps = getEmptyStateProps({
+      noDataTitle: "No rhythm data yet",
+      noDataDescription: "Log entries throughout the week to see your daily patterns",
+      filteredTitle: "No entries in selected range",
+      filteredDescription: "Try a different date range or log a new entry",
+    })
+    return <EmptyState icon={Calendar} height="h-full" {...emptyProps} />
   }
 
   // Group entries by day of week
@@ -64,8 +70,9 @@ export function DailyRhythm() {
         />
         <Bar
           dataKey="count"
-          fill="hsl(var(--accent))"
+          fill="#3b82f6"
           radius={[4, 4, 0, 0]}
+          name="Entries"
         />
       </BarChart>
     </ResponsiveContainer>

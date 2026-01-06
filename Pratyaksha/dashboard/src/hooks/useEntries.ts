@@ -3,6 +3,7 @@ import { useMemo } from "react"
 import { fetchEntries, createEntry, type CreateEntryInput } from "../lib/airtable"
 import {
   toTimelineData,
+  toEnrichedTimelineData,
   toModeDistribution,
   toEnergyShapeData,
   toTypeDistribution,
@@ -47,6 +48,14 @@ export function useTimelineData() {
   const { data: entries, ...rest } = useEntries()
   return {
     data: entries ? toTimelineData(entries) : [],
+    ...rest,
+  }
+}
+
+export function useEnrichedTimelineData() {
+  const { data: entries, ...rest } = useEntries()
+  return {
+    data: entries ? toEnrichedTimelineData(entries) : { entries: [], trend: [], dateLabels: [] },
     ...rest,
   }
 }

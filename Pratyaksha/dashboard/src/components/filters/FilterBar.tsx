@@ -20,7 +20,7 @@ import type { Entry } from "../../lib/airtable"
 
 export interface FilterState {
   search: string
-  dateRange: "all" | "7" | "30" | "90" | "custom"
+  dateRange: "all" | "today" | "yesterday" | "thisWeek" | "lastWeek" | "thisMonth" | "lastMonth" | "7" | "30" | "custom"
   type: string
   sentiment: string
   mode: string
@@ -42,10 +42,14 @@ interface FilterBarProps {
 }
 
 const DATE_RANGE_OPTIONS = [
-  { value: "all", label: "All time" },
-  { value: "7", label: "Last 7 days" },
+  { value: "today", label: "Today" },
+  { value: "yesterday", label: "Yesterday" },
+  { value: "thisWeek", label: "This Week" },
+  { value: "lastWeek", label: "Last Week" },
+  { value: "thisMonth", label: "This Month" },
+  { value: "lastMonth", label: "Last Month" },
   { value: "30", label: "Last 30 days" },
-  { value: "90", label: "Last 90 days" },
+  { value: "all", label: "All time" },
 ]
 
 const SENTIMENT_OPTIONS = [
@@ -80,7 +84,7 @@ export function FilterBar({
   const clearFilters = () => {
     onFiltersChange({
       search: "",
-      dateRange: "all",
+      dateRange: "thisWeek",
       type: "all",
       sentiment: "all",
       mode: "all",
@@ -302,6 +306,19 @@ export function FilterBar({
             filteredCount={filteredCount}
             className="min-h-[36px]"
           />
+        )}
+
+        {/* Clear All button - visible when filters are active */}
+        {activeFilterCount > 0 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={clearFilters}
+            className="min-h-[36px] text-muted-foreground hover:text-foreground"
+          >
+            <X className="h-4 w-4 mr-1" />
+            Clear All
+          </Button>
         )}
       </div>
 
