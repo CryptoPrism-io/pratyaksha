@@ -1,10 +1,11 @@
-import { useEffect, useCallback } from "react"
+import { useEffect, useCallback, useRef } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { driver, type DriveStep, type Driver } from "driver.js"
 import "driver.js/dist/driver.css"
 
 const STORAGE_KEY = "pratyaksha-onboarding-completed"
 const TOUR_PHASE_KEY = "pratyaksha-tour-phase"
+const AUTO_ADVANCE_DELAY = 10000 // 10 seconds
 
 // Phase 1: Dashboard Tour - All charts explained
 const dashboardSteps: DriveStep[] = [
@@ -211,6 +212,35 @@ const logsSteps: DriveStep[] = [
   },
 ]
 
+// Add countdown bar to popover
+function addCountdownBar() {
+  const popover = document.querySelector(".driver-popover")
+  if (popover && !popover.querySelector(".tour-countdown-bar")) {
+    const countdownBar = document.createElement("div")
+    countdownBar.className = "tour-countdown-bar"
+    popover.appendChild(countdownBar)
+  }
+}
+
+// Reset animations by re-triggering them
+function resetAnimations() {
+  const popover = document.querySelector(".pratyaksha-tour-popover") as HTMLElement
+  if (popover) {
+    // Force animation restart by removing and re-adding the class
+    popover.style.animation = "none"
+    popover.offsetHeight // Trigger reflow
+    popover.style.animation = ""
+  }
+
+  // Reset countdown bar animation
+  const countdownBar = document.querySelector(".tour-countdown-bar") as HTMLElement
+  if (countdownBar) {
+    countdownBar.remove()
+  }
+  // Re-add after a tiny delay to restart animation
+  setTimeout(addCountdownBar, 50)
+}
+
 interface OnboardingTourProps {
   forceShow?: boolean
   onComplete?: () => void
@@ -219,6 +249,29 @@ interface OnboardingTourProps {
 export function OnboardingTour({ forceShow, onComplete }: OnboardingTourProps) {
   const navigate = useNavigate()
   const location = useLocation()
+  const autoAdvanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const driverRef = useRef<Driver | null>(null)
+
+  // Clear auto-advance timer
+  const clearAutoAdvanceTimer = useCallback(() => {
+    if (autoAdvanceTimerRef.current) {
+      clearTimeout(autoAdvanceTimerRef.current)
+      autoAdvanceTimerRef.current = null
+    }
+  }, [])
+
+  // Start auto-advance timer
+  const startAutoAdvanceTimer = useCallback((driverObj: Driver, isLastStep: boolean, onLastStep?: () => void) => {
+    clearAutoAdvanceTimer()
+
+    autoAdvanceTimerRef.current = setTimeout(() => {
+      if (isLastStep && onLastStep) {
+        onLastStep()
+      } else {
+        driverObj.moveNext()
+      }
+    }, AUTO_ADVANCE_DELAY)
+  }, [clearAutoAdvanceTimer])
 
   const startDashboardTour = useCallback(() => {
     const driverObj: Driver = driver({
@@ -230,7 +283,28 @@ export function OnboardingTour({ forceShow, onComplete }: OnboardingTourProps) {
       stageRadius: 8,
       popoverClass: "pratyaksha-tour-popover",
       steps: dashboardSteps,
+      onHighlightStarted: (_element, _step, options) => {
+        // Add countdown bar and reset animations on each step
+        setTimeout(() => {
+          addCountdownBar()
+          resetAnimations()
+        }, 100)
+
+        // Start auto-advance timer
+        const currentIndex = options.state?.activeIndex ?? 0
+        const isLastStep = currentIndex === dashboardSteps.length - 1
+
+        startAutoAdvanceTimer(driverObj, isLastStep, () => {
+          // Last step action: navigate to logs
+          localStorage.setItem(TOUR_PHASE_KEY, "logs")
+          clearAutoAdvanceTimer()
+          driverObj.destroy()
+          navigate("/logs")
+        })
+      },
       onNextClick: (_element, _step, options) => {
+        clearAutoAdvanceTimer()
+
         // Check if this is the last step (Add Entry button)
         const currentIndex = options.state?.activeIndex ?? 0
         if (currentIndex === dashboardSteps.length - 1) {
@@ -243,7 +317,12 @@ export function OnboardingTour({ forceShow, onComplete }: OnboardingTourProps) {
         // Otherwise continue normally
         driverObj.moveNext()
       },
+      onPrevClick: () => {
+        clearAutoAdvanceTimer()
+        driverObj.movePrevious()
+      },
       onDestroyStarted: () => {
+        clearAutoAdvanceTimer()
         const phase = localStorage.getItem(TOUR_PHASE_KEY)
         // Only mark as completed if we're not transitioning to logs
         if (phase !== "logs") {
@@ -255,8 +334,9 @@ export function OnboardingTour({ forceShow, onComplete }: OnboardingTourProps) {
       },
     })
 
+    driverRef.current = driverObj
     driverObj.drive()
-  }, [navigate, onComplete])
+  }, [navigate, onComplete, startAutoAdvanceTimer, clearAutoAdvanceTimer])
 
   const startLogsTour = useCallback(() => {
     const driverObj: Driver = driver({
@@ -268,7 +348,36 @@ export function OnboardingTour({ forceShow, onComplete }: OnboardingTourProps) {
       stageRadius: 8,
       popoverClass: "pratyaksha-tour-popover",
       steps: logsSteps,
+      onHighlightStarted: (_element, _step, options) => {
+        // Add countdown bar and reset animations on each step
+        setTimeout(() => {
+          addCountdownBar()
+          resetAnimations()
+        }, 100)
+
+        // Start auto-advance timer
+        const currentIndex = options.state?.activeIndex ?? 0
+        const isLastStep = currentIndex === logsSteps.length - 1
+
+        if (!isLastStep) {
+          startAutoAdvanceTimer(driverObj, false)
+        } else {
+          // On last step, auto-close after 10 seconds
+          startAutoAdvanceTimer(driverObj, true, () => {
+            driverObj.destroy()
+          })
+        }
+      },
+      onNextClick: () => {
+        clearAutoAdvanceTimer()
+        driverObj.moveNext()
+      },
+      onPrevClick: () => {
+        clearAutoAdvanceTimer()
+        driverObj.movePrevious()
+      },
       onDestroyStarted: () => {
+        clearAutoAdvanceTimer()
         localStorage.setItem(STORAGE_KEY, "true")
         localStorage.removeItem(TOUR_PHASE_KEY)
         onComplete?.()
@@ -276,8 +385,9 @@ export function OnboardingTour({ forceShow, onComplete }: OnboardingTourProps) {
       },
     })
 
+    driverRef.current = driverObj
     driverObj.drive()
-  }, [onComplete])
+  }, [onComplete, startAutoAdvanceTimer, clearAutoAdvanceTimer])
 
   useEffect(() => {
     const hasCompleted = localStorage.getItem(STORAGE_KEY) === "true"
@@ -288,7 +398,10 @@ export function OnboardingTour({ forceShow, onComplete }: OnboardingTourProps) {
       const timer = setTimeout(() => {
         startLogsTour()
       }, 500)
-      return () => clearTimeout(timer)
+      return () => {
+        clearTimeout(timer)
+        clearAutoAdvanceTimer()
+      }
     }
 
     // Phase 1: Start Dashboard tour
@@ -298,9 +411,16 @@ export function OnboardingTour({ forceShow, onComplete }: OnboardingTourProps) {
       const timer = setTimeout(() => {
         startDashboardTour()
       }, 500)
-      return () => clearTimeout(timer)
+      return () => {
+        clearTimeout(timer)
+        clearAutoAdvanceTimer()
+      }
     }
-  }, [forceShow, location.pathname, startDashboardTour, startLogsTour])
+
+    return () => {
+      clearAutoAdvanceTimer()
+    }
+  }, [forceShow, location.pathname, startDashboardTour, startLogsTour, clearAutoAdvanceTimer])
 
   return null
 }
