@@ -277,11 +277,13 @@ export function OnboardingTour({ forceShow, onComplete }: OnboardingTourProps) {
     const driverObj: Driver = driver({
       showProgress: true,
       animate: true,
+      smoothScroll: true,
       allowClose: true,
-      overlayColor: "rgba(0, 0, 0, 0.75)",
-      stagePadding: 10,
-      stageRadius: 8,
+      overlayColor: "rgba(0, 0, 0, 0.6)",
+      stagePadding: 8,
+      stageRadius: 12,
       popoverClass: "pratyaksha-tour-popover",
+      popoverOffset: 12,
       steps: dashboardSteps,
       onHighlightStarted: (_element, _step, options) => {
         // Add countdown bar and reset animations on each step
@@ -342,11 +344,13 @@ export function OnboardingTour({ forceShow, onComplete }: OnboardingTourProps) {
     const driverObj: Driver = driver({
       showProgress: true,
       animate: true,
+      smoothScroll: true,
       allowClose: true,
-      overlayColor: "rgba(0, 0, 0, 0.75)",
-      stagePadding: 10,
-      stageRadius: 8,
+      overlayColor: "rgba(0, 0, 0, 0.6)",
+      stagePadding: 8,
+      stageRadius: 12,
       popoverClass: "pratyaksha-tour-popover",
+      popoverOffset: 12,
       steps: logsSteps,
       onHighlightStarted: (_element, _step, options) => {
         // Add countdown bar and reset animations on each step
