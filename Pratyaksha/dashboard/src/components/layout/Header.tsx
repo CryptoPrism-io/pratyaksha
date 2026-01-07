@@ -1,20 +1,35 @@
 import { useState } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import { Brain, LayoutDashboard, PlusCircle, Lightbulb, User, MoreVertical } from "lucide-react"
+import { Brain, LayoutDashboard, PlusCircle, Lightbulb, User, MoreVertical, Download } from "lucide-react"
 import { cn } from "../../lib/utils"
 import { ThemeToggle } from "../theme-toggle"
 import { resetOnboardingTour } from "../onboarding/OnboardingTour"
 import { toast } from "sonner"
+import { usePWAInstall } from "@/hooks/usePWAInstall"
 
 export function Header() {
   const location = useLocation()
   const navigate = useNavigate()
   const [showMenu, setShowMenu] = useState(false)
+  const { isInstallable, isInstalled, install, setShowPrompt } = usePWAInstall()
 
   const isDashboard = location.pathname === "/dashboard"
   const isLogs = location.pathname === "/logs"
   const isInsights = location.pathname === "/insights"
   const isProfile = location.pathname === "/profile"
+
+  const handleInstallClick = async () => {
+    setShowMenu(false)
+    if (isInstallable) {
+      const success = await install()
+      if (success) {
+        toast.success("App installed successfully!")
+      }
+    } else {
+      // Show the custom prompt for iOS or when beforeinstallprompt hasn't fired
+      setShowPrompt(true)
+    }
+  }
 
   const handleRestartTourLogs = () => {
     resetOnboardingTour()
@@ -107,6 +122,20 @@ export function Header() {
                   />
                   {/* Menu */}
                   <div className="absolute right-0 top-full mt-1 z-50 min-w-[200px] rounded-lg border bg-card shadow-lg py-1">
+                    {/* Install App Section - Always show for testing */}
+                    <div className="px-3 py-1.5 text-xs font-medium text-muted-foreground">
+                      Install App
+                    </div>
+                    <button
+                      onClick={handleInstallClick}
+                      className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-muted transition-colors text-primary"
+                    >
+                      <Download className="h-4 w-4" />
+                      {isInstalled ? "Already Installed" : isInstallable ? "Install to Device" : "Add to Home Screen"}
+                    </button>
+                    <div className="my-1 border-t" />
+
+                    {/* Restart Tour Section */}
                     <div className="px-3 py-1.5 text-xs font-medium text-muted-foreground">
                       Restart Tour
                     </div>

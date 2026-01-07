@@ -9,6 +9,9 @@ import { Profile } from "./pages/Profile"
 import { Toaster } from "./components/ui/sonner"
 import { ThemeProvider } from "./components/theme-provider"
 import { DateFilterProvider } from "./contexts/DateFilterContext"
+import { InstallPrompt } from "./components/pwa/InstallPrompt"
+import { OfflineProvider } from "./contexts/OfflineContext"
+import { OfflineIndicator } from "./components/offline/OfflineIndicator"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,23 +31,27 @@ function App() {
       disableTransitionOnChange
     >
       <QueryClientProvider client={queryClient}>
-        <DateFilterProvider defaultPreset="30">
-          <BrowserRouter>
-            <div className="min-h-screen bg-background text-foreground">
-              <Header />
-              <main>
-                <Routes>
-                  <Route path="/" element={<Landing />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/logs" element={<Logs />} />
-                  <Route path="/insights" element={<Insights />} />
-                  <Route path="/profile" element={<Profile />} />
-                </Routes>
-              </main>
-            </div>
-            <Toaster position="bottom-right" richColors closeButton />
-          </BrowserRouter>
-        </DateFilterProvider>
+        <OfflineProvider>
+          <DateFilterProvider defaultPreset="30">
+            <BrowserRouter>
+              <div className="min-h-screen bg-background text-foreground">
+                <Header />
+                <main>
+                  <Routes>
+                    <Route path="/" element={<Landing />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/logs" element={<Logs />} />
+                    <Route path="/insights" element={<Insights />} />
+                    <Route path="/profile" element={<Profile />} />
+                  </Routes>
+                </main>
+              </div>
+              <Toaster position="bottom-right" richColors closeButton />
+              <InstallPrompt />
+              <OfflineIndicator />
+            </BrowserRouter>
+          </DateFilterProvider>
+        </OfflineProvider>
       </QueryClientProvider>
     </ThemeProvider>
   )

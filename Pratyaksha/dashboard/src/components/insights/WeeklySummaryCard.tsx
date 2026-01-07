@@ -8,6 +8,9 @@ import {
   AlertCircle,
   FileText,
   Tag,
+  Smile,
+  Frown,
+  Meh,
 } from "lucide-react"
 import { useWeeklySummary, useRegenerateWeeklySummary } from "../../hooks/useWeeklySummary"
 import { WeekPicker } from "./WeekPicker"
@@ -123,18 +126,58 @@ export function WeeklySummaryCard() {
             {summary.moodTrend && (
               <MoodTrendIndicator trend={summary.moodTrend} size="md" />
             )}
+            {summary.dominantSentiment && (
+              <div className={cn(
+                "flex items-center gap-1.5 px-2 py-1 rounded-full text-sm",
+                summary.dominantSentiment === "Positive" && "bg-green-500/10 text-green-600",
+                summary.dominantSentiment === "Negative" && "bg-red-500/10 text-red-600",
+                summary.dominantSentiment === "Neutral" && "bg-slate-500/10 text-slate-600"
+              )}>
+                {summary.dominantSentiment === "Positive" && <Smile className="h-4 w-4" />}
+                {summary.dominantSentiment === "Negative" && <Frown className="h-4 w-4" />}
+                {summary.dominantSentiment === "Neutral" && <Meh className="h-4 w-4" />}
+                <span className="font-medium">{summary.dominantSentiment}</span>
+              </div>
+            )}
             {summary.dominantMode && (
               <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-secondary text-sm">
                 <span className="text-muted-foreground">Mode:</span>
                 <span className="font-medium">{summary.dominantMode}</span>
               </div>
             )}
-            {summary.positiveRatio > 0 && (
-              <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-green-500/10 text-green-600 text-sm">
-                {summary.positiveRatio.toFixed(0)}% positive
-              </div>
-            )}
           </div>
+
+          {/* Sentiment breakdown bar */}
+          {summary.sentimentBreakdown && summary.entryCount > 0 && (
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>Sentiment Distribution</span>
+                <span>
+                  {summary.sentimentBreakdown.positive}+ / {summary.sentimentBreakdown.neutral}○ / {summary.sentimentBreakdown.negative}−
+                </span>
+              </div>
+              <div className="flex h-2 rounded-full overflow-hidden bg-secondary">
+                {summary.sentimentBreakdown.positive > 0 && (
+                  <div
+                    className="bg-green-500 transition-all"
+                    style={{ width: `${(summary.sentimentBreakdown.positive / summary.entryCount) * 100}%` }}
+                  />
+                )}
+                {summary.sentimentBreakdown.neutral > 0 && (
+                  <div
+                    className="bg-slate-400 transition-all"
+                    style={{ width: `${(summary.sentimentBreakdown.neutral / summary.entryCount) * 100}%` }}
+                  />
+                )}
+                {summary.sentimentBreakdown.negative > 0 && (
+                  <div
+                    className="bg-red-500 transition-all"
+                    style={{ width: `${(summary.sentimentBreakdown.negative / summary.entryCount) * 100}%` }}
+                  />
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Narrative */}
           {summary.narrative && (

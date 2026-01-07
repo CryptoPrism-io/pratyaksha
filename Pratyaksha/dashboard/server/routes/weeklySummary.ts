@@ -16,7 +16,27 @@ import {
   parseWeekId
 } from "../lib/weekUtils"
 import { generateWeeklySummary, getDominantValues } from "../agents/weeklyAgent"
-import { WeeklySummaryResponse } from "../types"
+import { WeeklySummaryResponse, Sentiment } from "../types"
+
+/**
+ * Calculate dominant sentiment from breakdown
+ */
+function getDominantSentiment(breakdown: { positive: number; negative: number; neutral: number }): Sentiment {
+  const { positive, negative, neutral } = breakdown
+  const total = positive + negative + neutral
+
+  if (total === 0) return "Neutral"
+
+  // If one sentiment has clear majority (>50%), use it
+  if (positive > total / 2) return "Positive"
+  if (negative > total / 2) return "Negative"
+  if (neutral > total / 2) return "Neutral"
+
+  // Otherwise, pick the highest
+  if (positive >= negative && positive >= neutral) return "Positive"
+  if (negative >= positive && negative >= neutral) return "Negative"
+  return "Neutral"
+}
 
 /**
  * GET /api/weekly-summary
@@ -61,6 +81,8 @@ export async function getWeeklySummary(req: Request, res: Response) {
     if (!regenerate && existingCached) {
       // Parse cached summary - entryCount stored in Entry Length (Words) field
       const cachedEntryCount = existingCached.fields["Entry Length (Words)"] || 0
+      // Get cached sentiment or default to Neutral
+      const cachedSentiment = (existingCached.fields["Entry Sentiment (AI)"] as Sentiment) || "Neutral"
       const response: WeeklySummaryResponse = {
         success: true,
         summary: {
@@ -72,6 +94,7 @@ export async function getWeeklySummary(req: Request, res: Response) {
           moodTrend: null, // Not stored in simple cache
           dominantMode: existingCached.fields["Inferred Mode"] || null,
           dominantEnergy: null,
+          dominantSentiment: cachedSentiment,
           topThemes: existingCached.fields["Entry Theme Tags (AI)"]?.split(",").map(t => t.trim()) || [],
           topContradiction: null,
           weeklyInsight: null,
@@ -79,6 +102,7 @@ export async function getWeeklySummary(req: Request, res: Response) {
           nextWeekFocus: existingCached.fields["Next Action"] || null,
           positiveRatio: 0,
           avgEntriesPerDay: 0,
+          sentimentBreakdown: { positive: 0, negative: 0, neutral: 0 }, // Not stored in simple cache
           generatedAt: existingCached.fields.Timestamp || null,
           cached: true,
           airtableRecordId: existingCached.id,
@@ -113,6 +137,7 @@ export async function getWeeklySummary(req: Request, res: Response) {
           moodTrend: null,
           dominantMode: null,
           dominantEnergy: null,
+          dominantSentiment: null,
           topThemes: [],
           topContradiction: null,
           weeklyInsight: null,
@@ -120,6 +145,7 @@ export async function getWeeklySummary(req: Request, res: Response) {
           nextWeekFocus: null,
           positiveRatio: 0,
           avgEntriesPerDay: 0,
+          sentimentBreakdown: { positive: 0, negative: 0, neutral: 0 },
           generatedAt: null,
           cached: false,
         },
@@ -162,6 +188,9 @@ export async function getWeeklySummary(req: Request, res: Response) {
       // Continue without caching - still return the summary
     }
 
+    // Calculate dominant sentiment from breakdown
+    const dominantSentiment = getDominantSentiment(stats.sentimentBreakdown)
+
     const response: WeeklySummaryResponse = {
       success: true,
       summary: {
@@ -173,6 +202,7 @@ export async function getWeeklySummary(req: Request, res: Response) {
         moodTrend: output.moodTrend,
         dominantMode,
         dominantEnergy,
+        dominantSentiment,
         topThemes,
         topContradiction,
         weeklyInsight: output.weeklyInsight,
@@ -180,6 +210,7 @@ export async function getWeeklySummary(req: Request, res: Response) {
         nextWeekFocus: output.nextWeekFocus,
         positiveRatio: stats.positiveRatio,
         avgEntriesPerDay: stats.avgEntriesPerDay,
+        sentimentBreakdown: stats.sentimentBreakdown,
         generatedAt: new Date().toISOString(),
         cached: false,
         airtableRecordId,

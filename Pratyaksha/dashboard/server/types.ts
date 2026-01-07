@@ -185,6 +185,7 @@ export interface WeeklySummaryResponse {
     moodTrend: MoodTrend | null
     dominantMode: string | null
     dominantEnergy: string | null
+    dominantSentiment: Sentiment | null
     topThemes: string[]
     topContradiction: string | null
 
@@ -196,6 +197,7 @@ export interface WeeklySummaryResponse {
     // Stats
     positiveRatio: number
     avgEntriesPerDay: number
+    sentimentBreakdown: { positive: number; negative: number; neutral: number }
 
     // Metadata
     generatedAt: string | null

@@ -26,6 +26,8 @@ export interface AirtableEntryFields {
   "Entry Length (Words)"?: number
   "Entry Sentiment (AI)"?: string
   "Entry Theme Tags (AI)"?: string
+  "Is Deleted?"?: boolean
+  "Is Bookmarked?"?: boolean
 }
 
 export interface AirtableRecord {

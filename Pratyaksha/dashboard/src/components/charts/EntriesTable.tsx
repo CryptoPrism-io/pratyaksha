@@ -1,10 +1,14 @@
 import { useState, useEffect, useMemo } from "react"
 import { createPortal } from "react-dom"
-import { useEntries } from "../../hooks/useEntries"
-import { ChevronDown, ChevronUp, Eye, X, AlertCircle, RefreshCw } from "lucide-react"
+import { useEntries, useDeleteEntry, useToggleBookmark } from "../../hooks/useEntries"
+import { ChevronDown, ChevronUp, Eye, X, AlertCircle, RefreshCw, Star, Pencil, Trash2 } from "lucide-react"
 import type { Entry } from "../../lib/airtable"
 import { EntryCards } from "./EntryCard"
 import { Skeleton } from "../ui/skeleton"
+import { ConfirmDialog } from "../ui/confirm-dialog"
+import { EditEntryModal } from "../entries/EditEntryModal"
+import { cn } from "../../lib/utils"
+import { toast } from "sonner"
 import type { FilterState } from "../filters/FilterBar"
 
 function TableSkeleton() {
@@ -80,9 +84,12 @@ function getSentimentType(sentiment: string): keyof typeof SENTIMENT_BADGE {
 interface EntryModalProps {
   entry: Entry
   onClose: () => void
+  onEdit?: (entry: Entry) => void
+  onDelete?: (entry: Entry) => void
+  onToggleBookmark?: (entry: Entry) => void
 }
 
-function EntryModal({ entry, onClose }: EntryModalProps) {
+function EntryModal({ entry, onClose, onEdit, onDelete, onToggleBookmark }: EntryModalProps) {
   return createPortal(
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm">
       <div className="flex min-h-full items-center justify-center p-4">
@@ -99,13 +106,59 @@ function EntryModal({ entry, onClose }: EntryModalProps) {
                 })}
               </p>
             </div>
-            <button
-              onClick={onClose}
-              aria-label="Close entry details"
-              className="rounded-full p-2 hover:bg-muted min-w-[44px] min-h-[44px] flex items-center justify-center"
-            >
-              <X className="h-5 w-5" />
-            </button>
+            <div className="flex items-center gap-2">
+              {/* Bookmark */}
+              {onToggleBookmark && (
+                <button
+                  onClick={() => onToggleBookmark(entry)}
+                  aria-label={entry.isBookmarked ? "Remove bookmark" : "Add bookmark"}
+                  className="rounded-full p-2 hover:bg-muted min-w-[44px] min-h-[44px] flex items-center justify-center"
+                >
+                  <Star
+                    className={cn(
+                      "h-5 w-5 transition-colors",
+                      entry.isBookmarked
+                        ? "fill-yellow-400 text-yellow-400"
+                        : "text-muted-foreground hover:text-yellow-400"
+                    )}
+                  />
+                </button>
+              )}
+              {/* Edit */}
+              {onEdit && (
+                <button
+                  onClick={() => {
+                    onClose()
+                    onEdit(entry)
+                  }}
+                  aria-label="Edit entry"
+                  className="rounded-full p-2 hover:bg-muted min-w-[44px] min-h-[44px] flex items-center justify-center"
+                >
+                  <Pencil className="h-5 w-5 text-muted-foreground" />
+                </button>
+              )}
+              {/* Delete */}
+              {onDelete && (
+                <button
+                  onClick={() => {
+                    onClose()
+                    onDelete(entry)
+                  }}
+                  aria-label="Delete entry"
+                  className="rounded-full p-2 hover:bg-destructive/10 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                >
+                  <Trash2 className="h-5 w-5 text-destructive" />
+                </button>
+              )}
+              {/* Close */}
+              <button
+                onClick={onClose}
+                aria-label="Close entry details"
+                className="rounded-full p-2 hover:bg-muted min-w-[44px] min-h-[44px] flex items-center justify-center"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
           </div>
 
           {/* Entry Text */}
@@ -191,11 +244,48 @@ interface EntriesTableProps {
 
 export function EntriesTable({ filters, selectedIndex: externalSelectedIndex, onSelectedIndexChange }: EntriesTableProps) {
   const { data: entries, isLoading, error, refetch } = useEntries()
+  const deleteEntryMutation = useDeleteEntry()
+  const toggleBookmarkMutation = useToggleBookmark()
+  
   const [sortField, setSortField] = useState<"date" | "type" | "sentiment">("date")
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc")
   const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null)
+  const [editingEntry, setEditingEntry] = useState<Entry | null>(null)
+  const [deletingEntry, setDeletingEntry] = useState<Entry | null>(null)
   const [internalSelectedIndex, setInternalSelectedIndex] = useState(-1)
   const isMobile = useIsMobile()
+
+  // Handlers
+  const handleEdit = (entry: Entry) => {
+    setEditingEntry(entry)
+  }
+
+  const handleDelete = (entry: Entry) => {
+    setDeletingEntry(entry)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!deletingEntry) return
+    try {
+      await deleteEntryMutation.mutateAsync(deletingEntry.id)
+      toast.success("Entry deleted")
+      setDeletingEntry(null)
+    } catch (error) {
+      toast.error("Failed to delete entry")
+    }
+  }
+
+  const handleToggleBookmark = async (entry: Entry) => {
+    try {
+      await toggleBookmarkMutation.mutateAsync({
+        recordId: entry.id,
+        bookmarked: !entry.isBookmarked,
+      })
+      toast.success(entry.isBookmarked ? "Bookmark removed" : "Bookmark added")
+    } catch (error) {
+      toast.error("Failed to update bookmark")
+    }
+  }
 
   // Use external or internal selected index
   const selectedRowIndex = externalSelectedIndex ?? internalSelectedIndex
@@ -245,6 +335,12 @@ export function EntriesTable({ filters, selectedIndex: externalSelectedIndex, on
       // Energy filter
       if (filters?.energy && filters.energy !== "all") {
         if (entry.inferredEnergy !== filters.energy) return false
+      }
+
+      // Bookmark filter
+      if (filters?.bookmarked && filters.bookmarked !== "all") {
+        if (filters.bookmarked === "bookmarked" && !entry.isBookmarked) return false
+        if (filters.bookmarked === "not-bookmarked" && entry.isBookmarked) return false
       }
 
       return true
@@ -329,10 +425,38 @@ export function EntriesTable({ filters, selectedIndex: externalSelectedIndex, on
   if (isMobile) {
     return (
       <>
-        <EntryCards entries={sortedEntries} onView={setSelectedEntry} />
+        <EntryCards
+          entries={sortedEntries}
+          onView={setSelectedEntry}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onToggleBookmark={handleToggleBookmark}
+        />
         {selectedEntry && (
-          <EntryModal entry={selectedEntry} onClose={() => setSelectedEntry(null)} />
+          <EntryModal
+            entry={selectedEntry}
+            onClose={() => setSelectedEntry(null)}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onToggleBookmark={handleToggleBookmark}
+          />
         )}
+        {/* Edit Modal */}
+        <EditEntryModal
+          entry={editingEntry}
+          onClose={() => setEditingEntry(null)}
+        />
+        {/* Delete Confirmation */}
+        <ConfirmDialog
+          open={!!deletingEntry}
+          onOpenChange={(open) => !open && setDeletingEntry(null)}
+          title="Delete Entry"
+          description="Are you sure you want to delete this entry? This action cannot be undone."
+          confirmLabel="Delete"
+          variant="destructive"
+          onConfirm={handleConfirmDelete}
+          isLoading={deleteEntryMutation.isPending}
+        />
       </>
     )
   }
@@ -373,8 +497,11 @@ export function EntriesTable({ filters, selectedIndex: externalSelectedIndex, on
               <th className="hidden px-3 py-3 text-left font-medium text-muted-foreground lg:table-cell">
                 Preview
               </th>
+              <th className="px-3 py-3 text-center font-medium text-muted-foreground w-12">
+                <Star className="h-4 w-4 mx-auto" />
+              </th>
               <th className="px-3 py-3 text-right font-medium text-muted-foreground">
-                View
+                Actions
               </th>
             </tr>
           </thead>
@@ -420,14 +547,58 @@ export function EntriesTable({ filters, selectedIndex: externalSelectedIndex, on
                 <td className="hidden max-w-[200px] truncate px-3 py-3 text-muted-foreground lg:table-cell">
                   {entry.text?.slice(0, 60) || "—"}...
                 </td>
-                <td className="px-3 py-3 text-right">
+                <td className="px-3 py-3 text-center">
                   <button
-                    onClick={() => setSelectedEntry(entry)}
-                    aria-label={`View entry from ${new Date(entry.date).toLocaleDateString()}`}
-                    className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary min-w-[44px] min-h-[44px] flex items-center justify-center"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleToggleBookmark(entry)
+                    }}
+                    aria-label={entry.isBookmarked ? "Remove bookmark" : "Add bookmark"}
+                    className="rounded-full p-1.5 hover:bg-muted transition-colors"
                   >
-                    <Eye className="h-4 w-4" />
+                    <Star
+                      className={cn(
+                        "h-4 w-4 transition-colors",
+                        entry.isBookmarked
+                          ? "fill-yellow-400 text-yellow-400"
+                          : "text-muted-foreground hover:text-yellow-400"
+                      )}
+                    />
                   </button>
+                </td>
+                <td className="px-3 py-3 text-right">
+                  <div className="flex items-center justify-end gap-1">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setSelectedEntry(entry)
+                      }}
+                      aria-label={`View entry from ${new Date(entry.date).toLocaleDateString()}`}
+                      className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleEdit(entry)
+                      }}
+                      aria-label="Edit entry"
+                      className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleDelete(entry)
+                      }}
+                      aria-label="Delete entry"
+                      className="rounded-full p-2 text-destructive transition-colors hover:bg-destructive/10"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -437,8 +608,32 @@ export function EntriesTable({ filters, selectedIndex: externalSelectedIndex, on
 
       {/* Entry Modal */}
       {selectedEntry && (
-        <EntryModal entry={selectedEntry} onClose={() => setSelectedEntry(null)} />
+        <EntryModal
+          entry={selectedEntry}
+          onClose={() => setSelectedEntry(null)}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onToggleBookmark={handleToggleBookmark}
+        />
       )}
+
+      {/* Edit Modal */}
+      <EditEntryModal
+        entry={editingEntry}
+        onClose={() => setEditingEntry(null)}
+      />
+
+      {/* Delete Confirmation */}
+      <ConfirmDialog
+        open={!!deletingEntry}
+        onOpenChange={(open) => !open && setDeletingEntry(null)}
+        title="Delete Entry"
+        description="Are you sure you want to delete this entry? This action cannot be undone."
+        confirmLabel="Delete"
+        variant="destructive"
+        onConfirm={handleConfirmDelete}
+        isLoading={deleteEntryMutation.isPending}
+      />
     </>
   )
 }

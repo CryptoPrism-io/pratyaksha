@@ -13,6 +13,7 @@ const DEFAULT_FILTERS: FilterState = {
   sentiment: "all",
   mode: "all",
   energy: "all",
+  bookmarked: "all",
 }
 
 export function Logs() {

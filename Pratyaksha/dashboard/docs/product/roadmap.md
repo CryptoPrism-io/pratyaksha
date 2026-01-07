@@ -1,7 +1,7 @@
-# Product Roadmap v2.2
+# Product Roadmap v2.4
 
-*Last Updated: 2026-01-07 | Version: 2.2*
-*Previous: 2026-01-07 v2.1*
+*Last Updated: 2026-01-07 | Version: 2.4*
+*Previous: 2026-01-07 v2.3*
 
 ---
 
@@ -47,24 +47,36 @@
 
 ---
 
-## NEXT (Sprint 3-4)
+## Completed (Sprint 3-4) - DONE
 **Focus**: Core Functionality & Platform
 
 | Feature | Effort | Status | Notes |
 |---------|--------|--------|-------|
-| Entry editing | 2 days | Pending | Re-trigger AI analysis |
-| Entry deletion (soft) | 1 day | Pending | With confirmation |
-| Bookmarked entries | 2 days | Pending | Star/flag system |
-| PWA installation | 2 days | Pending | manifest.json + SW |
-| Offline entry queue | 2 days | Pending | Store locally, sync later |
+| Entry editing | 2 days | DONE | Re-triggers 4-agent AI pipeline |
+| Entry deletion (soft) | 1 day | DONE | With confirmation dialog |
+| Bookmarked entries | 2 days | DONE | Star/flag with filtering |
+| Use createdTime for timestamp | 30 min | DONE | Airtable auto-timestamp |
 
-**Success Metric**: Entry completion rate > 90%, PWA installs > 100
-
-**Total Effort**: ~9 days
+**Progress**: 4/4 complete (100%)
 
 ---
 
-## LATER (Sprint 5+)
+## Completed (Sprint 5) - DONE
+**Focus**: PWA & Offline Support
+
+| Feature | Effort | Status | Notes |
+|---------|--------|--------|-------|
+| PWA installation | 2 days | DONE | manifest.json + Service Worker + Install prompt |
+| Offline entry queue | 2 days | DONE | IndexedDB + useOfflineSync hook + OfflineIndicator UI |
+| Daily summary sentiment | 1 day | DONE | Sentiment badge + breakdown bar in Weekly Summary |
+
+**Progress**: 3/3 complete (100%)
+
+**Success Metric**: PWA installs > 100, offline entries sync correctly
+
+---
+
+## LATER (Sprint 6+)
 **Focus**: Power Features & Scale
 
 | Feature | Effort | Status | Notes |
@@ -100,22 +112,29 @@
 
 ```
          DONE                              NEXT              LATER
-    Sprint 1 + 2 (Complete)            Sprint 3-4         Sprint 5+
+    Sprint 1-5 (Complete)              Sprint 6           Sprint 7+
 ├──────────────────────────────────┼─────────────────┼─────────────────
 │                                  │                 │
 │  COMPLETED                       │  PLANNED        │  FUTURE
 │  ──────────                      │  ───────        │  ──────
-│  ✓ Onboarding tour               │  • Entry edit   │  • Auth
-│  ✓ Empty states                  │  • Entry delete │  • Comparisons
-│  ✓ Confetti                      │  • Bookmarks    │  • Notifications
-│  ✓ Shortcuts                     │  • PWA support  │  • AI chat
-│  ✓ Restart tour                  │  • Offline mode │  • Data import
+│  ✓ Onboarding tour               │  • Auth         │  • Team features
+│  ✓ Empty states                  │  • Comparisons  │  • Cloud sync
+│  ✓ Confetti                      │  • Notifications│  • Data import
+│  ✓ Shortcuts                     │  • AI chat      │  • Custom types
+│  ✓ Restart tour                  │                 │
 │  ✓ Glass UI                      │                 │
 │  ✓ Streak system                 │                 │
 │  ✓ Entry templates               │                 │
 │  ✓ Insights page                 │                 │
 │  ✓ Profile page                  │                 │
 │  ✓ Weekly AI Summary             │                 │
+│  ✓ Entry editing                 │                 │
+│  ✓ Entry deletion                │                 │
+│  ✓ Bookmarked entries            │                 │
+│  ✓ createdTime timestamp         │                 │
+│  ✓ PWA installation              │                 │
+│  ✓ Offline entry queue           │                 │
+│  ✓ Summary sentiment             │                 │
 │                                  │                 │
 └──────────────────────────────────┴─────────────────┴─────────────────
 ```
@@ -202,6 +221,76 @@
 
 ---
 
+## Sprint 3-4 Progress (Complete)
+
+### What We Built
+1. **Entry Editing**
+   - Edit modal with pre-populated text
+   - Word/character count display
+   - "Save & Re-analyze" triggers full 4-agent AI pipeline
+   - Toast notification on success
+
+2. **Entry Deletion (Soft)**
+   - Confirmation dialog with "Cannot be undone" warning
+   - Soft delete via `Is Deleted?` Airtable field
+   - Deleted entries filtered from all views
+
+3. **Bookmarked Entries**
+   - Star icon toggle (filled yellow when bookmarked)
+   - `Is Bookmarked?` Airtable field
+   - Filter dropdown: All / Bookmarked only / Not bookmarked
+   - Bookmark from card view and modal
+
+4. **Timestamp Fix**
+   - Using Airtable's `createdTime` (always accurate)
+   - Fallback to GPT `Timestamp` if needed
+
+### Technical Achievements
+- PATCH `/api/entry/:id` - Update with AI re-analysis
+- DELETE `/api/entry/:id` - Soft delete
+- PATCH `/api/entry/:id/bookmark` - Toggle bookmark
+- TanStack Query mutations with cache invalidation
+- ConfirmDialog reusable component
+- EditEntryModal with processing indicator
+
+---
+
+## Sprint 5 Progress (Complete)
+
+### What We Built
+1. **PWA Installation**
+   - `manifest.json` with app icons and metadata
+   - Service Worker for caching and offline support
+   - `InstallPrompt` component in header navigation
+   - "Install App" button appears on supported browsers
+
+2. **Offline Entry Queue**
+   - `offlineDb.ts` - IndexedDB wrapper for pending entries
+   - `useOfflineSync` hook - Online/offline detection + sync logic
+   - `OfflineContext` - Global state provider for offline status
+   - `OfflineIndicator` - Floating pill UI showing:
+     - Online/offline status
+     - Pending entry count
+     - Entry list with status (pending/syncing/failed)
+     - Sync Now / Retry Failed buttons
+   - LogEntryForm integration - Queue entries when offline
+
+3. **Daily Summary Sentiment**
+   - Added `dominantSentiment` and `sentimentBreakdown` to Weekly Summary
+   - Sentiment badge with Smile/Meh/Frown icons
+   - Visual breakdown bar showing positive/neutral/negative distribution
+   - Color-coded display (green/slate/red)
+
+### Technical Achievements
+- IndexedDB database `pratyaksha-offline` with `pending-entries` store
+- Auto-sync when coming back online
+- Retry mechanism with max 3 attempts per entry
+- Clear failed entries option
+- Sentiment calculation from entry sentiment field
+- Service Worker caching strategy
+
+---
+
 ## Dependencies
 
 ```
@@ -237,6 +326,28 @@ Authentication ─────────────────┬──► M
 ---
 
 ## Changelog
+
+### v2.4 (2026-01-07)
+- SPRINT 5 COMPLETE!
+- PWA installation with manifest + Service Worker + Install prompt
+- Offline entry queue with IndexedDB storage
+- Auto-sync when coming back online
+- OfflineIndicator floating UI component
+- Daily/Weekly summary sentiment analysis
+- Sentiment badge with breakdown bar
+- Added Sprint 5 Progress section
+- Updated roadmap visualization
+- Next up: Sprint 6 (Auth & Power Features)
+
+### v2.3 (2026-01-07)
+- SPRINT 3-4 COMPLETE!
+- Entry editing with AI re-analysis
+- Soft delete with confirmation dialog
+- Bookmarked entries with filtering
+- Using createdTime for accurate timestamps
+- Added Sprint 3-4 Progress section
+- Updated roadmap visualization
+- Next up: Sprint 5 (PWA & Offline)
 
 ### v2.2 (2026-01-07)
 - SPRINT 2 COMPLETE!

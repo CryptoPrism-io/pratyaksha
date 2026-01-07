@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from "react"
-import { Mic, MicOff, Send, Loader2, Brain, Sparkles, Sun, Moon, Heart, CloudRain, Target, Calendar, Pencil } from "lucide-react"
+import { Mic, MicOff, Send, Loader2, Brain, Sparkles, Sun, Moon, Heart, CloudRain, Target, Calendar, Pencil, WifiOff } from "lucide-react"
 import { Button } from "../ui/button"
 import { useSpeechRecognition } from "../../hooks/useSpeechRecognition"
 import { useStreak, STREAK_MILESTONES } from "../../hooks/useStreak"
 import { useEntries } from "../../hooks/useEntries"
-import { useQueryClient } from "@tanstack/react-query"
+import { useOffline } from "../../contexts/OfflineContext"
+// Note: Query invalidation is now handled by useOfflineSync
 import { toast } from "sonner"
 import { cn } from "../../lib/utils"
 import { ERROR_MESSAGES } from "../../lib/errorMessages"
@@ -152,6 +153,9 @@ export function LogEntryForm({ onSuccess }: LogEntryFormProps) {
   const [processingStep, setProcessingStep] = useState(0)
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null)
 
+  // Get offline context
+  const { isOnline, submitEntry } = useOffline()
+
   // Get entries for streak calculation
   const { data: entries = [] } = useEntries()
   const { streak } = useStreak(entries)
@@ -172,8 +176,6 @@ export function LogEntryForm({ onSuccess }: LogEntryFormProps) {
       toast.success(`${template.name} template loaded`, { duration: 2000 })
     }
   }
-
-  const queryClient = useQueryClient()
 
   const {
     transcript,
@@ -240,72 +242,70 @@ export function LogEntryForm({ onSuccess }: LogEntryFormProps) {
     setProcessingStep(0)
 
     // Simulate step progression (the actual processing happens server-side)
-    const stepInterval = setInterval(() => {
-      setProcessingStep((prev) => {
-        if (prev < PROCESSING_STEPS.length - 1) return prev + 1
-        return prev
-      })
-    }, 1500)
+    // Skip steps animation for offline mode
+    const stepInterval = isOnline
+      ? setInterval(() => {
+          setProcessingStep((prev) => {
+            if (prev < PROCESSING_STEPS.length - 1) return prev + 1
+            return prev
+          })
+        }, 1500)
+      : null
 
     try {
-      const response = await fetch("/api/process-entry", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          text: text.trim(),
-        }),
-      })
+      // Use offline-aware submitEntry
+      const { success, offline } = await submitEntry(text.trim())
 
-      const result = await response.json()
-
-      if (!response.ok) {
-        throw new Error(result.error || "Failed to process entry")
-      }
-
-      if (result.success) {
-        // Invalidate entries query to refresh the list
-        queryClient.invalidateQueries({ queryKey: ["entries"] })
-
-        // Check if this is a first entry (had no entries before)
-        const isFirstEntry = entryCountBeforeSubmit.current === 0
-
-        // Calculate new streak (current streak + 1 if not logged today yet)
-        const newStreak = streak + 1
-
-        // Check if hitting a milestone
-        const hitMilestone = STREAK_MILESTONES.includes(newStreak as typeof STREAK_MILESTONES[number])
-          ? newStreak
-          : null
-
-        // Trigger confetti for first entry or milestones
-        if (isFirstEntry) {
-          triggerConfetti()
-          toast.success("Welcome to Pratyaksha!", {
-            description: "Your first entry has been logged. Your journey begins now!",
-            duration: 5000,
-          })
-        } else if (hitMilestone) {
-          // Milestone celebration!
-          triggerConfetti()
-          const milestoneMessages: Record<number, string> = {
-            7: "One week of journaling! You're building a habit.",
-            14: "Two weeks strong! Consistency is key.",
-            30: "One month champion! You're on fire.",
-            60: "Two months incredible! This is dedication.",
-            100: "100 day legend! You've achieved something special.",
-            365: "One year unstoppable! You're an inspiration.",
-          }
-          toast.success(`${hitMilestone} Day Milestone!`, {
-            description: milestoneMessages[hitMilestone] || `Amazing! ${hitMilestone} days of journaling!`,
-            duration: 6000,
+      if (success) {
+        if (offline) {
+          // Entry was queued for later sync
+          toast.success("Entry saved offline!", {
+            description: "Your entry will sync when you're back online.",
+            icon: <WifiOff className="h-4 w-4" />,
           })
         } else {
-          // Show streak toast
-          toast.success("Entry saved!", {
-            description: newStreak > 1
-              ? `Day ${newStreak} streak! Keep the momentum going.`
-              : `"${result.entry?.fields?.Name || "New Entry"}" has been logged.`,
-          })
+          // Entry was synced successfully
+          // Check if this is a first entry (had no entries before)
+          const isFirstEntry = entryCountBeforeSubmit.current === 0
+
+          // Calculate new streak (current streak + 1 if not logged today yet)
+          const newStreak = streak + 1
+
+          // Check if hitting a milestone
+          const hitMilestone = STREAK_MILESTONES.includes(newStreak as typeof STREAK_MILESTONES[number])
+            ? newStreak
+            : null
+
+          // Trigger confetti for first entry or milestones
+          if (isFirstEntry) {
+            triggerConfetti()
+            toast.success("Welcome to Pratyaksha!", {
+              description: "Your first entry has been logged. Your journey begins now!",
+              duration: 5000,
+            })
+          } else if (hitMilestone) {
+            // Milestone celebration!
+            triggerConfetti()
+            const milestoneMessages: Record<number, string> = {
+              7: "One week of journaling! You're building a habit.",
+              14: "Two weeks strong! Consistency is key.",
+              30: "One month champion! You're on fire.",
+              60: "Two months incredible! This is dedication.",
+              100: "100 day legend! You've achieved something special.",
+              365: "One year unstoppable! You're an inspiration.",
+            }
+            toast.success(`${hitMilestone} Day Milestone!`, {
+              description: milestoneMessages[hitMilestone] || `Amazing! ${hitMilestone} days of journaling!`,
+              duration: 6000,
+            })
+          } else {
+            // Show streak toast
+            toast.success("Entry saved!", {
+              description: newStreak > 1
+                ? `Day ${newStreak} streak! Keep the momentum going.`
+                : "Your entry has been logged and analyzed.",
+            })
+          }
         }
 
         setText("")
@@ -318,7 +318,7 @@ export function LogEntryForm({ onSuccess }: LogEntryFormProps) {
         description: ERROR_MESSAGES.PROCESS_ENTRY,
       })
     } finally {
-      clearInterval(stepInterval)
+      if (stepInterval) clearInterval(stepInterval)
       setIsProcessing(false)
       setProcessingStep(0)
     }
@@ -331,8 +331,20 @@ export function LogEntryForm({ onSuccess }: LogEntryFormProps) {
   return (
     <div className="rounded-xl glass-card p-6">
       <div className="mb-4">
-        <h2 className="text-xl font-semibold">Log New Entry</h2>
-        <p className="text-sm text-muted-foreground mt-1">AI will automatically classify your entry</p>
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold">Log New Entry</h2>
+          {!isOnline && (
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-amber-500/10 text-amber-600 text-xs font-medium">
+              <WifiOff className="h-3.5 w-3.5" />
+              Offline Mode
+            </div>
+          )}
+        </div>
+        <p className="text-sm text-muted-foreground mt-1">
+          {isOnline
+            ? "AI will automatically classify your entry"
+            : "Entry will sync when you're back online"}
+        </p>
       </div>
 
       {/* Template selector */}

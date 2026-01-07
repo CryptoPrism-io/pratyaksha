@@ -6,6 +6,16 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Build-time arguments for Vite (embedded in frontend bundle)
+ARG VITE_AIRTABLE_API_KEY
+ARG VITE_AIRTABLE_BASE_ID
+ARG VITE_AIRTABLE_TABLE_ID
+
+# Make build args available as env vars for Vite build
+ENV VITE_AIRTABLE_API_KEY=$VITE_AIRTABLE_API_KEY
+ENV VITE_AIRTABLE_BASE_ID=$VITE_AIRTABLE_BASE_ID
+ENV VITE_AIRTABLE_TABLE_ID=$VITE_AIRTABLE_TABLE_ID
+
 # Copy package files
 COPY package*.json ./
 
@@ -20,6 +30,9 @@ RUN npm run build
 
 # Build the Express server
 RUN npm run build:server
+
+# Create a package.json in dist/server to mark it as CommonJS
+RUN echo '{"type": "commonjs"}' > dist/server/package.json
 
 # Stage 2: Production
 FROM node:20-alpine AS production

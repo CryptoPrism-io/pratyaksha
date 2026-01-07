@@ -1,4 +1,5 @@
-import { Eye, Calendar, Tag, Zap } from "lucide-react"
+import { Eye, Calendar, Tag, Zap, Star, Pencil, Trash2 } from "lucide-react"
+import { cn } from "../../lib/utils"
 import type { Entry } from "../../lib/airtable"
 
 const SENTIMENT_BADGE = {
@@ -19,9 +20,12 @@ function getSentimentType(sentiment: string): keyof typeof SENTIMENT_BADGE {
 interface EntryCardProps {
   entry: Entry
   onView: (entry: Entry) => void
+  onEdit?: (entry: Entry) => void
+  onDelete?: (entry: Entry) => void
+  onToggleBookmark?: (entry: Entry) => void
 }
 
-export function EntryCard({ entry, onView }: EntryCardProps) {
+export function EntryCard({ entry, onView, onEdit, onDelete, onToggleBookmark }: EntryCardProps) {
   const sentimentType = getSentimentType(entry.sentimentAI)
 
   return (
@@ -38,11 +42,33 @@ export function EntryCard({ entry, onView }: EntryCardProps) {
             })}
           </span>
         </div>
-        <span
-          className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${SENTIMENT_BADGE[sentimentType]}`}
-        >
-          {entry.sentimentAI?.split(" ")[0] || "—"}
-        </span>
+        <div className="flex items-center gap-2">
+          {/* Bookmark button */}
+          {onToggleBookmark && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                onToggleBookmark(entry)
+              }}
+              className="p-1 rounded-full hover:bg-muted transition-colors"
+              aria-label={entry.isBookmarked ? "Remove bookmark" : "Add bookmark"}
+            >
+              <Star
+                className={cn(
+                  "h-4 w-4 transition-colors",
+                  entry.isBookmarked
+                    ? "fill-yellow-400 text-yellow-400"
+                    : "text-muted-foreground hover:text-yellow-400"
+                )}
+              />
+            </button>
+          )}
+          <span
+            className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${SENTIMENT_BADGE[sentimentType]}`}
+          >
+            {entry.sentimentAI?.split(" ")[0] || "—"}
+          </span>
+        </div>
       </div>
 
       {/* Preview Text */}
@@ -66,15 +92,41 @@ export function EntryCard({ entry, onView }: EntryCardProps) {
         )}
       </div>
 
-      {/* Action */}
-      <button
-        onClick={() => onView(entry)}
-        aria-label={`View entry from ${new Date(entry.date).toLocaleDateString()}`}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-muted py-2.5 text-sm font-medium transition-colors hover:bg-muted/80 min-h-[44px]"
-      >
-        <Eye className="h-4 w-4" />
-        View Details
-      </button>
+      {/* Actions */}
+      <div className="flex gap-2">
+        <button
+          onClick={() => onView(entry)}
+          aria-label={`View entry from ${new Date(entry.date).toLocaleDateString()}`}
+          className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-muted py-2.5 text-sm font-medium transition-colors hover:bg-muted/80 min-h-[44px]"
+        >
+          <Eye className="h-4 w-4" />
+          View
+        </button>
+        {onEdit && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onEdit(entry)
+            }}
+            aria-label="Edit entry"
+            className="flex items-center justify-center rounded-lg bg-muted p-2.5 text-sm font-medium transition-colors hover:bg-muted/80 min-h-[44px] min-w-[44px]"
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+        )}
+        {onDelete && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onDelete(entry)
+            }}
+            aria-label="Delete entry"
+            className="flex items-center justify-center rounded-lg bg-destructive/10 p-2.5 text-sm font-medium text-destructive transition-colors hover:bg-destructive/20 min-h-[44px] min-w-[44px]"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        )}
+      </div>
     </div>
   )
 }
@@ -82,9 +134,12 @@ export function EntryCard({ entry, onView }: EntryCardProps) {
 interface EntryCardsProps {
   entries: Entry[]
   onView: (entry: Entry) => void
+  onEdit?: (entry: Entry) => void
+  onDelete?: (entry: Entry) => void
+  onToggleBookmark?: (entry: Entry) => void
 }
 
-export function EntryCards({ entries, onView }: EntryCardsProps) {
+export function EntryCards({ entries, onView, onEdit, onDelete, onToggleBookmark }: EntryCardsProps) {
   if (entries.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
@@ -96,7 +151,14 @@ export function EntryCards({ entries, onView }: EntryCardsProps) {
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       {entries.map((entry) => (
-        <EntryCard key={entry.id} entry={entry} onView={onView} />
+        <EntryCard
+          key={entry.id}
+          entry={entry}
+          onView={onView}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          onToggleBookmark={onToggleBookmark}
+        />
       ))}
     </div>
   )

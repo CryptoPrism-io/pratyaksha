@@ -34,6 +34,8 @@ export interface EntryFields {
   "Is Recent?"?: string
   "Entry Sentiment (AI)"?: string | { value: string; state: string }
   "Entry Theme Tags (AI)"?: string | { value: string; state: string }
+  "Is Deleted?"?: boolean
+  "Is Bookmarked?"?: boolean
 }
 
 export interface Entry {
@@ -60,6 +62,8 @@ export interface Entry {
   sentimentAI: string
   themeTagsAI: string[]
   createdTime: string
+  isDeleted: boolean
+  isBookmarked: boolean
 }
 
 function extractAIField(value: string | { value: string; state: string } | undefined): string {
@@ -78,7 +82,7 @@ function transformRecord(record: AirtableRecord): Entry {
     name: fields.Name || "",
     type: fields.Type || "",
     date: fields.Date || "",
-    timestamp: fields.Timestamp || "",
+    timestamp: record.createdTime || fields.Timestamp || "",
     text: fields.Text || "",
     inferredMode: fields["Inferred Mode"] || "",
     inferredEnergy: fields["Inferred Energy"] || "",
@@ -97,6 +101,8 @@ function transformRecord(record: AirtableRecord): Entry {
     sentimentAI: sentimentRaw,
     themeTagsAI: tagsRaw ? tagsRaw.split(",").map((t) => t.trim()) : [],
     createdTime: record.createdTime,
+    isDeleted: fields["Is Deleted?"] || false,
+    isBookmarked: fields["Is Bookmarked?"] || false,
   }
 }
 
@@ -181,6 +187,7 @@ export interface WeeklySummary {
   moodTrend: "improving" | "declining" | "stable" | "volatile" | null
   dominantMode: string | null
   dominantEnergy: string | null
+  dominantSentiment: "Positive" | "Negative" | "Neutral" | null
   topThemes: string[]
   topContradiction: string | null
   weeklyInsight: string | null
@@ -188,6 +195,7 @@ export interface WeeklySummary {
   nextWeekFocus: string | null
   positiveRatio: number
   avgEntriesPerDay: number
+  sentimentBreakdown: { positive: number; negative: number; neutral: number }
   generatedAt: string | null
   cached: boolean
   airtableRecordId?: string
@@ -270,6 +278,87 @@ export async function fetchDailySummary(
   return response.json()
 }
 
+// Entry Update/Delete/Bookmark API Functions
+
+export interface UpdateEntryInput {
+  recordId: string
+  text: string
+  type?: string
+}
+
+export interface UpdateEntryResponse {
+  success: boolean
+  entry?: {
+    id: string
+    fields: Record<string, unknown>
+  }
+  error?: string
+}
+
+/**
+ * Update an existing entry - triggers AI re-analysis
+ */
+export async function updateEntry(input: UpdateEntryInput): Promise<UpdateEntryResponse> {
+  const response = await fetch(`/api/entry/${input.recordId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text: input.text, type: input.type }),
+  })
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: "Unknown error" }))
+    return { success: false, error: error.error || `HTTP ${response.status}` }
+  }
+
+  return response.json()
+}
+
+/**
+ * Soft delete an entry
+ */
+export async function deleteEntry(recordId: string): Promise<{ success: boolean }> {
+  const response = await fetch(`/api/entry/${recordId}`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+  })
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: "Unknown error" }))
+    throw new Error(error.error || `HTTP ${response.status}`)
+  }
+
+  const result = await response.json()
+  if (!result.success) {
+    throw new Error(result.error || "Failed to delete entry")
+  }
+  return result
+}
+
+/**
+ * Toggle bookmark status on an entry
+ */
+export async function toggleBookmark(
+  recordId: string,
+  bookmarked: boolean
+): Promise<{ success: boolean; entry?: { id: string } }> {
+  const response = await fetch(`/api/entry/${recordId}/bookmark`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ bookmarked }),
+  })
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: "Unknown error" }))
+    throw new Error(error.error || `HTTP ${response.status}`)
+  }
+
+  const result = await response.json()
+  if (!result.success) {
+    throw new Error(result.error || "Failed to toggle bookmark")
+  }
+  return result
+}
+
 // Demo data for development/showcase
 function getDemoData(): Entry[] {
   return [
@@ -297,6 +386,8 @@ function getDemoData(): Entry[] {
       sentimentAI: "Negative",
       themeTagsAI: ["anxiety", "work stress", "coping"],
       createdTime: "2026-01-01T08:30:00Z",
+      isDeleted: false,
+      isBookmarked: false,
     },
     {
       id: "rec2",
@@ -322,6 +413,8 @@ function getDemoData(): Entry[] {
       sentimentAI: "Negative",
       themeTagsAI: ["debugging", "frustration", "software"],
       createdTime: "2026-01-01T14:00:00Z",
+      isDeleted: false,
+      isBookmarked: false,
     },
     {
       id: "rec3",
@@ -347,6 +440,8 @@ function getDemoData(): Entry[] {
       sentimentAI: "Positive",
       themeTagsAI: ["achievement", "excitement", "technology"],
       createdTime: "2026-01-01T16:30:00Z",
+      isDeleted: false,
+      isBookmarked: true,
     },
     {
       id: "rec4",
@@ -372,6 +467,8 @@ function getDemoData(): Entry[] {
       sentimentAI: "Positive",
       themeTagsAI: ["excitement", "spontaneity", "happiness"],
       createdTime: "2026-01-01T18:00:00Z",
+      isDeleted: false,
+      isBookmarked: false,
     },
     {
       id: "rec5",
@@ -397,6 +494,8 @@ function getDemoData(): Entry[] {
       sentimentAI: "Neutral",
       themeTagsAI: ["reflection", "self-awareness", "growth"],
       createdTime: "2025-12-31T20:00:00Z",
+      isDeleted: false,
+      isBookmarked: false,
     },
     {
       id: "rec6",
@@ -422,6 +521,8 @@ function getDemoData(): Entry[] {
       sentimentAI: "Positive",
       themeTagsAI: ["health", "exercise", "self-care"],
       createdTime: "2025-12-30T10:00:00Z",
+      isDeleted: false,
+      isBookmarked: false,
     },
     {
       id: "rec7",
@@ -447,6 +548,8 @@ function getDemoData(): Entry[] {
       sentimentAI: "Negative",
       themeTagsAI: ["family", "emotions", "boundaries"],
       createdTime: "2025-12-29T19:00:00Z",
+      isDeleted: false,
+      isBookmarked: false,
     },
   ]
 }

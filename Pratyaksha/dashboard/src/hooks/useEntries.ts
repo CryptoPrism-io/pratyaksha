@@ -1,6 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useMemo } from "react"
-import { fetchEntries, createEntry, type CreateEntryInput } from "../lib/airtable"
+import {
+  fetchEntries,
+  createEntry,
+  updateEntry,
+  deleteEntry,
+  toggleBookmark,
+  type CreateEntryInput,
+  type UpdateEntryInput,
+} from "../lib/airtable"
 import {
   toTimelineData,
   toEnrichedTimelineData,
@@ -27,15 +35,23 @@ export function useEntriesRaw() {
   })
 }
 
-// Entries filtered by global date filter
+// Entries filtered by global date filter and excluding deleted
 export function useEntries() {
   const { data: entries, ...rest } = useEntriesRaw()
   const { dateRange } = useDateFilter()
 
   const filtered = useMemo(() => {
     if (!entries) return undefined
-    if (!dateRange) return entries // "all" preset
-    return entries.filter((entry) => isDateInRange(entry.date, dateRange))
+    
+    // Start by filtering out deleted entries
+    let result = entries.filter((entry) => !entry.isDeleted)
+    
+    // Apply date filter if set
+    if (dateRange) {
+      result = result.filter((entry) => isDateInRange(entry.date, dateRange))
+    }
+    
+    return result
   }, [entries, dateRange])
 
   return {
@@ -158,6 +174,43 @@ export function useCreateEntry() {
     mutationFn: (input: CreateEntryInput) => createEntry(input),
     onSuccess: () => {
       // Invalidate and refetch entries after successful creation
+      queryClient.invalidateQueries({ queryKey: ["entries"] })
+    },
+  })
+}
+
+// Update entry mutation hook (triggers AI re-analysis)
+export function useUpdateEntry() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (input: UpdateEntryInput) => updateEntry(input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["entries"] })
+    },
+  })
+}
+
+// Delete entry mutation hook (soft delete)
+export function useDeleteEntry() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (recordId: string) => deleteEntry(recordId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["entries"] })
+    },
+  })
+}
+
+// Toggle bookmark mutation hook
+export function useToggleBookmark() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ recordId, bookmarked }: { recordId: string; bookmarked: boolean }) =>
+      toggleBookmark(recordId, bookmarked),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["entries"] })
     },
   })

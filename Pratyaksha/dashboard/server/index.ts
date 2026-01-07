@@ -3,7 +3,7 @@ import "dotenv/config"
 import express from "express"
 import cors from "cors"
 import path from "path"
-import { processEntry } from "./routes/entry"
+import { processEntry, updateEntry, deleteEntry, toggleBookmark } from "./routes/entry"
 import { getWeeklySummary } from "./routes/weeklySummary"
 import { getDailySummary } from "./routes/dailySummary"
 
@@ -22,6 +22,9 @@ app.get("/health", (_req, res) => {
 
 // API Routes
 app.post("/api/process-entry", processEntry)
+app.patch("/api/entry/:id", updateEntry)
+app.delete("/api/entry/:id", deleteEntry)
+app.patch("/api/entry/:id/bookmark", toggleBookmark)
 app.get("/api/weekly-summary", getWeeklySummary)
 app.get("/api/daily-summary", getDailySummary)
 

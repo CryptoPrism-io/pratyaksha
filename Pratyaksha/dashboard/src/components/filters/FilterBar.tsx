@@ -1,5 +1,5 @@
 import { useState, type RefObject } from "react"
-import { Search, X, Calendar, Filter, RefreshCw } from "lucide-react"
+import { Search, X, Calendar, Filter, RefreshCw, Star } from "lucide-react"
 import { Input } from "../ui/input"
 import { Button } from "../ui/button"
 import {
@@ -25,6 +25,7 @@ export interface FilterState {
   sentiment: string
   mode: string
   energy: string
+  bookmarked: "all" | "bookmarked" | "not-bookmarked"
 }
 
 interface FilterBarProps {
@@ -59,6 +60,12 @@ const SENTIMENT_OPTIONS = [
   { value: "Neutral", label: "Neutral" },
 ]
 
+const BOOKMARK_OPTIONS = [
+  { value: "all", label: "All entries" },
+  { value: "bookmarked", label: "Bookmarked only" },
+  { value: "not-bookmarked", label: "Not bookmarked" },
+]
+
 export function FilterBar({
   filters,
   onFiltersChange,
@@ -89,6 +96,7 @@ export function FilterBar({
       sentiment: "all",
       mode: "all",
       energy: "all",
+      bookmarked: "all",
     })
   }
 
@@ -99,6 +107,7 @@ export function FilterBar({
     filters.sentiment !== "all",
     filters.mode !== "all",
     filters.energy !== "all",
+    filters.bookmarked !== "all",
   ].filter(Boolean).length
 
   return (
@@ -283,6 +292,29 @@ export function FilterBar({
                 </div>
               )}
 
+              {/* Bookmark filter */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center gap-2">
+                  <Star className="h-4 w-4" />
+                  Bookmarked
+                </label>
+                <Select
+                  value={filters.bookmarked}
+                  onValueChange={(value) => updateFilter("bookmarked", value as FilterState["bookmarked"])}
+                >
+                  <SelectTrigger aria-label="Filter by bookmark status">
+                    <SelectValue placeholder="All entries" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {BOOKMARK_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
               {/* Clear all button */}
               {activeFilterCount > 0 && (
                 <Button
@@ -360,6 +392,12 @@ export function FilterBar({
             <FilterPill
               label={`Energy: ${filters.energy}`}
               onRemove={() => updateFilter("energy", "all")}
+            />
+          )}
+          {filters.bookmarked !== "all" && (
+            <FilterPill
+              label={BOOKMARK_OPTIONS.find(o => o.value === filters.bookmarked)?.label || ""}
+              onRemove={() => updateFilter("bookmarked", "all")}
             />
           )}
         </div>
