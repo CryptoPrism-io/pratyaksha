@@ -1,52 +1,104 @@
 import { useState, useEffect, useRef } from "react"
-import { Mic, MicOff, Send, Loader2, Brain, Sparkles } from "lucide-react"
+import { Mic, MicOff, Send, Loader2, Brain, Sparkles, Sun, Moon, Heart, CloudRain, Target, Calendar, Pencil } from "lucide-react"
 import { Button } from "../ui/button"
 import { useSpeechRecognition } from "../../hooks/useSpeechRecognition"
+import { useStreak, STREAK_MILESTONES } from "../../hooks/useStreak"
+import { useEntries } from "../../hooks/useEntries"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { cn } from "../../lib/utils"
 import { ERROR_MESSAGES } from "../../lib/errorMessages"
 import confetti from "canvas-confetti"
 
-// Streak tracking utilities
-const STREAK_KEY = "pratyaksha-streak"
-const LAST_ENTRY_KEY = "pratyaksha-last-entry"
-
-function getStreakData(): { count: number; lastDate: string | null } {
-  const count = parseInt(localStorage.getItem(STREAK_KEY) || "0", 10)
-  const lastDate = localStorage.getItem(LAST_ENTRY_KEY)
-  return { count, lastDate }
+// Entry templates to help users get started
+interface EntryTemplate {
+  id: string
+  name: string
+  icon: React.ReactNode
+  prompt: string
 }
 
-function updateStreak(): { count: number; isFirst: boolean } {
-  const { count, lastDate } = getStreakData()
-  const today = new Date().toDateString()
+const ENTRY_TEMPLATES: EntryTemplate[] = [
+  {
+    id: "morning",
+    name: "Morning",
+    icon: <Sun className="h-3.5 w-3.5" />,
+    prompt: `How am I feeling this morning?
 
-  // Check if first ever entry
-  const isFirst = count === 0 && !lastDate
+What's my energy level?
 
-  if (lastDate === today) {
-    // Already logged today - no streak change
-    return { count, isFirst: false }
-  }
+What am I looking forward to today?
 
-  const yesterday = new Date()
-  yesterday.setDate(yesterday.getDate() - 1)
+One thing I want to accomplish:`,
+  },
+  {
+    id: "evening",
+    name: "Evening",
+    icon: <Moon className="h-3.5 w-3.5" />,
+    prompt: `How did today go overall?
 
-  let newCount: number
-  if (lastDate === yesterday.toDateString()) {
-    // Continuing streak
-    newCount = count + 1
-  } else {
-    // Streak broken or first entry
-    newCount = 1
-  }
+What went well today?
 
-  localStorage.setItem(STREAK_KEY, String(newCount))
-  localStorage.setItem(LAST_ENTRY_KEY, today)
+What was challenging?
 
-  return { count: newCount, isFirst }
-}
+What did I learn?
+
+How am I feeling now?`,
+  },
+  {
+    id: "gratitude",
+    name: "Gratitude",
+    icon: <Heart className="h-3.5 w-3.5" />,
+    prompt: `Three things I'm grateful for today:
+1.
+2.
+3.
+
+Why these matter to me:
+
+Something I often take for granted:`,
+  },
+  {
+    id: "stress",
+    name: "Stress Dump",
+    icon: <CloudRain className="h-3.5 w-3.5" />,
+    prompt: `What's weighing on my mind right now?
+
+How is this affecting me?
+
+What's within my control?
+
+One small step I can take:`,
+  },
+  {
+    id: "goals",
+    name: "Goals",
+    icon: <Target className="h-3.5 w-3.5" />,
+    prompt: `Goal I'm reflecting on:
+
+Progress I've made:
+
+Obstacles I'm facing:
+
+What I need to do next:
+
+How do I feel about my progress?`,
+  },
+  {
+    id: "weekly",
+    name: "Weekly",
+    icon: <Calendar className="h-3.5 w-3.5" />,
+    prompt: `Highlights of this week:
+
+Challenges I faced:
+
+What I learned:
+
+What I want to focus on next week:
+
+How am I feeling about my progress?`,
+  },
+]
 
 function triggerConfetti() {
   // Center burst
@@ -98,6 +150,28 @@ export function LogEntryForm({ onSuccess }: LogEntryFormProps) {
   const [text, setText] = useState("")
   const [isProcessing, setIsProcessing] = useState(false)
   const [processingStep, setProcessingStep] = useState(0)
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null)
+
+  // Get entries for streak calculation
+  const { data: entries = [] } = useEntries()
+  const { streak } = useStreak(entries)
+
+  // Track entry count before submission for first-entry detection
+  const entryCountBeforeSubmit = useRef(entries.length)
+
+  // Handle template selection
+  const handleTemplateSelect = (template: EntryTemplate) => {
+    if (selectedTemplate === template.id) {
+      // Deselect template
+      setSelectedTemplate(null)
+      setText("")
+    } else {
+      // Select template and pre-fill
+      setSelectedTemplate(template.id)
+      setText(template.prompt)
+      toast.success(`${template.name} template loaded`, { duration: 2000 })
+    }
+  }
 
   const queryClient = useQueryClient()
 
@@ -192,26 +266,50 @@ export function LogEntryForm({ onSuccess }: LogEntryFormProps) {
         // Invalidate entries query to refresh the list
         queryClient.invalidateQueries({ queryKey: ["entries"] })
 
-        // Update streak and check if first entry
-        const { count: streakCount, isFirst } = updateStreak()
+        // Check if this is a first entry (had no entries before)
+        const isFirstEntry = entryCountBeforeSubmit.current === 0
 
-        // Trigger confetti for first entry
-        if (isFirst) {
+        // Calculate new streak (current streak + 1 if not logged today yet)
+        const newStreak = streak + 1
+
+        // Check if hitting a milestone
+        const hitMilestone = STREAK_MILESTONES.includes(newStreak as typeof STREAK_MILESTONES[number])
+          ? newStreak
+          : null
+
+        // Trigger confetti for first entry or milestones
+        if (isFirstEntry) {
           triggerConfetti()
           toast.success("Welcome to Pratyaksha!", {
             description: "Your first entry has been logged. Your journey begins now!",
             duration: 5000,
           })
+        } else if (hitMilestone) {
+          // Milestone celebration!
+          triggerConfetti()
+          const milestoneMessages: Record<number, string> = {
+            7: "One week of journaling! You're building a habit.",
+            14: "Two weeks strong! Consistency is key.",
+            30: "One month champion! You're on fire.",
+            60: "Two months incredible! This is dedication.",
+            100: "100 day legend! You've achieved something special.",
+            365: "One year unstoppable! You're an inspiration.",
+          }
+          toast.success(`${hitMilestone} Day Milestone!`, {
+            description: milestoneMessages[hitMilestone] || `Amazing! ${hitMilestone} days of journaling!`,
+            duration: 6000,
+          })
         } else {
           // Show streak toast
           toast.success("Entry saved!", {
-            description: streakCount > 1
-              ? `Day ${streakCount} streak! Keep the momentum going.`
+            description: newStreak > 1
+              ? `Day ${newStreak} streak! Keep the momentum going.`
               : `"${result.entry?.fields?.Name || "New Entry"}" has been logged.`,
           })
         }
 
         setText("")
+        setSelectedTemplate(null)
         onSuccess?.()
       }
     } catch (error) {
@@ -235,6 +333,49 @@ export function LogEntryForm({ onSuccess }: LogEntryFormProps) {
       <div className="mb-4">
         <h2 className="text-xl font-semibold">Log New Entry</h2>
         <p className="text-sm text-muted-foreground mt-1">AI will automatically classify your entry</p>
+      </div>
+
+      {/* Template selector */}
+      <div className="mb-4">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-xs text-muted-foreground">Quick templates:</span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {ENTRY_TEMPLATES.map((template) => (
+            <button
+              key={template.id}
+              onClick={() => handleTemplateSelect(template)}
+              disabled={isProcessing}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all",
+                selectedTemplate === template.id
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {template.icon}
+              {template.name}
+            </button>
+          ))}
+          {/* Create Your Own - highlighted style */}
+          <button
+            onClick={() => {
+              setSelectedTemplate("free")
+              setText("")
+              toast.success("Free write mode - express yourself!", { duration: 2000 })
+            }}
+            disabled={isProcessing}
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all border-2 border-dashed",
+              selectedTemplate === "free"
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-primary/40 text-primary/70 hover:border-primary hover:text-primary hover:bg-primary/5"
+            )}
+          >
+            <Pencil className="h-3.5 w-3.5" />
+            Create Your Own
+          </button>
+        </div>
       </div>
 
       <div className="relative">

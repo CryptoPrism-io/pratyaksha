@@ -4,6 +4,8 @@ import { Header } from "./components/layout/Header"
 import { Landing } from "./pages/Landing"
 import { Dashboard } from "./pages/Dashboard"
 import { Logs } from "./pages/Logs"
+import { Insights } from "./pages/Insights"
+import { Profile } from "./pages/Profile"
 import { Toaster } from "./components/ui/sonner"
 import { ThemeProvider } from "./components/theme-provider"
 import { DateFilterProvider } from "./contexts/DateFilterContext"
@@ -26,7 +28,7 @@ function App() {
       disableTransitionOnChange
     >
       <QueryClientProvider client={queryClient}>
-        <DateFilterProvider defaultPreset="thisWeek">
+        <DateFilterProvider defaultPreset="30">
           <BrowserRouter>
             <div className="min-h-screen bg-background text-foreground">
               <Header />
@@ -35,6 +37,8 @@ function App() {
                   <Route path="/" element={<Landing />} />
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/logs" element={<Logs />} />
+                  <Route path="/insights" element={<Insights />} />
+                  <Route path="/profile" element={<Profile />} />
                 </Routes>
               </main>
             </div>

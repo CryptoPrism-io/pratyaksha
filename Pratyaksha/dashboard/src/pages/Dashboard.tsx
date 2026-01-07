@@ -13,12 +13,13 @@ import { EmotionalTimeline } from "../components/charts/EmotionalTimeline"
 import { ModeDistribution } from "../components/charts/ModeDistribution"
 import { EnergyRadarGroup } from "../components/charts/EnergyRadarGroup"
 import { ContradictionFlow } from "../components/charts/ContradictionFlow"
-import { ActivityCalendar } from "../components/charts/ActivityCalendar"
+// ActivityCalendar removed - consolidated into StreakWidget
 import { ThemeCloud } from "../components/charts/ThemeCloud"
 import { EnergyModeResponsive } from "../components/charts/EnergyModeResponsive"
 import { DailyRhythm } from "../components/charts/DailyRhythm"
 import { ContradictionTracker } from "../components/charts/ContradictionTracker"
 import { InsightActions } from "../components/charts/InsightActions"
+import { StreakWidget } from "../components/streak/StreakWidget"
 import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts"
 import { KeyboardShortcutsDialog } from "../components/ui/keyboard-shortcuts-dialog"
 import { DateFilterBar } from "../components/filters/DateFilterBar"
@@ -121,16 +122,10 @@ export function Dashboard() {
 
       {/* Charts Grid */}
       <DashboardGrid>
-        {/* Row 1: Eye-catching visuals first - Pie chart + Sankey diagram */}
-        <ChartCard
-          data-tour="mode-distribution"
-          title="Mode Distribution"
-          description="Cognitive modes breakdown"
-          tooltip="Pie chart showing the distribution of your cognitive modes (Reflective, Calm, Hopeful, etc.). Understand your dominant mental patterns."
-          colSpan={4}
-        >
-          <ModeDistribution />
-        </ChartCard>
+        {/* Row 1: Streak Calendar + Contradiction Flow */}
+        <div data-tour="streak-widget" className="col-span-12 md:col-span-4">
+          <StreakWidget />
+        </div>
 
         <ChartCard
           data-tour="contradiction-flow"
@@ -153,25 +148,25 @@ export function Dashboard() {
           <EnergyRadarGroup />
         </ChartCard>
 
-        {/* Row 3: Energy-Mode Matrix + Activity Calendar */}
+        {/* Row 3: Energy-Mode Matrix + Mode Distribution */}
         <ChartCard
           data-tour="energy-matrix"
           title="Energy-Mode Matrix"
           description="Click to filter logs"
           tooltip="Visualizes the relationship between your energy levels and cognitive modes. Click any bar or bubble to see related entries."
-          colSpan={6}
+          colSpan={8}
         >
           <EnergyModeResponsive />
         </ChartCard>
 
         <ChartCard
-          data-tour="activity-calendar"
-          title="Activity Calendar"
-          description="Monthly entry overview"
-          tooltip="GitHub-style heatmap showing your journaling activity. Darker colors indicate more entries. Helps you maintain consistency."
-          colSpan={6}
+          data-tour="mode-distribution"
+          title="Mode Distribution"
+          description="Cognitive modes breakdown"
+          tooltip="Pie chart showing the distribution of your cognitive modes (Reflective, Calm, Hopeful, etc.). Understand your dominant mental patterns."
+          colSpan={4}
         >
-          <ActivityCalendar />
+          <ModeDistribution />
         </ChartCard>
 
         {/* Row 4: Emotional Timeline + Contradiction Tracker */}

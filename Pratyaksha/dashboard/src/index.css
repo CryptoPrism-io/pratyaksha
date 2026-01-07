@@ -286,121 +286,13 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* Driver.js Tour Overlay - Blur background */
-.driver-overlay {
-  backdrop-filter: blur(2px) !important;
-  -webkit-backdrop-filter: blur(2px) !important;
-}
-
-/* Highlighted element stage - make it pop */
-.driver-active-element {
-  z-index: 10001 !important;
-  position: relative !important;
-  box-shadow: 0 0 0 4px hsl(var(--primary) / 0.3), 0 0 20px hsl(var(--primary) / 0.2) !important;
-  border-radius: 12px !important;
-}
-
 /* Driver.js Tour Popover Customization */
 .pratyaksha-tour-popover {
   background: hsl(var(--card)) !important;
   color: hsl(var(--card-foreground)) !important;
-  border: 2px solid transparent !important;
+  border: 1px solid hsl(var(--border)) !important;
   border-radius: 12px !important;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25), 0 0 0 1px hsl(var(--border)) !important;
-  position: relative !important;
-  overflow: visible !important;
-  max-width: 340px !important;
-}
-
-/* Glowing border animation - 10 second countdown */
-.pratyaksha-tour-popover::before {
-  content: '';
-  position: absolute;
-  inset: -3px;
-  border-radius: 14px;
-  padding: 3px;
-  background: linear-gradient(
-    90deg,
-    #8b5cf6,
-    #3b82f6,
-    #10b981,
-    #f59e0b,
-    #ef4444,
-    #8b5cf6
-  );
-  background-size: 400% 400%;
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  animation: tour-glow-rotate 3s linear infinite, tour-glow-fade 10s ease-out forwards;
-  z-index: -1;
-  pointer-events: none;
-}
-
-/* Rotating gradient animation */
-@keyframes tour-glow-rotate {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* Fading glow over 10 seconds */
-@keyframes tour-glow-fade {
-  0% { opacity: 1; filter: blur(0px); }
-  70% { opacity: 0.6; filter: blur(1px); }
-  100% { opacity: 0.15; filter: blur(2px); }
-}
-
-/* Countdown progress bar at bottom of popover */
-.tour-countdown-bar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: hsl(var(--muted));
-  border-radius: 0 0 10px 10px;
-  overflow: hidden;
-}
-
-.tour-countdown-bar::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
-  background: linear-gradient(90deg, #8b5cf6, #3b82f6);
-  animation: tour-countdown 10s linear forwards;
-  transform-origin: left;
-}
-
-@keyframes tour-countdown {
-  0% { transform: scaleX(1); }
-  100% { transform: scaleX(0); }
-}
-
-/* Outer glow effect */
-.pratyaksha-tour-popover::after {
-  content: '';
-  position: absolute;
-  inset: -8px;
-  border-radius: 20px;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(139, 92, 246, 0.3) 0%,
-    rgba(59, 130, 246, 0.2) 30%,
-    transparent 70%
-  );
-  animation: tour-outer-glow 10s ease-out forwards;
-  z-index: -2;
-  pointer-events: none;
-}
-
-@keyframes tour-outer-glow {
-  0% { opacity: 1; transform: scale(1); }
-  100% { opacity: 0; transform: scale(0.95); }
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
 }
 
 .driver-popover-title {
@@ -469,3 +361,4 @@ h1, h2, h3, h4, h5, h6 {
 .driver-popover-arrow-side-bottom::before {
   background: hsl(var(--card)) !important;
 }
+

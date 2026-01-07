@@ -1,29 +1,35 @@
 import { useState } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import { Brain, LayoutDashboard, Home, PlusCircle, HelpCircle, MoreVertical } from "lucide-react"
+import { Brain, LayoutDashboard, PlusCircle, Lightbulb, User, MoreVertical } from "lucide-react"
 import { cn } from "../../lib/utils"
 import { ThemeToggle } from "../theme-toggle"
-import { Badge } from "../ui/badge"
 import { resetOnboardingTour } from "../onboarding/OnboardingTour"
-import { useEntriesRaw } from "../../hooks/useEntries"
 import { toast } from "sonner"
 
 export function Header() {
   const location = useLocation()
   const navigate = useNavigate()
   const [showMenu, setShowMenu] = useState(false)
-  const { data: entries } = useEntriesRaw()
-  const entryCount = entries?.length ?? 0
 
-  const isHome = location.pathname === "/"
   const isDashboard = location.pathname === "/dashboard"
   const isLogs = location.pathname === "/logs"
+  const isInsights = location.pathname === "/insights"
+  const isProfile = location.pathname === "/profile"
 
-  const handleRestartTour = () => {
+  const handleRestartTourLogs = () => {
     resetOnboardingTour()
     setShowMenu(false)
-    toast.success("Tour reset! Navigating to dashboard...")
-    // Navigate to dashboard and refresh to trigger tour
+    toast.success("Tour reset! Starting from Logs page...")
+    navigate("/logs")
+    setTimeout(() => window.location.reload(), 100)
+  }
+
+  const handleRestartTourDashboard = () => {
+    resetOnboardingTour()
+    // Set phase to dashboard so it starts there
+    localStorage.setItem("pratyaksha-tour-phase", "dashboard")
+    setShowMenu(false)
+    toast.success("Tour reset! Starting from Dashboard...")
     navigate("/dashboard")
     setTimeout(() => window.location.reload(), 100)
   }
@@ -40,14 +46,14 @@ export function Header() {
         {/* Navigation */}
         <nav className="flex items-center gap-4 md:gap-6">
           <Link
-            to="/"
+            to="/logs"
             className={cn(
               "flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary",
-              isHome ? "text-primary" : "text-muted-foreground"
+              isLogs ? "text-primary" : "text-muted-foreground"
             )}
           >
-            <Home className="h-4 w-4" />
-            <span className="hidden sm:inline">Home</span>
+            <PlusCircle className="h-4 w-4" />
+            <span className="hidden sm:inline">Logs</span>
           </Link>
           <Link
             to="/dashboard"
@@ -60,22 +66,27 @@ export function Header() {
             <span className="hidden sm:inline">Dashboard</span>
           </Link>
           <Link
-            to="/logs"
+            to="/insights"
             className={cn(
               "flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary",
-              isLogs ? "text-primary" : "text-muted-foreground"
+              isInsights ? "text-primary" : "text-muted-foreground"
             )}
           >
-            <PlusCircle className="h-4 w-4" />
-            <span className="hidden sm:inline">Logs</span>
-            {entryCount > 0 && (
-              <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
-                {entryCount}
-              </Badge>
-            )}
+            <Lightbulb className="h-4 w-4" />
+            <span className="hidden sm:inline">Insights</span>
           </Link>
           <div className="ml-2 border-l pl-2 md:ml-4 md:pl-4 flex items-center gap-2">
             <ThemeToggle />
+            <Link
+              to="/profile"
+              className={cn(
+                "flex h-9 w-9 items-center justify-center rounded-md hover:bg-muted transition-colors",
+                isProfile ? "text-primary bg-muted" : "text-muted-foreground"
+              )}
+              aria-label="Profile"
+            >
+              <User className="h-4 w-4" />
+            </Link>
 
             {/* Menu dropdown */}
             <div className="relative">
@@ -95,13 +106,23 @@ export function Header() {
                     onClick={() => setShowMenu(false)}
                   />
                   {/* Menu */}
-                  <div className="absolute right-0 top-full mt-1 z-50 min-w-[180px] rounded-lg border bg-card shadow-lg py-1">
+                  <div className="absolute right-0 top-full mt-1 z-50 min-w-[200px] rounded-lg border bg-card shadow-lg py-1">
+                    <div className="px-3 py-1.5 text-xs font-medium text-muted-foreground">
+                      Restart Tour
+                    </div>
                     <button
-                      onClick={handleRestartTour}
+                      onClick={handleRestartTourLogs}
                       className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-muted transition-colors"
                     >
-                      <HelpCircle className="h-4 w-4" />
-                      Restart Tour
+                      <PlusCircle className="h-4 w-4" />
+                      From Logs Page
+                    </button>
+                    <button
+                      onClick={handleRestartTourDashboard}
+                      className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-muted transition-colors"
+                    >
+                      <LayoutDashboard className="h-4 w-4" />
+                      From Dashboard
                     </button>
                   </div>
                 </>

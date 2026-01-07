@@ -1,19 +1,83 @@
-import { useEffect, useCallback, useRef } from "react"
+import { useEffect, useCallback } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { driver, type DriveStep, type Driver } from "driver.js"
 import "driver.js/dist/driver.css"
 
 const STORAGE_KEY = "pratyaksha-onboarding-completed"
 const TOUR_PHASE_KEY = "pratyaksha-tour-phase"
-const AUTO_ADVANCE_DELAY = 10000 // 10 seconds
 
-// Phase 1: Dashboard Tour - All charts explained
+// Phase 1: Welcome Intro - Big picture explanation (starts on Logs page)
+const welcomeSteps: DriveStep[] = [
+  {
+    popover: {
+      title: "Welcome to Pratyaksha",
+      description:
+        "Pratyaksha is your personal cognitive journaling companion. It helps you understand your thoughts, emotions, and mental patterns through AI-powered analysis.",
+      side: "over",
+      align: "center",
+    },
+  },
+  {
+    popover: {
+      title: "How It Works",
+      description:
+        "1. Write journal entries about your thoughts and feelings\n2. AI analyzes your entries for mood, themes, and patterns\n3. View beautiful visualizations of your cognitive journey\n\nLet's start by showing you how to create your first entry!",
+      side: "over",
+      align: "center",
+    },
+  },
+]
+
+// Phase 2: Logs Page Tour - Entry creation journey
+const logsSteps: DriveStep[] = [
+  {
+    element: "[data-tour='log-entry-form']",
+    popover: {
+      title: "Create Your Entry",
+      description:
+        "This is where you write your thoughts. Just type naturally - the AI will analyze your entry for mood, themes, energy levels, and inner contradictions.",
+      side: "bottom",
+      align: "center",
+    },
+  },
+  {
+    element: "[data-tour='logs-filters']",
+    popover: {
+      title: "Filter & Search",
+      description:
+        "Once you have entries, use these filters to search by type, mood, sentiment, or date. Great for finding patterns in your past reflections.",
+      side: "bottom",
+      align: "center",
+    },
+  },
+  {
+    element: "[data-tour='entries-table']",
+    popover: {
+      title: "Your Entry History",
+      description:
+        "All your past entries appear here with AI-generated insights. Click any entry to expand and see the full analysis including themes, contradictions, and recommendations.",
+      side: "top",
+      align: "center",
+    },
+  },
+  {
+    popover: {
+      title: "Now Let's See the Dashboard",
+      description:
+        "Your entries power beautiful visualizations that reveal your cognitive patterns. Click 'Next' to explore the Dashboard!",
+      side: "over",
+      align: "center",
+    },
+  },
+]
+
+// Phase 3: Dashboard Tour - All charts explained
 const dashboardSteps: DriveStep[] = [
   {
     popover: {
-      title: "Welcome to Pratyaksha! 🧠",
+      title: "Your Analytics Dashboard",
       description:
-        "Your cognitive analytics dashboard that transforms journal entries into visual insights. Let me give you a comprehensive tour!",
+        "This is where your journal entries come to life! Each chart reveals different patterns in your thoughts and emotions. Let me show you around.",
       side: "over",
       align: "center",
     },
@@ -21,7 +85,7 @@ const dashboardSteps: DriveStep[] = [
   {
     element: "[data-tour='stats-bar']",
     popover: {
-      title: "Quick Stats Overview",
+      title: "Quick Stats",
       description:
         "Your key metrics at a glance: total entries, recent activity, average word count, and positive sentiment percentage.",
       side: "bottom",
@@ -51,7 +115,7 @@ const dashboardSteps: DriveStep[] = [
   {
     element: "[data-tour='contradiction-flow']",
     popover: {
-      title: "Contradiction Flow (Sankey)",
+      title: "Contradiction Flow",
       description:
         "A flow diagram showing how Entry Types connect to Inner Contradictions and resolve into Cognitive Modes. Click any node to filter related logs!",
       side: "left",
@@ -149,97 +213,15 @@ const dashboardSteps: DriveStep[] = [
     },
   },
   {
-    element: "[data-tour='add-entry-fab']",
     popover: {
-      title: "Ready to Log? ✨",
+      title: "You're All Set!",
       description:
-        "Now let's create your first entry! Click 'Next' to go to the Logs page where I'll show you how to add entries.",
-      side: "left",
-      align: "center",
-    },
-  },
-]
-
-// Phase 2: Logs Page Tour - Entry creation journey
-const logsSteps: DriveStep[] = [
-  {
-    popover: {
-      title: "The Logs Page 📝",
-      description:
-        "This is where you create and view all your journal entries. Let me show you around!",
-      side: "over",
-      align: "center",
-    },
-  },
-  {
-    element: "[data-tour='log-entry-form']",
-    popover: {
-      title: "Log Entry Form",
-      description:
-        "Type your thoughts, feelings, or reflections here. The AI will automatically analyze your entry for mood, themes, energy levels, and contradictions.",
-      side: "bottom",
-      align: "center",
-    },
-  },
-  {
-    element: "[data-tour='logs-filters']",
-    popover: {
-      title: "Filter Your Entries",
-      description:
-        "Search and filter your entries by type, mode, sentiment, energy level, or date range. Find patterns in your past reflections.",
-      side: "top",
-      align: "center",
-    },
-  },
-  {
-    element: "[data-tour='entries-table']",
-    popover: {
-      title: "Your Entry History",
-      description:
-        "All your past entries appear here with AI-generated insights. Click any entry to expand and see the full analysis.",
-      side: "top",
-      align: "center",
-    },
-  },
-  {
-    popover: {
-      title: "You're All Set! 🎉",
-      description:
-        "Start logging your thoughts and watch your cognitive patterns emerge. The more you write, the better the insights! You can restart this tour anytime from the menu.",
+        "Start logging your thoughts and watch your cognitive patterns emerge. The more you write, the better the insights!\n\nYou can restart this tour anytime from the menu (three dots icon).",
       side: "over",
       align: "center",
     },
   },
 ]
-
-// Add countdown bar to popover
-function addCountdownBar() {
-  const popover = document.querySelector(".driver-popover")
-  if (popover && !popover.querySelector(".tour-countdown-bar")) {
-    const countdownBar = document.createElement("div")
-    countdownBar.className = "tour-countdown-bar"
-    popover.appendChild(countdownBar)
-  }
-}
-
-// Reset animations by re-triggering them
-function resetAnimations() {
-  const popover = document.querySelector(".pratyaksha-tour-popover") as HTMLElement
-  if (popover) {
-    // Force animation restart by removing and re-adding the class
-    popover.style.animation = "none"
-    popover.offsetHeight // Trigger reflow
-    popover.style.animation = ""
-  }
-
-  // Reset countdown bar animation
-  const countdownBar = document.querySelector(".tour-countdown-bar") as HTMLElement
-  if (countdownBar) {
-    countdownBar.remove()
-  }
-  // Re-add after a tiny delay to restart animation
-  setTimeout(addCountdownBar, 50)
-}
 
 interface OnboardingTourProps {
   forceShow?: boolean
@@ -249,85 +231,54 @@ interface OnboardingTourProps {
 export function OnboardingTour({ forceShow, onComplete }: OnboardingTourProps) {
   const navigate = useNavigate()
   const location = useLocation()
-  const autoAdvanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const driverRef = useRef<Driver | null>(null)
 
-  // Clear auto-advance timer
-  const clearAutoAdvanceTimer = useCallback(() => {
-    if (autoAdvanceTimerRef.current) {
-      clearTimeout(autoAdvanceTimerRef.current)
-      autoAdvanceTimerRef.current = null
-    }
-  }, [])
-
-  // Start auto-advance timer
-  const startAutoAdvanceTimer = useCallback((driverObj: Driver, isLastStep: boolean, onLastStep?: () => void) => {
-    clearAutoAdvanceTimer()
-
-    autoAdvanceTimerRef.current = setTimeout(() => {
-      if (isLastStep && onLastStep) {
-        onLastStep()
-      } else {
-        driverObj.moveNext()
-      }
-    }, AUTO_ADVANCE_DELAY)
-  }, [clearAutoAdvanceTimer])
-
+  // Phase 3: Dashboard tour (defined first - no dependencies on other tour functions)
   const startDashboardTour = useCallback(() => {
     const driverObj: Driver = driver({
       showProgress: true,
       animate: true,
-      smoothScroll: true,
       allowClose: true,
-      overlayColor: "rgba(0, 0, 0, 0.6)",
-      stagePadding: 8,
-      stageRadius: 12,
+      overlayColor: "#2B2E3A",
+      stagePadding: 10,
+      stageRadius: 8,
       popoverClass: "pratyaksha-tour-popover",
-      popoverOffset: 12,
       steps: dashboardSteps,
-      onHighlightStarted: (_element, _step, options) => {
-        // Add countdown bar and reset animations on each step
-        setTimeout(() => {
-          addCountdownBar()
-          resetAnimations()
-        }, 100)
-
-        // Start auto-advance timer
-        const currentIndex = options.state?.activeIndex ?? 0
-        const isLastStep = currentIndex === dashboardSteps.length - 1
-
-        startAutoAdvanceTimer(driverObj, isLastStep, () => {
-          // Last step action: navigate to logs
-          localStorage.setItem(TOUR_PHASE_KEY, "logs")
-          clearAutoAdvanceTimer()
-          driverObj.destroy()
-          navigate("/logs")
-        })
+      onDestroyStarted: () => {
+        localStorage.setItem(STORAGE_KEY, "true")
+        localStorage.removeItem(TOUR_PHASE_KEY)
+        onComplete?.()
+        driverObj.destroy()
       },
-      onNextClick: (_element, _step, options) => {
-        clearAutoAdvanceTimer()
+    })
 
-        // Check if this is the last step (Add Entry button)
+    driverObj.drive()
+  }, [onComplete])
+
+  // Phase 2: Logs page tour (defined second - no dependencies on other tour functions)
+  const startLogsTour = useCallback(() => {
+    const driverObj: Driver = driver({
+      showProgress: true,
+      animate: true,
+      allowClose: true,
+      overlayColor: "#2B2E3A",
+      stagePadding: 10,
+      stageRadius: 8,
+      popoverClass: "pratyaksha-tour-popover",
+      steps: logsSteps,
+      onNextClick: (_element, _step, options) => {
         const currentIndex = options.state?.activeIndex ?? 0
-        if (currentIndex === dashboardSteps.length - 1) {
-          // Save phase and navigate to logs
-          localStorage.setItem(TOUR_PHASE_KEY, "logs")
+        if (currentIndex === logsSteps.length - 1) {
+          // Move to dashboard phase
+          localStorage.setItem(TOUR_PHASE_KEY, "dashboard")
           driverObj.destroy()
-          navigate("/logs")
+          navigate("/dashboard")
           return
         }
-        // Otherwise continue normally
         driverObj.moveNext()
       },
-      onPrevClick: () => {
-        clearAutoAdvanceTimer()
-        driverObj.movePrevious()
-      },
       onDestroyStarted: () => {
-        clearAutoAdvanceTimer()
         const phase = localStorage.getItem(TOUR_PHASE_KEY)
-        // Only mark as completed if we're not transitioning to logs
-        if (phase !== "logs") {
+        if (phase !== "dashboard") {
           localStorage.setItem(STORAGE_KEY, "true")
           localStorage.removeItem(TOUR_PHASE_KEY)
           onComplete?.()
@@ -336,95 +287,79 @@ export function OnboardingTour({ forceShow, onComplete }: OnboardingTourProps) {
       },
     })
 
-    driverRef.current = driverObj
     driverObj.drive()
-  }, [navigate, onComplete, startAutoAdvanceTimer, clearAutoAdvanceTimer])
+  }, [navigate, onComplete])
 
-  const startLogsTour = useCallback(() => {
+  // Phase 1: Welcome intro on Logs page (defined last - depends on startLogsTour)
+  const startWelcomeTour = useCallback(() => {
     const driverObj: Driver = driver({
       showProgress: true,
       animate: true,
-      smoothScroll: true,
       allowClose: true,
-      overlayColor: "rgba(0, 0, 0, 0.6)",
-      stagePadding: 8,
-      stageRadius: 12,
+      overlayColor: "#2B2E3A",
+      stagePadding: 10,
+      stageRadius: 8,
       popoverClass: "pratyaksha-tour-popover",
-      popoverOffset: 12,
-      steps: logsSteps,
-      onHighlightStarted: (_element, _step, options) => {
-        // Add countdown bar and reset animations on each step
-        setTimeout(() => {
-          addCountdownBar()
-          resetAnimations()
-        }, 100)
-
-        // Start auto-advance timer
+      steps: welcomeSteps,
+      onNextClick: (_element, _step, options) => {
         const currentIndex = options.state?.activeIndex ?? 0
-        const isLastStep = currentIndex === logsSteps.length - 1
-
-        if (!isLastStep) {
-          startAutoAdvanceTimer(driverObj, false)
-        } else {
-          // On last step, auto-close after 10 seconds
-          startAutoAdvanceTimer(driverObj, true, () => {
-            driverObj.destroy()
-          })
+        if (currentIndex === welcomeSteps.length - 1) {
+          // Move to logs tour phase
+          localStorage.setItem(TOUR_PHASE_KEY, "logs")
+          driverObj.destroy()
+          // Small delay then start logs tour
+          setTimeout(() => {
+            startLogsTour()
+          }, 300)
+          return
         }
-      },
-      onNextClick: () => {
-        clearAutoAdvanceTimer()
         driverObj.moveNext()
       },
-      onPrevClick: () => {
-        clearAutoAdvanceTimer()
-        driverObj.movePrevious()
-      },
       onDestroyStarted: () => {
-        clearAutoAdvanceTimer()
-        localStorage.setItem(STORAGE_KEY, "true")
-        localStorage.removeItem(TOUR_PHASE_KEY)
-        onComplete?.()
+        const phase = localStorage.getItem(TOUR_PHASE_KEY)
+        if (phase !== "logs") {
+          // User closed early, mark as completed
+          localStorage.setItem(STORAGE_KEY, "true")
+          localStorage.removeItem(TOUR_PHASE_KEY)
+          onComplete?.()
+        }
         driverObj.destroy()
       },
     })
 
-    driverRef.current = driverObj
     driverObj.drive()
-  }, [onComplete, startAutoAdvanceTimer, clearAutoAdvanceTimer])
+  }, [onComplete, startLogsTour])
 
   useEffect(() => {
     const hasCompleted = localStorage.getItem(STORAGE_KEY) === "true"
     const tourPhase = localStorage.getItem(TOUR_PHASE_KEY)
 
-    // Phase 2: Continue on Logs page
+    // Phase 3: Continue on Dashboard page
+    if (tourPhase === "dashboard" && location.pathname === "/dashboard") {
+      const timer = setTimeout(() => {
+        startDashboardTour()
+      }, 500)
+      return () => clearTimeout(timer)
+    }
+
+    // Phase 2: Continue logs tour
     if (tourPhase === "logs" && location.pathname === "/logs") {
       const timer = setTimeout(() => {
         startLogsTour()
       }, 500)
-      return () => {
-        clearTimeout(timer)
-        clearAutoAdvanceTimer()
-      }
+      return () => clearTimeout(timer)
     }
 
-    // Phase 1: Start Dashboard tour
-    if ((forceShow || !hasCompleted) && location.pathname === "/dashboard") {
+    // Phase 1: Start welcome tour on Logs page (for new users)
+    if ((forceShow || !hasCompleted) && location.pathname === "/logs") {
       // Clear any stale phase
       localStorage.removeItem(TOUR_PHASE_KEY)
       const timer = setTimeout(() => {
-        startDashboardTour()
+        startWelcomeTour()
       }, 500)
-      return () => {
-        clearTimeout(timer)
-        clearAutoAdvanceTimer()
-      }
+      return () => clearTimeout(timer)
     }
-
-    return () => {
-      clearAutoAdvanceTimer()
-    }
-  }, [forceShow, location.pathname, startDashboardTour, startLogsTour, clearAutoAdvanceTimer])
+  }, [forceShow, location.pathname, startWelcomeTour, startLogsTour, startDashboardTour])
 
   return null
 }

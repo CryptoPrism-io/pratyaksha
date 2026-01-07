@@ -1,131 +1,206 @@
-# Feature Backlog (ICE Prioritized)
+# Feature Backlog v2.4 (ICE Prioritized)
 
-*Generated: 2026-01-05 | Agent: product-manager*
+*Last Updated: 2026-01-07 | Version: 2.4*
+*Previous: 2026-01-06 v2.3*
 
 ## ICE Scoring Framework
 
 - **Impact** (1-10): How much does this improve user experience?
 - **Confidence** (1-10): How certain are we about the impact?
 - **Ease** (1-10): How easy is implementation?
-- **ICE Score** = Impact × Confidence × Ease
+- **ICE Score** = Impact x Confidence x Ease
 
 ---
 
-## Ranked Features
+## Completed Features (v2.4)
+
+| Feature | ICE | Status | Completed |
+|---------|-----|--------|-----------|
+| Navigation Restructure (Logs→Dashboard→Insights) | - | DONE | 2026-01-07 |
+| Insights Page (placeholder with coming soon cards) | - | DONE | 2026-01-07 |
+| Profile Page (stats, preferences, data management) | - | DONE | 2026-01-07 |
+| Streak Data-Driven (from Airtable, not localStorage) | - | DONE | 2026-01-07 |
+| Timezone Fix (local dates for streak calendar) | - | DONE | 2026-01-07 |
+| Calendar Date Toggle (click to open/close entries) | - | DONE | 2026-01-07 |
+| Removed Entry Count Badge from Nav | - | DONE | 2026-01-07 |
+| Full Streak System (calendar, milestones) | 567 | DONE | 2026-01-06 |
+| Interactive Streak Calendar (click-to-view entries) | 400 | DONE | 2026-01-06 |
+| Consolidated Calendar (removed Activity Calendar) | - | DONE | 2026-01-06 |
+| Entry Templates (6 prompts + Create Your Own) | 576 | DONE | 2026-01-06 |
+| Date Filter Default (30 days) | 270 | DONE | 2026-01-06 |
+| Guided Onboarding Tour (3-phase) | 576 | DONE | 2026-01-06 |
+| Restart Tour (Logs + Dashboard options) | 144 | DONE | 2026-01-06 |
+| Keyboard Shortcuts (N, T, R, E, ?) | 336 | DONE | 2026-01-05 |
+| First Entry Confetti | 288 | DONE | 2026-01-05 |
+| Streak Toast Notification | 432 | DONE | 2026-01-05 |
+| Rich Empty States | 567 | DONE | 2026-01-05 |
+| Fix /log Link Bug | Critical | DONE | 2026-01-05 |
+| Glassmorphism UI Theme | - | DONE | 2026-01-05 |
+| Chart Tooltips with Info Icons | - | DONE | 2026-01-05 |
+
+---
+
+## Remaining Features (Ranked)
 
 | Rank | Feature | Impact | Conf | Ease | ICE | Category |
 |------|---------|--------|------|------|-----|----------|
-| 1 | Journaling Streak System | 9 | 9 | 8 | **648** | Retention |
-| 2 | Guided First Entry Experience | 8 | 9 | 8 | **576** | Onboarding |
-| 3 | Entry Prompts/Templates | 8 | 8 | 9 | **576** | Onboarding |
-| 4 | Progressive Empty States | 7 | 9 | 9 | **567** | UX |
-| 5 | Weekly AI Summary | 9 | 8 | 7 | **504** | Retention |
-| 6 | PWA Installation | 7 | 8 | 8 | **448** | Platform |
-| 7 | Entry Editing | 7 | 9 | 7 | **441** | Core |
-| 8 | Entry Deletion | 6 | 9 | 8 | **432** | Core |
-| 9 | Bookmarked Entries | 6 | 8 | 9 | **432** | Feature |
-| 10 | Week-over-Week Comparison | 8 | 7 | 6 | **336** | Analytics |
+| 1 | Weekly AI Summary | 9 | 8 | 7 | **504** | Insights |
+| 2 | Pattern Detection (AI) | 8 | 7 | 6 | **336** | Insights |
+| 3 | Cognitive Analysis (AI) | 8 | 7 | 6 | **336** | Insights |
+| 4 | PWA Installation | 7 | 8 | 8 | **448** | Platform |
+| 5 | Entry Editing | 7 | 9 | 7 | **441** | Core |
+| 6 | Entry Deletion | 6 | 9 | 8 | **432** | Core |
+| 7 | Bookmarked Entries | 6 | 8 | 9 | **432** | Feature |
+| 8 | Profile Preferences (functional) | 6 | 8 | 7 | **336** | Profile |
+| 9 | Export Data (functional) | 6 | 9 | 8 | **432** | Profile |
+| 10 | Notification Reminders | 7 | 6 | 5 | **210** | Profile |
+| 11 | Week-over-Week Comparison | 8 | 7 | 6 | **336** | Analytics |
 
 ---
 
 ## Feature Details
 
-### 1. Journaling Streak System (ICE: 648)
+### 1. Journaling Streak System - Full Implementation (ICE: 567) - COMPLETED
 **Category**: Retention / Gamification
+**Status**: DONE (2026-01-06)
 
-**Description**: Track consecutive days of journaling with visual indicators and milestone celebrations.
+**Implemented**:
+- [x] `useStreak` hook with full localStorage persistence
+- [x] Streak counter with flame icon animation
+- [x] Monthly calendar visualization with entry tracking
+- [x] Milestone progress bar (7, 14, 30, 60, 100, 365 days)
+- [x] Milestone celebrations with confetti
+- [x] "Next milestone" countdown
+- [x] Today highlight on calendar
+- [x] "Logged" / "Missed" legend
+- [x] Entry history tracking (last 365 days)
+- [x] **Interactive calendar**: Click any date to see entries
+- [x] **Entry count badges**: Shows 9+ for multiple entries
+- [x] **Entry details panel**: Name, time, type, mode, sentiment
+- [x] **Consolidated calendar**: Removed redundant Activity Calendar
 
-**Requirements**:
-- [ ] Track streak count in user data / localStorage
-- [ ] Display current streak on dashboard header
-- [ ] Show streak calendar visualization
-- [ ] Celebrate milestones (7 days, 30 days, 100 days)
-- [ ] Handle streak breaks gracefully (freeze days?)
-
-**Files to modify**:
-- `Dashboard.tsx` - Add streak display
-- `LogEntryForm.tsx` - Update streak on submission
-- New: `hooks/useStreak.ts`
-- New: `components/StreakBadge.tsx`
-
----
-
-### 2. Guided First Entry Experience (ICE: 576)
-**Category**: Onboarding
-
-**Description**: After the onboarding tour, guide users to write their first entry with prompts and encouragement.
-
-**Requirements**:
-- [ ] Detect first-time user (no entries)
-- [ ] Show prominent "Write your first entry" CTA
-- [ ] Offer topic suggestions
-- [ ] Celebrate first entry completion
-- [ ] Transition to regular dashboard experience
-
-**Files to modify**:
-- `Dashboard.tsx` - First-time detection
-- `Logs.tsx` - Guided entry flow
-- New: `components/FirstEntryGuide.tsx`
+**Files created/modified**:
+- New: `hooks/useStreak.ts` - Full streak logic
+- New: `components/streak/StreakWidget.tsx` - Dashboard widget with interactive calendar
+- `components/logs/LogEntryForm.tsx` - Integration with recordEntry()
+- `pages/Dashboard.tsx` - Widget placement, removed Activity Calendar
 
 ---
 
-### 3. Entry Prompts/Templates (ICE: 576)
+### 2. Entry Prompts/Templates (ICE: 576) - COMPLETED
 **Category**: Onboarding / Engagement
+**Status**: DONE (2026-01-06)
 
 **Description**: Pre-built templates to reduce blank page syndrome.
 
-**Templates to create**:
-- Morning Check-in
-- Evening Reflection
-- Gratitude Log
-- Stress Dump
-- Goal Review
-- Weekly Reflection
+**Templates created**:
+- [x] Morning Check-in (Sun icon)
+- [x] Evening Reflection (Moon icon)
+- [x] Gratitude Log (Heart icon)
+- [x] Stress Dump (Cloud icon)
+- [x] Goal Review (Target icon)
+- [x] Weekly Reflection (Calendar icon)
 
-**Requirements**:
-- [ ] Template selector UI
-- [ ] Pre-fill text area with template structure
-- [ ] Allow customization of templates
-- [ ] Track which templates are used most
-
----
-
-### 4. Progressive Empty States (ICE: 567)
-**Category**: UX
-
-**Description**: Replace "No data" messages with helpful, actionable empty states.
-
-**Requirements**:
-- [ ] Design illustrations for each chart type
-- [ ] Add contextual CTAs ("Log an entry to see your mood patterns")
-- [ ] Show example/preview of what chart will look like
-- [ ] Link directly to entry creation
-
-**Files to modify**:
-- All chart components in `src/components/charts/`
-- New: `components/ui/EmptyState.tsx`
+**Implemented**:
+- [x] Template selector UI in LogEntryForm (pill buttons)
+- [x] Pre-fill text area with template structure
+- [x] Toggle selection (click again to clear)
+- [x] Toast notification on template load
 
 ---
 
-### 5. Weekly AI Summary (ICE: 504)
+### 3. Weekly AI Summary (ICE: 504)
 **Category**: Retention / Insights
 
 **Description**: Automated weekly digest of patterns, trends, and suggestions.
 
 **Requirements**:
 - [ ] Generate summary from last 7 days of entries
-- [ ] Show modal on dashboard (Monday mornings?)
+- [ ] Show modal on dashboard (configurable timing)
 - [ ] Include: top themes, mood trend, energy pattern, suggestion
-- [ ] Option to email summary (future)
 - [ ] "View past summaries" archive
+- [ ] Option to email summary (future)
 
 **Files to modify**:
 - New: `components/WeeklySummary.tsx`
 - New: `hooks/useWeeklySummary.ts`
-- `lib/transforms.ts` - Add weekly aggregation functions
+- `server/routes/` - New AI summary endpoint
 
 ---
 
-### 6-10. Additional Features
+### 4. PWA Installation (ICE: 448)
+**Category**: Platform
 
-See individual feature specs in `/docs/product/specs/` folder (to be created).
+**Requirements**:
+- [ ] Create manifest.json with app icons
+- [ ] Add service worker for offline support
+- [ ] Add "Install App" prompt
+- [ ] Handle offline entry creation (queue)
+
+---
+
+### 5-9. See individual specs as needed
+
+---
+
+## Sprint Progress
+
+### v1.0 → v2.0 Completed Work
+- Full 3-phase onboarding tour (Welcome → Logs → Dashboard)
+- 15 dashboard tour steps covering all charts
+- Driver.js integration with custom theming (#2B2E3A overlay)
+- Restart tour menu with dual options
+- Glassmorphism UI overhaul
+- Keyboard shortcuts system
+- First entry confetti celebration
+- Rich empty states for all charts
+
+### Next Sprint Focus
+- Journaling Streak System (full)
+- Entry Prompts/Templates
+- PWA groundwork
+
+---
+
+## Changelog
+
+### v2.4 (2026-01-07)
+- Navigation restructure: Pratyaksha logo → Logs → Dashboard → Insights | Theme → Profile → Menu
+- New: Insights page with coming soon placeholders (Weekly Summary, Pattern Detection, Cognitive Analysis)
+- New: Profile page with stats, preferences, notifications, privacy, data management sections
+- Fixed: Streak calculation now uses actual Airtable entries (not localStorage)
+- Fixed: Timezone issue - calendar dates now use local timezone instead of UTC
+- Fixed: Calendar date toggle - clicking same date now closes the entries panel
+- Removed: Entry count badge from Logs nav item
+- Removed: Home button (Pratyaksha logo now links to home)
+
+### v2.3 (2026-01-06)
+- Enhanced: Interactive Streak Calendar with click-to-view entry details
+- Entry count badges on calendar dates (9+ for multiple entries)
+- Entry details panel showing: name, time, type, mode, sentiment
+- Removed: Activity Calendar (consolidated into Streak Widget)
+- Dashboard layout: Energy-Mode Matrix now full-width (colSpan 12)
+- Sprint 2 complete!
+
+### v2.2 (2026-01-06)
+- Completed: Full Streak System with StreakWidget dashboard component
+- Includes: calendar visualization, milestone progress, confetti celebrations
+- New files: `hooks/useStreak.ts`, `components/streak/StreakWidget.tsx`
+- Sprint 2 progress: 3/4 items done
+
+### v2.1 (2026-01-06)
+- Completed: Entry Templates (6 prompts with icons + "Create Your Own")
+- Completed: Date Filter Default (30 days)
+- Sprint 2 progress: 2/4 items done
+
+### v2.0 (2026-01-06)
+- Completed: Onboarding tour system
+- Completed: Restart tour with Logs/Dashboard options
+- Completed: Entry count badge
+- Updated ICE scores based on learnings
+- Moved completed items to "Completed Features" section
+
+### v1.0 (2026-01-05)
+- Initial feature backlog creation
+- ICE scoring for all features
+- Sprint planning structure
