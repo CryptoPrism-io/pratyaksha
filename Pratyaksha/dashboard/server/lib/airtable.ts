@@ -124,6 +124,7 @@ export async function fetchEntriesByDateRange(
 /**
  * Find a cached weekly summary by week ID
  * Looks for entries with Is Summary? = true and Name containing the week ID
+ * Returns the most recently created one if multiple exist
  */
 export async function findSummaryByWeek(weekId: string): Promise<AirtableRecord | null> {
   if (!AIRTABLE_API_KEY) {
@@ -131,11 +132,12 @@ export async function findSummaryByWeek(weekId: string): Promise<AirtableRecord 
   }
 
   // Look for summary entries containing the week ID in the name
+  // Sort by Timestamp descending to get the most recent one
   const formula = encodeURIComponent(
     `AND({Is Summary?} = TRUE(), FIND('${weekId}', {Name}) > 0)`
   )
 
-  const url = `${BASE_URL}?filterByFormula=${formula}&maxRecords=1`
+  const url = `${BASE_URL}?filterByFormula=${formula}&sort[0][field]=Timestamp&sort[0][direction]=desc&maxRecords=1`
 
   const response = await fetch(url, {
     headers: {
@@ -153,23 +155,53 @@ export async function findSummaryByWeek(weekId: string): Promise<AirtableRecord 
 }
 
 /**
- * Create a weekly summary entry in Airtable
+ * Update an existing Airtable record
  */
-export async function createSummaryEntry(
+export async function updateAirtableRecord(
+  recordId: string,
+  fields: Partial<AirtableEntryFields>
+): Promise<AirtableRecord> {
+  if (!AIRTABLE_API_KEY) {
+    throw new Error("Airtable API key is not configured")
+  }
+
+  const response = await fetch(`${BASE_URL}/${recordId}`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${AIRTABLE_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ fields }),
+  })
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}))
+    throw new Error(`Airtable API error: ${response.status} - ${JSON.stringify(error)}`)
+  }
+
+  return response.json()
+}
+
+export interface WeeklySummaryData {
+  narrative: string
+  recommendations: string[]
+  weeklyInsight: string
+  nextWeekFocus: string
+  topThemes: string[]
+  dominantMode: string
+  moodTrend: string
+  entryCount: number
+}
+
+/**
+ * Build the fields object for a weekly summary entry
+ */
+function buildSummaryFields(
   weekId: string,
   weekRange: string,
-  summary: {
-    narrative: string
-    recommendations: string[]
-    weeklyInsight: string
-    nextWeekFocus: string
-    topThemes: string[]
-    dominantMode: string
-    moodTrend: string
-    entryCount: number
-  }
-): Promise<AirtableRecord> {
-  const fields: AirtableEntryFields = {
+  summary: WeeklySummaryData
+): AirtableEntryFields {
+  return {
     Name: `Weekly Summary: ${weekRange} (${weekId})`,
     Type: "Reflection",
     Date: new Date().toISOString().split("T")[0],
@@ -182,7 +214,32 @@ export async function createSummaryEntry(
     "Entry Theme Tags (AI)": summary.topThemes.join(", "),
     "Inferred Mode": summary.dominantMode,
     "Meta Flag": "Weekly Summary",
+    // Store entryCount in Entry Length field for retrieval
+    "Entry Length (Words)": summary.entryCount,
   }
+}
 
+/**
+ * Create a weekly summary entry in Airtable
+ */
+export async function createSummaryEntry(
+  weekId: string,
+  weekRange: string,
+  summary: WeeklySummaryData
+): Promise<AirtableRecord> {
+  const fields = buildSummaryFields(weekId, weekRange, summary)
   return createAirtableEntry(fields)
+}
+
+/**
+ * Update an existing weekly summary entry in Airtable
+ */
+export async function updateSummaryEntry(
+  recordId: string,
+  weekId: string,
+  weekRange: string,
+  summary: WeeklySummaryData
+): Promise<AirtableRecord> {
+  const fields = buildSummaryFields(weekId, weekRange, summary)
+  return updateAirtableRecord(recordId, fields)
 }

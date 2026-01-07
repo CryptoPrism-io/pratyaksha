@@ -4,6 +4,7 @@ import {
   fetchEntriesByDateRange,
   findSummaryByWeek,
   createSummaryEntry,
+  updateSummaryEntry,
   AirtableRecord
 } from "../lib/airtable"
 import {
@@ -53,36 +54,37 @@ export async function getWeeklySummary(req: Request, res: Response) {
     const weekRange = formatWeekRange(weekId)
     const regenerate = req.query.regenerate === "true"
 
-    // Check for cached summary (unless regenerate is requested)
-    if (!regenerate) {
-      const cached = await findSummaryByWeek(weekId)
-      if (cached) {
-        // Parse cached summary
-        const response: WeeklySummaryResponse = {
-          success: true,
-          summary: {
-            weekId,
-            weekStart: formatDateISO(start),
-            weekEnd: formatDateISO(end),
-            entryCount: 0, // We don't know from cached
-            narrative: cached.fields["Summary (AI)"] || null,
-            moodTrend: null, // Not stored in simple cache
-            dominantMode: cached.fields["Inferred Mode"] || null,
-            dominantEnergy: null,
-            topThemes: cached.fields["Entry Theme Tags (AI)"]?.split(",").map(t => t.trim()) || [],
-            topContradiction: null,
-            weeklyInsight: null,
-            recommendations: cached.fields["Actionable Insights (AI)"]?.split("\n\n") || [],
-            nextWeekFocus: cached.fields["Next Action"] || null,
-            positiveRatio: 0,
-            avgEntriesPerDay: 0,
-            generatedAt: cached.fields.Timestamp || null,
-            cached: true,
-            airtableRecordId: cached.id,
-          },
-        }
-        return res.json(response)
+    // Check for cached summary
+    const existingCached = await findSummaryByWeek(weekId)
+
+    // Return cached if not regenerating and cache exists
+    if (!regenerate && existingCached) {
+      // Parse cached summary - entryCount stored in Entry Length (Words) field
+      const cachedEntryCount = existingCached.fields["Entry Length (Words)"] || 0
+      const response: WeeklySummaryResponse = {
+        success: true,
+        summary: {
+          weekId,
+          weekStart: formatDateISO(start),
+          weekEnd: formatDateISO(end),
+          entryCount: cachedEntryCount,
+          narrative: existingCached.fields["Summary (AI)"] || null,
+          moodTrend: null, // Not stored in simple cache
+          dominantMode: existingCached.fields["Inferred Mode"] || null,
+          dominantEnergy: null,
+          topThemes: existingCached.fields["Entry Theme Tags (AI)"]?.split(",").map(t => t.trim()) || [],
+          topContradiction: null,
+          weeklyInsight: null,
+          recommendations: existingCached.fields["Actionable Insights (AI)"]?.split("\n\n") || [],
+          nextWeekFocus: existingCached.fields["Next Action"] || null,
+          positiveRatio: 0,
+          avgEntriesPerDay: 0,
+          generatedAt: existingCached.fields.Timestamp || null,
+          cached: true,
+          airtableRecordId: existingCached.id,
+        },
       }
+      return res.json(response)
     }
 
     // Fetch entries for the week
@@ -130,21 +132,31 @@ export async function getWeeklySummary(req: Request, res: Response) {
     const { output, stats } = await generateWeeklySummary(weekEntries, weekId, weekRange)
     const { dominantMode, dominantEnergy, topThemes, topContradiction } = getDominantValues(stats)
 
-    // Cache the summary in Airtable
+    // Cache the summary in Airtable (update existing or create new)
     let airtableRecordId: string | undefined
+    const summaryData = {
+      narrative: output.narrative,
+      recommendations: output.recommendations,
+      weeklyInsight: output.weeklyInsight,
+      nextWeekFocus: output.nextWeekFocus,
+      topThemes,
+      dominantMode,
+      moodTrend: output.moodTrend,
+      entryCount: stats.entryCount,
+    }
+
     try {
-      const cached = await createSummaryEntry(weekId, weekRange, {
-        narrative: output.narrative,
-        recommendations: output.recommendations,
-        weeklyInsight: output.weeklyInsight,
-        nextWeekFocus: output.nextWeekFocus,
-        topThemes,
-        dominantMode,
-        moodTrend: output.moodTrend,
-        entryCount: stats.entryCount,
-      })
-      airtableRecordId = cached.id
-      console.log(`[Weekly Summary] Cached summary in Airtable: ${cached.id}`)
+      if (existingCached) {
+        // Update existing record instead of creating duplicate
+        const updated = await updateSummaryEntry(existingCached.id, weekId, weekRange, summaryData)
+        airtableRecordId = updated.id
+        console.log(`[Weekly Summary] Updated existing summary in Airtable: ${updated.id}`)
+      } else {
+        // Create new record
+        const created = await createSummaryEntry(weekId, weekRange, summaryData)
+        airtableRecordId = created.id
+        console.log(`[Weekly Summary] Created new summary in Airtable: ${created.id}`)
+      }
     } catch (cacheError) {
       console.error("[Weekly Summary] Failed to cache summary:", cacheError)
       // Continue without caching - still return the summary
