@@ -1,7 +1,7 @@
-# Product Roadmap v2.1
+# Product Roadmap v2.2
 
-*Last Updated: 2026-01-07 | Version: 2.1*
-*Previous: 2026-01-06 v2.0*
+*Last Updated: 2026-01-07 | Version: 2.2*
+*Previous: 2026-01-07 v2.1*
 
 ---
 
@@ -29,7 +29,7 @@
 
 ---
 
-## NOW (Sprint 2)
+## Completed (Sprint 2) - DONE
 **Focus**: Retention & Engagement Mechanics
 
 | Feature | Effort | Status | Notes |
@@ -39,11 +39,11 @@
 | Date filter default | 30 min | DONE | Last 30 days default |
 | Insights page (placeholder) | 1 day | DONE | Weekly Summary, Pattern Detection, Cognitive Analysis cards |
 | Profile page | 1 day | DONE | Stats overview + settings placeholders |
-| Weekly AI Summary | 3 days | Pending | Auto-generated insights |
+| Weekly AI Summary | 3 days | DONE | Full AI-generated weekly insights with caching |
 
 **Success Metric**: 7-day retention > 40%
 
-**Progress**: 5/6 complete (83%)
+**Progress**: 6/6 complete (100%)
 
 ---
 
@@ -99,24 +99,25 @@
 ## Roadmap Visualization
 
 ```
-         DONE              NOW                NEXT              LATER
-    Sprint 1 + 2       Sprint 2 (rem)     Sprint 3-4         Sprint 5+
-├─────────────────────┼────────────────┼─────────────────┼─────────────────
-│                     │                │                 │
-│  COMPLETED          │  IN PROGRESS   │  PLANNED        │  FUTURE
-│  ──────────         │  ───────────   │  ───────        │  ──────
-│  ✓ Onboarding tour  │  • AI Summary  │  • Entry edit   │  • Auth
-│  ✓ Empty states     │                │  • Entry delete │  • Comparisons
-│  ✓ Confetti         │                │  • Bookmarks    │  • Notifications
-│  ✓ Shortcuts        │                │  • PWA support  │  • AI chat
-│  ✓ Restart tour     │                │  • Offline mode │  • Data import
-│  ✓ Glass UI         │                │                 │
-│  ✓ Streak system    │                │                 │
-│  ✓ Entry templates  │                │                 │
-│  ✓ Insights page    │                │                 │
-│  ✓ Profile page     │                │                 │
-│                     │                │                 │
-└─────────────────────┴────────────────┴─────────────────┴─────────────────
+         DONE                              NEXT              LATER
+    Sprint 1 + 2 (Complete)            Sprint 3-4         Sprint 5+
+├──────────────────────────────────┼─────────────────┼─────────────────
+│                                  │                 │
+│  COMPLETED                       │  PLANNED        │  FUTURE
+│  ──────────                      │  ───────        │  ──────
+│  ✓ Onboarding tour               │  • Entry edit   │  • Auth
+│  ✓ Empty states                  │  • Entry delete │  • Comparisons
+│  ✓ Confetti                      │  • Bookmarks    │  • Notifications
+│  ✓ Shortcuts                     │  • PWA support  │  • AI chat
+│  ✓ Restart tour                  │  • Offline mode │  • Data import
+│  ✓ Glass UI                      │                 │
+│  ✓ Streak system                 │                 │
+│  ✓ Entry templates               │                 │
+│  ✓ Insights page                 │                 │
+│  ✓ Profile page                  │                 │
+│  ✓ Weekly AI Summary             │                 │
+│                                  │                 │
+└──────────────────────────────────┴─────────────────┴─────────────────
 ```
 
 ---
@@ -182,11 +183,22 @@
    - **Insights page** - Placeholder with cards for Weekly Summary, Pattern Detection, Cognitive Analysis
    - **Profile page** - Stats overview (entries, days, streak, avg/day) + settings placeholders
 
+4. **Weekly AI Summary**
+   - New `weeklyAgent` using gpt-4o for quality insights
+   - `GET /api/weekly-summary` endpoint with Airtable caching
+   - Week navigation with ISO 8601 week IDs
+   - AI-generated narrative, mood trend, recommendations
+   - Top themes and contradictions aggregation
+   - Regenerate button for fresh analysis
+
 ### Technical Achievements
 - Real streak calculation from Airtable entry dates
 - Calendar grid with proper month navigation
 - Template selection UI with icon buttons
 - Profile stats computed from useStreak hook
+- weekUtils.ts for ISO 8601 week date handling (server + client)
+- TanStack Query hooks with 1-hour stale time for summaries
+- Airtable caching with `Is Summary? = true` flag
 
 ---
 
@@ -225,6 +237,13 @@ Authentication ─────────────────┬──► M
 ---
 
 ## Changelog
+
+### v2.2 (2026-01-07)
+- SPRINT 2 COMPLETE!
+- Added Weekly AI Summary feature with full implementation
+- Updated Sprint 2 section to show 100% completion
+- Added Weekly AI Summary to Sprint 2 Progress section
+- Updated roadmap visualization
 
 ### v2.1 (2026-01-07)
 - Marked Sprint 2 items as DONE: Streak System, Entry Templates, Date Filter
