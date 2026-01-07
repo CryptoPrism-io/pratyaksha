@@ -5,6 +5,7 @@ import cors from "cors"
 import path from "path"
 import { processEntry } from "./routes/entry"
 import { getWeeklySummary } from "./routes/weeklySummary"
+import { getDailySummary } from "./routes/dailySummary"
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -22,6 +23,7 @@ app.get("/health", (_req, res) => {
 // API Routes
 app.post("/api/process-entry", processEntry)
 app.get("/api/weekly-summary", getWeeklySummary)
+app.get("/api/daily-summary", getDailySummary)
 
 // Serve static files in production
 // __dirname is available in CommonJS modules

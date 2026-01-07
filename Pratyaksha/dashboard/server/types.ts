@@ -204,3 +204,37 @@ export interface WeeklySummaryResponse {
   }
   error?: string
 }
+
+// Daily Summary Types
+export interface DailyAgentOutput {
+  narrative: string
+  moodSummary: string
+  energyPattern: string
+  keyTakeaway: string
+  eveningReflection: string
+}
+
+export interface DailySummaryResponse {
+  success: boolean
+  summary?: {
+    date: string
+    displayDate: string
+    entryCount: number
+
+    // AI-generated content
+    narrative: string | null
+    moodSummary: string | null
+    energyPattern: string | null
+    keyTakeaway: string | null
+    eveningReflection: string | null
+
+    // Stats
+    dominantMode: string | null
+    dominantSentiment: string | null
+    themes: string[]
+
+    // Metadata
+    generatedAt: string | null
+  }
+  error?: string
+}

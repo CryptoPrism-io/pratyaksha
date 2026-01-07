@@ -226,6 +226,50 @@ export async function fetchWeeklySummary(
   return response.json()
 }
 
+// Daily Summary Types
+export interface DailySummary {
+  date: string
+  displayDate: string
+  entryCount: number
+  narrative: string | null
+  moodSummary: string | null
+  energyPattern: string | null
+  keyTakeaway: string | null
+  eveningReflection: string | null
+  dominantMode: string | null
+  dominantSentiment: string | null
+  themes: string[]
+  generatedAt: string | null
+}
+
+export interface DailySummaryResponse {
+  success: boolean
+  summary?: DailySummary
+  error?: string
+}
+
+/**
+ * Fetch daily summary from the backend API
+ * @param date - YYYY-MM-DD format or "today"
+ */
+export async function fetchDailySummary(
+  date: string = "today"
+): Promise<DailySummaryResponse> {
+  const params = new URLSearchParams({ date })
+
+  const response = await fetch(`/api/daily-summary?${params}`)
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: "Unknown error" }))
+    return {
+      success: false,
+      error: error.error || `HTTP ${response.status}`,
+    }
+  }
+
+  return response.json()
+}
+
 // Demo data for development/showcase
 function getDemoData(): Entry[] {
   return [
