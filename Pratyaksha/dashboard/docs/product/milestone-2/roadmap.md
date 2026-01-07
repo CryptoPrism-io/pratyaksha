@@ -19,7 +19,7 @@
 │                                                                 │
 │  Phase 2: Auth Implementation (2 weeks)                         │
 │  ├── Sprint 8: Auth UI (Login/Signup/Profile)                   │
-│  └── Sprint 9: Backend Auth + Data Isolation                    │
+│  └── Sprint 9: Data Isolation + Admin Dashboard                 │
 │                                                                 │
 │  Phase 3: Analytics & Comparisons (2 weeks)                     │
 │  ├── Sprint 10: Week-over-Week Comparison                       │
@@ -98,9 +98,9 @@
 
 ---
 
-### Sprint 9: Data Isolation
+### Sprint 9: Data Isolation + Admin Dashboard
 **Duration**: 1 week
-**Focus**: Multi-tenant data separation
+**Focus**: Multi-tenant data separation + operational visibility
 
 | Task | Priority | Effort |
 |------|----------|--------|
@@ -109,12 +109,18 @@
 | Update all write operations with User ID | P0 | 4h |
 | Test data isolation (user A can't see user B) | P0 | 2h |
 | Handle unauthenticated Airtable requests | P1 | 2h |
-| User onboarding flow (first entry prompt) | P2 | 3h |
+| **Admin: Set up admin role (Firebase custom claims)** | P0 | 2h |
+| **Admin: Create /admin route (admin-only access)** | P0 | 2h |
+| **Admin: User list table with search** | P0 | 3h |
+| **Admin: Dashboard stats (users, DAU, entries)** | P1 | 3h |
+| **Admin: Password reset + disable account actions** | P1 | 2h |
 
 **Deliverables**:
 - [ ] Complete multi-user isolation
 - [ ] Each user sees only their data
 - [ ] New users get clean slate
+- [ ] Admin dashboard with user management
+- [ ] Operational visibility from day 1
 
 ---
 
@@ -217,7 +223,7 @@
 | 1 | Sprint 6 | Quick Wins | 5 quick features |
 | 2 | Sprint 7 | Auth Prep | Firebase + Airtable ready |
 | 3 | Sprint 8 | Auth UI | Login/Signup working |
-| 4 | Sprint 9 | Data Isolation | Multi-user complete |
+| 4 | Sprint 9 | Data Isolation + Admin | Multi-user + Admin dashboard |
 | 5 | Sprint 10 | WoW Comparison | Comparative analytics |
 | 6 | Sprint 11 | Monthly + Export | Data export working |
 | 7 | Sprint 12 | Notifications | Push reminders working |
@@ -242,6 +248,7 @@
 ### Milestone 2 Complete When:
 - [ ] 10+ users can use the app independently
 - [ ] Each user sees only their own data
+- [ ] Admin dashboard operational
 - [ ] Week-over-week comparison working
 - [ ] Push notifications functional
 - [ ] Data export working (JSON/CSV)
@@ -276,3 +283,4 @@ Features deliberately deferred:
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | 2026-01-07 | Initial Milestone 2 roadmap |
+| 1.1 | 2026-01-07 | Added Admin Dashboard to Sprint 9 |

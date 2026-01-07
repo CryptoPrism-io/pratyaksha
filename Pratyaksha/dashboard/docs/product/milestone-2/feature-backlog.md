@@ -67,7 +67,35 @@
 
 ## P1 - Engagement Features (Should Have)
 
-### 3. Push Notification Reminders
+### 3. Admin Dashboard
+**Effort**: 3 days | **Dependencies**: Authentication, Multi-user
+
+**User Stories**:
+- As an admin, I can see total user count and list all users
+- As an admin, I can view user activity metrics (entries, last active)
+- As an admin, I can trigger password reset for users
+- As an admin, I can disable problem accounts
+
+**Technical Scope**:
+- [ ] Admin role in Firebase (custom claims)
+- [ ] `/admin` protected route (admin only)
+- [ ] Admin check middleware on backend
+- [ ] User list table with search/filter
+- [ ] User stats card (entries count, last active, signup date)
+- [ ] Password reset action (Firebase Admin SDK)
+- [ ] Disable account action
+- [ ] Dashboard stats (total users, DAU, WAU, entries today)
+
+**Acceptance Criteria**:
+- Only admin users can access /admin route
+- User list loads within 2 seconds
+- Password reset sends email to user
+- Disabled users cannot log in
+- Dashboard shows real-time stats
+
+---
+
+### 5. Push Notification Reminders
 **Effort**: 3 days | **Dependencies**: Authentication, PWA
 
 **User Stories**:
@@ -120,7 +148,7 @@
 
 ---
 
-### 5. Data Import (CSV/JSON)
+### 6. Data Import (CSV/JSON)
 **Effort**: 2 days | **Dependencies**: Authentication
 
 **User Stories**:
@@ -160,7 +188,7 @@ date,text
 
 ## P2 - Advanced Features (Nice to Have)
 
-### 6. AI Chat for Pattern Questions
+### 7. AI Chat for Pattern Questions
 **Effort**: 5 days | **Dependencies**: Multi-user data
 
 **User Stories**:
@@ -188,7 +216,7 @@ date,text
 
 ---
 
-### 7. Custom Entry Types
+### 8. Custom Entry Types
 **Effort**: 3 days | **Dependencies**: Multi-user data
 
 **User Stories**:
@@ -232,11 +260,11 @@ date,text
 | Priority | Features | Total Effort |
 |----------|----------|--------------|
 | P0 | Auth, Multi-user | 8 days |
-| P1 | Push, Week Comparison, Import | 8 days |
+| P1 | Admin Dashboard, Push, Week Comparison, Import | 11 days |
 | P2 | AI Chat, Custom Types | 8 days |
 | P3 | Parking lot | TBD |
 
-**Milestone 2 Target**: P0 + P1 = ~16 days of work
+**Milestone 2 Target**: P0 + P1 = ~19 days of work
 
 ---
 
