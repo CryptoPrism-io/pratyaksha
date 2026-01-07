@@ -171,6 +171,61 @@ export async function fetchEntries(): Promise<Entry[]> {
   return data.records.map(transformRecord)
 }
 
+// Weekly Summary Types
+export interface WeeklySummary {
+  weekId: string
+  weekStart: string
+  weekEnd: string
+  entryCount: number
+  narrative: string | null
+  moodTrend: "improving" | "declining" | "stable" | "volatile" | null
+  dominantMode: string | null
+  dominantEnergy: string | null
+  topThemes: string[]
+  topContradiction: string | null
+  weeklyInsight: string | null
+  recommendations: string[]
+  nextWeekFocus: string | null
+  positiveRatio: number
+  avgEntriesPerDay: number
+  generatedAt: string | null
+  cached: boolean
+  airtableRecordId?: string
+}
+
+export interface WeeklySummaryResponse {
+  success: boolean
+  summary?: WeeklySummary
+  error?: string
+}
+
+/**
+ * Fetch weekly summary from the backend API
+ * @param weekId - ISO week ID (YYYY-Wnn) or "current"
+ * @param regenerate - Force regeneration even if cached
+ */
+export async function fetchWeeklySummary(
+  weekId: string = "current",
+  regenerate: boolean = false
+): Promise<WeeklySummaryResponse> {
+  const params = new URLSearchParams({ week: weekId })
+  if (regenerate) {
+    params.append("regenerate", "true")
+  }
+
+  const response = await fetch(`/api/weekly-summary?${params}`)
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: "Unknown error" }))
+    return {
+      success: false,
+      error: error.error || `HTTP ${response.status}`,
+    }
+  }
+
+  return response.json()
+}
+
 // Demo data for development/showcase
 function getDemoData(): Entry[] {
   return [

@@ -148,3 +148,59 @@ export interface ProcessEntryResponse {
   processing?: ProcessingResult
   error?: string
 }
+
+// Weekly Summary Types
+export const MOOD_TRENDS = ["improving", "declining", "stable", "volatile"] as const
+export type MoodTrend = (typeof MOOD_TRENDS)[number]
+
+export interface WeeklyAgentOutput {
+  narrative: string
+  moodTrend: MoodTrend
+  weeklyInsight: string
+  recommendations: string[]
+  nextWeekFocus: string
+}
+
+export interface WeeklySummaryStats {
+  entryCount: number
+  modeDistribution: Record<string, number>
+  themeFrequency: Record<string, number>
+  sentimentBreakdown: { positive: number; negative: number; neutral: number }
+  contradictions: Record<string, number>
+  energyShapes: Record<string, number>
+  avgEntriesPerDay: number
+  positiveRatio: number
+}
+
+export interface WeeklySummaryResponse {
+  success: boolean
+  summary?: {
+    weekId: string
+    weekStart: string
+    weekEnd: string
+    entryCount: number
+
+    // AI-generated content
+    narrative: string | null
+    moodTrend: MoodTrend | null
+    dominantMode: string | null
+    dominantEnergy: string | null
+    topThemes: string[]
+    topContradiction: string | null
+
+    // Recommendations
+    weeklyInsight: string | null
+    recommendations: string[]
+    nextWeekFocus: string | null
+
+    // Stats
+    positiveRatio: number
+    avgEntriesPerDay: number
+
+    // Metadata
+    generatedAt: string | null
+    cached: boolean
+    airtableRecordId?: string
+  }
+  error?: string
+}

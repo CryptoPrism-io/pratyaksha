@@ -74,7 +74,8 @@ Respond with JSON:
     : "Centered"
 
   // Map "Mixed" to "Neutral" since Airtable doesn't have Mixed as an option
-  let sentimentValue = response.data.sentimentAI
+  // Cast to string since AI might return values outside the type
+  let sentimentValue: string = response.data.sentimentAI as string
   if (sentimentValue === "Mixed") {
     sentimentValue = "Neutral"
   }
