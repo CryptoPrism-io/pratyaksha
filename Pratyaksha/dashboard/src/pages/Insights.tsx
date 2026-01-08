@@ -1,6 +1,7 @@
-import { TrendingUp, Brain, ArrowRight } from "lucide-react"
+import { Brain, ArrowRight } from "lucide-react"
 import { WeeklySummaryCard } from "../components/insights/WeeklySummaryCard"
 import { DailySummaryCard } from "../components/insights/DailySummaryCard"
+import { WeekOverWeekCard } from "../components/insights/WeekOverWeekCard"
 
 export function Insights() {
   return (
@@ -23,26 +24,12 @@ export function Insights() {
           <WeeklySummaryCard />
         </div>
 
-        {/* Coming Soon Cards */}
+        {/* Comparison and Analysis Cards */}
         <div className="grid gap-6 lg:grid-cols-2">
-          {/* Pattern Detection Card */}
-          <div className="rounded-xl glass-card p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-500/10">
-                <TrendingUp className="h-5 w-5 text-orange-500" />
-              </div>
-              <h3 className="font-semibold">Pattern Detection</h3>
-            </div>
-            <p className="text-sm text-muted-foreground mb-4">
-              AI identifies recurring patterns in your thoughts, emotions, and behaviors over time.
-            </p>
-            <div className="flex items-center text-sm text-primary">
-              <span>Coming soon</span>
-              <ArrowRight className="h-4 w-4 ml-1" />
-            </div>
-          </div>
+          {/* Week over Week Comparison */}
+          <WeekOverWeekCard />
 
-          {/* Cognitive Analysis Card */}
+          {/* Cognitive Analysis Card - Coming Soon */}
           <div className="rounded-xl glass-card p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-500/10">
