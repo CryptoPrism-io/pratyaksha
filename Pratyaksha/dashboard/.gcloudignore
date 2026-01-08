@@ -1,0 +1,44 @@
+# Ignore files for gcloud builds submit
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Git
+.git/
+.gitignore
+
+# Development files
+.env
+.env.local
+.env*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test results and playwright
+test-results/
+.playwright-mcp/
+playwright-report/
+tests/
+
+# Scripts and temporary files
+scripts/
+nul
+*.cjs
+
+# Logs
+*.log
+npm-debug.log*
+
+# Build artifacts
+*.tgz

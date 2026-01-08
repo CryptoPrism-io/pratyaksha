@@ -1,3 +1,4 @@
+import { useState } from "react"
 import {
   RadarChart,
   PolarGrid,
@@ -8,7 +9,9 @@ import {
   Tooltip,
   Legend,
 } from "recharts"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 import { useEnergyShapeData } from "../../hooks/useEntries"
+import { useIsMobile } from "../../hooks/useMediaQuery"
 import { cn } from "../../lib/utils"
 
 // Categorize energy shapes into meaningful groups
@@ -140,6 +143,13 @@ function CategoryRadar({ categoryKey, data, maxValue }: CategoryRadarProps) {
 
 export function EnergyRadarGroup() {
   const { data: rawData, isLoading, error } = useEnergyShapeData()
+  const isMobile = useIsMobile()
+  const [currentIndex, setCurrentIndex] = useState(0)
+
+  const categoryKeys: CategoryKey[] = ["growth", "stability", "challenge"]
+
+  const goNext = () => setCurrentIndex((i) => (i + 1) % 3)
+  const goPrev = () => setCurrentIndex((i) => (i - 1 + 3) % 3)
 
   if (isLoading) {
     return (
@@ -198,6 +208,86 @@ export function EnergyRadarGroup() {
   const totalEntries = growthScore + stabilityScore + challengeScore
   const positiveRatio = totalEntries > 0 ? ((growthScore + stabilityScore) / totalEntries * 100) : 0
 
+  // Category styling for borders/backgrounds
+  const categoryStyles: Record<CategoryKey, string> = {
+    growth: "border-green-200 dark:border-green-900 bg-green-50/50 dark:bg-green-950/20",
+    stability: "border-blue-200 dark:border-blue-900 bg-blue-50/50 dark:bg-blue-950/20",
+    challenge: "border-amber-200 dark:border-amber-900 bg-amber-50/50 dark:bg-amber-950/20",
+  }
+
+  // Mobile: Carousel view
+  if (isMobile) {
+    const currentCategory = categoryKeys[currentIndex]
+    return (
+      <div className="flex flex-col h-full gap-2">
+        {/* Compact summary bar */}
+        <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
+          <div className="flex-1">
+            <div className="flex items-center gap-1.5 mb-0.5">
+              <div className="h-1.5 flex-1 rounded-full bg-muted overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-green-500 via-blue-500 to-amber-500"
+                  style={{ width: `${positiveRatio}%` }}
+                />
+              </div>
+              <span className="text-[10px] font-medium">{Math.round(positiveRatio)}%</span>
+            </div>
+            <div className="flex justify-between text-[9px] text-muted-foreground">
+              <span>G:{growthScore}</span>
+              <span>S:{stabilityScore}</span>
+              <span>C:{challengeScore}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Carousel container */}
+        <div className="flex-1 relative">
+          {/* Navigation arrows */}
+          <button
+            onClick={goPrev}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-1 rounded-full bg-background/80 border shadow-sm hover:bg-muted min-w-[32px] min-h-[32px] flex items-center justify-center"
+            aria-label="Previous category"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+
+          <button
+            onClick={goNext}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-1 rounded-full bg-background/80 border shadow-sm hover:bg-muted min-w-[32px] min-h-[32px] flex items-center justify-center"
+            aria-label="Next category"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+
+          {/* Current radar chart */}
+          <div className={cn("h-full p-2 rounded-lg border mx-8", categoryStyles[currentCategory])}>
+            <CategoryRadar
+              categoryKey={currentCategory}
+              data={categoryData[currentCategory]}
+              maxValue={maxValue}
+            />
+          </div>
+        </div>
+
+        {/* Dot indicators */}
+        <div className="flex gap-1.5 justify-center">
+          {categoryKeys.map((key, i) => (
+            <button
+              key={key}
+              onClick={() => setCurrentIndex(i)}
+              className={cn(
+                "w-2 h-2 rounded-full transition-colors",
+                i === currentIndex ? "bg-primary" : "bg-muted-foreground/30"
+              )}
+              aria-label={`Go to ${ENERGY_CATEGORIES[key].name}`}
+            />
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  // Desktop: Grid view (original)
   return (
     <div className="flex flex-col h-full gap-4">
       {/* Summary bar */}

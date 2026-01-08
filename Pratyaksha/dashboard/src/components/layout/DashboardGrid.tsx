@@ -17,8 +17,9 @@ export function DashboardGrid({ children, className }: DashboardGridProps) {
   return (
     <div
       className={cn(
-        "grid gap-4 p-4 md:gap-6 md:p-6",
-        "grid-cols-1 md:grid-cols-2 lg:grid-cols-12",
+        "grid gap-2 p-2 sm:gap-4 sm:p-4 md:gap-6 md:p-6",
+        "grid-cols-2 md:grid-cols-2 lg:grid-cols-12",
+        "overflow-x-hidden",
         className
       )}
     >
@@ -48,6 +49,7 @@ export function ChartCard({
   rowSpan = 1,
   "data-tour": dataTour,
 }: ChartCardProps) {
+  // Desktop (lg) column spans
   const colSpanClass = {
     1: "lg:col-span-1",
     2: "lg:col-span-2",
@@ -68,25 +70,29 @@ export function ChartCard({
     2: "lg:row-span-2",
   }
 
+  // Mobile: only truly full-width cards (colSpan >= 10) span both columns
+  const mobileSpanClass = colSpan >= 10 ? "col-span-2" : "col-span-1"
+
   return (
     <div
       data-tour={dataTour}
       className={cn(
-        "rounded-xl glass-card p-4 card-hover",
+        "rounded-lg sm:rounded-xl glass-card p-2 sm:p-4 card-hover",
+        mobileSpanClass,
         "md:col-span-1",
         colSpanClass[colSpan],
         rowSpanClass[rowSpan],
         className
       )}
     >
-      <div className="mb-4">
-        <div className="flex items-center gap-2">
-          <h3 className="text-lg font-semibold tracking-tight">{title}</h3>
+      <div className="mb-1 sm:mb-4">
+        <div className="flex items-center gap-1 sm:gap-2">
+          <h3 className="text-[11px] sm:text-lg font-semibold tracking-tight leading-tight">{title}</h3>
           {tooltip && (
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className="text-muted-foreground hover:text-foreground transition-colors">
+                  <button className="hidden sm:inline-block text-muted-foreground hover:text-foreground transition-colors">
                     <Info className="h-4 w-4" />
                   </button>
                 </TooltipTrigger>
@@ -98,10 +104,10 @@ export function ChartCard({
           )}
         </div>
         {description && (
-          <p className="text-sm text-muted-foreground">{description}</p>
+          <p className="text-[9px] sm:text-sm text-muted-foreground leading-tight">{description}</p>
         )}
       </div>
-      <div className="min-h-[200px]">{children}</div>
+      <div className="min-h-[100px] sm:min-h-[200px] overflow-hidden">{children}</div>
     </div>
   )
 }

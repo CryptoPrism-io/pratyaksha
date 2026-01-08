@@ -32,3 +32,17 @@ coverage
 # Logs
 *.log
 npm-debug.log*
+
+# Test results and playwright
+test-results
+.playwright-mcp
+playwright-report
+playwright.config.ts
+
+# Scripts and temporary files
+scripts
+nul
+*.cjs
+
+# Build artifacts
+*.tgz
