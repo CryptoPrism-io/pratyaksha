@@ -1,10 +1,33 @@
-import { User, Settings, Bell, Shield, Download, Trash2 } from "lucide-react"
+import { User, Settings, Bell, Shield, Download, Trash2, LogIn, LogOut } from "lucide-react"
 import { useEntries } from "../hooks/useEntries"
 import { useStreak } from "../hooks/useStreak"
+import { useAuth } from "../contexts/AuthContext"
+import { toast } from "sonner"
 
 export function Profile() {
   const { data: entries = [] } = useEntries()
   const { streak, entryDates } = useStreak(entries)
+  const { user, loading, isConfigured, signIn, signOut } = useAuth()
+
+  const handleSignIn = async () => {
+    try {
+      const result = await signIn()
+      if (result) {
+        toast.success(`Welcome, ${result.displayName || result.email}!`)
+      }
+    } catch {
+      toast.error("Sign in failed. Please try again.")
+    }
+  }
+
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+      toast.success("Signed out successfully")
+    } catch {
+      toast.error("Sign out failed. Please try again.")
+    }
+  }
 
   // Calculate stats
   const totalEntries = entries.length
@@ -17,17 +40,69 @@ export function Profile() {
     <div className="min-h-screen dashboard-glass-bg">
 
       <div className="container mx-auto px-4 py-8 md:px-8 max-w-4xl">
-        {/* Profile Header */}
+        {/* Account Section */}
         <div className="rounded-xl glass-card p-6 mb-6">
-          <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-              <User className="h-8 w-8 text-primary" />
+          {loading ? (
+            <div className="flex items-center gap-4">
+              <div className="h-16 w-16 rounded-full bg-muted animate-pulse" />
+              <div className="space-y-2">
+                <div className="h-6 w-32 bg-muted animate-pulse rounded" />
+                <div className="h-4 w-48 bg-muted animate-pulse rounded" />
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold">Your Profile</h1>
-              <p className="text-muted-foreground">Manage your account and preferences</p>
+          ) : user ? (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                {user.photoURL ? (
+                  <img
+                    src={user.photoURL}
+                    alt={user.displayName || "User"}
+                    className="h-16 w-16 rounded-full border-2 border-primary/20"
+                  />
+                ) : (
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground text-2xl font-bold">
+                    {(user.displayName || user.email || "U")[0].toUpperCase()}
+                  </div>
+                )}
+                <div>
+                  <h1 className="text-2xl font-bold">{user.displayName || "User"}</h1>
+                  <p className="text-muted-foreground">{user.email}</p>
+                </div>
+              </div>
+              <button
+                onClick={handleSignOut}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border text-sm hover:bg-muted transition-colors"
+              >
+                <LogOut className="h-4 w-4" />
+                Sign Out
+              </button>
             </div>
-          </div>
+          ) : (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                  <User className="h-8 w-8 text-primary" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold">Your Profile</h1>
+                  <p className="text-muted-foreground">
+                    {isConfigured
+                      ? "Sign in to sync your data across devices"
+                      : "Running in demo mode (Firebase not configured)"}
+                  </p>
+                </div>
+              </div>
+              {isConfigured && (
+                <button
+                  onClick={handleSignIn}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm hover:bg-primary/90 transition-colors"
+                >
+                  <LogIn className="h-4 w-4" />
+                  Sign In with Google
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Stats Overview */}

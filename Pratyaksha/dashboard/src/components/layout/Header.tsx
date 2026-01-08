@@ -6,17 +6,19 @@ import { ThemeToggle } from "../theme-toggle"
 import { resetOnboardingTour } from "../onboarding/OnboardingTour"
 import { toast } from "sonner"
 import { usePWAInstall } from "@/hooks/usePWAInstall"
+import { UserMenu } from "../auth/UserMenu"
+import { useAuth } from "../../contexts/AuthContext"
 
 export function Header() {
   const location = useLocation()
   const navigate = useNavigate()
   const [showMenu, setShowMenu] = useState(false)
   const { isInstallable, isInstalled, install, setShowPrompt } = usePWAInstall()
+  const { user } = useAuth()
 
   const isDashboard = location.pathname === "/dashboard"
   const isLogs = location.pathname === "/logs"
   const isInsights = location.pathname === "/insights"
-  const isProfile = location.pathname === "/profile"
 
   const handleInstallClick = async () => {
     setShowMenu(false)
@@ -92,16 +94,17 @@ export function Header() {
           </Link>
           <div className="ml-1 border-l pl-1 sm:ml-2 sm:pl-2 md:ml-4 md:pl-4 flex items-center gap-1 sm:gap-2">
             <ThemeToggle />
-            <Link
-              to="/profile"
-              className={cn(
-                "flex h-11 w-11 items-center justify-center rounded-md hover:bg-muted transition-colors",
-                isProfile ? "text-primary bg-muted" : "text-muted-foreground"
-              )}
-              aria-label="Profile"
-            >
-              <User className="h-5 w-5" />
-            </Link>
+            {user ? (
+              <UserMenu compact />
+            ) : (
+              <Link
+                to="/login"
+                className="flex items-center gap-2 h-10 px-3 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm font-medium"
+              >
+                <User className="h-4 w-4" />
+                <span className="hidden sm:inline">Sign In</span>
+              </Link>
+            )}
 
             {/* Menu dropdown */}
             <div className="relative">

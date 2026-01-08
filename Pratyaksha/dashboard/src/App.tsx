@@ -6,6 +6,8 @@ import { Dashboard } from "./pages/Dashboard"
 import { Logs } from "./pages/Logs"
 import { Insights } from "./pages/Insights"
 import { Profile } from "./pages/Profile"
+import { Login } from "./pages/Login"
+import { Signup } from "./pages/Signup"
 import { Toaster } from "./components/ui/sonner"
 import { ThemeProvider } from "./components/theme-provider"
 import { DateFilterProvider } from "./contexts/DateFilterContext"
@@ -14,6 +16,7 @@ import { InstallPrompt } from "./components/pwa/InstallPrompt"
 import { OfflineProvider } from "./contexts/OfflineContext"
 import { OfflineIndicator } from "./components/offline/OfflineIndicator"
 import { AuthProvider } from "./contexts/AuthContext"
+import { PublicOnlyRoute } from "./components/auth/ProtectedRoute"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -47,6 +50,22 @@ function App() {
                     <Route path="/logs" element={<Logs />} />
                     <Route path="/insights" element={<Insights />} />
                     <Route path="/profile" element={<Profile />} />
+                    <Route
+                      path="/login"
+                      element={
+                        <PublicOnlyRoute>
+                          <Login />
+                        </PublicOnlyRoute>
+                      }
+                    />
+                    <Route
+                      path="/signup"
+                      element={
+                        <PublicOnlyRoute>
+                          <Signup />
+                        </PublicOnlyRoute>
+                      }
+                    />
                   </Routes>
                 </main>
               </div>

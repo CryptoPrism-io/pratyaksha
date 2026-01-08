@@ -138,7 +138,7 @@ export function Dashboard() {
             <span className="text-sm text-muted-foreground hidden sm:inline">from {personaConfig.subtitle}</span>
             <span className="text-muted-foreground">•</span>
             <button
-              onClick={() => navigate("/profile")}
+              onClick={() => navigate("/login")}
               className="text-sm text-primary hover:underline font-medium"
             >
               Sign in to start your journal
