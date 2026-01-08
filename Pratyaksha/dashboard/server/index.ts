@@ -6,6 +6,7 @@ import path from "path"
 import { processEntry, updateEntry, deleteEntry, toggleBookmark } from "./routes/entry"
 import { getWeeklySummary } from "./routes/weeklySummary"
 import { getDailySummary } from "./routes/dailySummary"
+import { getMonthlySummary } from "./routes/monthlySummary"
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -27,6 +28,7 @@ app.delete("/api/entry/:id", deleteEntry)
 app.patch("/api/entry/:id/bookmark", toggleBookmark)
 app.get("/api/weekly-summary", getWeeklySummary)
 app.get("/api/daily-summary", getDailySummary)
+app.get("/api/monthly-summary", getMonthlySummary)
 
 // Serve static files in production
 // __dirname is available in CommonJS modules

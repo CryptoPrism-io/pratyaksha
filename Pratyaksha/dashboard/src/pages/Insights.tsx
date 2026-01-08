@@ -2,6 +2,8 @@ import { Brain, ArrowRight } from "lucide-react"
 import { WeeklySummaryCard } from "../components/insights/WeeklySummaryCard"
 import { DailySummaryCard } from "../components/insights/DailySummaryCard"
 import { WeekOverWeekCard } from "../components/insights/WeekOverWeekCard"
+import { MonthlySummaryCard } from "../components/insights/MonthlySummaryCard"
+import { MonthlyTrendsChart } from "../components/insights/MonthlyTrendsChart"
 
 export function Insights() {
   return (
@@ -15,19 +17,21 @@ export function Insights() {
           </p>
         </div>
 
-        {/* Summary Cards - Daily and Weekly */}
+        {/* Row 1: Daily and Weekly Summaries */}
         <div className="grid gap-6 lg:grid-cols-2 mb-6">
-          {/* Daily Summary */}
           <DailySummaryCard />
-
-          {/* Weekly Summary */}
           <WeeklySummaryCard />
         </div>
 
-        {/* Comparison and Analysis Cards */}
-        <div className="grid gap-6 lg:grid-cols-2">
-          {/* Week over Week Comparison */}
+        {/* Row 2: Monthly Summary and Week-over-Week */}
+        <div className="grid gap-6 lg:grid-cols-2 mb-6">
+          <MonthlySummaryCard />
           <WeekOverWeekCard />
+        </div>
+
+        {/* Row 3: Long-term Trends and Cognitive Analysis */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          <MonthlyTrendsChart />
 
           {/* Cognitive Analysis Card - Coming Soon */}
           <div className="rounded-xl glass-card p-6">

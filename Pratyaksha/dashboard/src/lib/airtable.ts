@@ -302,6 +302,66 @@ export async function fetchDailySummary(
   return response.json()
 }
 
+// Monthly Summary Types
+export interface MonthlySummary {
+  monthId: string
+  monthStart: string
+  monthEnd: string
+  entryCount: number
+  activeDays: number
+  activeWeeks: number
+  narrative: string | null
+  moodTrend: "improving" | "declining" | "stable" | "volatile" | null
+  dominantMode: string | null
+  dominantEnergy: string | null
+  dominantSentiment: "Positive" | "Negative" | "Neutral" | null
+  topThemes: string[]
+  topContradiction: string | null
+  monthlyInsight: string | null
+  monthHighlight: string | null
+  recommendations: string[]
+  nextMonthFocus: string | null
+  positiveRatio: number
+  avgEntriesPerWeek: number
+  sentimentBreakdown: { positive: number; negative: number; neutral: number }
+  generatedAt: string | null
+  cached: boolean
+  airtableRecordId?: string
+}
+
+export interface MonthlySummaryResponse {
+  success: boolean
+  summary?: MonthlySummary
+  error?: string
+}
+
+/**
+ * Fetch monthly summary from the backend API
+ * @param monthId - Month ID (YYYY-MM) or "current"
+ * @param regenerate - Force regeneration even if cached
+ */
+export async function fetchMonthlySummary(
+  monthId: string = "current",
+  regenerate: boolean = false
+): Promise<MonthlySummaryResponse> {
+  const params = new URLSearchParams({ month: monthId })
+  if (regenerate) {
+    params.append("regenerate", "true")
+  }
+
+  const response = await fetch(`/api/monthly-summary?${params}`)
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: "Unknown error" }))
+    return {
+      success: false,
+      error: error.error || `HTTP ${response.status}`,
+    }
+  }
+
+  return response.json()
+}
+
 // Entry Update/Delete/Bookmark API Functions
 
 export interface UpdateEntryInput {

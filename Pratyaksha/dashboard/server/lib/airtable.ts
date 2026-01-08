@@ -12,6 +12,7 @@ export interface AirtableEntryFields {
   Date: string
   Timestamp: string
   Text: string
+  User_ID?: string
   "Inferred Mode"?: string
   "Inferred Energy"?: string
   "Energy Shape"?: string
@@ -243,5 +244,106 @@ export async function updateSummaryEntry(
   summary: WeeklySummaryData
 ): Promise<AirtableRecord> {
   const fields = buildSummaryFields(weekId, weekRange, summary)
+  return updateAirtableRecord(recordId, fields)
+}
+
+// ========== Monthly Summary Functions ==========
+
+export interface MonthlySummaryData {
+  narrative: string
+  recommendations: string[]
+  monthlyInsight: string
+  monthHighlight: string
+  nextMonthFocus: string
+  topThemes: string[]
+  dominantMode: string
+  moodTrend: string
+  entryCount: number
+  activeDays: number
+  activeWeeks: number
+}
+
+/**
+ * Find a cached monthly summary by month ID
+ * Looks for entries with Is Summary? = true and Name containing "Monthly Summary" and the month ID
+ */
+export async function findSummaryByMonth(monthId: string): Promise<AirtableRecord | null> {
+  if (!AIRTABLE_API_KEY) {
+    throw new Error("Airtable API key is not configured")
+  }
+
+  // Look for summary entries containing the month ID in the name
+  // Sort by Timestamp descending to get the most recent one
+  const formula = encodeURIComponent(
+    `AND({Is Summary?} = TRUE(), FIND('Monthly Summary', {Name}) > 0, FIND('${monthId}', {Name}) > 0)`
+  )
+
+  const url = `${BASE_URL}?filterByFormula=${formula}&sort[0][field]=Timestamp&sort[0][direction]=desc&maxRecords=1`
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${AIRTABLE_API_KEY}`,
+    },
+  })
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}))
+    throw new Error(`Airtable API error: ${response.status} - ${JSON.stringify(error)}`)
+  }
+
+  const data = await response.json()
+  return data.records?.[0] || null
+}
+
+/**
+ * Build the fields object for a monthly summary entry
+ */
+function buildMonthlySummaryFields(
+  monthId: string,
+  monthRange: string,
+  summary: MonthlySummaryData
+): AirtableEntryFields {
+  return {
+    Name: `Monthly Summary: ${monthRange} (${monthId})`,
+    Type: "Reflection",
+    Date: new Date().toISOString().split("T")[0],
+    Timestamp: new Date().toISOString(),
+    Text: `Monthly Summary for ${monthRange}\n\nEntries analyzed: ${summary.entryCount}\nActive days: ${summary.activeDays}\nActive weeks: ${summary.activeWeeks}\nDominant mood: ${summary.dominantMode}\nMood trend: ${summary.moodTrend}\n\nHighlight: ${summary.monthHighlight}`,
+    "Is Summary?": true,
+    "Summary (AI)": summary.narrative,
+    "Actionable Insights (AI)": summary.recommendations.join("\n\n"),
+    "Next Action": summary.nextMonthFocus,
+    "Entry Theme Tags (AI)": summary.topThemes.join(", "),
+    "Inferred Mode": summary.dominantMode,
+    "Meta Flag": "Monthly Summary",
+    // Store entryCount in Entry Length field for retrieval
+    "Entry Length (Words)": summary.entryCount,
+    // Store monthHighlight in Snapshot field
+    Snapshot: summary.monthHighlight,
+  }
+}
+
+/**
+ * Create a monthly summary entry in Airtable
+ */
+export async function createMonthlySummaryEntry(
+  monthId: string,
+  monthRange: string,
+  summary: MonthlySummaryData
+): Promise<AirtableRecord> {
+  const fields = buildMonthlySummaryFields(monthId, monthRange, summary)
+  return createAirtableEntry(fields)
+}
+
+/**
+ * Update an existing monthly summary entry in Airtable
+ */
+export async function updateMonthlySummaryEntry(
+  recordId: string,
+  monthId: string,
+  monthRange: string,
+  summary: MonthlySummaryData
+): Promise<AirtableRecord> {
+  const fields = buildMonthlySummaryFields(monthId, monthRange, summary)
   return updateAirtableRecord(recordId, fields)
 }
