@@ -9,9 +9,11 @@ import { Profile } from "./pages/Profile"
 import { Toaster } from "./components/ui/sonner"
 import { ThemeProvider } from "./components/theme-provider"
 import { DateFilterProvider } from "./contexts/DateFilterContext"
+import { DemoPersonaProvider } from "./contexts/DemoPersonaContext"
 import { InstallPrompt } from "./components/pwa/InstallPrompt"
 import { OfflineProvider } from "./contexts/OfflineContext"
 import { OfflineIndicator } from "./components/offline/OfflineIndicator"
+import { AuthProvider } from "./contexts/AuthContext"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -31,8 +33,10 @@ function App() {
       disableTransitionOnChange
     >
       <QueryClientProvider client={queryClient}>
-        <OfflineProvider>
-          <DateFilterProvider defaultPreset="30">
+        <AuthProvider>
+          <DemoPersonaProvider>
+          <OfflineProvider>
+            <DateFilterProvider defaultPreset="30">
             <BrowserRouter>
               <div className="min-h-screen bg-background text-foreground">
                 <Header />
@@ -51,7 +55,9 @@ function App() {
               <OfflineIndicator />
             </BrowserRouter>
           </DateFilterProvider>
-        </OfflineProvider>
+          </OfflineProvider>
+          </DemoPersonaProvider>
+        </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>
   )

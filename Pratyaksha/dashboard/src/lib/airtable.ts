@@ -18,6 +18,7 @@ export interface EntryFields {
   Date?: string
   Timestamp?: string
   Text?: string
+  User_ID?: string
   "Inferred Mode"?: string
   "Inferred Energy"?: string
   "Energy Shape"?: string
@@ -45,6 +46,7 @@ export interface Entry {
   date: string
   timestamp: string
   text: string
+  userId: string
   inferredMode: string
   inferredEnergy: string
   energyShape: string
@@ -84,6 +86,7 @@ function transformRecord(record: AirtableRecord): Entry {
     date: fields.Date || "",
     timestamp: record.createdTime || fields.Timestamp || "",
     text: fields.Text || "",
+    userId: fields.User_ID || "",
     inferredMode: fields["Inferred Mode"] || "",
     inferredEnergy: fields["Inferred Energy"] || "",
     energyShape: fields["Energy Shape"] || "",
@@ -110,6 +113,7 @@ export interface CreateEntryInput {
   text: string
   type?: string
   name?: string
+  userId?: string
 }
 
 export async function createEntry(input: CreateEntryInput): Promise<Entry> {
@@ -129,22 +133,27 @@ export async function createEntry(input: CreateEntryInput): Promise<Entry> {
     input.text.slice(0, 50).split(/[.!?]/)[0].trim() ||
     "New Entry"
 
+  const fields: Record<string, unknown> = {
+    Name: generatedName,
+    Text: input.text,
+    Type: input.type || "Reflection",
+    Date: dateStr,
+    Timestamp: timestampStr,
+    "Entry Length (Words)": wordCount,
+  }
+
+  // Add User_ID if provided
+  if (input.userId) {
+    fields.User_ID = input.userId
+  }
+
   const response = await fetch(BASE_URL, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${API_KEY}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      fields: {
-        Name: generatedName,
-        Text: input.text,
-        Type: input.type || "Reflection",
-        Date: dateStr,
-        Timestamp: timestampStr,
-        "Entry Length (Words)": wordCount,
-      },
-    }),
+    body: JSON.stringify({ fields }),
   })
 
   if (!response.ok) {
@@ -156,13 +165,28 @@ export async function createEntry(input: CreateEntryInput): Promise<Entry> {
   return transformRecord(data)
 }
 
-export async function fetchEntries(): Promise<Entry[]> {
-  if (!API_KEY) {
-    console.warn("No Airtable API key found, using demo data")
-    return getDemoData()
+export async function fetchEntries(userId?: string, demoPersona?: string): Promise<Entry[]> {
+  // If no userId (not logged in), show demo data for selected persona
+  if (!userId) {
+    // Dynamic import to avoid circular dependencies
+    const { getDemoData } = await import("./demoPersonas")
+    const persona = (demoPersona || "mario") as "mario" | "kratos" | "sherlock" | "nova"
+    console.log(`No user logged in, showing ${persona} demo data`)
+    return getDemoData(persona)
   }
 
-  const response = await fetch(`${BASE_URL}?sort[0][field]=Date&sort[0][direction]=desc`, {
+  if (!API_KEY) {
+    console.warn("No Airtable API key found, using demo data")
+    const { getDemoData } = await import("./demoPersonas")
+    return getDemoData("mario")
+  }
+
+  // Build URL with user filter - only show entries for logged-in user
+  let url = `${BASE_URL}?sort[0][field]=Date&sort[0][direction]=desc`
+  const formula = encodeURIComponent(`{User_ID} = '${userId}'`)
+  url += `&filterByFormula=${formula}`
+
+  const response = await fetch(url, {
     headers: {
       Authorization: `Bearer ${API_KEY}`,
       "Content-Type": "application/json",
@@ -357,199 +381,4 @@ export async function toggleBookmark(
     throw new Error(result.error || "Failed to toggle bookmark")
   }
   return result
-}
-
-// Demo data for development/showcase
-function getDemoData(): Entry[] {
-  return [
-    {
-      id: "rec1",
-      name: "Morning Anxiety Spike",
-      type: "Emotional",
-      date: "2026-01-01",
-      timestamp: "2026-01-01T08:30:00Z",
-      text: "Woke up feeling a surge of anxiety about returning to work...",
-      inferredMode: "Anxious",
-      inferredEnergy: "High",
-      energyShape: "Chaotic",
-      contradiction: "Action vs. Fear",
-      snapshot: "Anxious morning",
-      loops: "Work stress patterns",
-      nextAction: "Practice breathing",
-      metaFlag: "Auto-Generated",
-      isSummary: false,
-      summaryAI: "Morning anxiety about work return",
-      actionableInsightsAI: "Try grounding exercises",
-      entryLengthWords: 45,
-      daysSinceEntry: 0,
-      isRecent: true,
-      sentimentAI: "Negative",
-      themeTagsAI: ["anxiety", "work stress", "coping"],
-      createdTime: "2026-01-01T08:30:00Z",
-      isDeleted: false,
-      isBookmarked: false,
-    },
-    {
-      id: "rec2",
-      name: "Lost in Debugging Loops",
-      type: "Work",
-      date: "2026-01-01",
-      timestamp: "2026-01-01T14:00:00Z",
-      text: "Some stupid bugs and small naming convention errors...",
-      inferredMode: "Overthinking",
-      inferredEnergy: "Drained",
-      energyShape: "Uneven",
-      contradiction: "Action vs. Fear",
-      snapshot: "Debugging frustration",
-      loops: "Perfectionism patterns",
-      nextAction: "Take a break",
-      metaFlag: "Auto-Generated",
-      isSummary: false,
-      summaryAI: "Frustration with debugging",
-      actionableInsightsAI: "Step away, return fresh",
-      entryLengthWords: 38,
-      daysSinceEntry: 0,
-      isRecent: true,
-      sentimentAI: "Negative",
-      themeTagsAI: ["debugging", "frustration", "software"],
-      createdTime: "2026-01-01T14:00:00Z",
-      isDeleted: false,
-      isBookmarked: false,
-    },
-    {
-      id: "rec3",
-      name: "Small Victory Celebration",
-      type: "Creativity",
-      date: "2026-01-01",
-      timestamp: "2026-01-01T16:30:00Z",
-      text: "My custom GPT worked! I was able to send the record to Airtable...",
-      inferredMode: "Hopeful",
-      inferredEnergy: "Elevated",
-      energyShape: "Rising",
-      contradiction: "Growth vs. Comfort",
-      snapshot: "Victory moment",
-      loops: "",
-      nextAction: "Build on momentum",
-      metaFlag: "Auto-Generated",
-      isSummary: false,
-      summaryAI: "Celebrated a coding win",
-      actionableInsightsAI: "Document what worked",
-      entryLengthWords: 32,
-      daysSinceEntry: 0,
-      isRecent: true,
-      sentimentAI: "Positive",
-      themeTagsAI: ["achievement", "excitement", "technology"],
-      createdTime: "2026-01-01T16:30:00Z",
-      isDeleted: false,
-      isBookmarked: true,
-    },
-    {
-      id: "rec4",
-      name: "Pure Joy and Relief",
-      type: "Reflection",
-      date: "2026-01-01",
-      timestamp: "2026-01-01T18:00:00Z",
-      text: "Wow, this is insane! It did not even ask me for confirmation...",
-      inferredMode: "Grounded",
-      inferredEnergy: "High",
-      energyShape: "Expanding",
-      contradiction: "Confidence vs. Doubt",
-      snapshot: "Pure joy",
-      loops: "",
-      nextAction: "Rest and recharge",
-      metaFlag: "Auto-Generated",
-      isSummary: false,
-      summaryAI: "Feeling accomplished and happy",
-      actionableInsightsAI: "Celebrate wins more often",
-      entryLengthWords: 28,
-      daysSinceEntry: 0,
-      isRecent: true,
-      sentimentAI: "Positive",
-      themeTagsAI: ["excitement", "spontaneity", "happiness"],
-      createdTime: "2026-01-01T18:00:00Z",
-      isDeleted: false,
-      isBookmarked: false,
-    },
-    {
-      id: "rec5",
-      name: "Weekly Reflection",
-      type: "Reflection",
-      date: "2025-12-31",
-      timestamp: "2025-12-31T20:00:00Z",
-      text: "Looking back at this week, I notice a pattern of ups and downs...",
-      inferredMode: "Reflective",
-      inferredEnergy: "Balanced",
-      energyShape: "Centered",
-      contradiction: "Growth vs. Comfort",
-      snapshot: "Week in review",
-      loops: "Self-analysis patterns",
-      nextAction: "Set intentions for next week",
-      metaFlag: "Auto-Generated",
-      isSummary: true,
-      summaryAI: "End of week reflection",
-      actionableInsightsAI: "Continue journaling practice",
-      entryLengthWords: 52,
-      daysSinceEntry: 1,
-      isRecent: true,
-      sentimentAI: "Neutral",
-      themeTagsAI: ["reflection", "self-awareness", "growth"],
-      createdTime: "2025-12-31T20:00:00Z",
-      isDeleted: false,
-      isBookmarked: false,
-    },
-    {
-      id: "rec6",
-      name: "Health Check-in",
-      type: "Health",
-      date: "2025-12-30",
-      timestamp: "2025-12-30T10:00:00Z",
-      text: "Went for a morning run today. Felt good to move my body...",
-      inferredMode: "Calm",
-      inferredEnergy: "Moderate",
-      energyShape: "Stabilized",
-      contradiction: "Self-care vs. Obligation",
-      snapshot: "Morning exercise",
-      loops: "",
-      nextAction: "Maintain routine",
-      metaFlag: "Auto-Generated",
-      isSummary: false,
-      summaryAI: "Positive health activity",
-      actionableInsightsAI: "Keep exercise consistent",
-      entryLengthWords: 24,
-      daysSinceEntry: 2,
-      isRecent: true,
-      sentimentAI: "Positive",
-      themeTagsAI: ["health", "exercise", "self-care"],
-      createdTime: "2025-12-30T10:00:00Z",
-      isDeleted: false,
-      isBookmarked: false,
-    },
-    {
-      id: "rec7",
-      name: "Family Dinner Thoughts",
-      type: "Family",
-      date: "2025-12-29",
-      timestamp: "2025-12-29T19:00:00Z",
-      text: "Had dinner with family. Mixed feelings about some conversations...",
-      inferredMode: "Conflicted",
-      inferredEnergy: "Low",
-      energyShape: "Heavy",
-      contradiction: "Closeness vs. Distance",
-      snapshot: "Family dynamics",
-      loops: "Family pattern recognition",
-      nextAction: "Process emotions",
-      metaFlag: "Auto-Generated",
-      isSummary: false,
-      summaryAI: "Complex family interaction",
-      actionableInsightsAI: "Set boundaries gently",
-      entryLengthWords: 41,
-      daysSinceEntry: 3,
-      isRecent: true,
-      sentimentAI: "Negative",
-      themeTagsAI: ["family", "emotions", "boundaries"],
-      createdTime: "2025-12-29T19:00:00Z",
-      isDeleted: false,
-      isBookmarked: false,
-    },
-  ]
 }

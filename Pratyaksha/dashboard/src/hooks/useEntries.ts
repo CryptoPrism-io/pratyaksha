@@ -23,15 +23,22 @@ import {
 } from "../lib/transforms"
 import { useDateFilter } from "../contexts/DateFilterContext"
 import { isDateInRange } from "../lib/dateFilters"
+import { useAuth } from "../contexts/AuthContext"
+import { useDemoPersona } from "../contexts/DemoPersonaContext"
 
-// Fetch all entries (unfiltered)
+// Fetch all entries (filtered by logged-in user or demo persona)
 export function useEntriesRaw() {
+  const { user } = useAuth()
+  const { persona } = useDemoPersona()
+  const userId = user?.uid
+
   return useQuery({
-    queryKey: ["entries"],
-    queryFn: fetchEntries,
+    queryKey: ["entries", userId, persona],
+    queryFn: () => fetchEntries(userId, persona),
     staleTime: 1000 * 30,       // 30 seconds
     refetchInterval: 1000 * 30, // Poll every 30 seconds
     refetchOnWindowFocus: true, // Refresh when switching back to tab
+    enabled: true, // Always enabled - shows demo data if no user, user's entries if logged in
   })
 }
 
@@ -169,9 +176,11 @@ export function useFilteredEntries(filter?: {
 // Create entry mutation hook
 export function useCreateEntry() {
   const queryClient = useQueryClient()
+  const { user } = useAuth()
 
   return useMutation({
-    mutationFn: (input: CreateEntryInput) => createEntry(input),
+    mutationFn: (input: Omit<CreateEntryInput, "userId">) =>
+      createEntry({ ...input, userId: user?.uid }),
     onSuccess: () => {
       // Invalidate and refetch entries after successful creation
       queryClient.invalidateQueries({ queryKey: ["entries"] })

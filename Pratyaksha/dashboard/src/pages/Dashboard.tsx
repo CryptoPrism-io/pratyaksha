@@ -1,8 +1,17 @@
-import { useState, useCallback, useMemo } from "react"
+import React, { useState, useCallback, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
 import { DashboardGrid, ChartCard } from "../components/layout/DashboardGrid"
 import { useStats, useEntries } from "../hooks/useEntries"
-import { Brain, FileText, TrendingUp, Activity, Keyboard, Plus } from "lucide-react"
+import { useAuth } from "../contexts/AuthContext"
+import { useDemoPersona, type DemoPersona } from "../contexts/DemoPersonaContext"
+import { Brain, FileText, TrendingUp, Activity, Keyboard, Plus, Gamepad2, Sword, Search, Rocket } from "lucide-react"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select"
 import { useTheme } from "next-themes"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
@@ -26,14 +35,25 @@ import { OnboardingTour } from "../components/onboarding/OnboardingTour"
 import { MobileChartCarousel } from "../components/mobile/MobileChartCarousel"
 import { useIsMobile } from "../hooks/useMediaQuery"
 
+// Icon map for personas
+const PERSONA_ICONS: Record<DemoPersona, React.ReactNode> = {
+  mario: <Gamepad2 className="h-4 w-4" />,
+  kratos: <Sword className="h-4 w-4" />,
+  sherlock: <Search className="h-4 w-4" />,
+  nova: <Rocket className="h-4 w-4" />,
+}
+
 export function Dashboard() {
   const navigate = useNavigate()
+  const { user } = useAuth()
+  const { persona, personaConfig, changePersona, allPersonas } = useDemoPersona()
   const { data: stats, isLoading } = useStats()
   const { data: entries, refetch } = useEntries()
   const [showShortcuts, setShowShortcuts] = useState(false)
   const { theme, setTheme } = useTheme()
   const queryClient = useQueryClient()
   const isMobile = useIsMobile()
+  const isDemoMode = !user
 
   // Charts array for mobile carousel
   const mobileCharts = useMemo(() => [
@@ -90,6 +110,42 @@ export function Dashboard() {
     <div className="min-h-screen dashboard-glass-bg">
       {/* Screen reader only H1 */}
       <h1 className="sr-only">Pratyaksha Dashboard - Cognitive Analytics</h1>
+
+      {/* Demo Mode Banner */}
+      {isDemoMode && (
+        <div className={`bg-gradient-to-r ${personaConfig.bgGradient} border-b border-${personaConfig.color}-500/20 px-4 py-2.5 text-center`}>
+          <div className="flex items-center justify-center gap-2 flex-wrap">
+            <span className={`text-${personaConfig.color}-500`}>
+              {PERSONA_ICONS[persona]}
+            </span>
+            <span className="text-sm text-muted-foreground">Viewing demo journal of</span>
+            <Select value={persona} onValueChange={(value) => changePersona(value as DemoPersona)}>
+              <SelectTrigger className="w-auto h-7 px-2 py-1 text-sm font-bold border-0 bg-transparent hover:bg-muted/50 focus:ring-0 gap-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {allPersonas.map((p) => (
+                  <SelectItem key={p.id} value={p.id} className="text-sm">
+                    <div className="flex items-center gap-2">
+                      {PERSONA_ICONS[p.id]}
+                      <span className="font-medium">{p.name}</span>
+                      <span className="text-muted-foreground text-xs">- {p.subtitle}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <span className="text-sm text-muted-foreground hidden sm:inline">from {personaConfig.subtitle}</span>
+            <span className="text-muted-foreground">•</span>
+            <button
+              onClick={() => navigate("/profile")}
+              className="text-sm text-primary hover:underline font-medium"
+            >
+              Sign in to start your journal
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Onboarding Tour */}
       <OnboardingTour />
