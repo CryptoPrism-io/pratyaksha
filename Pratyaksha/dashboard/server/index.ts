@@ -7,6 +7,7 @@ import { processEntry, updateEntry, deleteEntry, toggleBookmark } from "./routes
 import { getWeeklySummary } from "./routes/weeklySummary"
 import { getDailySummary } from "./routes/dailySummary"
 import { getMonthlySummary } from "./routes/monthlySummary"
+import { registerToken, updatePreferences, sendNotification, getSettings } from "./routes/notifications"
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -29,6 +30,12 @@ app.patch("/api/entry/:id/bookmark", toggleBookmark)
 app.get("/api/weekly-summary", getWeeklySummary)
 app.get("/api/daily-summary", getDailySummary)
 app.get("/api/monthly-summary", getMonthlySummary)
+
+// Notification routes
+app.post("/api/notifications/register", registerToken)
+app.put("/api/notifications/preferences", updatePreferences)
+app.post("/api/notifications/send", sendNotification)
+app.get("/api/notifications/settings/:userId", getSettings)
 
 // Serve static files in production
 // __dirname is available in CommonJS modules

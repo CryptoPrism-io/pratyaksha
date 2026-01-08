@@ -347,3 +347,194 @@ export async function updateMonthlySummaryEntry(
   const fields = buildMonthlySummaryFields(monthId, monthRange, summary)
   return updateAirtableRecord(recordId, fields)
 }
+
+// ========== Notification Settings Functions ==========
+
+// Notification settings table - separate from entries
+const NOTIFICATIONS_TABLE_ID = process.env.AIRTABLE_NOTIFICATIONS_TABLE_ID || "Notification_Settings"
+const NOTIFICATIONS_URL = `https://api.airtable.com/v0/${BASE_ID}/${NOTIFICATIONS_TABLE_ID}`
+
+export interface NotificationSettingsFields {
+  "User ID": string
+  "FCM Token": string
+  "Enabled": boolean
+  "Daily Reminder": boolean
+  "Daily Reminder Time": string
+  "Streak At Risk": boolean
+  "Weekly Summary": boolean
+  "Updated At": string
+}
+
+export interface NotificationSettingsRecord {
+  id: string
+  createdTime: string
+  fields: NotificationSettingsFields
+}
+
+export interface NotificationSettingsData {
+  userId: string
+  fcmToken: string
+  enabled: boolean
+  dailyReminder: boolean
+  dailyReminderTime: string
+  streakAtRisk: boolean
+  weeklySummary: boolean
+}
+
+/**
+ * Find notification settings for a user
+ */
+export async function findNotificationSettings(userId: string): Promise<NotificationSettingsRecord | null> {
+  if (!AIRTABLE_API_KEY) {
+    throw new Error("Airtable API key is not configured")
+  }
+
+  const formula = encodeURIComponent(`{User ID} = '${userId}'`)
+  const url = `${NOTIFICATIONS_URL}?filterByFormula=${formula}&maxRecords=1`
+
+  try {
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${AIRTABLE_API_KEY}`,
+      },
+    })
+
+    if (!response.ok) {
+      // Table might not exist yet - return null instead of throwing
+      if (response.status === 404) {
+        console.warn("[Airtable] Notification_Settings table not found")
+        return null
+      }
+      const error = await response.json().catch(() => ({}))
+      throw new Error(`Airtable API error: ${response.status} - ${JSON.stringify(error)}`)
+    }
+
+    const data = await response.json()
+    return data.records?.[0] || null
+  } catch (error) {
+    console.error("[Airtable] findNotificationSettings error:", error)
+    return null
+  }
+}
+
+/**
+ * Create notification settings for a user
+ */
+export async function createNotificationSettings(data: NotificationSettingsData): Promise<NotificationSettingsRecord> {
+  if (!AIRTABLE_API_KEY) {
+    throw new Error("Airtable API key is not configured")
+  }
+
+  const fields: NotificationSettingsFields = {
+    "User ID": data.userId,
+    "FCM Token": data.fcmToken,
+    "Enabled": data.enabled,
+    "Daily Reminder": data.dailyReminder,
+    "Daily Reminder Time": data.dailyReminderTime,
+    "Streak At Risk": data.streakAtRisk,
+    "Weekly Summary": data.weeklySummary,
+    "Updated At": new Date().toISOString(),
+  }
+
+  const response = await fetch(NOTIFICATIONS_URL, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${AIRTABLE_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ fields }),
+  })
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}))
+    throw new Error(`Airtable API error: ${response.status} - ${JSON.stringify(error)}`)
+  }
+
+  return response.json()
+}
+
+/**
+ * Update notification settings for a user
+ */
+export async function updateNotificationSettings(
+  recordId: string,
+  data: NotificationSettingsData
+): Promise<NotificationSettingsRecord> {
+  if (!AIRTABLE_API_KEY) {
+    throw new Error("Airtable API key is not configured")
+  }
+
+  const fields: Partial<NotificationSettingsFields> = {
+    "FCM Token": data.fcmToken,
+    "Enabled": data.enabled,
+    "Daily Reminder": data.dailyReminder,
+    "Daily Reminder Time": data.dailyReminderTime,
+    "Streak At Risk": data.streakAtRisk,
+    "Weekly Summary": data.weeklySummary,
+    "Updated At": new Date().toISOString(),
+  }
+
+  const response = await fetch(`${NOTIFICATIONS_URL}/${recordId}`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${AIRTABLE_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ fields }),
+  })
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}))
+    throw new Error(`Airtable API error: ${response.status} - ${JSON.stringify(error)}`)
+  }
+
+  return response.json()
+}
+
+/**
+ * Get all users with notifications enabled (for scheduled notifications)
+ */
+export async function getUsersForNotification(
+  notificationType: "dailyReminder" | "streakAtRisk" | "weeklySummary"
+): Promise<NotificationSettingsRecord[]> {
+  if (!AIRTABLE_API_KEY) {
+    throw new Error("Airtable API key is not configured")
+  }
+
+  let fieldName: string
+  switch (notificationType) {
+    case "dailyReminder":
+      fieldName = "Daily Reminder"
+      break
+    case "streakAtRisk":
+      fieldName = "Streak At Risk"
+      break
+    case "weeklySummary":
+      fieldName = "Weekly Summary"
+      break
+  }
+
+  const formula = encodeURIComponent(`AND({Enabled} = TRUE(), {${fieldName}} = TRUE())`)
+  const url = `${NOTIFICATIONS_URL}?filterByFormula=${formula}`
+
+  try {
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${AIRTABLE_API_KEY}`,
+      },
+    })
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return []
+      }
+      throw new Error(`Airtable API error: ${response.status}`)
+    }
+
+    const data = await response.json()
+    return data.records || []
+  } catch (error) {
+    console.error("[Airtable] getUsersForNotification error:", error)
+    return []
+  }
+}

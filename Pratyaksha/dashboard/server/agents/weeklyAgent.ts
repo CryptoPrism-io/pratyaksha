@@ -164,11 +164,12 @@ Generate a comprehensive weekly summary with:
 
 Respond with JSON only.`
 
-  // Use gpt-4o for quality insights
+  // Use gpt-4o for quality insights with higher token limit for narratives
   const response = await callOpenRouter<WeeklyAgentOutput>(
     prompt,
     MODELS.BALANCED,
-    SYSTEM_PROMPT
+    SYSTEM_PROMPT,
+    { maxTokens: 1500 } // Weekly summaries need more tokens for narrative + recommendations
   )
 
   // Validate and normalize mood trend

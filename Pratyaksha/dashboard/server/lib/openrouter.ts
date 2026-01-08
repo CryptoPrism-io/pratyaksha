@@ -32,10 +32,16 @@ export const MODELS = {
   QUALITY: "openai/gpt-4o", // Same as balanced, GPT-4o is excellent
 } as const
 
+export interface CallOptions {
+  maxTokens?: number
+  temperature?: number
+}
+
 export async function callOpenRouter<T>(
   prompt: string,
   model: string = MODELS.CHEAP,
-  systemPrompt?: string
+  systemPrompt?: string,
+  options?: CallOptions
 ): Promise<AgentResponse<T>> {
   if (!OPENROUTER_API_KEY) {
     throw new Error("OPENROUTER_API_KEY is not set")
@@ -58,8 +64,8 @@ export async function callOpenRouter<T>(
       model,
       messages,
       response_format: { type: "json_object" },
-      temperature: 0.3, // Lower for more consistent outputs
-      max_tokens: 500,
+      temperature: options?.temperature ?? 0.3, // Lower for more consistent outputs
+      max_tokens: options?.maxTokens ?? 500,
     }),
   })
 

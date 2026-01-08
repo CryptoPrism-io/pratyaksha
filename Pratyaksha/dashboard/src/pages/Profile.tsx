@@ -3,6 +3,7 @@ import { useEntries } from "../hooks/useEntries"
 import { useStreak } from "../hooks/useStreak"
 import { useAuth } from "../contexts/AuthContext"
 import { toast } from "sonner"
+import { NotificationSettings } from "@/components/notifications/NotificationSettings"
 
 export function Profile() {
   const { data: entries = [] } = useEntries()
@@ -154,9 +155,7 @@ export function Profile() {
               <Bell className="h-5 w-5 text-muted-foreground" />
               <h2 className="font-semibold">Notifications</h2>
             </div>
-            <p className="text-sm text-muted-foreground">
-              Daily reminders and weekly summaries coming soon
-            </p>
+            <NotificationSettings />
           </div>
 
           {/* Privacy */}

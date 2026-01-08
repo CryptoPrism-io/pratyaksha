@@ -241,11 +241,12 @@ Generate a comprehensive monthly summary with:
 
 Respond with JSON only.`
 
-  // Use balanced model for quality insights
+  // Use balanced model for quality insights with higher token limit for long narratives
   const response = await callOpenRouter<MonthlyAgentOutput>(
     prompt,
     MODELS.BALANCED,
-    SYSTEM_PROMPT
+    SYSTEM_PROMPT,
+    { maxTokens: 2000 } // Monthly summaries need more tokens for 3-4 paragraph narratives
   )
 
   // Validate and normalize mood trend
