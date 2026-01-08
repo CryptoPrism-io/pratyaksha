@@ -352,7 +352,7 @@ export function LogEntryForm({ onSuccess }: LogEntryFormProps) {
         <div className="flex items-center gap-2 mb-2">
           <span className="text-xs text-muted-foreground">Quick templates:</span>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex gap-2 overflow-x-auto pb-2 sm:flex-wrap sm:overflow-visible scrollbar-hide">
           {ENTRY_TEMPLATES.map((template) => (
             <button
               key={template.id}

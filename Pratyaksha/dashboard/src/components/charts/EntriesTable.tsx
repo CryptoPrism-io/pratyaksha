@@ -93,7 +93,7 @@ function EntryModal({ entry, onClose, onEdit, onDelete, onToggleBookmark }: Entr
   return createPortal(
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm">
       <div className="flex min-h-full items-center justify-center p-4">
-        <div className="w-full max-w-2xl rounded-xl glass-card p-6 shadow-2xl">
+        <div className="w-full max-w-[calc(100vw-2rem)] sm:max-w-2xl rounded-xl glass-card p-4 sm:p-6 shadow-2xl">
           <div className="mb-4 flex items-start justify-between">
             <div>
               <h3 className="text-xl font-semibold">{entry.name || "Untitled Entry"}</h3>
@@ -554,7 +554,7 @@ export function EntriesTable({ filters, selectedIndex: externalSelectedIndex, on
                       handleToggleBookmark(entry)
                     }}
                     aria-label={entry.isBookmarked ? "Remove bookmark" : "Add bookmark"}
-                    className="rounded-full p-1.5 hover:bg-muted transition-colors"
+                    className="rounded-full p-2 hover:bg-muted transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                   >
                     <Star
                       className={cn(
@@ -574,7 +574,7 @@ export function EntriesTable({ filters, selectedIndex: externalSelectedIndex, on
                         setSelectedEntry(entry)
                       }}
                       aria-label={`View entry from ${new Date(entry.date).toLocaleDateString()}`}
-                      className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
+                      className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary min-w-[44px] min-h-[44px] flex items-center justify-center"
                     >
                       <Eye className="h-4 w-4" />
                     </button>
@@ -584,7 +584,7 @@ export function EntriesTable({ filters, selectedIndex: externalSelectedIndex, on
                         handleEdit(entry)
                       }}
                       aria-label="Edit entry"
-                      className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted"
+                      className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted min-w-[44px] min-h-[44px] flex items-center justify-center"
                     >
                       <Pencil className="h-4 w-4" />
                     </button>
@@ -594,7 +594,7 @@ export function EntriesTable({ filters, selectedIndex: externalSelectedIndex, on
                         handleDelete(entry)
                       }}
                       aria-label="Delete entry"
-                      className="rounded-full p-2 text-destructive transition-colors hover:bg-destructive/10"
+                      className="rounded-full p-2 text-destructive transition-colors hover:bg-destructive/10 min-w-[44px] min-h-[44px] flex items-center justify-center"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>

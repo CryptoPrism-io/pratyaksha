@@ -144,7 +144,7 @@ export function FilterBar({
               variant={filters.dateRange === option.value ? "default" : "outline"}
               size="sm"
               onClick={() => updateFilter("dateRange", option.value as FilterState["dateRange"])}
-              className="min-h-[36px]"
+              className="min-h-[44px] h-auto"
             >
               {option.label}
             </Button>
@@ -157,7 +157,7 @@ export function FilterBar({
             value={filters.dateRange}
             onValueChange={(value) => updateFilter("dateRange", value as FilterState["dateRange"])}
           >
-            <SelectTrigger className="w-full" aria-label="Select date range">
+            <SelectTrigger className="w-full min-h-[44px]" aria-label="Select date range">
               <Calendar className="mr-2 h-4 w-4" />
               <SelectValue />
             </SelectTrigger>
@@ -178,7 +178,7 @@ export function FilterBar({
             size="sm"
             onClick={onRefresh}
             disabled={isRefreshing}
-            className="min-h-[36px] min-w-[36px] px-2"
+            className="min-h-[44px] min-w-[44px] px-2"
             aria-label="Refresh entries"
           >
             <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
@@ -191,7 +191,7 @@ export function FilterBar({
             <Button
               variant="outline"
               size="sm"
-              className="min-h-[36px] min-w-[100px]"
+              className="min-h-[44px] min-w-[100px]"
               aria-label="Toggle advanced filters"
             >
               <Filter className="mr-2 h-4 w-4" />
@@ -336,7 +336,7 @@ export function FilterBar({
           <ExportButton
             entries={entries}
             filteredCount={filteredCount}
-            className="min-h-[36px]"
+            className="min-h-[44px]"
           />
         )}
 
@@ -346,7 +346,7 @@ export function FilterBar({
             variant="ghost"
             size="sm"
             onClick={clearFilters}
-            className="min-h-[36px] text-muted-foreground hover:text-foreground"
+            className="min-h-[44px] text-muted-foreground hover:text-foreground"
           >
             <X className="h-4 w-4 mr-1" />
             Clear All
@@ -356,8 +356,8 @@ export function FilterBar({
 
       {/* Active filter pills */}
       {activeFilterCount > 0 && (
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm text-muted-foreground">Active filters:</span>
+        <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-2">
+          <span className="text-xs sm:text-sm text-muted-foreground shrink-0">Filters:</span>
           {filters.search && (
             <FilterPill
               label={`Search: "${filters.search}"`}
@@ -408,14 +408,14 @@ export function FilterBar({
 
 function FilterPill({ label, onRemove }: { label: string; onRemove: () => void }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-sm">
+    <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1.5 text-sm min-h-[44px]">
       {label}
       <button
         onClick={onRemove}
-        className="ml-1 rounded-full p-0.5 hover:bg-muted"
+        className="ml-1 rounded-full p-1 hover:bg-muted min-w-[36px] min-h-[36px] flex items-center justify-center"
         aria-label={`Remove filter: ${label}`}
       >
-        <X className="h-3 w-3" />
+        <X className="h-4 w-4" />
       </button>
     </span>
   )

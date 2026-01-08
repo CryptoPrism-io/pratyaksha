@@ -11,6 +11,7 @@ import {
 } from "recharts"
 import { useNavigate } from "react-router-dom"
 import { useEntries } from "../../hooks/useEntries"
+import { useIsMobile } from "../../hooks/useMediaQuery"
 
 // All actual modes from the data (ordered by positivity)
 const MODES = [
@@ -52,6 +53,7 @@ const MODE_COLORS: Record<string, string> = {
 export function EnergyModeBubble() {
   const navigate = useNavigate()
   const { data: entries, isLoading, error } = useEntries()
+  const isMobile = useIsMobile()
 
   // Handle bubble click - navigate to logs with filters
   const handleBubbleClick = (data: { mode: string; energy: string; z: number }) => {
@@ -123,11 +125,11 @@ export function EnergyModeBubble() {
             ticks={MODES.map((_, i) => i + 1)}
             tickFormatter={(v) => MODES[v - 1] || ""}
             stroke="hsl(var(--muted-foreground))"
-            fontSize={10}
+            fontSize={isMobile ? 8 : 10}
             angle={-45}
             textAnchor="end"
-            height={60}
-            interval={0}
+            height={isMobile ? 50 : 60}
+            interval={isMobile ? 1 : 0}
           />
           <YAxis
             type="number"
@@ -137,9 +139,9 @@ export function EnergyModeBubble() {
             ticks={ENERGY_LEVELS.map((_, i) => i + 1)}
             tickFormatter={(v) => ENERGY_LEVELS[v - 1] || ""}
             stroke="hsl(var(--muted-foreground))"
-            fontSize={10}
-            width={70}
-            interval={0}
+            fontSize={isMobile ? 8 : 10}
+            width={isMobile ? 55 : 70}
+            interval={isMobile ? 1 : 0}
           />
           <ZAxis
             type="number"

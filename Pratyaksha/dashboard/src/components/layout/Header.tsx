@@ -51,66 +51,66 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between px-4 md:px-8">
+      <div className="container flex h-16 items-center justify-between px-2 sm:px-4 md:px-8">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2">
-          <Brain className="h-8 w-8 text-primary" />
-          <span className="text-xl font-semibold tracking-tight">Pratyaksha</span>
+        <Link to="/" className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+          <Brain className="h-7 w-7 sm:h-8 sm:w-8 text-primary" />
+          <span className="text-lg sm:text-xl font-semibold tracking-tight">Pratyaksha</span>
         </Link>
 
         {/* Navigation */}
-        <nav className="flex items-center gap-4 md:gap-6">
+        <nav className="flex items-center gap-1 sm:gap-4 md:gap-6">
           <Link
             to="/logs"
             className={cn(
-              "flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary",
+              "flex items-center justify-center gap-2 text-sm font-medium transition-colors hover:text-primary min-w-[44px] min-h-[44px] sm:min-w-0",
               isLogs ? "text-primary" : "text-muted-foreground"
             )}
           >
-            <PlusCircle className="h-4 w-4" />
+            <PlusCircle className="h-5 w-5" />
             <span className="hidden sm:inline">Logs</span>
           </Link>
           <Link
             to="/dashboard"
             className={cn(
-              "flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary",
+              "flex items-center justify-center gap-2 text-sm font-medium transition-colors hover:text-primary min-w-[44px] min-h-[44px] sm:min-w-0",
               isDashboard ? "text-primary" : "text-muted-foreground"
             )}
           >
-            <LayoutDashboard className="h-4 w-4" />
+            <LayoutDashboard className="h-5 w-5" />
             <span className="hidden sm:inline">Dashboard</span>
           </Link>
           <Link
             to="/insights"
             className={cn(
-              "flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary",
+              "flex items-center justify-center gap-2 text-sm font-medium transition-colors hover:text-primary min-w-[44px] min-h-[44px] sm:min-w-0",
               isInsights ? "text-primary" : "text-muted-foreground"
             )}
           >
-            <Lightbulb className="h-4 w-4" />
+            <Lightbulb className="h-5 w-5" />
             <span className="hidden sm:inline">Insights</span>
           </Link>
-          <div className="ml-2 border-l pl-2 md:ml-4 md:pl-4 flex items-center gap-2">
+          <div className="ml-1 border-l pl-1 sm:ml-2 sm:pl-2 md:ml-4 md:pl-4 flex items-center gap-1 sm:gap-2">
             <ThemeToggle />
             <Link
               to="/profile"
               className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-md hover:bg-muted transition-colors",
+                "flex h-11 w-11 items-center justify-center rounded-md hover:bg-muted transition-colors",
                 isProfile ? "text-primary bg-muted" : "text-muted-foreground"
               )}
               aria-label="Profile"
             >
-              <User className="h-4 w-4" />
+              <User className="h-5 w-5" />
             </Link>
 
             {/* Menu dropdown */}
             <div className="relative">
               <button
                 onClick={() => setShowMenu(!showMenu)}
-                className="flex h-9 w-9 items-center justify-center rounded-md hover:bg-muted transition-colors"
+                className="flex h-11 w-11 items-center justify-center rounded-md hover:bg-muted transition-colors"
                 aria-label="More options"
               >
-                <MoreVertical className="h-4 w-4 text-muted-foreground" />
+                <MoreVertical className="h-5 w-5 text-muted-foreground" />
               </button>
 
               {showMenu && (
@@ -121,7 +121,7 @@ export function Header() {
                     onClick={() => setShowMenu(false)}
                   />
                   {/* Menu */}
-                  <div className="absolute right-0 top-full mt-1 z-50 min-w-[200px] rounded-lg border bg-card shadow-lg py-1">
+                  <div className="absolute right-0 top-full mt-1 z-50 min-w-[180px] max-w-[calc(100vw-2rem)] rounded-lg border bg-card shadow-lg py-1">
                     {/* Install App Section - Always show for testing */}
                     <div className="px-3 py-1.5 text-xs font-medium text-muted-foreground">
                       Install App

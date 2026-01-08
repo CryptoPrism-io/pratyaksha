@@ -114,7 +114,7 @@ export function Landing() {
             </div>
 
             {/* Stats */}
-            <div className="mt-16 grid grid-cols-3 gap-8 border-t border-border/50 pt-12">
+            <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-8 border-t border-border/50 pt-12">
               {stats.map((stat, index) => (
                 <div
                   key={stat.label}

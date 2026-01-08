@@ -79,36 +79,36 @@ export function Dashboard() {
       <OnboardingTour />
 
       {/* Stats + Filter Row - Same line on desktop */}
-      <div className="container mx-auto px-2 pt-4 md:px-6 md:pt-6">
+      <div className="container mx-auto px-2 pt-4 md:px-6 md:pt-6 overflow-x-hidden">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           {/* Stats cards */}
-          <div data-tour="stats-bar" className="grid grid-cols-4 gap-1.5 md:gap-3 flex-shrink-0">
-            <div className="flex flex-col md:flex-row items-center md:gap-3 glass-stat rounded-lg px-1.5 py-2 md:px-4 md:py-3">
-              <FileText className="h-3.5 w-3.5 md:h-5 md:w-5 text-muted-foreground mb-0.5 md:mb-0" />
-              <div className="text-center md:text-left">
-                <p className="text-[10px] md:text-xs text-muted-foreground leading-tight">Entries</p>
-                <p className="text-sm md:text-xl font-semibold">{isLoading ? "..." : stats?.totalEntries ?? 0}</p>
+          <div data-tour="stats-bar" className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 md:gap-3 flex-shrink-0 w-full md:w-auto">
+            <div className="flex flex-col sm:flex-row items-center sm:gap-3 glass-stat rounded-lg px-2 py-2.5 sm:px-4 sm:py-3">
+              <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground mb-1 sm:mb-0" />
+              <div className="text-center sm:text-left">
+                <p className="text-xs text-muted-foreground leading-tight">Entries</p>
+                <p className="text-base sm:text-xl font-semibold">{isLoading ? "..." : stats?.totalEntries ?? 0}</p>
               </div>
             </div>
-            <div className="flex flex-col md:flex-row items-center md:gap-3 glass-stat rounded-lg px-1.5 py-2 md:px-4 md:py-3">
-              <TrendingUp className="h-3.5 w-3.5 md:h-5 md:w-5 text-muted-foreground mb-0.5 md:mb-0" />
-              <div className="text-center md:text-left">
-                <p className="text-[10px] md:text-xs text-muted-foreground leading-tight">Recent</p>
-                <p className="text-sm md:text-xl font-semibold">{isLoading ? "..." : stats?.recentEntries ?? 0}</p>
+            <div className="flex flex-col sm:flex-row items-center sm:gap-3 glass-stat rounded-lg px-2 py-2.5 sm:px-4 sm:py-3">
+              <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground mb-1 sm:mb-0" />
+              <div className="text-center sm:text-left">
+                <p className="text-xs text-muted-foreground leading-tight">Recent</p>
+                <p className="text-base sm:text-xl font-semibold">{isLoading ? "..." : stats?.recentEntries ?? 0}</p>
               </div>
             </div>
-            <div className="flex flex-col md:flex-row items-center md:gap-3 glass-stat rounded-lg px-1.5 py-2 md:px-4 md:py-3">
-              <Brain className="h-3.5 w-3.5 md:h-5 md:w-5 text-muted-foreground mb-0.5 md:mb-0" />
-              <div className="text-center md:text-left">
-                <p className="text-[10px] md:text-xs text-muted-foreground leading-tight">Words</p>
-                <p className="text-sm md:text-xl font-semibold">{isLoading ? "..." : stats?.avgWordsPerEntry ?? 0}</p>
+            <div className="flex flex-col sm:flex-row items-center sm:gap-3 glass-stat rounded-lg px-2 py-2.5 sm:px-4 sm:py-3">
+              <Brain className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground mb-1 sm:mb-0" />
+              <div className="text-center sm:text-left">
+                <p className="text-xs text-muted-foreground leading-tight">Words</p>
+                <p className="text-base sm:text-xl font-semibold">{isLoading ? "..." : stats?.avgWordsPerEntry ?? 0}</p>
               </div>
             </div>
-            <div className="flex flex-col md:flex-row items-center md:gap-3 glass-stat rounded-lg px-1.5 py-2 md:px-4 md:py-3">
-              <Activity className="h-3.5 w-3.5 md:h-5 md:w-5 text-muted-foreground mb-0.5 md:mb-0" />
-              <div className="text-center md:text-left">
-                <p className="text-[10px] md:text-xs text-muted-foreground leading-tight">Positive</p>
-                <p className="text-sm md:text-xl font-semibold">{isLoading ? "..." : `${stats?.positiveRatio ?? 0}%`}</p>
+            <div className="flex flex-col sm:flex-row items-center sm:gap-3 glass-stat rounded-lg px-2 py-2.5 sm:px-4 sm:py-3">
+              <Activity className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground mb-1 sm:mb-0" />
+              <div className="text-center sm:text-left">
+                <p className="text-xs text-muted-foreground leading-tight">Positive</p>
+                <p className="text-base sm:text-xl font-semibold">{isLoading ? "..." : `${stats?.positiveRatio ?? 0}%`}</p>
               </div>
             </div>
           </div>
@@ -223,7 +223,7 @@ export function Dashboard() {
       </DashboardGrid>
 
       {/* Floating Action Buttons */}
-      <div className="fixed bottom-4 right-4 z-40 flex flex-col gap-2 group/fab opacity-70 hover:opacity-100 transition-opacity">
+      <div className="fixed bottom-4 right-4 z-40 flex flex-col gap-2 group/fab opacity-70 hover:opacity-100 transition-opacity pb-safe">
         {/* Add Entry FAB - Primary action */}
         <button
           data-tour="add-entry-fab"

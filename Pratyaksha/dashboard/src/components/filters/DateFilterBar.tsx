@@ -52,7 +52,7 @@ export function DateFilterBar({ className, compact = false, fullWidthMobile = fa
                 variant={preset === p ? "default" : "outline"}
                 size="sm"
                 onClick={() => setPreset(p)}
-                className="h-8 text-xs px-3"
+                className="min-h-[44px] h-auto text-xs px-3"
               >
                 {option.label}
               </Button>
@@ -67,7 +67,7 @@ export function DateFilterBar({ className, compact = false, fullWidthMobile = fa
         >
           <SelectTrigger
             className={cn(
-              "h-9 md:h-8",
+              "min-h-[44px] h-auto md:h-9",
               fullWidthMobile ? "w-full md:w-[140px]" : "w-[140px]"
             )}
             aria-label="Select date range"
@@ -98,7 +98,7 @@ export function DateFilterBar({ className, compact = false, fullWidthMobile = fa
             variant={preset === option.value ? "default" : "outline"}
             size="sm"
             onClick={() => setPreset(option.value)}
-            className="min-h-[32px] text-xs"
+            className="min-h-[44px] h-auto text-xs"
           >
             {option.label}
           </Button>
@@ -111,7 +111,7 @@ export function DateFilterBar({ className, compact = false, fullWidthMobile = fa
           value={preset}
           onValueChange={(value) => setPreset(value as DateRangePreset)}
         >
-          <SelectTrigger className="w-full" aria-label="Select date range">
+          <SelectTrigger className="w-full min-h-[44px]" aria-label="Select date range">
             <Calendar className="mr-2 h-4 w-4" />
             <SelectValue />
           </SelectTrigger>
