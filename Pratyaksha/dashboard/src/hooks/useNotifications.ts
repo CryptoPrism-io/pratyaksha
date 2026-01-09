@@ -11,9 +11,35 @@ import {
   registerTokenWithBackend,
   updatePreferencesOnBackend,
   showLocalNotification,
+  DEFAULT_PREFERENCES,
   type NotificationPreferences,
 } from "../lib/notifications"
 import { useAuth } from "../contexts/AuthContext"
+
+// Fetch settings from backend
+async function fetchSettingsFromBackend(userId: string): Promise<NotificationPreferences | null> {
+  try {
+    const response = await fetch(`/api/notifications/settings/${userId}`)
+    if (!response.ok) return null
+    const data = await response.json()
+    if (data.success && data.settings) {
+      return {
+        enabled: data.settings.enabled ?? DEFAULT_PREFERENCES.enabled,
+        timezone: data.settings.timezone ?? DEFAULT_PREFERENCES.timezone,
+        frequency: data.settings.frequency ?? DEFAULT_PREFERENCES.frequency,
+        customTimes: data.settings.customTimes ?? DEFAULT_PREFERENCES.customTimes,
+        quietHoursStart: data.settings.quietHoursStart ?? DEFAULT_PREFERENCES.quietHoursStart,
+        quietHoursEnd: data.settings.quietHoursEnd ?? DEFAULT_PREFERENCES.quietHoursEnd,
+        streakAtRisk: data.settings.streakAtRisk ?? DEFAULT_PREFERENCES.streakAtRisk,
+        weeklySummary: data.settings.weeklySummary ?? DEFAULT_PREFERENCES.weeklySummary,
+      }
+    }
+    return null
+  } catch (error) {
+    console.error("[useNotifications] Failed to fetch settings:", error)
+    return null
+  }
+}
 
 export interface UseNotificationsReturn {
   // State
@@ -47,6 +73,21 @@ export function useNotifications(): UseNotificationsReturn {
   useEffect(() => {
     setPermission(getPermissionStatus())
   }, [])
+
+  // Fetch settings from backend when user logs in
+  useEffect(() => {
+    if (!user?.uid) return
+
+    const fetchSettings = async () => {
+      const backendPrefs = await fetchSettingsFromBackend(user.uid)
+      if (backendPrefs) {
+        setPreferences(backendPrefs)
+        savePreferences(backendPrefs)
+      }
+    }
+
+    fetchSettings()
+  }, [user?.uid])
 
   // Setup foreground listener when enabled
   useEffect(() => {

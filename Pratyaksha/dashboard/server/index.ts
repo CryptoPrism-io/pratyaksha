@@ -7,7 +7,7 @@ import { processEntry, updateEntry, deleteEntry, toggleBookmark } from "./routes
 import { getWeeklySummary } from "./routes/weeklySummary"
 import { getDailySummary } from "./routes/dailySummary"
 import { getMonthlySummary } from "./routes/monthlySummary"
-import { registerToken, updatePreferences, sendNotification, getSettings, testNotification } from "./routes/notifications"
+import { registerToken, updatePreferences, sendNotification, getSettings, testNotification, cronNotifications } from "./routes/notifications"
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -37,6 +37,9 @@ app.put("/api/notifications/preferences", updatePreferences)
 app.post("/api/notifications/send", sendNotification)
 app.get("/api/notifications/settings/:userId", getSettings)
 app.post("/api/notifications/test", testNotification)
+
+// Cron routes (called by Cloud Scheduler)
+app.post("/api/cron/notifications", cronNotifications)
 
 // Serve static files in production
 // __dirname is available in CommonJS modules

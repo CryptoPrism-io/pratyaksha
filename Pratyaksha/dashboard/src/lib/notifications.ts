@@ -38,20 +38,66 @@ function getMessagingInstance(): Messaging | null {
   }
 }
 
+// Notification frequency options
+export type NotificationFrequency = "hourly" | "3x_daily" | "2x_daily" | "1x_daily"
+
 export interface NotificationPreferences {
   enabled: boolean
-  dailyReminder: boolean
-  dailyReminderTime: string // HH:MM format
+  timezone: string // IANA timezone e.g. "Asia/Kolkata"
+  frequency: NotificationFrequency
+  customTimes: string[] // ["09:00", "13:00", "20:00"] for scheduled notifications
+  quietHoursStart: string // "22:00" - when to stop notifications
+  quietHoursEnd: string // "07:00" - when to resume notifications
   streakAtRisk: boolean
   weeklySummary: boolean
 }
 
+// Auto-detect timezone from browser
+function getDefaultTimezone(): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone
+  } catch {
+    return "UTC"
+  }
+}
+
 export const DEFAULT_PREFERENCES: NotificationPreferences = {
   enabled: false,
-  dailyReminder: true,
-  dailyReminderTime: "20:00", // 8 PM default
+  timezone: getDefaultTimezone(),
+  frequency: "2x_daily",
+  customTimes: ["09:00", "20:00"], // Morning and evening
+  quietHoursStart: "22:00", // 10 PM
+  quietHoursEnd: "07:00", // 7 AM
   streakAtRisk: true,
   weeklySummary: false,
+}
+
+// Get default times based on frequency
+export function getDefaultTimesForFrequency(frequency: NotificationFrequency): string[] {
+  switch (frequency) {
+    case "hourly":
+      return [] // No specific times, runs every hour
+    case "3x_daily":
+      return ["09:00", "13:00", "20:00"] // Morning, afternoon, evening
+    case "2x_daily":
+      return ["09:00", "20:00"] // Morning and evening
+    case "1x_daily":
+      return ["20:00"] // Evening only
+  }
+}
+
+// Get friendly label for frequency
+export function getFrequencyLabel(frequency: NotificationFrequency): string {
+  switch (frequency) {
+    case "hourly":
+      return "Every hour (during active hours)"
+    case "3x_daily":
+      return "3 times daily (Morning, Afternoon, Evening)"
+    case "2x_daily":
+      return "Twice daily (Morning & Evening)"
+    case "1x_daily":
+      return "Once daily"
+  }
 }
 
 // Storage key for preferences

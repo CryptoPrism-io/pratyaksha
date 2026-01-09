@@ -5,8 +5,18 @@ import {
   findNotificationSettings,
   createNotificationSettings,
   updateNotificationSettings,
+  getAllEnabledNotificationUsers,
+  updateLastNotified,
+  parseNotificationRecord,
   type NotificationSettingsData,
 } from "../lib/airtable"
+import {
+  isWithinQuietHours,
+  shouldNotifyNow,
+  getNotificationMessage,
+  getUserLocalTimeInfo,
+  type NotificationFrequency,
+} from "../lib/notificationScheduler"
 
 // Initialize Firebase Admin with Application Default Credentials (ADC)
 // This works automatically on Cloud Run without needing a service account key file
@@ -40,11 +50,17 @@ function initFirebaseAdmin() {
 
 export interface NotificationPreferences {
   enabled: boolean
-  dailyReminder: boolean
-  dailyReminderTime: string
+  timezone: string
+  frequency: NotificationFrequency
+  customTimes: string[]
+  quietHoursStart: string
+  quietHoursEnd: string
   streakAtRisk: boolean
   weeklySummary: boolean
 }
+
+// CRON_SECRET for authenticating Cloud Scheduler requests
+const CRON_SECRET = process.env.CRON_SECRET || ""
 
 /**
  * POST /api/notifications/register
@@ -70,8 +86,11 @@ export async function registerToken(req: Request, res: Response) {
       userId,
       fcmToken,
       enabled: preferences?.enabled ?? true,
-      dailyReminder: preferences?.dailyReminder ?? true,
-      dailyReminderTime: preferences?.dailyReminderTime ?? "20:00",
+      timezone: preferences?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+      frequency: preferences?.frequency || "2x_daily",
+      customTimes: preferences?.customTimes || ["09:00", "20:00"],
+      quietHoursStart: preferences?.quietHoursStart || "22:00",
+      quietHoursEnd: preferences?.quietHoursEnd || "07:00",
       streakAtRisk: preferences?.streakAtRisk ?? true,
       weeklySummary: preferences?.weeklySummary ?? false,
     }
@@ -128,8 +147,13 @@ export async function updatePreferences(req: Request, res: Response) {
       userId,
       fcmToken: existing.fields["FCM Token"] || "",
       enabled: preferences.enabled ?? existing.fields["Enabled"],
-      dailyReminder: preferences.dailyReminder ?? existing.fields["Daily Reminder"],
-      dailyReminderTime: preferences.dailyReminderTime ?? existing.fields["Daily Reminder Time"],
+      timezone: preferences.timezone ?? existing.fields["Timezone"] ?? "UTC",
+      frequency: preferences.frequency ?? existing.fields["Frequency"] ?? "2x_daily",
+      customTimes: preferences.customTimes ?? (existing.fields["Custom Times"]
+        ? existing.fields["Custom Times"].split(",").map((t: string) => t.trim())
+        : ["09:00", "20:00"]),
+      quietHoursStart: preferences.quietHoursStart ?? existing.fields["Quiet Hours Start"] ?? "22:00",
+      quietHoursEnd: preferences.quietHoursEnd ?? existing.fields["Quiet Hours End"] ?? "07:00",
       streakAtRisk: preferences.streakAtRisk ?? existing.fields["Streak At Risk"],
       weeklySummary: preferences.weeklySummary ?? existing.fields["Weekly Summary"],
     })
@@ -281,8 +305,13 @@ export async function getSettings(req: Request, res: Response) {
       success: true,
       settings: {
         enabled: settings.fields["Enabled"],
-        dailyReminder: settings.fields["Daily Reminder"],
-        dailyReminderTime: settings.fields["Daily Reminder Time"],
+        timezone: settings.fields["Timezone"] || "UTC",
+        frequency: settings.fields["Frequency"] || "2x_daily",
+        customTimes: settings.fields["Custom Times"]
+          ? settings.fields["Custom Times"].split(",").map((t: string) => t.trim())
+          : ["09:00", "20:00"],
+        quietHoursStart: settings.fields["Quiet Hours Start"] || "22:00",
+        quietHoursEnd: settings.fields["Quiet Hours End"] || "07:00",
         streakAtRisk: settings.fields["Streak At Risk"],
         weeklySummary: settings.fields["Weekly Summary"],
         hasToken: !!settings.fields["FCM Token"],
@@ -324,6 +353,113 @@ export async function testNotification(req: Request, res: Response) {
     res.status(500).json({
       success: false,
       error: "Test notification failed",
+    })
+  }
+}
+
+/**
+ * POST /api/cron/notifications
+ * Called by Cloud Scheduler every hour to send scheduled notifications
+ * Protected by CRON_SECRET header
+ */
+export async function cronNotifications(req: Request, res: Response) {
+  try {
+    // Verify request is from Cloud Scheduler
+    const cronSecret = req.headers["x-cron-secret"] as string
+    if (CRON_SECRET && cronSecret !== CRON_SECRET) {
+      console.warn("[Cron] Unauthorized cron request")
+      return res.status(401).json({
+        success: false,
+        error: "Unauthorized",
+      })
+    }
+
+    console.log("[Cron] Starting notification cron job...")
+
+    // Get all users with notifications enabled
+    const records = await getAllEnabledNotificationUsers()
+    console.log(`[Cron] Found ${records.length} users with notifications enabled`)
+
+    const results = {
+      total: records.length,
+      sent: 0,
+      skipped: 0,
+      errors: 0,
+      details: [] as { userId: string; status: string; reason?: string }[],
+    }
+
+    for (const record of records) {
+      const user = parseNotificationRecord(record)
+
+      // Skip if no FCM token
+      if (!user.fcmToken) {
+        results.skipped++
+        results.details.push({ userId: user.userId, status: "skipped", reason: "No FCM token" })
+        continue
+      }
+
+      const timezone = user.timezone || "UTC"
+      const frequency = (user.frequency || "2x_daily") as NotificationFrequency
+      const quietStart = user.quietHoursStart || "22:00"
+      const quietEnd = user.quietHoursEnd || "07:00"
+      const customTimes = user.customTimes || ["09:00", "20:00"]
+      const lastNotified = user.lastNotified
+
+      // Log user's local time for debugging
+      const localInfo = getUserLocalTimeInfo(timezone)
+      console.log(`[Cron] User ${user.userId}: localTime=${localInfo.localTime}, freq=${frequency}`)
+
+      // Check if within quiet hours
+      if (isWithinQuietHours(timezone, quietStart, quietEnd)) {
+        results.skipped++
+        results.details.push({ userId: user.userId, status: "skipped", reason: "Quiet hours" })
+        continue
+      }
+
+      // Check if notification should be sent now based on frequency and last notified
+      if (!shouldNotifyNow(timezone, frequency, customTimes, lastNotified)) {
+        results.skipped++
+        results.details.push({ userId: user.userId, status: "skipped", reason: "Not time yet" })
+        continue
+      }
+
+      // Get notification message based on time of day
+      const message = getNotificationMessage(timezone, frequency)
+
+      // Send notification
+      try {
+        const success = await sendFCMNotification(user.fcmToken, {
+          title: message.title,
+          body: message.body,
+          type: "reminder",
+        })
+
+        if (success) {
+          // Update lastNotified timestamp
+          await updateLastNotified(user.recordId)
+          results.sent++
+          results.details.push({ userId: user.userId, status: "sent" })
+        } else {
+          results.errors++
+          results.details.push({ userId: user.userId, status: "error", reason: "FCM send failed" })
+        }
+      } catch (error) {
+        results.errors++
+        results.details.push({ userId: user.userId, status: "error", reason: String(error) })
+      }
+    }
+
+    console.log(`[Cron] Completed: sent=${results.sent}, skipped=${results.skipped}, errors=${results.errors}`)
+
+    res.json({
+      success: true,
+      ...results,
+    })
+  } catch (error) {
+    console.error("[Cron] Notification cron error:", error)
+    res.status(500).json({
+      success: false,
+      error: "Cron job failed",
     })
   }
 }

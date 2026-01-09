@@ -358,8 +358,12 @@ export interface NotificationSettingsFields {
   "User ID": string
   "FCM Token": string
   "Enabled": boolean
-  "Daily Reminder": boolean
-  "Daily Reminder Time": string
+  "Timezone": string // IANA timezone e.g. "Asia/Kolkata"
+  "Frequency": string // "hourly" | "3x_daily" | "2x_daily" | "1x_daily"
+  "Custom Times": string // Comma-separated HH:MM e.g. "09:00,13:00,20:00"
+  "Quiet Hours Start": string // "22:00"
+  "Quiet Hours End": string // "07:00"
+  "Last Notified": string // ISO timestamp
   "Streak At Risk": boolean
   "Weekly Summary": boolean
   "Updated At": string
@@ -368,15 +372,18 @@ export interface NotificationSettingsFields {
 export interface NotificationSettingsRecord {
   id: string
   createdTime: string
-  fields: NotificationSettingsFields
+  fields: Partial<NotificationSettingsFields>
 }
 
 export interface NotificationSettingsData {
   userId: string
   fcmToken: string
   enabled: boolean
-  dailyReminder: boolean
-  dailyReminderTime: string
+  timezone: string
+  frequency: string
+  customTimes: string[] // Array in code, stored as comma-separated string
+  quietHoursStart: string
+  quietHoursEnd: string
   streakAtRisk: boolean
   weeklySummary: boolean
 }
@@ -429,8 +436,12 @@ export async function createNotificationSettings(data: NotificationSettingsData)
     "User ID": data.userId,
     "FCM Token": data.fcmToken,
     "Enabled": data.enabled,
-    "Daily Reminder": data.dailyReminder,
-    "Daily Reminder Time": data.dailyReminderTime,
+    "Timezone": data.timezone,
+    "Frequency": data.frequency,
+    "Custom Times": data.customTimes.join(","),
+    "Quiet Hours Start": data.quietHoursStart,
+    "Quiet Hours End": data.quietHoursEnd,
+    "Last Notified": "",
     "Streak At Risk": data.streakAtRisk,
     "Weekly Summary": data.weeklySummary,
     "Updated At": new Date().toISOString(),
@@ -467,8 +478,11 @@ export async function updateNotificationSettings(
   const fields: Partial<NotificationSettingsFields> = {
     "FCM Token": data.fcmToken,
     "Enabled": data.enabled,
-    "Daily Reminder": data.dailyReminder,
-    "Daily Reminder Time": data.dailyReminderTime,
+    "Timezone": data.timezone,
+    "Frequency": data.frequency,
+    "Custom Times": data.customTimes.join(","),
+    "Quiet Hours Start": data.quietHoursStart,
+    "Quiet Hours End": data.quietHoursEnd,
     "Streak At Risk": data.streakAtRisk,
     "Weekly Summary": data.weeklySummary,
     "Updated At": new Date().toISOString(),
@@ -493,28 +507,14 @@ export async function updateNotificationSettings(
 
 /**
  * Get all users with notifications enabled (for scheduled notifications)
+ * Returns all enabled users - filtering by time/frequency is done by the scheduler
  */
-export async function getUsersForNotification(
-  notificationType: "dailyReminder" | "streakAtRisk" | "weeklySummary"
-): Promise<NotificationSettingsRecord[]> {
+export async function getAllEnabledNotificationUsers(): Promise<NotificationSettingsRecord[]> {
   if (!AIRTABLE_API_KEY) {
     throw new Error("Airtable API key is not configured")
   }
 
-  let fieldName: string
-  switch (notificationType) {
-    case "dailyReminder":
-      fieldName = "Daily Reminder"
-      break
-    case "streakAtRisk":
-      fieldName = "Streak At Risk"
-      break
-    case "weeklySummary":
-      fieldName = "Weekly Summary"
-      break
-  }
-
-  const formula = encodeURIComponent(`AND({Enabled} = TRUE(), {${fieldName}} = TRUE())`)
+  const formula = encodeURIComponent(`{Enabled} = TRUE()`)
   const url = `${NOTIFICATIONS_URL}?filterByFormula=${formula}`
 
   try {
@@ -526,6 +526,7 @@ export async function getUsersForNotification(
 
     if (!response.ok) {
       if (response.status === 404) {
+        console.warn("[Airtable] Notification_Settings table not found")
         return []
       }
       throw new Error(`Airtable API error: ${response.status}`)
@@ -534,7 +535,73 @@ export async function getUsersForNotification(
     const data = await response.json()
     return data.records || []
   } catch (error) {
-    console.error("[Airtable] getUsersForNotification error:", error)
+    console.error("[Airtable] getAllEnabledNotificationUsers error:", error)
     return []
+  }
+}
+
+/**
+ * Update the lastNotified timestamp for a user after sending a notification
+ */
+export async function updateLastNotified(recordId: string): Promise<void> {
+  if (!AIRTABLE_API_KEY) {
+    throw new Error("Airtable API key is not configured")
+  }
+
+  try {
+    const response = await fetch(`${NOTIFICATIONS_URL}/${recordId}`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${AIRTABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        fields: {
+          "Last Notified": new Date().toISOString(),
+        },
+      }),
+    })
+
+    if (!response.ok) {
+      console.error("[Airtable] Failed to update lastNotified:", response.status)
+    }
+  } catch (error) {
+    console.error("[Airtable] updateLastNotified error:", error)
+  }
+}
+
+/**
+ * Parse notification settings record into UserNotificationSettings format
+ */
+export function parseNotificationRecord(record: NotificationSettingsRecord): {
+  userId: string
+  fcmToken: string
+  enabled: boolean
+  timezone: string
+  frequency: string
+  customTimes: string[]
+  quietHoursStart: string
+  quietHoursEnd: string
+  lastNotified: string | null
+  streakAtRisk: boolean
+  weeklySummary: boolean
+  recordId: string
+} {
+  const fields = record.fields
+  return {
+    userId: fields["User ID"] || "",
+    fcmToken: fields["FCM Token"] || "",
+    enabled: fields["Enabled"] ?? false,
+    timezone: fields["Timezone"] || "UTC",
+    frequency: fields["Frequency"] || "2x_daily",
+    customTimes: fields["Custom Times"]
+      ? fields["Custom Times"].split(",").map((t: string) => t.trim())
+      : ["09:00", "20:00"],
+    quietHoursStart: fields["Quiet Hours Start"] || "22:00",
+    quietHoursEnd: fields["Quiet Hours End"] || "07:00",
+    lastNotified: fields["Last Notified"] || null,
+    streakAtRisk: fields["Streak At Risk"] ?? false,
+    weeklySummary: fields["Weekly Summary"] ?? false,
+    recordId: record.id,
   }
 }
