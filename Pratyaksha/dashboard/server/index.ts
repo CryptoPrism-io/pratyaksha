@@ -8,6 +8,8 @@ import { getWeeklySummary } from "./routes/weeklySummary"
 import { getDailySummary } from "./routes/dailySummary"
 import { getMonthlySummary } from "./routes/monthlySummary"
 import { registerToken, updatePreferences, sendNotification, getSettings, testNotification, cronNotifications } from "./routes/notifications"
+import { explainChart } from "./routes/explain"
+import { chat } from "./routes/chat"
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -30,6 +32,12 @@ app.patch("/api/entry/:id/bookmark", toggleBookmark)
 app.get("/api/weekly-summary", getWeeklySummary)
 app.get("/api/daily-summary", getDailySummary)
 app.get("/api/monthly-summary", getMonthlySummary)
+
+// AI Chart Explainer route
+app.post("/api/explain", explainChart)
+
+// AI Chat route
+app.post("/api/chat", chat)
 
 // Notification routes
 app.post("/api/notifications/register", registerToken)

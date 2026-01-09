@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import { Brain, LayoutDashboard, PlusCircle, Lightbulb, User, MoreVertical, Download } from "lucide-react"
+import { Brain, LayoutDashboard, PlusCircle, GitCompareArrows, MessageSquare, User, MoreVertical, Download } from "lucide-react"
 import { cn } from "../../lib/utils"
 import { ThemeToggle } from "../theme-toggle"
 import { resetOnboardingTour } from "../onboarding/OnboardingTour"
@@ -18,7 +18,8 @@ export function Header() {
 
   const isDashboard = location.pathname === "/dashboard"
   const isLogs = location.pathname === "/logs"
-  const isInsights = location.pathname === "/insights"
+  const isCompare = location.pathname === "/compare"
+  const isChat = location.pathname === "/chat"
 
   const handleInstallClick = async () => {
     setShowMenu(false)
@@ -83,14 +84,24 @@ export function Header() {
             <span className="hidden sm:inline">Dashboard</span>
           </Link>
           <Link
-            to="/insights"
+            to="/compare"
             className={cn(
               "flex items-center justify-center gap-2 text-sm font-medium transition-colors hover:text-primary min-w-[44px] min-h-[44px] sm:min-w-0",
-              isInsights ? "text-primary" : "text-muted-foreground"
+              isCompare ? "text-primary" : "text-muted-foreground"
             )}
           >
-            <Lightbulb className="h-5 w-5" />
-            <span className="hidden sm:inline">Insights</span>
+            <GitCompareArrows className="h-5 w-5" />
+            <span className="hidden sm:inline">Compare</span>
+          </Link>
+          <Link
+            to="/chat"
+            className={cn(
+              "flex items-center justify-center gap-2 text-sm font-medium transition-colors hover:text-primary min-w-[44px] min-h-[44px] sm:min-w-0",
+              isChat ? "text-primary" : "text-muted-foreground"
+            )}
+          >
+            <MessageSquare className="h-5 w-5" />
+            <span className="hidden sm:inline">Chat</span>
           </Link>
           <div className="ml-1 border-l pl-1 sm:ml-2 sm:pl-2 md:ml-4 md:pl-4 flex items-center gap-1 sm:gap-2">
             <ThemeToggle />

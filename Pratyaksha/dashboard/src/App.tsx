@@ -5,6 +5,8 @@ import { Landing } from "./pages/Landing"
 import { Dashboard } from "./pages/Dashboard"
 import { Logs } from "./pages/Logs"
 import { Insights } from "./pages/Insights"
+import { Compare } from "./pages/Compare"
+import { Chat } from "./pages/Chat"
 import { Profile } from "./pages/Profile"
 import { Login } from "./pages/Login"
 import { Signup } from "./pages/Signup"
@@ -49,6 +51,8 @@ function App() {
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/logs" element={<Logs />} />
                     <Route path="/insights" element={<Insights />} />
+                    <Route path="/compare" element={<Compare />} />
+                    <Route path="/chat" element={<Chat />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route
                       path="/login"

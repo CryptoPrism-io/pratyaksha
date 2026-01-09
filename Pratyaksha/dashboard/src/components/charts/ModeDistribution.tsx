@@ -1,11 +1,13 @@
-import { useState, useCallback } from "react"
+import { useState, useCallback, useMemo } from "react"
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, Sector } from "recharts"
-import { useModeDistribution } from "../../hooks/useEntries"
+import { useModeDistribution, useStats } from "../../hooks/useEntries"
 import { useFilterAwareEmptyState } from "../../hooks/useFilterAwareEmptyState"
+import { useDateFilter } from "../../contexts/DateFilterContext"
 import { Skeleton } from "../ui/skeleton"
 import { EmptyState } from "../ui/empty-state"
 import { AlertCircle, RefreshCw, PieChart as PieChartIcon } from "lucide-react"
 import { ERROR_MESSAGES } from "../../lib/errorMessages"
+import { ChartExplainer } from "./ChartExplainer"
 
 const COLORS = [
   "hsl(160, 84%, 52%)",  // positive green
@@ -86,8 +88,28 @@ function PieSkeleton() {
 
 export function ModeDistribution() {
   const { data, isLoading, error, refetch } = useModeDistribution()
+  const { data: stats } = useStats()
+  const { getDateRangeLabel } = useDateFilter()
   const { getEmptyStateProps } = useFilterAwareEmptyState()
   const [activeIndex, setActiveIndex] = useState<number | undefined>(undefined)
+
+  // Prepare AI explainer data
+  const explainerData = useMemo(() => {
+    if (!data || data.length === 0) return null
+    return {
+      modes: data.map(d => ({ mode: d.mode, count: d.count, percentage: d.percentage })),
+      topModes: data.slice(0, 3).map(d => d.mode)
+    }
+  }, [data])
+
+  const explainerSummary = useMemo(() => {
+    if (!stats) return undefined
+    return {
+      totalEntries: stats.totalEntries,
+      dateRange: getDateRangeLabel(),
+      topItems: data?.slice(0, 3).map(d => d.mode)
+    }
+  }, [stats, data, getDateRangeLabel])
 
   const onPieEnter = useCallback((_: unknown, index: number) => {
     setActiveIndex(index)
@@ -130,7 +152,18 @@ export function ModeDistribution() {
   }
 
   return (
-    <ResponsiveContainer width="100%" height={400}>
+    <div className="relative">
+      {/* AI Explainer Button */}
+      {explainerData && (
+        <div className="absolute top-0 right-0 z-10">
+          <ChartExplainer
+            chartType="modeDistribution"
+            chartData={explainerData}
+            summary={explainerSummary}
+          />
+        </div>
+      )}
+      <ResponsiveContainer width="100%" height={400}>
       <PieChart>
         <Pie
           data={data}
@@ -172,5 +205,6 @@ export function ModeDistribution() {
         />
       </PieChart>
     </ResponsiveContainer>
+    </div>
   )
 }

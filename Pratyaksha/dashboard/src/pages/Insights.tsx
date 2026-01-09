@@ -1,9 +1,10 @@
-import { Brain, ArrowRight } from "lucide-react"
+import { Activity } from "lucide-react"
 import { WeeklySummaryCard } from "../components/insights/WeeklySummaryCard"
 import { DailySummaryCard } from "../components/insights/DailySummaryCard"
 import { WeekOverWeekCard } from "../components/insights/WeekOverWeekCard"
 import { MonthlySummaryCard } from "../components/insights/MonthlySummaryCard"
 import { MonthlyTrendsChart } from "../components/insights/MonthlyTrendsChart"
+import { EnergyShapeLegend } from "../components/charts/EnergyShapeLegend"
 
 export function Insights() {
   return (
@@ -33,21 +34,20 @@ export function Insights() {
         <div className="grid gap-6 lg:grid-cols-2">
           <MonthlyTrendsChart />
 
-          {/* Cognitive Analysis Card - Coming Soon */}
+          {/* Energy Shape Legend */}
           <div className="rounded-xl glass-card p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-500/10">
-                <Brain className="h-5 w-5 text-purple-500" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                <Activity className="h-5 w-5 text-primary" />
               </div>
-              <h3 className="font-semibold">Cognitive Analysis</h3>
+              <div>
+                <h3 className="font-semibold">Energy Shape Guide</h3>
+                <p className="text-sm text-muted-foreground">
+                  Understanding your energy patterns
+                </p>
+              </div>
             </div>
-            <p className="text-sm text-muted-foreground mb-4">
-              Deep analysis of your cognitive modes and contradictions with actionable recommendations.
-            </p>
-            <div className="flex items-center text-sm text-primary">
-              <span>Coming soon</span>
-              <ArrowRight className="h-4 w-4 ml-1" />
-            </div>
+            <EnergyShapeLegend showDescriptions className="flex-col items-start gap-2" />
           </div>
         </div>
       </div>
