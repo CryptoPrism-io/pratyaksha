@@ -5,47 +5,43 @@
 importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js');
 
-// Firebase config will be passed via the main app
-// For now, we initialize with empty config and update when message is received
-let firebaseConfig = null;
+// Firebase config - these values are replaced at build time or use defaults
+// The service worker needs this config to initialize Firebase for push notifications
+const firebaseConfig = {
+  apiKey: "AIzaSyDj1l6tqDChFEDPFPPasCZwFBqHGLI8Jy8",
+  authDomain: "pratyaksha-3f089.firebaseapp.com",
+  projectId: "pratyaksha-3f089",
+  storageBucket: "pratyaksha-3f089.firebasestorage.app",
+  messagingSenderId: "660572274498",
+  appId: "1:660572274498:web:0d97f1a05dfdd6f80f9c6f"
+};
 
-// Listen for config from main app
-self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'FIREBASE_CONFIG') {
-    firebaseConfig = event.data.config;
-    initializeFirebase();
-  }
-});
+// Initialize Firebase immediately
+try {
+  firebase.initializeApp(firebaseConfig);
+  const messaging = firebase.messaging();
 
-function initializeFirebase() {
-  if (!firebaseConfig || firebase.apps.length > 0) return;
+  // Handle background messages
+  messaging.onBackgroundMessage((payload) => {
+    console.log('[FCM SW] Background message received:', payload);
 
-  try {
-    firebase.initializeApp(firebaseConfig);
-    const messaging = firebase.messaging();
+    const notificationTitle = payload.notification?.title || 'Pratyaksha';
+    const notificationOptions = {
+      body: payload.notification?.body || '',
+      icon: '/icons/icon-192x192.png',
+      badge: '/icons/icon-72x72.png',
+      vibrate: [100, 50, 100],
+      tag: payload.data?.tag || 'pratyaksha-notification',
+      data: payload.data,
+      actions: getNotificationActions(payload.data?.type),
+    };
 
-    // Handle background messages
-    messaging.onBackgroundMessage((payload) => {
-      console.log('[FCM SW] Background message received:', payload);
+    self.registration.showNotification(notificationTitle, notificationOptions);
+  });
 
-      const notificationTitle = payload.notification?.title || 'Pratyaksha';
-      const notificationOptions = {
-        body: payload.notification?.body || '',
-        icon: '/icons/icon-192x192.png',
-        badge: '/icons/icon-72x72.png',
-        vibrate: [100, 50, 100],
-        tag: payload.data?.tag || 'pratyaksha-notification',
-        data: payload.data,
-        actions: getNotificationActions(payload.data?.type),
-      };
-
-      self.registration.showNotification(notificationTitle, notificationOptions);
-    });
-
-    console.log('[FCM SW] Firebase initialized successfully');
-  } catch (error) {
-    console.error('[FCM SW] Failed to initialize Firebase:', error);
-  }
+  console.log('[FCM SW] Firebase initialized successfully');
+} catch (error) {
+  console.error('[FCM SW] Failed to initialize Firebase:', error);
 }
 
 // Get notification actions based on type

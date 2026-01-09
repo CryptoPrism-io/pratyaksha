@@ -1,11 +1,42 @@
 // Notification Routes - FCM token registration and sending
 import { Request, Response } from "express"
+import admin from "firebase-admin"
 import {
   findNotificationSettings,
   createNotificationSettings,
   updateNotificationSettings,
   type NotificationSettingsData,
 } from "../lib/airtable"
+
+// Initialize Firebase Admin with Application Default Credentials (ADC)
+// This works automatically on Cloud Run without needing a service account key file
+let firebaseInitialized = false
+
+function initFirebaseAdmin() {
+  if (firebaseInitialized) return true
+
+  try {
+    // Check if already initialized
+    if (admin.apps.length > 0) {
+      firebaseInitialized = true
+      return true
+    }
+
+    // Initialize with ADC - works on Cloud Run automatically
+    // Locally, set GOOGLE_APPLICATION_CREDENTIALS env var to a service account JSON file
+    admin.initializeApp({
+      credential: admin.credential.applicationDefault(),
+      projectId: process.env.VITE_FIREBASE_PROJECT_ID || "pratyaksha-3f089",
+    })
+
+    firebaseInitialized = true
+    console.log("[Notifications] Firebase Admin initialized with ADC")
+    return true
+  } catch (error) {
+    console.error("[Notifications] Firebase Admin init failed:", error)
+    return false
+  }
+}
 
 export interface NotificationPreferences {
   enabled: boolean
@@ -173,7 +204,8 @@ export async function sendNotification(req: Request, res: Response) {
 }
 
 /**
- * Send FCM notification using Firebase Admin SDK or HTTP v1 API
+ * Send FCM notification using Firebase Admin SDK (V1 API)
+ * Uses Application Default Credentials - works on Cloud Run without key file
  */
 async function sendFCMNotification(
   token: string,
@@ -184,52 +216,39 @@ async function sendFCMNotification(
     data?: Record<string, string>
   }
 ): Promise<boolean> {
-  const serverKey = process.env.FIREBASE_SERVER_KEY
-
-  if (!serverKey) {
-    console.warn("[Notifications] FIREBASE_SERVER_KEY not configured")
+  // Initialize Firebase Admin if not already done
+  if (!initFirebaseAdmin()) {
+    console.error("[Notifications] Firebase Admin not available")
     return false
   }
 
   try {
-    const response = await fetch("https://fcm.googleapis.com/fcm/send", {
-      method: "POST",
-      headers: {
-        Authorization: `key=${serverKey}`,
-        "Content-Type": "application/json",
+    const message: admin.messaging.Message = {
+      token,
+      notification: {
+        title: notification.title,
+        body: notification.body,
       },
-      body: JSON.stringify({
-        to: token,
+      data: {
+        type: notification.type,
+        ...(notification.data || {}),
+      },
+      webpush: {
         notification: {
-          title: notification.title,
-          body: notification.body,
           icon: "/icons/icon-192x192.png",
           badge: "/icons/icon-72x72.png",
         },
-        data: {
-          type: notification.type,
-          ...notification.data,
+        fcmOptions: {
+          link: "/dashboard",
         },
-        webpush: {
-          fcm_options: {
-            link: "/dashboard",
-          },
-        },
-      }),
-    })
-
-    if (!response.ok) {
-      const error = await response.text()
-      console.error("[Notifications] FCM send error:", error)
-      return false
+      },
     }
 
-    const result = await response.json()
-    console.log("[Notifications] FCM send result:", result)
-
-    return result.success === 1
+    const response = await admin.messaging().send(message)
+    console.log("[Notifications] FCM send success:", response)
+    return true
   } catch (error) {
-    console.error("[Notifications] FCM request failed:", error)
+    console.error("[Notifications] FCM send error:", error)
     return false
   }
 }
@@ -274,6 +293,37 @@ export async function getSettings(req: Request, res: Response) {
     res.status(500).json({
       success: false,
       error: "Failed to get notification settings",
+    })
+  }
+}
+
+/**
+ * POST /api/notifications/test
+ * Test endpoint to verify FCM is working
+ */
+export async function testNotification(req: Request, res: Response) {
+  try {
+    const { token } = req.body
+
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        error: "FCM token is required",
+      })
+    }
+
+    const success = await sendFCMNotification(token, {
+      title: "Test Notification",
+      body: "Push notifications are working!",
+      type: "test",
+    })
+
+    res.json({ success })
+  } catch (error) {
+    console.error("[Notifications] Test error:", error)
+    res.status(500).json({
+      success: false,
+      error: "Test notification failed",
     })
   }
 }

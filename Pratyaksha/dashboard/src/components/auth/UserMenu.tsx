@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom"
 import { useAuth } from "../../contexts/AuthContext"
 import { LogIn, LogOut, User as UserIcon, Loader2 } from "lucide-react"
 import { toast } from "sonner"
@@ -54,27 +55,29 @@ export function UserMenu({ compact = false }: UserMenuProps) {
   if (user) {
     return (
       <div className="flex items-center gap-2">
-        {user.photoURL ? (
-          <img
-            src={user.photoURL}
-            alt={user.displayName || "User"}
-            className="h-8 w-8 rounded-full border"
-          />
-        ) : (
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-medium">
-            {(user.displayName || user.email || "U")[0].toUpperCase()}
-          </div>
-        )}
-        {!compact && (
-          <div className="hidden sm:block">
-            <p className="text-sm font-medium leading-none">
-              {user.displayName || user.email?.split("@")[0]}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {user.email}
-            </p>
-          </div>
-        )}
+        <Link to="/profile" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+          {user.photoURL ? (
+            <img
+              src={user.photoURL}
+              alt={user.displayName || "User"}
+              className="h-8 w-8 rounded-full border"
+            />
+          ) : (
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-medium">
+              {(user.displayName || user.email || "U")[0].toUpperCase()}
+            </div>
+          )}
+          {!compact && (
+            <div className="hidden sm:block">
+              <p className="text-sm font-medium leading-none">
+                {user.displayName || user.email?.split("@")[0]}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {user.email}
+              </p>
+            </div>
+          )}
+        </Link>
         <button
           onClick={handleSignOut}
           className="flex h-9 w-9 items-center justify-center rounded-md hover:bg-muted transition-colors"

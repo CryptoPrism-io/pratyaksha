@@ -96,6 +96,33 @@ export async function requestPermission(): Promise<NotificationPermission> {
 }
 
 /**
+ * Register the Firebase messaging service worker
+ */
+async function registerFirebaseServiceWorker(): Promise<ServiceWorkerRegistration | null> {
+  try {
+    // Check if already registered
+    const existingReg = await navigator.serviceWorker.getRegistration("/firebase-messaging-sw.js")
+    if (existingReg) {
+      console.log("[Notifications] Firebase SW already registered")
+      return existingReg
+    }
+
+    // Register the Firebase messaging service worker
+    const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js", {
+      scope: "/",
+    })
+
+    // Wait for the service worker to be ready
+    await navigator.serviceWorker.ready
+    console.log("[Notifications] Firebase SW registered successfully")
+    return registration
+  } catch (error) {
+    console.error("[Notifications] Failed to register Firebase SW:", error)
+    return null
+  }
+}
+
+/**
  * Get the FCM token for this device
  */
 export async function getFCMToken(): Promise<string | null> {
@@ -121,7 +148,18 @@ export async function getFCMToken(): Promise<string | null> {
       return null
     }
 
-    const token = await getToken(msg, { vapidKey })
+    // Register Firebase service worker first
+    const swRegistration = await registerFirebaseServiceWorker()
+    if (!swRegistration) {
+      console.warn("[Notifications] Service worker registration failed")
+      return null
+    }
+
+    // Get token with service worker registration
+    const token = await getToken(msg, {
+      vapidKey,
+      serviceWorkerRegistration: swRegistration
+    })
 
     if (token) {
       // Store token locally
