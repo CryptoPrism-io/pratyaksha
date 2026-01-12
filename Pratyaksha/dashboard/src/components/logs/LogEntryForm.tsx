@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react"
+import { useState, useRef } from "react"
 import { Mic, MicOff, Send, Loader2, Brain, Sparkles, Sun, Moon, Heart, CloudRain, Target, Calendar, Pencil, WifiOff, Wand2 } from "lucide-react"
 import { Button } from "../ui/button"
 import { useSpeechToText } from "../../hooks/useSpeechToText"
@@ -187,13 +187,9 @@ export function LogEntryForm({ onSuccess }: LogEntryFormProps) {
   const {
     isRecording,
     isProcessing: isSpeechProcessing,
-    transcript: speechTranscript,
-    result: speechResult,
-    error: speechError,
     duration: recordingDuration,
     startRecording,
     stopRecording,
-    reset: resetSpeech,
   } = useSpeechToText({
     processIntent: true, // Use intent LLM for smart suggestions
     onTranscript: (result) => {

@@ -28,7 +28,7 @@ export function useSpeechToText(options: UseSpeechToTextOptions = {}) {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
   const streamRef = useRef<MediaStream | null>(null)
-  const timerRef = useRef<NodeJS.Timeout | null>(null)
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const startRecording = useCallback(async () => {
     try {

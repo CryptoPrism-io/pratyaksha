@@ -72,7 +72,7 @@ interface CategoryRadarProps {
   totalEntries: number
 }
 
-function CategoryRadar({ categoryKey, data, maxValue, totalEntries }: CategoryRadarProps) {
+function CategoryRadar({ categoryKey, data, maxValue }: CategoryRadarProps) {
   const category = ENERGY_CATEGORIES[categoryKey]
 
   // Calculate health score based on percentage vs benchmarks
