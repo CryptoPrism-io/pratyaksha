@@ -16,3 +16,25 @@ pyairtable/
 # OS
 .DS_Store
 Thumbs.db
+
+# Node.js (root level)
+node_modules/
+package-lock.json
+package.json
+
+# Temp data files
+airtable_data.json
+fetch_airtable.js
+firebase-debug.log
+nul
+
+# Playwright temp
+.playwright-mcp/
+test-results/
+
+# Screenshots (temp)
+*.png
+
+# Draft folders (not ready for commit)
+Pratyaksha/schema-openapi/
+Pratyaksha/sys-prompt-openai/
