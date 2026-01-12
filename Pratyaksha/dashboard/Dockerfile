@@ -14,6 +14,9 @@ RUN npm ci --omit=dev
 # Copy pre-built frontend and server
 COPY dist ./dist
 
+# Mark server directory as CommonJS (TypeScript compiles to CommonJS)
+RUN echo '{"type": "commonjs"}' > dist/server/package.json
+
 # Set environment
 ENV NODE_ENV=production
 ENV PORT=8080
