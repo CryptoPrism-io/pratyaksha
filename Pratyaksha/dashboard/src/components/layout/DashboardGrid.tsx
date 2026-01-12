@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react"
 import { cn } from "../../lib/utils"
-import { Info, ChevronDown, type LucideIcon } from "lucide-react"
+import { Info, ChevronDown, X, type LucideIcon } from "lucide-react"
 import {
   Tooltip,
   TooltipContent,
@@ -10,6 +10,7 @@ import {
 import { useIsMobile } from "../../hooks/useMediaQuery"
 import { ChartExplainer } from "../charts/ChartExplainer"
 import type { ChartType } from "../../hooks/useChartExplainer"
+import { useDateFilter } from "../../contexts/DateFilterContext"
 
 interface DashboardGridProps {
   children: ReactNode
@@ -76,6 +77,11 @@ export function ChartCard({
 }: ChartCardProps) {
   const isMobile = useIsMobile()
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed)
+  const { preset, getDateRangeLabel, setPreset } = useDateFilter()
+
+  // Show filter indicator when not "all" (i.e., a filter is applied)
+  const hasActiveFilter = preset !== "all"
+  const filterLabel = getDateRangeLabel()
 
   // Only allow collapse on mobile when collapsible is true
   const canCollapse = isMobile && collapsible
@@ -124,16 +130,39 @@ export function ChartCard({
       >
         <div className="flex items-center gap-1 sm:gap-2">
           {Icon && <Icon className="h-3 w-3 sm:h-5 sm:w-5 text-primary flex-shrink-0" />}
-          <h3 className="text-[11px] sm:text-lg font-semibold tracking-tight leading-tight flex-1">{title}</h3>
-          {/* AI Explainer button (Sprint 14) */}
+          <h3 className="text-[11px] sm:text-lg font-semibold tracking-tight leading-tight">{title}</h3>
+          {/* AI Explainer button with glow effect */}
           {aiExplainer && aiExplainerData && (
-            <ChartExplainer
-              chartType={aiExplainer}
-              chartData={aiExplainerData}
-              summary={aiExplainerSummary}
-              className="hidden sm:flex"
-            />
+            <div className="relative group" onClick={(e) => e.stopPropagation()}>
+              {/* Glow effect behind the button */}
+              <div className="absolute inset-0 bg-violet-500/30 rounded-full blur-md opacity-60 group-hover:opacity-100 group-hover:scale-125 transition-all duration-300" />
+              <ChartExplainer
+                chartType={aiExplainer}
+                chartData={aiExplainerData}
+                summary={aiExplainerSummary}
+                className="relative transition-transform duration-200 group-hover:scale-110"
+              />
+            </div>
           )}
+          {/* Filter indicator - shows when filter is not "All Time" */}
+          {hasActiveFilter && (
+            <div className="flex items-center gap-1 ml-1">
+              <span className="text-[9px] sm:text-xs text-muted-foreground/60 font-normal">
+                // {filterLabel}
+              </span>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setPreset("all")
+                }}
+                className="p-0.5 rounded-full hover:bg-muted/80 text-muted-foreground/60 hover:text-foreground transition-colors"
+                aria-label="Clear filter"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          )}
+          <div className="flex-1" />
           {tooltip && (
             <TooltipProvider>
               <Tooltip>
