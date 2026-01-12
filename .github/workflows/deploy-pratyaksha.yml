@@ -48,12 +48,18 @@ jobs:
 
       - run: npm ci
 
-      - name: Build project
+      - name: Build frontend
         env:
           VITE_AIRTABLE_API_KEY: ${{ secrets.VITE_AIRTABLE_API_KEY }}
           VITE_AIRTABLE_BASE_ID: ${{ secrets.VITE_AIRTABLE_BASE_ID }}
           VITE_AIRTABLE_TABLE_ID: ${{ secrets.VITE_AIRTABLE_TABLE_ID }}
         run: npm run build
+
+      - name: Build server
+        run: npm run build:server
+
+      - name: Use Cloud Run Dockerfile
+        run: cp Dockerfile.cloudrun Dockerfile
 
       - name: Deploy to Cloud Run
         run: |
@@ -68,4 +74,4 @@ jobs:
             --project ${{ env.PROJECT_ID }}
 
       - name: Display Cloud Run URL
-        run: echo "Service deployed to https://pratyaksha-963362833537.asia-south1.run.app"
+        run: echo "Deployed to https://pratyaksha-963362833537.asia-south1.run.app"
