@@ -4,7 +4,7 @@ import { Header } from "./components/layout/Header"
 import { Landing } from "./pages/Landing"
 import { Dashboard } from "./pages/Dashboard"
 import { Logs } from "./pages/Logs"
-import { Insights } from "./pages/Insights"
+// Insights page removed - functionality merged into Compare
 import { Compare } from "./pages/Compare"
 import { Chat } from "./pages/Chat"
 import { Profile } from "./pages/Profile"
@@ -50,7 +50,7 @@ function App() {
                     <Route path="/" element={<Landing />} />
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/logs" element={<Logs />} />
-                    <Route path="/insights" element={<Insights />} />
+                    {/* Insights route removed - use Compare instead */}
                     <Route path="/compare" element={<Compare />} />
                     <Route path="/chat" element={<Chat />} />
                     <Route path="/profile" element={<Profile />} />

@@ -1,6 +1,85 @@
 import { cn } from "../../lib/utils"
-import { FileText, MessageSquare, Smile, Frown, Meh, Zap, Brain, AlertTriangle } from "lucide-react"
+import { FileText, MessageSquare, Smile, Frown, Meh, Zap, Brain, AlertTriangle, Lightbulb, Target, HelpCircle } from "lucide-react"
 import type { PeriodSummary } from "../../hooks/useComparisonData"
+
+interface Recommendation {
+  what: string
+  why: string
+  how: string
+}
+
+// Generate recommendation based on summary patterns
+function generateRecommendation(summary: PeriodSummary): Recommendation | null {
+  if (summary.entries === 0) return null
+
+  // Priority 1: High negative sentiment
+  if (summary.negativePercent >= 40) {
+    return {
+      what: "Shift focus to positive anchors",
+      why: `${summary.negativePercent}% of entries were negative - sustained negativity impacts clarity`,
+      how: "Start each entry with one thing you're grateful for before processing challenges"
+    }
+  }
+
+  // Priority 2: Concerning contradiction pattern
+  if (summary.topContradiction !== "N/A") {
+    const contradictionMap: Record<string, Recommendation> = {
+      "Action vs. Fear": {
+        what: "Take one small action today",
+        why: "Fear shrinks when met with movement, even tiny steps",
+        how: "Pick the smallest possible action toward your goal and do it within 2 hours"
+      },
+      "Growth vs. Comfort": {
+        what: "Schedule discomfort intentionally",
+        why: "Growth happens at the edge of comfort, not beyond capacity",
+        how: "Block 30 mins this week for one uncomfortable but meaningful task"
+      },
+      "Control vs. Surrender": {
+        what: "Identify what's within your control",
+        why: "Energy spent on uncontrollables drains capacity for real impact",
+        how: "List 3 things you can control about the situation, focus only on those"
+      },
+      "Hope vs. Hopelessness": {
+        what: "Document small wins daily",
+        why: "Hope is rebuilt through evidence, not affirmation",
+        how: "End each day noting one thing that went slightly better than expected"
+      }
+    }
+    if (contradictionMap[summary.topContradiction]) {
+      return contradictionMap[summary.topContradiction]
+    }
+  }
+
+  // Priority 3: Challenge energy patterns
+  const challengeEnergies = ["Chaotic", "Heavy", "Collapsing", "Contracted"]
+  if (challengeEnergies.includes(summary.dominantEnergy)) {
+    return {
+      what: "Regulate before you reflect",
+      why: `${summary.dominantEnergy} energy patterns suggest nervous system dysregulation`,
+      how: "Before journaling, do 5 slow breaths (4-7-8 pattern) to shift state"
+    }
+  }
+
+  // Priority 4: Low entry count
+  if (summary.entries < 3) {
+    return {
+      what: "Increase journaling frequency",
+      why: "Sparse entries miss patterns - consistency reveals insights",
+      how: "Set a daily 2-minute timer at the same time to build the habit"
+    }
+  }
+
+  // Default: Positive reinforcement
+  if (summary.positivePercent >= 50) {
+    return {
+      what: "Capture what's working",
+      why: `${summary.positivePercent}% positive entries - identify the conditions creating this`,
+      how: "Note the time, place, and context of your best entries to replicate"
+    }
+  }
+
+  return null
+}
 
 interface ComparisonSummaryProps {
   summary: PeriodSummary
@@ -142,6 +221,34 @@ export function ComparisonSummary({ summary, isLoading, className }: ComparisonS
           </div>
         </div>
       )}
+
+      {/* Weekly Recommendation */}
+      {(() => {
+        const rec = generateRecommendation(summary)
+        if (!rec) return null
+        return (
+          <div className="pt-3 border-t space-y-2">
+            <div className="flex items-center gap-1.5">
+              <Lightbulb className="h-4 w-4 text-yellow-500" />
+              <span className="text-xs font-medium text-muted-foreground">Recommendation</span>
+            </div>
+            <div className="space-y-1.5 pl-5">
+              <div className="flex items-start gap-2">
+                <Target className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+                <p className="text-sm font-medium">{rec.what}</p>
+              </div>
+              <div className="flex items-start gap-2">
+                <HelpCircle className="h-3.5 w-3.5 text-muted-foreground mt-0.5 shrink-0" />
+                <p className="text-xs text-muted-foreground">{rec.why}</p>
+              </div>
+              <div className="flex items-start gap-2">
+                <Zap className="h-3.5 w-3.5 text-amber-500 mt-0.5 shrink-0" />
+                <p className="text-xs">{rec.how}</p>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
     </div>
   )
 }
