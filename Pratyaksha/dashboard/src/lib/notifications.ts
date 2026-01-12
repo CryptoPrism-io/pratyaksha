@@ -215,7 +215,17 @@ export async function getFCMToken(): Promise<string | null> {
 
     return null
   } catch (error) {
-    console.error("[Notifications] Failed to get FCM token:", error)
+    // Only log as warning since this commonly fails when:
+    // - Push service is unavailable (browser/network issue)
+    // - User hasn't granted permission yet
+    // - Running in incognito mode
+    // - Service worker registration timing issues
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    if (errorMessage.includes("Registration failed") || errorMessage.includes("AbortError")) {
+      console.warn("[Notifications] Push service unavailable - notifications will be disabled")
+    } else {
+      console.warn("[Notifications] FCM token unavailable:", errorMessage)
+    }
     return null
   }
 }

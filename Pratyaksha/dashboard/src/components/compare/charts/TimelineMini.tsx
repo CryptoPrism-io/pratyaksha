@@ -3,10 +3,10 @@ import {
   Area,
   XAxis,
   YAxis,
-  ResponsiveContainer,
   Tooltip,
   ReferenceLine,
 } from "recharts"
+import { SafeResponsiveContainer } from "../../ui/safe-responsive-container"
 import { TrendingUp } from "lucide-react"
 
 interface TimelineEntry {
@@ -96,7 +96,7 @@ export function TimelineMini({ data, isLoading }: TimelineMiniProps) {
       </div>
 
       {/* Chart */}
-      <ResponsiveContainer width="100%" height={180}>
+      <SafeResponsiveContainer width="100%" height={180}>
         <AreaChart data={chartData}>
           <defs>
             <linearGradient id="sentimentGradient" x1="0" y1="0" x2="0" y2="1">
@@ -145,7 +145,7 @@ export function TimelineMini({ data, isLoading }: TimelineMiniProps) {
             strokeWidth={2}
           />
         </AreaChart>
-      </ResponsiveContainer>
+      </SafeResponsiveContainer>
     </div>
   )
 }

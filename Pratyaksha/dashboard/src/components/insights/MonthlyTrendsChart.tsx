@@ -7,9 +7,9 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
   Legend,
 } from "recharts"
+import { SafeResponsiveContainer } from "../ui/safe-responsive-container"
 import { useMultiMonthMetrics } from "../../hooks/useMonthOverMonth"
 import { formatMonthLabelShort } from "../../lib/monthUtils"
 import { Skeleton } from "../ui/skeleton"
@@ -184,7 +184,7 @@ export function MonthlyTrendsChart() {
 
           {/* Main chart */}
           <div className="h-48">
-            <ResponsiveContainer width="100%" height="100%">
+            <SafeResponsiveContainer width="100%" height="100%">
               <ComposedChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                 <XAxis
@@ -234,7 +234,7 @@ export function MonthlyTrendsChart() {
                   dot={{ fill: "#22c55e", strokeWidth: 0, r: 4 }}
                 />
               </ComposedChart>
-            </ResponsiveContainer>
+            </SafeResponsiveContainer>
           </div>
 
           {/* Summary stats */}

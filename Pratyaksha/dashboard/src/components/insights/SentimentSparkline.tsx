@@ -1,5 +1,6 @@
 import { useMemo } from "react"
-import { AreaChart, Area, ResponsiveContainer, YAxis } from "recharts"
+import { AreaChart, Area, YAxis } from "recharts"
+import { SafeResponsiveContainer } from "../ui/safe-responsive-container"
 import { useEntries } from "../../hooks/useEntries"
 import { toTimelineData } from "../../lib/transforms"
 import { TrendingUp, TrendingDown, Minus } from "lucide-react"
@@ -78,7 +79,7 @@ export function SentimentSparkline({
   return (
     <div className={cn("flex items-center gap-2", className)}>
       <div className="flex-1" style={{ height }}>
-        <ResponsiveContainer width="100%" height="100%">
+        <SafeResponsiveContainer width="100%" height="100%">
           <AreaChart data={chartData} margin={{ top: 2, right: 2, left: 2, bottom: 2 }}>
             <defs>
               <linearGradient id="sentimentGradient" x1="0" y1="0" x2="0" y2="1">
@@ -97,7 +98,7 @@ export function SentimentSparkline({
               isAnimationActive={false}
             />
           </AreaChart>
-        </ResponsiveContainer>
+        </SafeResponsiveContainer>
       </div>
       {showTrend && (
         <div className={cn("flex items-center gap-1 text-xs font-medium", trendColor)}>

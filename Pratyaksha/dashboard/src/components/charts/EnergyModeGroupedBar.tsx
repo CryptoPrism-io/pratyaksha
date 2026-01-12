@@ -5,10 +5,10 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
   Legend,
   Cell,
 } from "recharts"
+import { SafeResponsiveContainer } from "../ui/safe-responsive-container"
 import { useNavigate } from "react-router-dom"
 import { useEntries } from "../../hooks/useEntries"
 import { useState } from "react"
@@ -121,7 +121,7 @@ export function EnergyModeGroupedBar() {
 
   return (
     <div className="flex flex-col h-full min-h-[300px] -mx-2">
-      <ResponsiveContainer width="100%" height={280}>
+      <SafeResponsiveContainer width="100%" height={280}>
         <BarChart
           data={chartData}
           layout="vertical"
@@ -202,7 +202,7 @@ export function EnergyModeGroupedBar() {
             ))}
           </Bar>
         </BarChart>
-      </ResponsiveContainer>
+      </SafeResponsiveContainer>
 
       {/* Insight text */}
       <div className="text-center text-xs text-muted-foreground pt-1">

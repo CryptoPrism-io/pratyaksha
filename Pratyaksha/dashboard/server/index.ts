@@ -50,6 +50,15 @@ app.post("/api/notifications/send", sendNotification)
 app.get("/api/notifications/settings/:userId", getSettings)
 app.post("/api/notifications/test", testNotification)
 
+// GET /api/notifications/preferences - redirect to proper endpoint
+// This handles stray GET requests that should use /api/notifications/settings/:userId
+app.get("/api/notifications/preferences", (_req, res) => {
+  res.status(400).json({
+    success: false,
+    error: "userId is required. Use GET /api/notifications/settings/:userId instead.",
+  })
+})
+
 // Cron routes (called by Cloud Scheduler)
 app.post("/api/cron/notifications", cronNotifications)
 

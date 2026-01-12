@@ -3,10 +3,10 @@ import {
   Bar,
   XAxis,
   YAxis,
-  ResponsiveContainer,
   Tooltip,
   Cell,
 } from "recharts"
+import { SafeResponsiveContainer } from "../../ui/safe-responsive-container"
 import { Zap } from "lucide-react"
 
 interface EnergyData {
@@ -95,7 +95,7 @@ export function EnergyShapeMini({ data, isLoading }: EnergyShapeMiniProps) {
       </div>
 
       {/* Bar Chart */}
-      <ResponsiveContainer width="100%" height={160}>
+      <SafeResponsiveContainer width="100%" height={160}>
         <BarChart data={topShapes} layout="vertical">
           <XAxis type="number" hide />
           <YAxis
@@ -124,7 +124,7 @@ export function EnergyShapeMini({ data, isLoading }: EnergyShapeMiniProps) {
             ))}
           </Bar>
         </BarChart>
-      </ResponsiveContainer>
+      </SafeResponsiveContainer>
     </div>
   )
 }

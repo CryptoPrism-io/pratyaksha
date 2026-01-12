@@ -5,8 +5,8 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
 } from "recharts"
+import { SafeResponsiveContainer } from "../ui/safe-responsive-container"
 import { useEntries } from "../../hooks/useEntries"
 import { useFilterAwareEmptyState } from "../../hooks/useFilterAwareEmptyState"
 import { EmptyState } from "../ui/empty-state"
@@ -52,7 +52,7 @@ export function DailyRhythm() {
   })
 
   return (
-    <ResponsiveContainer width="100%" height={250}>
+    <SafeResponsiveContainer width="100%" height={250}>
       <BarChart data={dayCounts} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
         <XAxis
@@ -75,6 +75,6 @@ export function DailyRhythm() {
           name="Entries"
         />
       </BarChart>
-    </ResponsiveContainer>
+    </SafeResponsiveContainer>
   )
 }
