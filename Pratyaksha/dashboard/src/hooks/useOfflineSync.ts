@@ -14,6 +14,7 @@ import {
   removePendingEntry,
 } from "../lib/offlineDb"
 import type { PendingEntry } from "../lib/offlineDb"
+import { useAuth } from "../contexts/AuthContext"
 
 const MAX_RETRIES = 3
 const SYNC_INTERVAL = 30000 // 30 seconds
@@ -27,6 +28,7 @@ export interface OfflineSyncState {
 
 export function useOfflineSync() {
   const queryClient = useQueryClient()
+  const { user } = useAuth()
   const [isOnline, setIsOnline] = useState(navigator.onLine)
   const [isSyncing, setIsSyncing] = useState(false)
   const [pendingCount, setPendingCount] = useState(0)
@@ -108,11 +110,11 @@ export function useOfflineSync() {
       // Mark as syncing
       await updatePendingEntry(entry.id, { status: "syncing" })
 
-      // Send to server
+      // Send to server with userId
       const response = await fetch("/api/process-entry", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: entry.text }),
+        body: JSON.stringify({ text: entry.text, userId: user?.uid }),
       })
 
       if (!response.ok) {
@@ -143,7 +145,7 @@ export function useOfflineSync() {
 
       return false
     }
-  }, [])
+  }, [user])
 
   /**
    * Sync all pending entries
@@ -197,12 +199,12 @@ export function useOfflineSync() {
       return { success: true, offline: true }
     }
 
-    // Try to send directly
+    // Try to send directly with userId
     try {
       const response = await fetch("/api/process-entry", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text, userId: user?.uid }),
       })
 
       if (!response.ok) {
@@ -226,7 +228,7 @@ export function useOfflineSync() {
       }
       throw error
     }
-  }, [isOnline, queueEntry, queryClient])
+  }, [isOnline, queueEntry, queryClient, user])
 
   /**
    * Retry failed entries

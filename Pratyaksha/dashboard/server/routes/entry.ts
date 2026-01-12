@@ -14,10 +14,10 @@ import {
 } from "../types"
 
 export async function processEntry(
-  req: Request<object, object, ProcessEntryRequest>,
+  req: Request<object, object, ProcessEntryRequest & { userId?: string }>,
   res: Response<ProcessEntryResponse>
 ) {
-  const { text, type: userProvidedType } = req.body
+  const { text, type: userProvidedType, userId } = req.body
 
   if (!text || typeof text !== "string" || text.trim().length === 0) {
     return res.status(400).json({
@@ -69,6 +69,7 @@ export async function processEntry(
       Date: dateStr,
       Timestamp: timestampStr,
       Text: trimmedText,
+      User_ID: userId,
       "Inferred Mode": emotion.inferredMode,
       "Inferred Energy": emotion.inferredEnergy,
       "Energy Shape": emotion.energyShape,
