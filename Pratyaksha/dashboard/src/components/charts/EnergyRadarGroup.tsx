@@ -9,12 +9,13 @@ import {
   Tooltip,
   Legend,
 } from "recharts"
-import { ChevronLeft, ChevronRight } from "lucide-react"
-import { useEnergyShapeData, useStats } from "../../hooks/useEntries"
+import { ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Minus, AlertTriangle } from "lucide-react"
+import { useEnergyShapePercentages, useStats } from "../../hooks/useEntries"
 import { useDateFilter } from "../../contexts/DateFilterContext"
 import { useIsMobile } from "../../hooks/useMediaQuery"
 import { cn } from "../../lib/utils"
 import { ChartExplainer } from "./ChartExplainer"
+import type { BenchmarkStatus } from "../../lib/transforms"
 
 // Categorize energy shapes into meaningful groups
 const ENERGY_CATEGORIES = {
@@ -46,34 +47,62 @@ const ENERGY_CATEGORIES = {
 
 type CategoryKey = keyof typeof ENERGY_CATEGORIES
 
-interface CategoryRadarProps {
-  categoryKey: CategoryKey
-  data: { shape: string; count: number; benchmark: number }[]
-  maxValue: number
+// Benchmark status indicator component
+function StatusIndicator({ status, isChallenge }: { status: BenchmarkStatus; isChallenge: boolean }) {
+  if (status === "concern") {
+    return <AlertTriangle className="h-3 w-3 text-red-500" />
+  }
+  if (status === "above") {
+    return isChallenge
+      ? <TrendingDown className="h-3 w-3 text-green-500" /> // Low challenge is good
+      : <TrendingUp className="h-3 w-3 text-green-500" />
+  }
+  if (status === "below") {
+    return isChallenge
+      ? <TrendingUp className="h-3 w-3 text-amber-500" /> // Rising challenge needs attention
+      : <TrendingDown className="h-3 w-3 text-amber-500" />
+  }
+  return <Minus className="h-3 w-3 text-muted-foreground" />
 }
 
-function CategoryRadar({ categoryKey, data, maxValue }: CategoryRadarProps) {
+interface CategoryRadarProps {
+  categoryKey: CategoryKey
+  data: { shape: string; count: number; percentage: number; benchmark: number; status: BenchmarkStatus }[]
+  maxValue: number
+  totalEntries: number
+}
+
+function CategoryRadar({ categoryKey, data, maxValue, totalEntries }: CategoryRadarProps) {
   const category = ENERGY_CATEGORIES[categoryKey]
 
-  // Calculate health score (0-100)
-  const totalCount = data.reduce((sum, d) => sum + d.count, 0)
-  const avgCount = totalCount / data.length
+  // Calculate health score based on percentage vs benchmarks
+  const totalPercentage = data.reduce((sum, d) => sum + d.percentage, 0)
+  const avgPercentage = totalPercentage / data.length
 
   let healthScore: number
   let healthLabel: string
   let healthColor: string
 
   if (categoryKey === "challenge") {
-    // For challenge patterns, lower is better
-    healthScore = Math.max(0, 100 - (avgCount / category.benchmark) * 50)
-    healthLabel = avgCount <= category.benchmark ? "Healthy" : avgCount <= category.benchmark * 2 ? "Monitor" : "High"
-    healthColor = avgCount <= category.benchmark ? "text-green-600" : avgCount <= category.benchmark * 2 ? "text-amber-600" : "text-red-600"
+    // For challenge patterns, lower percentage is better
+    const avgBenchmark = data.reduce((sum, d) => sum + d.benchmark, 0) / data.length
+    healthScore = Math.max(0, 100 - (avgPercentage / avgBenchmark) * 50)
+    healthLabel = avgPercentage <= avgBenchmark ? "Healthy" : avgPercentage <= avgBenchmark * 2 ? "Monitor" : "High"
+    healthColor = avgPercentage <= avgBenchmark ? "text-green-600" : avgPercentage <= avgBenchmark * 2 ? "text-amber-600" : "text-red-600"
   } else {
-    // For growth and stability, higher is better (up to benchmark)
-    healthScore = Math.min(100, (avgCount / category.benchmark) * 100)
-    healthLabel = avgCount >= category.benchmark ? "Strong" : avgCount >= category.benchmark * 0.5 ? "Developing" : "Low"
-    healthColor = avgCount >= category.benchmark ? "text-green-600" : avgCount >= category.benchmark * 0.5 ? "text-amber-600" : "text-red-600"
+    // For growth and stability, higher percentage is better
+    const avgBenchmark = data.reduce((sum, d) => sum + d.benchmark, 0) / data.length
+    healthScore = Math.min(100, (avgPercentage / avgBenchmark) * 100)
+    healthLabel = avgPercentage >= avgBenchmark ? "Strong" : avgPercentage >= avgBenchmark * 0.5 ? "Developing" : "Low"
+    healthColor = avgPercentage >= avgBenchmark ? "text-green-600" : avgPercentage >= avgBenchmark * 0.5 ? "text-amber-600" : "text-red-600"
   }
+
+  // Radar chart data uses percentage for visual
+  const radarData = data.map(d => ({
+    shape: d.shape,
+    percentage: d.percentage,
+    benchmark: d.benchmark,
+  }))
 
   return (
     <div className="flex flex-col h-full">
@@ -88,33 +117,46 @@ function CategoryRadar({ categoryKey, data, maxValue }: CategoryRadarProps) {
         </div>
       </div>
 
-      <div className="flex-1 min-h-[200px]">
+      {/* Shape breakdown with count and percentage */}
+      <div className="grid grid-cols-2 gap-1 mb-2 text-xs">
+        {data.map(d => (
+          <div key={d.shape} className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/30">
+            <StatusIndicator status={d.status} isChallenge={categoryKey === "challenge"} />
+            <span className="truncate flex-1">{d.shape}</span>
+            <span className="font-medium">{d.count}</span>
+            <span className="text-muted-foreground">({d.percentage}%)</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex-1 min-h-[180px]">
         <ResponsiveContainer width="100%" height="100%">
-          <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
+          <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
             <PolarGrid stroke="hsl(var(--border))" />
             <PolarAngleAxis
               dataKey="shape"
-              tick={{ fill: "hsl(var(--foreground))", fontSize: 10, fontWeight: 500 }}
+              tick={{ fill: "hsl(var(--foreground))", fontSize: 9, fontWeight: 500 }}
             />
             <PolarRadiusAxis
               angle={90}
               domain={[0, maxValue]}
-              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 9 }}
+              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 8 }}
               tickCount={4}
+              tickFormatter={(value) => `${value}%`}
             />
             {/* Benchmark reference area */}
             <Radar
-              name="Optimal Range"
+              name="Optimal %"
               dataKey="benchmark"
               stroke="hsl(var(--muted-foreground))"
               fill="hsl(var(--muted))"
               fillOpacity={0.2}
               strokeDasharray="4 4"
             />
-            {/* Actual data */}
+            {/* Actual percentage data */}
             <Radar
-              name="Your Pattern"
-              dataKey="count"
+              name="Your %"
+              dataKey="percentage"
               stroke={category.color}
               fill={category.fillColor}
               fillOpacity={0.4}
@@ -128,8 +170,8 @@ function CategoryRadar({ categoryKey, data, maxValue }: CategoryRadarProps) {
                 fontSize: "12px",
               }}
               formatter={(value: number, name: string) => [
-                value,
-                name === "benchmark" ? "Optimal" : "Count"
+                `${value}%`,
+                name === "benchmark" ? "Optimal" : "Actual"
               ]}
             />
             <Legend
@@ -144,7 +186,7 @@ function CategoryRadar({ categoryKey, data, maxValue }: CategoryRadarProps) {
 }
 
 export function EnergyRadarGroup() {
-  const { data: rawData, isLoading, error } = useEnergyShapeData()
+  const { data: rawData, totalEntries, isLoading, error } = useEnergyShapePercentages()
   const { data: stats } = useStats()
   const { getDateRangeLabel } = useDateFilter()
   const isMobile = useIsMobile()
@@ -152,22 +194,23 @@ export function EnergyRadarGroup() {
 
   const categoryKeys: CategoryKey[] = ["growth", "stability", "challenge"]
 
-  // Prepare AI explainer data
+  // Prepare AI explainer data with percentages
   const explainerData = useMemo(() => {
     if (!rawData || rawData.length === 0) return null
     return {
-      shapes: rawData.map(d => ({ shape: d.shape, count: d.count })),
+      shapes: rawData.map(d => ({ shape: d.shape, count: d.count, percentage: d.percentage, status: d.status })),
       categories: {
-        growth: rawData.filter(d => ["Rising", "Expanding", "Pulsing"].includes(d.shape)),
-        stability: rawData.filter(d => ["Centered", "Stabilized", "Flat", "Cyclical"].includes(d.shape)),
-        challenge: rawData.filter(d => ["Chaotic", "Heavy", "Collapsing", "Contracted", "Uneven"].includes(d.shape))
-      }
+        growth: rawData.filter(d => d.category === "growth"),
+        stability: rawData.filter(d => d.category === "stability"),
+        challenge: rawData.filter(d => d.category === "challenge")
+      },
+      totalEntries
     }
-  }, [rawData])
+  }, [rawData, totalEntries])
 
   const explainerSummary = useMemo(() => {
     if (!stats) return undefined
-    const topShapes = rawData?.sort((a, b) => b.count - a.count).slice(0, 3).map(d => d.shape)
+    const topShapes = [...rawData].sort((a, b) => b.percentage - a.percentage).slice(0, 3).map(d => `${d.shape} (${d.percentage}%)`)
     return {
       totalEntries: stats.totalEntries,
       dateRange: getDateRangeLabel(),
@@ -203,37 +246,51 @@ export function EnergyRadarGroup() {
     )
   }
 
-  // Create data for each category
-  const dataByShape = new Map(rawData.map(d => [d.shape, d.count]))
+  // Create data for each category with percentages
+  const dataByShape = new Map(rawData.map(d => [d.shape, d]))
 
-  // Find max value across all data for consistent scaling
-  const maxValue = Math.max(...rawData.map(d => d.count), 8)
+  // Find max percentage for consistent scaling (at least 25% for readability)
+  const maxValue = Math.max(...rawData.map(d => d.percentage), 25)
 
-  const categoryData: Record<CategoryKey, { shape: string; count: number; benchmark: number }[]> = {
-    growth: ENERGY_CATEGORIES.growth.shapes.map(shape => ({
-      shape,
-      count: dataByShape.get(shape) || 0,
-      benchmark: ENERGY_CATEGORIES.growth.benchmark,
-    })),
-    stability: ENERGY_CATEGORIES.stability.shapes.map(shape => ({
-      shape,
-      count: dataByShape.get(shape) || 0,
-      benchmark: ENERGY_CATEGORIES.stability.benchmark,
-    })),
-    challenge: ENERGY_CATEGORIES.challenge.shapes.map(shape => ({
-      shape,
-      count: dataByShape.get(shape) || 0,
-      benchmark: ENERGY_CATEGORIES.challenge.benchmark,
-    })),
+  const categoryData: Record<CategoryKey, { shape: string; count: number; percentage: number; benchmark: number; status: BenchmarkStatus }[]> = {
+    growth: ENERGY_CATEGORIES.growth.shapes.map(shape => {
+      const shapeData = dataByShape.get(shape)
+      return {
+        shape,
+        count: shapeData?.count || 0,
+        percentage: shapeData?.percentage || 0,
+        benchmark: shapeData?.benchmark || 15,
+        status: shapeData?.status || "below",
+      }
+    }),
+    stability: ENERGY_CATEGORIES.stability.shapes.map(shape => {
+      const shapeData = dataByShape.get(shape)
+      return {
+        shape,
+        count: shapeData?.count || 0,
+        percentage: shapeData?.percentage || 0,
+        benchmark: shapeData?.benchmark || 15,
+        status: shapeData?.status || "below",
+      }
+    }),
+    challenge: ENERGY_CATEGORIES.challenge.shapes.map(shape => {
+      const shapeData = dataByShape.get(shape)
+      return {
+        shape,
+        count: shapeData?.count || 0,
+        percentage: shapeData?.percentage || 0,
+        benchmark: shapeData?.benchmark || 5,
+        status: shapeData?.status || "at",
+      }
+    }),
   }
 
-  // Calculate overall energy health
-  const growthScore = categoryData.growth.reduce((s, d) => s + d.count, 0)
-  const stabilityScore = categoryData.stability.reduce((s, d) => s + d.count, 0)
-  const challengeScore = categoryData.challenge.reduce((s, d) => s + d.count, 0)
+  // Calculate overall energy health using percentages
+  const growthPercentage = categoryData.growth.reduce((s, d) => s + d.percentage, 0)
+  const stabilityPercentage = categoryData.stability.reduce((s, d) => s + d.percentage, 0)
+  const challengePercentage = categoryData.challenge.reduce((s, d) => s + d.percentage, 0)
 
-  const totalEntries = growthScore + stabilityScore + challengeScore
-  const positiveRatio = totalEntries > 0 ? ((growthScore + stabilityScore) / totalEntries * 100) : 0
+  const positiveRatio = growthPercentage + stabilityPercentage
 
   // Category styling for borders/backgrounds
   const categoryStyles: Record<CategoryKey, string> = {
@@ -254,15 +311,15 @@ export function EnergyRadarGroup() {
               <div className="h-1.5 flex-1 rounded-full bg-muted overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-green-500 via-blue-500 to-amber-500"
-                  style={{ width: `${positiveRatio}%` }}
+                  style={{ width: `${Math.min(positiveRatio, 100)}%` }}
                 />
               </div>
               <span className="text-[10px] font-medium">{Math.round(positiveRatio)}%</span>
             </div>
             <div className="flex justify-between text-[9px] text-muted-foreground">
-              <span>G:{growthScore}</span>
-              <span>S:{stabilityScore}</span>
-              <span>C:{challengeScore}</span>
+              <span>G:{Math.round(growthPercentage)}%</span>
+              <span>S:{Math.round(stabilityPercentage)}%</span>
+              <span>C:{Math.round(challengePercentage)}%</span>
             </div>
           </div>
         </div>
@@ -292,6 +349,7 @@ export function EnergyRadarGroup() {
               categoryKey={currentCategory}
               data={categoryData[currentCategory]}
               maxValue={maxValue}
+              totalEntries={totalEntries}
             />
           </div>
         </div>
@@ -324,15 +382,15 @@ export function EnergyRadarGroup() {
             <div className="h-2 flex-1 rounded-full bg-muted overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-green-500 via-blue-500 to-amber-500"
-                style={{ width: `${positiveRatio}%` }}
+                style={{ width: `${Math.min(positiveRatio, 100)}%` }}
               />
             </div>
             <span className="text-xs font-medium">{Math.round(positiveRatio)}% positive</span>
           </div>
           <div className="flex justify-between text-xs text-muted-foreground">
-            <span>Growth: {growthScore}</span>
-            <span>Stability: {stabilityScore}</span>
-            <span>Challenge: {challengeScore}</span>
+            <span>Growth: {Math.round(growthPercentage)}%</span>
+            <span>Stability: {Math.round(stabilityPercentage)}%</span>
+            <span>Challenge: {Math.round(challengePercentage)}%</span>
           </div>
         </div>
         {/* AI Explainer Button */}
@@ -352,6 +410,7 @@ export function EnergyRadarGroup() {
             categoryKey="growth"
             data={categoryData.growth}
             maxValue={maxValue}
+            totalEntries={totalEntries}
           />
         </div>
         <div className="p-3 rounded-lg border border-blue-200 dark:border-blue-900 bg-blue-50/50 dark:bg-blue-950/20">
@@ -359,6 +418,7 @@ export function EnergyRadarGroup() {
             categoryKey="stability"
             data={categoryData.stability}
             maxValue={maxValue}
+            totalEntries={totalEntries}
           />
         </div>
         <div className="p-3 rounded-lg border border-amber-200 dark:border-amber-900 bg-amber-50/50 dark:bg-amber-950/20">
@@ -366,6 +426,7 @@ export function EnergyRadarGroup() {
             categoryKey="challenge"
             data={categoryData.challenge}
             maxValue={maxValue}
+            totalEntries={totalEntries}
           />
         </div>
       </div>

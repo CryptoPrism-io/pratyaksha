@@ -213,6 +213,93 @@ export function toEnergyShapeData(entries: Entry[]): EnergyShapeData[] {
   }))
 }
 
+// Energy Shape Benchmarks - optimal percentage ranges for each shape
+// Growth shapes: want higher percentages
+// Stability shapes: want moderate percentages
+// Challenge shapes: want lower percentages
+export const SHAPE_BENCHMARKS: Record<string, { optimal: number; concern: number; category: "growth" | "stability" | "challenge" }> = {
+  // Growth patterns - want these HIGH (optimal: 10-20% each)
+  Rising: { optimal: 15, concern: 5, category: "growth" },
+  Expanding: { optimal: 10, concern: 3, category: "growth" },
+  Pulsing: { optimal: 10, concern: 3, category: "growth" },
+
+  // Stability patterns - want these MODERATE (optimal: 10-25% each)
+  Centered: { optimal: 20, concern: 5, category: "stability" },
+  Stabilized: { optimal: 15, concern: 5, category: "stability" },
+  Flat: { optimal: 10, concern: 3, category: "stability" },
+  Cyclical: { optimal: 5, concern: 2, category: "stability" },
+
+  // Challenge patterns - want these LOW (concern if above threshold)
+  Chaotic: { optimal: 5, concern: 15, category: "challenge" },
+  Heavy: { optimal: 5, concern: 15, category: "challenge" },
+  Collapsing: { optimal: 3, concern: 10, category: "challenge" },
+  Contracted: { optimal: 2, concern: 8, category: "challenge" },
+  Uneven: { optimal: 5, concern: 12, category: "challenge" },
+}
+
+// Status indicator for benchmark comparison
+export type BenchmarkStatus = "above" | "at" | "below" | "concern"
+
+export interface EnergyShapePercentage {
+  shape: string
+  count: number
+  percentage: number
+  benchmark: number
+  concernThreshold: number
+  status: BenchmarkStatus
+  category: "growth" | "stability" | "challenge"
+}
+
+/**
+ * Convert energy shape counts to percentages of grand total with benchmark status
+ */
+export function toEnergyShapePercentages(entries: Entry[]): EnergyShapePercentage[] {
+  const total = entries.length
+  if (total === 0) return []
+
+  const counts = countBy(entries, "energyShape")
+  const shapes = Object.keys(SHAPE_BENCHMARKS)
+
+  return shapes.map((shape) => {
+    const count = counts[shape] || 0
+    const percentage = (count / total) * 100
+    const benchmark = SHAPE_BENCHMARKS[shape]
+
+    let status: BenchmarkStatus
+    if (benchmark.category === "challenge") {
+      // For challenge patterns: above concern threshold is bad
+      if (percentage >= benchmark.concern) {
+        status = "concern"
+      } else if (percentage <= benchmark.optimal) {
+        status = "above" // Good - below or at optimal for challenge
+      } else {
+        status = "at" // Between optimal and concern
+      }
+    } else {
+      // For growth/stability: above optimal is good
+      if (percentage >= benchmark.optimal) {
+        status = "above"
+      } else if (percentage >= benchmark.optimal * 0.5) {
+        status = "at"
+      } else if (percentage < benchmark.concern) {
+        status = "concern"
+      } else {
+        status = "below"
+      }
+    }
+
+    return {
+      shape,
+      count,
+      percentage: Math.round(percentage * 10) / 10, // 1 decimal place
+      benchmark: benchmark.optimal,
+      concernThreshold: benchmark.concern,
+      status,
+      category: benchmark.category,
+    }
+  })
+}
+
 // Type Distribution data
 export interface TypeCount {
   type: string

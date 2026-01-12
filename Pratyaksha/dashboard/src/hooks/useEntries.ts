@@ -14,6 +14,7 @@ import {
   toEnrichedTimelineData,
   toModeDistribution,
   toEnergyShapeData,
+  toEnergyShapePercentages,
   toTypeDistribution,
   toCalendarData,
   toTagCloudData,
@@ -95,6 +96,16 @@ export function useEnergyShapeData() {
   const { data: entries, ...rest } = useEntries()
   return {
     data: entries ? toEnergyShapeData(entries) : [],
+    ...rest,
+  }
+}
+
+// Energy shape data with percentages of grand total and benchmark status
+export function useEnergyShapePercentages() {
+  const { data: entries, ...rest } = useEntries()
+  return {
+    data: entries ? toEnergyShapePercentages(entries) : [],
+    totalEntries: entries?.length || 0,
     ...rest,
   }
 }
