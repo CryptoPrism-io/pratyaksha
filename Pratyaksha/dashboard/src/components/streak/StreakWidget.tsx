@@ -1,5 +1,6 @@
-import { useState } from "react"
-import { Flame, ChevronLeft, ChevronRight, Trophy, Zap, Star, X, FileText, Check, Clock } from "lucide-react"
+import { useState, useEffect, useCallback } from "react"
+import { Flame, ChevronLeft, ChevronRight, Trophy, Zap, Star, X, FileText, Check, Clock, PartyPopper } from "lucide-react"
+import confetti from "canvas-confetti"
 import { useStreak, type CalendarDay } from "../../hooks/useStreak"
 import { useEntries } from "../../hooks/useEntries"
 import { cn } from "../../lib/utils"
@@ -25,6 +26,64 @@ function getMilestoneMessage(streak: number): string | null {
   if (streak === 100) return "100 day legend!"
   if (streak === 365) return "One year unstoppable!"
   return null
+}
+
+// Milestone values that trigger celebration (#13 Quick Win)
+const MILESTONE_VALUES = [7, 14, 30, 60, 100, 365]
+
+function isMilestone(streak: number): boolean {
+  return MILESTONE_VALUES.includes(streak)
+}
+
+// Check if we've already celebrated this milestone
+function hasAlreadyCelebrated(streak: number): boolean {
+  const celebrated = localStorage.getItem("pratyaksha_celebrated_milestones")
+  if (!celebrated) return false
+  const milestones = JSON.parse(celebrated) as number[]
+  return milestones.includes(streak)
+}
+
+// Mark milestone as celebrated
+function markCelebrated(streak: number): void {
+  const celebrated = localStorage.getItem("pratyaksha_celebrated_milestones")
+  const milestones = celebrated ? (JSON.parse(celebrated) as number[]) : []
+  if (!milestones.includes(streak)) {
+    milestones.push(streak)
+    localStorage.setItem("pratyaksha_celebrated_milestones", JSON.stringify(milestones))
+  }
+}
+
+// Fire confetti celebration
+function fireConfetti() {
+  // First burst - center
+  confetti({
+    particleCount: 100,
+    spread: 70,
+    origin: { y: 0.6 },
+    colors: ["#ff6b35", "#f7c59f", "#efefef", "#ffd93d", "#6bcb77"]
+  })
+
+  // Second burst - left
+  setTimeout(() => {
+    confetti({
+      particleCount: 50,
+      angle: 60,
+      spread: 55,
+      origin: { x: 0 },
+      colors: ["#ff6b35", "#f7c59f", "#ffd93d"]
+    })
+  }, 150)
+
+  // Third burst - right
+  setTimeout(() => {
+    confetti({
+      particleCount: 50,
+      angle: 120,
+      spread: 55,
+      origin: { x: 1 },
+      colors: ["#ff6b35", "#f7c59f", "#ffd93d"]
+    })
+  }, 300)
 }
 
 /**
@@ -77,7 +136,32 @@ export function StreakWidget() {
 
   const [viewMonth, setViewMonth] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  const [showCelebration, setShowCelebration] = useState(false)
   const calendarDays = getStreakCalendar(viewMonth)
+
+  // Milestone celebration effect (#13 Quick Win)
+  useEffect(() => {
+    if (streak > 0 && isMilestone(streak) && !hasAlreadyCelebrated(streak)) {
+      // Trigger celebration
+      setShowCelebration(true)
+      fireConfetti()
+      markCelebrated(streak)
+
+      // Hide celebration banner after 5 seconds
+      const timer = setTimeout(() => {
+        setShowCelebration(false)
+      }, 5000)
+
+      return () => clearTimeout(timer)
+    }
+  }, [streak])
+
+  // Manual celebration trigger for testing
+  const triggerCelebration = useCallback(() => {
+    fireConfetti()
+    setShowCelebration(true)
+    setTimeout(() => setShowCelebration(false), 3000)
+  }, [])
 
   // Get entries for selected date
   const selectedDateKey = selectedDate ? formatDateKey(selectedDate) : null
@@ -168,12 +252,33 @@ export function StreakWidget() {
         </div>
       </div>
 
-      {/* Milestone message */}
-      {milestoneMessage && (
-        <div className="mb-4 flex items-center gap-2 rounded-lg bg-primary/10 p-3 text-sm text-primary">
-          <Trophy className="h-4 w-4" />
-          {milestoneMessage}
+      {/* Milestone Celebration Banner (#13 Quick Win) */}
+      {showCelebration && (
+        <div className="mb-4 flex items-center gap-3 rounded-lg bg-gradient-to-r from-orange-500 to-amber-500 p-4 text-white animate-pulse">
+          <PartyPopper className="h-6 w-6 animate-bounce" />
+          <div className="flex-1">
+            <p className="font-bold text-lg">Milestone Reached!</p>
+            <p className="text-sm text-white/90">{milestoneMessage}</p>
+          </div>
+          <button
+            onClick={() => setShowCelebration(false)}
+            className="p-1 hover:bg-white/20 rounded-full transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
+      )}
+
+      {/* Milestone message (shows when not celebrating) */}
+      {milestoneMessage && !showCelebration && (
+        <button
+          onClick={triggerCelebration}
+          className="mb-4 flex items-center gap-2 rounded-lg bg-primary/10 p-3 text-sm text-primary w-full hover:bg-primary/20 transition-colors"
+        >
+          <Trophy className="h-4 w-4" />
+          <span className="flex-1 text-left">{milestoneMessage}</span>
+          <PartyPopper className="h-4 w-4 opacity-50" />
+        </button>
       )}
 
       {/* Progress to next milestone */}
