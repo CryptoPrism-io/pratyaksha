@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from "react"
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, Sector } from "recharts"
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Sector } from "recharts"
 import { useModeDistribution, useStats } from "../../hooks/useEntries"
 import { useFilterAwareEmptyState } from "../../hooks/useFilterAwareEmptyState"
 import { useDateFilter } from "../../contexts/DateFilterContext"
@@ -54,22 +54,6 @@ const renderActiveShape = (props: any) => {
         fill={fill}
       />
     </g>
-  )
-}
-
-// Custom tooltip
-function CustomTooltip({ active, payload }: { active?: boolean; payload?: Array<{ payload: { mode: string; count: number; percentage: number } }> }) {
-  if (!active || !payload?.length) return null
-
-  const data = payload[0].payload
-  return (
-    <div className="rounded-lg border bg-card p-3 shadow-lg">
-      <p className="font-semibold text-foreground">{data.mode}</p>
-      <div className="mt-1 space-y-1 text-sm">
-        <p className="text-muted-foreground">Entries: <span className="font-medium text-foreground">{data.count}</span></p>
-        <p className="text-muted-foreground">Share: <span className="font-medium text-foreground">{data.percentage}%</span></p>
-      </div>
-    </div>
   )
 }
 
@@ -190,7 +174,6 @@ export function ModeDistribution() {
             />
           ))}
         </Pie>
-        <Tooltip content={<CustomTooltip />} />
         <Legend
           formatter={(value) => <span className="text-xs sm:text-sm text-foreground">{value}</span>}
           iconType="circle"
