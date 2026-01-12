@@ -6,11 +6,17 @@ import {
   type Granularity,
   navigatePeriod,
 } from "../hooks/useComparisonData"
-import { useEntries } from "../hooks/useEntries"
+import { useEntriesRaw } from "../hooks/useEntries"
+import { useMediaQuery } from "../hooks/useMediaQuery"
+import { cn } from "../lib/utils"
 import { GitCompareArrows } from "lucide-react"
 
 export function Compare() {
-  const { data: entries } = useEntries()
+  // Detect landscape orientation on mobile/tablet (below lg breakpoint)
+  const isLandscape = useMediaQuery("(orientation: landscape) and (max-width: 1023px)")
+
+  // Use raw entries (without global date filter) for navigation bounds
+  const { data: allEntries } = useEntriesRaw()
 
   // Shared state
   const [granularity, setGranularity] = useState<Granularity>("week")
@@ -23,22 +29,28 @@ export function Compare() {
   })
   const [rightDate, setRightDate] = useState<Date>(new Date())
 
-  // Calculate min/max dates from entries
+  // Calculate min/max dates from ALL entries (ignoring global date filter)
   const { minDate, maxDate } = useMemo(() => {
-    if (!entries || entries.length === 0) {
+    if (!allEntries || allEntries.length === 0) {
       return { minDate: undefined, maxDate: new Date() }
     }
 
-    const dates = entries
+    const dates = allEntries
+      .filter(e => !e.isDeleted) // Exclude deleted entries
       .map(e => new Date(e.timestamp))
       .filter(d => !isNaN(d.getTime()))
       .sort((a, b) => a.getTime() - b.getTime())
 
+    if (dates.length === 0) {
+      return { minDate: undefined, maxDate: new Date() }
+    }
+
+    // TODO: Debug navigation issue - see docs/issues/compare-navigation-bug.md
     return {
       minDate: dates[0],
       maxDate: new Date(), // Always allow up to today
     }
-  }, [entries])
+  }, [allEntries])
 
   // Update dates when granularity changes to sensible defaults
   const handleGranularityChange = (newGranularity: Granularity) => {
@@ -77,7 +89,10 @@ export function Compare() {
       </div>
 
       {/* Comparison Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+      <div className={cn(
+        "grid gap-4 lg:gap-6",
+        isLandscape ? "grid-cols-2" : "grid-cols-1 lg:grid-cols-2"
+      )}>
         {/* Left Panel */}
         <ComparisonPanel
           side="left"
@@ -101,10 +116,12 @@ export function Compare() {
         />
       </div>
 
-      {/* Mobile hint */}
-      <p className="text-center text-xs text-muted-foreground mt-6 lg:hidden">
-        Scroll horizontally to compare periods on mobile
-      </p>
+      {/* Mobile hint - only show in portrait */}
+      {!isLandscape && (
+        <p className="text-center text-xs text-muted-foreground mt-6 lg:hidden">
+          Rotate to landscape for side-by-side comparison
+        </p>
+      )}
     </div>
   )
 }

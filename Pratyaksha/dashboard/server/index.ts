@@ -10,6 +10,7 @@ import { getMonthlySummary } from "./routes/monthlySummary"
 import { registerToken, updatePreferences, sendNotification, getSettings, testNotification, cronNotifications } from "./routes/notifications"
 import { explainChart } from "./routes/explain"
 import { chat } from "./routes/chat"
+import speechRouter from "./routes/speech"
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -38,6 +39,9 @@ app.post("/api/explain", explainChart)
 
 // AI Chat route
 app.post("/api/chat", chat)
+
+// Speech-to-text routes (Groq Whisper)
+app.use("/api/speech", speechRouter)
 
 // Notification routes
 app.post("/api/notifications/register", registerToken)

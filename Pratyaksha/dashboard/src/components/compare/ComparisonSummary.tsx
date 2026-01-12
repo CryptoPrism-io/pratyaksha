@@ -197,7 +197,7 @@ export function ComparisonSummary({ summary, isLoading, className }: ComparisonS
               <Icon className={cn("h-4 w-4", color)} />
               <span className="text-sm text-muted-foreground">{label}</span>
             </div>
-            <span className="text-sm font-medium truncate max-w-[120px]" title={value}>
+            <span className="text-xs sm:text-sm font-medium truncate max-w-[140px] sm:max-w-[150px]" title={value}>
               {value}
             </span>
           </div>

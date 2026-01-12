@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react"
-import { Mic, MicOff, Send, Loader2, Brain, Sparkles, Sun, Moon, Heart, CloudRain, Target, Calendar, Pencil, WifiOff } from "lucide-react"
+import { Mic, MicOff, Send, Loader2, Brain, Sparkles, Sun, Moon, Heart, CloudRain, Target, Calendar, Pencil, WifiOff, Wand2 } from "lucide-react"
 import { Button } from "../ui/button"
-import { useSpeechRecognition } from "../../hooks/useSpeechRecognition"
+import { useSpeechToText } from "../../hooks/useSpeechToText"
 import { useStreak, STREAK_MILESTONES } from "../../hooks/useStreak"
 import { useEntries } from "../../hooks/useEntries"
 import { useOffline } from "../../contexts/OfflineContext"
@@ -177,39 +177,56 @@ export function LogEntryForm({ onSuccess }: LogEntryFormProps) {
     }
   }
 
+  // Groq Whisper speech-to-text
+  const [aiSuggestions, setAiSuggestions] = useState<{
+    type: string
+    tags: string[]
+    confidence: number
+  } | null>(null)
+
   const {
-    transcript,
-    interimTranscript,
-    isListening,
-    isSupported,
+    isRecording,
+    isProcessing: isSpeechProcessing,
+    transcript: speechTranscript,
+    result: speechResult,
     error: speechError,
-    startListening,
-    stopListening,
-    resetTranscript,
-  } = useSpeechRecognition()
-
-  // Show speech recognition errors to user
-  useEffect(() => {
-    if (speechError) {
-      toast.error("Voice Recording Issue", {
-        description: ERROR_MESSAGES.VOICE_ERROR,
-      })
-    }
-  }, [speechError])
-
-  // Append transcript to text as speech is recognized
-  useEffect(() => {
-    if (transcript) {
+    duration: recordingDuration,
+    startRecording,
+    stopRecording,
+    reset: resetSpeech,
+  } = useSpeechToText({
+    processIntent: true, // Use intent LLM for smart suggestions
+    onTranscript: (result) => {
+      // Append cleaned transcript to text
       setText((prev) => {
-        // Add space if there's existing text
-        if (prev && !prev.endsWith(" ")) {
-          return prev + " " + transcript
+        const newText = result.cleanedText || result.rawText
+        if (prev && !prev.endsWith(" ") && !prev.endsWith("\n")) {
+          return prev + " " + newText
         }
-        return prev + transcript
+        return prev + newText
       })
-      resetTranscript()
-    }
-  }, [transcript, resetTranscript])
+      // Store AI suggestions
+      if (result.confidence > 0.5) {
+        setAiSuggestions({
+          type: result.suggestedType,
+          tags: result.suggestedTags,
+          confidence: result.confidence,
+        })
+        toast.success("Voice transcribed!", {
+          description: `Suggested type: ${result.suggestedType}`,
+          duration: 3000,
+        })
+      }
+    },
+    onError: (error) => {
+      toast.error("Voice Recording Issue", {
+        description: error || ERROR_MESSAGES.VOICE_ERROR,
+      })
+    },
+  })
+
+  // Check if voice is supported (MediaRecorder API)
+  const isVoiceSupported = typeof MediaRecorder !== "undefined"
 
   const isTogglingRef = useRef(false)
 
@@ -218,16 +235,24 @@ export function LogEntryForm({ onSuccess }: LogEntryFormProps) {
     if (isTogglingRef.current) return
     isTogglingRef.current = true
 
-    if (isListening) {
-      stopListening()
+    if (isRecording) {
+      stopRecording()
     } else {
-      startListening()
+      setAiSuggestions(null) // Clear previous suggestions
+      startRecording()
     }
 
     // Reset after a short delay
     setTimeout(() => {
       isTogglingRef.current = false
     }, 300)
+  }
+
+  // Format recording duration as MM:SS
+  const formatDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins}:${secs.toString().padStart(2, "0")}`
   }
 
   const handleSubmit = async () => {
@@ -310,6 +335,7 @@ export function LogEntryForm({ onSuccess }: LogEntryFormProps) {
 
         setText("")
         setSelectedTemplate(null)
+        setAiSuggestions(null)
         onSuccess?.()
       }
     } catch (error) {
@@ -392,7 +418,7 @@ export function LogEntryForm({ onSuccess }: LogEntryFormProps) {
 
       <div className="relative">
         <textarea
-          value={text + (interimTranscript ? (text && !text.endsWith(" ") ? " " : "") + interimTranscript : "")}
+          value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => {
             if ((e.ctrlKey || e.metaKey) && e.key === "Enter" && text.trim() && !isProcessing) {
@@ -401,40 +427,81 @@ export function LogEntryForm({ onSuccess }: LogEntryFormProps) {
             }
           }}
           placeholder={
-            isListening
-              ? "Listening... speak now"
+            isRecording
+              ? "Recording... speak now (tap mic to stop)"
+              : isSpeechProcessing
+              ? "Transcribing your voice..."
               : "What's on your mind? Type or tap the mic to speak..."
           }
           className={cn(
             "min-h-[150px] w-full resize-none rounded-lg border bg-background p-4 pr-14 text-base placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20",
-            isListening && "border-primary ring-2 ring-primary/20"
+            isRecording && "border-red-500 ring-2 ring-red-500/20",
+            isSpeechProcessing && "border-primary ring-2 ring-primary/20"
           )}
-          disabled={isProcessing}
-          readOnly={isListening}
+          disabled={isProcessing || isSpeechProcessing}
+          readOnly={isRecording}
         />
 
         {/* Mic button */}
-        {isSupported && (
+        {isVoiceSupported && (
           <button
             type="button"
             onClick={handleToggleMic}
-            disabled={isProcessing}
+            disabled={isProcessing || isSpeechProcessing}
             className={cn(
               "absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full transition-all",
-              isListening
+              isRecording
                 ? "animate-pulse bg-red-500 text-white hover:bg-red-600"
+                : isSpeechProcessing
+                ? "bg-primary text-primary-foreground"
                 : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
             )}
-            aria-label={isListening ? "Stop recording" : "Start recording"}
+            aria-label={isRecording ? "Stop recording" : "Start recording"}
           >
-            {isListening ? (
+            {isSpeechProcessing ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : isRecording ? (
               <MicOff className="h-5 w-5" />
             ) : (
               <Mic className="h-5 w-5" />
             )}
           </button>
         )}
+
+        {/* Recording duration indicator */}
+        {isRecording && (
+          <div className="absolute right-16 top-4 flex items-center gap-2 text-sm text-red-500">
+            <span className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
+            {formatDuration(recordingDuration)}
+          </div>
+        )}
       </div>
+
+      {/* AI Suggestions from voice */}
+      {aiSuggestions && aiSuggestions.confidence > 0.6 && (
+        <div className="mt-3 rounded-lg border border-primary/20 bg-primary/5 p-3">
+          <div className="flex items-center gap-2 text-sm">
+            <Wand2 className="h-4 w-4 text-primary" />
+            <span className="font-medium text-primary">AI Suggestions</span>
+            <span className="text-xs text-muted-foreground">
+              ({Math.round(aiSuggestions.confidence * 100)}% confidence)
+            </span>
+          </div>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+              Type: {aiSuggestions.type}
+            </span>
+            {aiSuggestions.tags.slice(0, 3).map((tag) => (
+              <span
+                key={tag}
+                className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground"
+              >
+                #{tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Processing indicator */}
       {isProcessing && (
@@ -477,18 +544,24 @@ export function LogEntryForm({ onSuccess }: LogEntryFormProps) {
           )}>
             {charCount.toLocaleString()}/{MAX_CHARS.toLocaleString()}
           </span>
-          {isListening && (
-            <span className="flex items-center gap-2 text-sm text-primary">
+          {isRecording && (
+            <span className="flex items-center gap-2 text-sm text-red-500">
               <span className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
-              {interimTranscript ? "Hearing you..." : "Recording..."}
+              Recording...
             </span>
           )}
-          {!isSupported && (
+          {isSpeechProcessing && (
+            <span className="flex items-center gap-2 text-sm text-primary">
+              <Loader2 className="h-3 w-3 animate-spin" />
+              Transcribing...
+            </span>
+          )}
+          {!isVoiceSupported && (
             <span className="text-xs text-muted-foreground">
               Voice input not supported
             </span>
           )}
-          {!isListening && (
+          {!isRecording && !isSpeechProcessing && (
             <span className="hidden sm:inline text-xs text-muted-foreground">
               Ctrl+Enter to submit
             </span>
