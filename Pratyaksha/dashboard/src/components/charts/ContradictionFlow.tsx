@@ -2,11 +2,13 @@ import { useMemo, useCallback, useRef, useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { sankey, sankeyLinkHorizontal, sankeyLeft } from "d3-sankey"
 import type { SankeyNode, SankeyLink } from "d3-sankey"
-import { useSankeyData } from "../../hooks/useEntries"
+import { useSankeyData, useStats } from "../../hooks/useEntries"
+import { useDateFilter } from "../../contexts/DateFilterContext"
 import { useIsMobile } from "../../hooks/useMediaQuery"
 import { EmptyState } from "../ui/empty-state"
 import { useFilterAwareEmptyState } from "../../hooks/useFilterAwareEmptyState"
 import { GitBranch } from "lucide-react"
+import { ChartExplainer } from "./ChartExplainer"
 
 // Node data with layer info
 interface NodeData {
@@ -30,10 +32,64 @@ const DEFAULT_COLOR = "#888888"
 export function ContradictionFlow() {
   const navigate = useNavigate()
   const { data, isLoading, error } = useSankeyData()
+  const { data: stats } = useStats()
+  const { getDateRangeLabel } = useDateFilter()
   const { getEmptyStateProps } = useFilterAwareEmptyState()
   const isMobile = useIsMobile()
   const containerRef = useRef<HTMLDivElement>(null)
   const [containerWidth, setContainerWidth] = useState(0)
+
+  // Prepare AI explainer data
+  const explainerData = useMemo(() => {
+    if (!data || data.nodes.length === 0) return null
+
+    // Categorize nodes
+    const allSources = data.links.map(l => typeof l.source === 'number' ? l.source : 0)
+    const allTargets = data.links.map(l => typeof l.target === 'number' ? l.target : 0)
+    const sourceOnly = new Set(allSources.filter(s => !allTargets.includes(s)))
+    const targetOnly = new Set(allTargets.filter(t => !allSources.includes(t)))
+
+    const types = data.nodes.filter((_, idx) => sourceOnly.has(idx)).map(n => n.name)
+    const modes = data.nodes.filter((_, idx) => targetOnly.has(idx)).map(n => n.name)
+    const contradictions = data.nodes.filter((_, idx) => !sourceOnly.has(idx) && !targetOnly.has(idx)).map(n => n.name)
+
+    // Calculate most frequent contradictions
+    const contradictionCounts: Record<string, number> = {}
+    data.links.forEach(link => {
+      const sourceName = data.nodes[typeof link.source === 'number' ? link.source : 0]?.name
+      const targetName = data.nodes[typeof link.target === 'number' ? link.target : 0]?.name
+      if (contradictions.includes(sourceName)) {
+        contradictionCounts[sourceName] = (contradictionCounts[sourceName] || 0) + link.value
+      }
+      if (contradictions.includes(targetName)) {
+        contradictionCounts[targetName] = (contradictionCounts[targetName] || 0) + link.value
+      }
+    })
+
+    const topContradictions = Object.entries(contradictionCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([name]) => name)
+
+    return {
+      flow: {
+        types,
+        contradictions,
+        modes,
+        topContradictions,
+        linkCount: data.links.length
+      }
+    }
+  }, [data])
+
+  const explainerSummary = useMemo(() => {
+    if (!stats) return undefined
+    return {
+      totalEntries: stats.totalEntries,
+      dateRange: getDateRangeLabel(),
+      topItems: explainerData?.flow?.topContradictions
+    }
+  }, [stats, getDateRangeLabel, explainerData])
 
   // Measure container width dynamically
   useEffect(() => {
@@ -267,8 +323,8 @@ export function ContradictionFlow() {
         </g>
       </svg>
 
-      {/* Legend */}
-      <div className="flex justify-center gap-4 mt-2 text-[10px] text-muted-foreground">
+      {/* Legend with AI Explainer */}
+      <div className="flex justify-center items-center gap-4 mt-2 text-[10px] text-muted-foreground">
         <div className="flex items-center gap-1.5">
           <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: LAYER_COLORS.type }} />
           <span>Type</span>
@@ -281,6 +337,14 @@ export function ContradictionFlow() {
           <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: LAYER_COLORS.mode }} />
           <span>Mode</span>
         </div>
+        {/* AI Explainer Button */}
+        {explainerData && !isMobile && (
+          <ChartExplainer
+            chartType="contradictionFlow"
+            chartData={explainerData}
+            summary={explainerSummary}
+          />
+        )}
       </div>
 
       <p className="text-center text-[10px] text-muted-foreground mt-1">

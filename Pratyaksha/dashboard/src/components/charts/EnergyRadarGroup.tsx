@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import {
   RadarChart,
   PolarGrid,
@@ -10,9 +10,11 @@ import {
   Legend,
 } from "recharts"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { useEnergyShapeData } from "../../hooks/useEntries"
+import { useEnergyShapeData, useStats } from "../../hooks/useEntries"
+import { useDateFilter } from "../../contexts/DateFilterContext"
 import { useIsMobile } from "../../hooks/useMediaQuery"
 import { cn } from "../../lib/utils"
+import { ChartExplainer } from "./ChartExplainer"
 
 // Categorize energy shapes into meaningful groups
 const ENERGY_CATEGORIES = {
@@ -143,10 +145,35 @@ function CategoryRadar({ categoryKey, data, maxValue }: CategoryRadarProps) {
 
 export function EnergyRadarGroup() {
   const { data: rawData, isLoading, error } = useEnergyShapeData()
+  const { data: stats } = useStats()
+  const { getDateRangeLabel } = useDateFilter()
   const isMobile = useIsMobile()
   const [currentIndex, setCurrentIndex] = useState(0)
 
   const categoryKeys: CategoryKey[] = ["growth", "stability", "challenge"]
+
+  // Prepare AI explainer data
+  const explainerData = useMemo(() => {
+    if (!rawData || rawData.length === 0) return null
+    return {
+      shapes: rawData.map(d => ({ shape: d.shape, count: d.count })),
+      categories: {
+        growth: rawData.filter(d => ["Rising", "Expanding", "Pulsing"].includes(d.shape)),
+        stability: rawData.filter(d => ["Centered", "Stabilized", "Flat", "Cyclical"].includes(d.shape)),
+        challenge: rawData.filter(d => ["Chaotic", "Heavy", "Collapsing", "Contracted", "Uneven"].includes(d.shape))
+      }
+    }
+  }, [rawData])
+
+  const explainerSummary = useMemo(() => {
+    if (!stats) return undefined
+    const topShapes = rawData?.sort((a, b) => b.count - a.count).slice(0, 3).map(d => d.shape)
+    return {
+      totalEntries: stats.totalEntries,
+      dateRange: getDateRangeLabel(),
+      topItems: topShapes
+    }
+  }, [stats, rawData, getDateRangeLabel])
 
   const goNext = () => setCurrentIndex((i) => (i + 1) % 3)
   const goPrev = () => setCurrentIndex((i) => (i - 1 + 3) % 3)
@@ -308,6 +335,14 @@ export function EnergyRadarGroup() {
             <span>Challenge: {challengeScore}</span>
           </div>
         </div>
+        {/* AI Explainer Button */}
+        {explainerData && (
+          <ChartExplainer
+            chartType="energyRadar"
+            chartData={explainerData}
+            summary={explainerSummary}
+          />
+        )}
       </div>
 
       {/* Three radar charts */}

@@ -4,7 +4,7 @@ import { DashboardGrid, ChartCard } from "../components/layout/DashboardGrid"
 import { useStats, useEntries } from "../hooks/useEntries"
 import { useAuth } from "../contexts/AuthContext"
 import { useDemoPersona, type DemoPersona } from "../contexts/DemoPersonaContext"
-import { Brain, FileText, TrendingUp, Activity, Keyboard, Plus, Gamepad2, Sword, Search, Rocket } from "lucide-react"
+import { Brain, FileText, TrendingUp, Activity, Keyboard, Plus, Gamepad2, Sword, Search, Rocket, GitBranch, Zap, BarChart3, LineChart, AlertTriangle, Hash, Lightbulb, Clock } from "lucide-react"
 import {
   Select,
   SelectContent,
@@ -202,6 +202,7 @@ export function Dashboard() {
             description="Type → Contradiction → Mode"
             tooltip="Sankey diagram showing how entry types flow through contradictions to cognitive modes. Reveals hidden connections in your thought patterns."
             colSpan={8}
+            icon={GitBranch}
           >
             <ContradictionFlow />
           </ChartCard>
@@ -213,6 +214,7 @@ export function Dashboard() {
             description="Growth, Stability & Challenge patterns with benchmarks"
             tooltip="Shows your energy distribution across Growth, Stability, and Challenge categories compared to optimal ranges. Helps identify which areas need attention."
             colSpan={12}
+            icon={Zap}
           >
             <EnergyRadarGroup />
           </ChartCard>
@@ -224,6 +226,7 @@ export function Dashboard() {
             description="Click to filter logs"
             tooltip="Visualizes the relationship between your energy levels and cognitive modes. Click any bar or bubble to see related entries."
             colSpan={8}
+            icon={BarChart3}
           >
             <EnergyModeResponsive />
           </ChartCard>
@@ -234,6 +237,7 @@ export function Dashboard() {
             description="Cognitive modes breakdown"
             tooltip="Pie chart showing the distribution of your cognitive modes (Reflective, Calm, Hopeful, etc.). Understand your dominant mental patterns."
             colSpan={4}
+            icon={Brain}
           >
             <ModeDistribution />
           </ChartCard>
@@ -245,6 +249,7 @@ export function Dashboard() {
             description="Sentiment trends over time"
             tooltip="Track how your emotions evolve over time. The line shows sentiment score trends, helping you identify patterns and cycles in your mental states."
             colSpan={8}
+            icon={LineChart}
           >
             <EmotionalTimeline />
           </ChartCard>
@@ -255,6 +260,7 @@ export function Dashboard() {
             description="Monitor recurring patterns"
             tooltip="Tracks internal conflicts like Hope vs. Hopelessness, Control vs. Surrender. High counts may indicate areas needing attention or integration."
             colSpan={4}
+            icon={AlertTriangle}
           >
             <ContradictionTracker />
           </ChartCard>
@@ -266,6 +272,7 @@ export function Dashboard() {
             description="Most frequent themes"
             tooltip="Word cloud of AI-extracted themes from your entries. Larger words appear more frequently. Helps identify recurring topics in your thoughts."
             colSpan={4}
+            icon={Hash}
           >
             <ThemeCloud />
           </ChartCard>
@@ -276,6 +283,7 @@ export function Dashboard() {
             description="AI-generated recommendations"
             tooltip="Personalized suggestions based on your recent entries. AI analyzes patterns and provides actionable next steps for growth."
             colSpan={4}
+            icon={Lightbulb}
           >
             <InsightActions />
           </ChartCard>
@@ -286,6 +294,7 @@ export function Dashboard() {
             description="Entry patterns by time"
             tooltip="Shows when you typically journal during the week. Identify your most productive reflection times and build better habits."
             colSpan={4}
+            icon={Clock}
           >
             <DailyRhythm />
           </ChartCard>

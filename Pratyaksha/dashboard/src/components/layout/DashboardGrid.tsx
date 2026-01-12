@@ -1,12 +1,15 @@
-import type { ReactNode } from "react"
+import { useState, type ReactNode } from "react"
 import { cn } from "../../lib/utils"
-import { Info } from "lucide-react"
+import { Info, ChevronDown, type LucideIcon } from "lucide-react"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip"
+import { useIsMobile } from "../../hooks/useMediaQuery"
+import { ChartExplainer } from "../charts/ChartExplainer"
+import type { ChartType } from "../../hooks/useChartExplainer"
 
 interface DashboardGridProps {
   children: ReactNode
@@ -37,6 +40,22 @@ interface ChartCardProps {
   colSpan?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12
   rowSpan?: 1 | 2
   "data-tour"?: string
+  /** Icon to display next to the title (#1 Quick Win) */
+  icon?: LucideIcon
+  /** Allow collapsing on mobile (#14 Quick Win) */
+  collapsible?: boolean
+  /** Start collapsed on mobile */
+  defaultCollapsed?: boolean
+  /** AI Explainer - chart type for AI explanations (Sprint 14) */
+  aiExplainer?: ChartType
+  /** AI Explainer - chart data for AI analysis */
+  aiExplainerData?: Record<string, unknown>
+  /** AI Explainer - summary context */
+  aiExplainerSummary?: {
+    totalEntries: number
+    dateRange: string
+    topItems?: string[]
+  }
 }
 
 export function ChartCard({
@@ -48,7 +67,20 @@ export function ChartCard({
   colSpan = 6,
   rowSpan = 1,
   "data-tour": dataTour,
+  icon: Icon,
+  collapsible = true,
+  defaultCollapsed = false,
+  aiExplainer,
+  aiExplainerData,
+  aiExplainerSummary,
 }: ChartCardProps) {
+  const isMobile = useIsMobile()
+  const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed)
+
+  // Only allow collapse on mobile when collapsible is true
+  const canCollapse = isMobile && collapsible
+  const showContent = !canCollapse || !isCollapsed
+
   // Desktop (lg) column spans
   const colSpanClass = {
     1: "lg:col-span-1",
@@ -85,9 +117,23 @@ export function ChartCard({
         className
       )}
     >
-      <div className="mb-1 sm:mb-4">
+      {/* Header with mobile collapse toggle (#14 Quick Win) */}
+      <div
+        className={cn("mb-1 sm:mb-4", canCollapse && "cursor-pointer")}
+        onClick={canCollapse ? () => setIsCollapsed(!isCollapsed) : undefined}
+      >
         <div className="flex items-center gap-1 sm:gap-2">
-          <h3 className="text-[11px] sm:text-lg font-semibold tracking-tight leading-tight">{title}</h3>
+          {Icon && <Icon className="h-3 w-3 sm:h-5 sm:w-5 text-primary flex-shrink-0" />}
+          <h3 className="text-[11px] sm:text-lg font-semibold tracking-tight leading-tight flex-1">{title}</h3>
+          {/* AI Explainer button (Sprint 14) */}
+          {aiExplainer && aiExplainerData && (
+            <ChartExplainer
+              chartType={aiExplainer}
+              chartData={aiExplainerData}
+              summary={aiExplainerSummary}
+              className="hidden sm:flex"
+            />
+          )}
           {tooltip && (
             <TooltipProvider>
               <Tooltip>
@@ -102,12 +148,30 @@ export function ChartCard({
               </Tooltip>
             </TooltipProvider>
           )}
+          {/* Mobile collapse button */}
+          {canCollapse && (
+            <button
+              className="sm:hidden flex items-center justify-center h-5 w-5 rounded-full bg-muted/50"
+              aria-label={isCollapsed ? "Expand chart" : "Collapse chart"}
+            >
+              <ChevronDown className={cn(
+                "h-3 w-3 transition-transform duration-200",
+                isCollapsed ? "" : "rotate-180"
+              )} />
+            </button>
+          )}
         </div>
-        {description && (
+        {description && !isCollapsed && (
           <p className="text-[9px] sm:text-sm text-muted-foreground leading-tight">{description}</p>
         )}
       </div>
-      <div className="min-h-[100px] sm:min-h-[200px] overflow-hidden">{children}</div>
+      {/* Content with collapse animation */}
+      <div className={cn(
+        "overflow-hidden transition-all duration-200",
+        showContent ? "min-h-[100px] sm:min-h-[200px] opacity-100" : "max-h-0 opacity-0"
+      )}>
+        {children}
+      </div>
     </div>
   )
 }

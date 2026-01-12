@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { createPortal } from "react-dom"
 import {
   ComposedChart,
@@ -12,12 +12,14 @@ import {
   ReferenceLine,
   Cell,
 } from "recharts"
-import { useEnrichedTimelineData } from "../../hooks/useEntries"
+import { useEnrichedTimelineData, useStats } from "../../hooks/useEntries"
+import { useDateFilter } from "../../contexts/DateFilterContext"
 import { Skeleton } from "../ui/skeleton"
 import { AlertCircle, RefreshCw, X, TrendingUp } from "lucide-react"
 import { EmptyState } from "../ui/empty-state"
 import { useFilterAwareEmptyState } from "../../hooks/useFilterAwareEmptyState"
 import { useIsMobile } from "../../hooks/useMediaQuery"
+import { ChartExplainer } from "./ChartExplainer"
 import type { EnrichedTimelineEntry } from "../../lib/transforms"
 
 // Sentiment color palette
@@ -230,9 +232,47 @@ function SentimentLegend() {
 
 export function EmotionalTimeline() {
   const { data, isLoading, error, refetch } = useEnrichedTimelineData()
+  const { data: stats } = useStats()
+  const { getDateRangeLabel } = useDateFilter()
   const { getEmptyStateProps } = useFilterAwareEmptyState()
   const isMobile = useIsMobile()
   const [selectedEntry, setSelectedEntry] = useState<EnrichedTimelineEntry | null>(null)
+
+  // Prepare AI explainer data
+  const explainerData = useMemo(() => {
+    if (!data || data.entries.length === 0) return null
+    const entries = data.entries
+    const positiveCount = entries.filter(e => e.sentimentCategory === "positive").length
+    const negativeCount = entries.filter(e => e.sentimentCategory === "negative").length
+    const neutralCount = entries.filter(e => e.sentimentCategory === "neutral").length
+    const avgSentiment = entries.reduce((sum, e) => sum + e.sentiment, 0) / entries.length
+
+    return {
+      timelinePoints: entries.map(e => ({
+        date: e.date,
+        sentiment: e.sentiment,
+        category: e.sentimentCategory,
+        mode: e.mode
+      })),
+      summary: {
+        positive: positiveCount,
+        negative: negativeCount,
+        neutral: neutralCount,
+        average: avgSentiment.toFixed(2),
+        trend: entries.length > 1
+          ? (entries[entries.length - 1].sentiment > entries[0].sentiment ? "improving" : "declining")
+          : "stable"
+      }
+    }
+  }, [data])
+
+  const explainerSummary = useMemo(() => {
+    if (!stats) return undefined
+    return {
+      totalEntries: stats.totalEntries,
+      dateRange: getDateRangeLabel()
+    }
+  }, [stats, getDateRangeLabel])
 
   if (isLoading) {
     return <TimelineSkeleton />
@@ -284,7 +324,17 @@ export function EmotionalTimeline() {
     .map(e => e.entryIndex)
 
   return (
-    <div className={isMobile ? "-mx-2" : ""}>
+    <div className={isMobile ? "-mx-2" : "relative"}>
+      {/* AI Explainer Button */}
+      {explainerData && !isMobile && (
+        <div className="absolute top-0 right-0 z-10">
+          <ChartExplainer
+            chartType="emotionalTimeline"
+            chartData={explainerData}
+            summary={explainerSummary}
+          />
+        </div>
+      )}
       <ResponsiveContainer width="100%" height={isMobile ? 220 : 280}>
         <ComposedChart data={entries} margin={chartMargin}>
           <defs>
