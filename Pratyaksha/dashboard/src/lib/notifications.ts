@@ -104,6 +104,21 @@ export function getFrequencyLabel(frequency: NotificationFrequency): string {
 const PREFS_KEY = "pratyaksha_notification_prefs"
 const FCM_TOKEN_KEY = "pratyaksha_fcm_token"
 
+// Timeout for notification operations (10 seconds)
+const NOTIFICATION_TIMEOUT_MS = 10000
+
+/**
+ * Wrap a promise with a timeout
+ */
+function withTimeout<T>(promise: Promise<T>, ms: number, operation: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`${operation} timed out after ${ms}ms`)), ms)
+    ),
+  ])
+}
+
 /**
  * Check if push notifications are supported
  */
@@ -153,17 +168,24 @@ async function registerFirebaseServiceWorker(): Promise<ServiceWorkerRegistratio
       return existingReg
     }
 
-    // Register the Firebase messaging service worker
-    const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js", {
-      scope: "/",
-    })
+    // Register the Firebase messaging service worker with timeout
+    const registration = await withTimeout(
+      navigator.serviceWorker.register("/firebase-messaging-sw.js", { scope: "/" }),
+      NOTIFICATION_TIMEOUT_MS,
+      "Service worker registration"
+    )
 
-    // Wait for the service worker to be ready
-    await navigator.serviceWorker.ready
+    // Wait for the service worker to be ready with timeout
+    await withTimeout(
+      navigator.serviceWorker.ready,
+      NOTIFICATION_TIMEOUT_MS,
+      "Service worker ready"
+    )
     console.log("[Notifications] Firebase SW registered successfully")
     return registration
   } catch (error) {
-    console.error("[Notifications] Failed to register Firebase SW:", error)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    console.warn("[Notifications] Service worker registration failed:", errorMessage)
     return null
   }
 }
@@ -201,11 +223,15 @@ export async function getFCMToken(): Promise<string | null> {
       return null
     }
 
-    // Get token with service worker registration
-    const token = await getToken(msg, {
-      vapidKey,
-      serviceWorkerRegistration: swRegistration
-    })
+    // Get token with service worker registration (with timeout)
+    const token = await withTimeout(
+      getToken(msg, {
+        vapidKey,
+        serviceWorkerRegistration: swRegistration
+      }),
+      NOTIFICATION_TIMEOUT_MS,
+      "FCM token retrieval"
+    )
 
     if (token) {
       // Store token locally
