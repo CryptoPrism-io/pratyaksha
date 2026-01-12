@@ -38,6 +38,13 @@ interface IntentResponse {
   confidence: number
 }
 
+// Extended transcription type for verbose_json response
+interface VerboseTranscription {
+  text: string
+  duration?: number
+  language?: string
+}
+
 // POST /api/speech/transcribe - Transcribe audio using Groq Whisper
 router.post("/transcribe", upload.single("audio"), async (req, res) => {
   try {
@@ -50,8 +57,8 @@ router.post("/transcribe", upload.single("audio"), async (req, res) => {
       size: req.file.size,
     })
 
-    // Create a File object from the buffer for Groq
-    const audioFile = new File([req.file.buffer], "audio.webm", {
+    // Create a File object from the buffer for Groq (convert Buffer to Uint8Array)
+    const audioFile = new File([new Uint8Array(req.file.buffer)], "audio.webm", {
       type: req.file.mimetype,
     })
 
@@ -62,15 +69,15 @@ router.post("/transcribe", upload.single("audio"), async (req, res) => {
       model: "whisper-large-v3-turbo",
       temperature: 0,
       response_format: "verbose_json",
-    })
+    }) as VerboseTranscription
 
     console.log("[Speech] Transcription complete:", transcription.text?.substring(0, 100))
 
     // Return raw transcription
     res.json({
       text: transcription.text,
-      duration: transcription.duration,
-      language: transcription.language,
+      duration: transcription.duration || 0,
+      language: transcription.language || "en",
     })
   } catch (error) {
     console.error("[Speech] Transcription error:", error)
@@ -93,8 +100,8 @@ router.post("/process", upload.single("audio"), async (req, res) => {
       size: req.file.size,
     })
 
-    // Create a File object from the buffer
-    const audioFile = new File([req.file.buffer], "audio.webm", {
+    // Create a File object from the buffer (convert Buffer to Uint8Array)
+    const audioFile = new File([new Uint8Array(req.file.buffer)], "audio.webm", {
       type: req.file.mimetype,
     })
 
@@ -105,7 +112,7 @@ router.post("/process", upload.single("audio"), async (req, res) => {
       model: "whisper-large-v3-turbo",
       temperature: 0,
       response_format: "verbose_json",
-    })
+    }) as VerboseTranscription
 
     const rawText = transcription.text || ""
     console.log("[Speech] Raw transcript:", rawText.substring(0, 100))
@@ -117,7 +124,7 @@ router.post("/process", upload.single("audio"), async (req, res) => {
         suggestedType: "Reflection",
         suggestedTags: [],
         confidence: 0,
-        duration: transcription.duration,
+        duration: transcription.duration || 0,
       })
     }
 
@@ -160,8 +167,8 @@ router.post("/process", upload.single("audio"), async (req, res) => {
       suggestedType: intent.suggestedType || "Reflection",
       suggestedTags: intent.suggestedTags || [],
       confidence: intent.confidence || 0.5,
-      duration: transcription.duration,
-      language: transcription.language,
+      duration: transcription.duration || 0,
+      language: transcription.language || "en",
     })
   } catch (error) {
     console.error("[Speech] Processing error:", error)
