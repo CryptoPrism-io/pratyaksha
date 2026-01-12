@@ -14,6 +14,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "../ui/popover"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip"
 import { cn } from "../../lib/utils"
 import { ExportButton } from "../ui/export-button"
 import type { Entry } from "../../lib/airtable"
@@ -171,6 +177,23 @@ export function FilterBar({
           </Select>
         </div>
 
+        {/* Quick Bookmark Toggle (#6 Quick Win) */}
+        <Button
+          variant={filters.bookmarked === "bookmarked" ? "default" : "outline"}
+          size="sm"
+          onClick={() => updateFilter("bookmarked", filters.bookmarked === "bookmarked" ? "all" : "bookmarked")}
+          className={cn(
+            "min-h-[44px] min-w-[44px] px-3 gap-2",
+            filters.bookmarked === "bookmarked" && "bg-yellow-500 hover:bg-yellow-600 text-white border-yellow-500"
+          )}
+          aria-label={filters.bookmarked === "bookmarked" ? "Show all entries" : "Show bookmarked only"}
+        >
+          <Star className={cn("h-4 w-4", filters.bookmarked === "bookmarked" && "fill-current")} />
+          <span className="hidden sm:inline">
+            {filters.bookmarked === "bookmarked" ? "Starred" : "Starred"}
+          </span>
+        </Button>
+
         {/* Refresh button */}
         {onRefresh && (
           <Button
@@ -207,9 +230,21 @@ export function FilterBar({
             <div className="space-y-4">
               <h4 className="font-medium">Advanced Filters</h4>
 
-              {/* Type filter */}
+              {/* Type filter with tooltip (#2 Quick Win) */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">Entry Type</label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <label className="text-sm font-medium cursor-help flex items-center gap-1">
+                        Entry Type
+                        <span className="text-muted-foreground text-xs">(hover for info)</span>
+                      </label>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-xs">
+                      <p className="text-sm">Filter by entry category like Emotional, Work, Health, etc. Based on AI classification.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 <Select
                   value={filters.type}
                   onValueChange={(value) => updateFilter("type", value)}
@@ -228,9 +263,18 @@ export function FilterBar({
                 </Select>
               </div>
 
-              {/* Sentiment filter */}
+              {/* Sentiment filter with tooltip */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">Sentiment</label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <label className="text-sm font-medium cursor-help">Sentiment</label>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-xs">
+                      <p className="text-sm">Filter by emotional tone: Positive (uplifting), Negative (challenging), or Neutral (balanced).</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 <Select
                   value={filters.sentiment}
                   onValueChange={(value) => updateFilter("sentiment", value)}
@@ -248,9 +292,18 @@ export function FilterBar({
                 </Select>
               </div>
 
-              {/* Mode filter */}
+              {/* Mode filter with tooltip */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">Cognitive Mode</label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <label className="text-sm font-medium cursor-help">Cognitive Mode</label>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-xs">
+                      <p className="text-sm">Your mental state when writing: Hopeful, Calm, Anxious, Reflective, etc. AI-inferred from your words.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 <Select
                   value={filters.mode}
                   onValueChange={(value) => updateFilter("mode", value)}
@@ -269,10 +322,19 @@ export function FilterBar({
                 </Select>
               </div>
 
-              {/* Energy filter */}
+              {/* Energy filter with tooltip */}
               {availableEnergies.length > 0 && (
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Energy Level</label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <label className="text-sm font-medium cursor-help">Energy Level</label>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs">
+                        <p className="text-sm">Your energy state: High, Balanced, Low, Scattered, etc. Reflects your vitality at time of writing.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                   <Select
                     value={filters.energy}
                     onValueChange={(value) => updateFilter("energy", value)}
