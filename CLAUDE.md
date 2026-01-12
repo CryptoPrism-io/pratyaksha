@@ -99,6 +99,15 @@ Available slash commands (see `.claude/skills/`):
 - `/ux-review` - Comprehensive UX audit
 - `/shadcn-suggest` - Suggest shadcn components
 
+## Deployment (Cloud Run)
+
+```bash
+# Deploy to Cloud Run (from repo root)
+cd Pratyaksha/dashboard && source .env && gcloud builds submit --config=cloudbuild.yaml --substitutions="_VITE_AIRTABLE_API_KEY=$VITE_AIRTABLE_API_KEY,_VITE_AIRTABLE_BASE_ID=$VITE_AIRTABLE_BASE_ID,_VITE_AIRTABLE_TABLE_ID=$VITE_AIRTABLE_TABLE_ID" && gcloud run deploy pratyaksha --image asia-south1-docker.pkg.dev/social-data-pipeline-and-push/pratyaksha/dashboard:latest --region asia-south1 --allow-unauthenticated --set-env-vars "AIRTABLE_API_KEY=$AIRTABLE_API_KEY,AIRTABLE_BASE_ID=$AIRTABLE_BASE_ID,AIRTABLE_TABLE_ID=$AIRTABLE_TABLE_ID,OPENROUTER_API_KEY=$OPENROUTER_API_KEY"
+```
+
+**Live URL**: https://pratyaksha-963362833537.asia-south1.run.app
+
 ## Critical Guidelines
 
 - **NEVER use dummy/synthetic data** without explicit user permission. Always inform the user if the database has insufficient data.
