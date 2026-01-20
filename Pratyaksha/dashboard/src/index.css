@@ -372,3 +372,49 @@ h1, h2, h3, h4, h5, h6 {
   scrollbar-width: none;
 }
 
+/* Chat animations */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Typing dots animation */
+@keyframes typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-4px); }
+}
+
+.animate-typing-dot {
+  animation: typing-bounce 1s ease-in-out infinite;
+}
+
+/* Message slide-in animation */
+@keyframes message-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-message-in {
+  animation: message-in 0.3s ease-out;
+}
+
+/* Chat input focus glow */
+@keyframes input-glow {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2); }
+  50% { box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.3); }
+}
+
+.animate-input-glow {
+  animation: input-glow 2s ease-in-out infinite;
+}
+
