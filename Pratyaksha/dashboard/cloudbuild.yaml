@@ -1,9 +1,12 @@
-# Cloud Build configuration for Pratyaksha Dashboard
-# Builds Docker image with Vite build-time environment variables
+# Cloud Build configuration for Pratyaksha
+# Builds both Dashboard and Website Docker images
 
 steps:
-  # Build the Docker image with build args
+  # ============================================
+  # DASHBOARD BUILD
+  # ============================================
   - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-dashboard'
     args:
       - 'build'
       - '--build-arg'
@@ -27,26 +30,79 @@ steps:
       - '--build-arg'
       - 'VITE_FIREBASE_VAPID_KEY=${_VITE_FIREBASE_VAPID_KEY}'
       - '-t'
-      - '${_IMAGE_NAME}:${_TAG}'
+      - '${_DASHBOARD_IMAGE}:${_TAG}'
       - '-t'
-      - '${_IMAGE_NAME}:latest'
+      - '${_DASHBOARD_IMAGE}:latest'
       - '.'
 
-  # Push the tagged image
   - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-dashboard'
     args:
       - 'push'
-      - '${_IMAGE_NAME}:${_TAG}'
+      - '--all-tags'
+      - '${_DASHBOARD_IMAGE}'
+    waitFor: ['build-dashboard']
 
-  # Push the latest tag
+  # ============================================
+  # WEBSITE BUILD
+  # ============================================
   - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-website'
+    dir: '../website'
+    args:
+      - 'build'
+      - '-t'
+      - '${_WEBSITE_IMAGE}:${_TAG}'
+      - '-t'
+      - '${_WEBSITE_IMAGE}:latest'
+      - '.'
+    waitFor: ['-']  # Start immediately, parallel with dashboard
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-website'
     args:
       - 'push'
-      - '${_IMAGE_NAME}:latest'
+      - '--all-tags'
+      - '${_WEBSITE_IMAGE}'
+    waitFor: ['build-website']
 
-# Default substitutions (can be overridden)
+  # ============================================
+  # DEPLOY TO CLOUD RUN
+  # ============================================
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'deploy-dashboard'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'pratyaksha'
+      - '--image'
+      - '${_DASHBOARD_IMAGE}:latest'
+      - '--region'
+      - 'asia-south1'
+      - '--allow-unauthenticated'
+      - '--set-env-vars'
+      - 'AIRTABLE_API_KEY=${_VITE_AIRTABLE_API_KEY},AIRTABLE_BASE_ID=${_VITE_AIRTABLE_BASE_ID},AIRTABLE_TABLE_ID=${_VITE_AIRTABLE_TABLE_ID},OPENROUTER_API_KEY=${_OPENROUTER_API_KEY}'
+    waitFor: ['push-dashboard']
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'deploy-website'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'pratyaksha-website'
+      - '--image'
+      - '${_WEBSITE_IMAGE}:latest'
+      - '--region'
+      - 'asia-south1'
+      - '--allow-unauthenticated'
+    waitFor: ['push-website']
+
+# Default substitutions
 substitutions:
-  _IMAGE_NAME: 'asia-south1-docker.pkg.dev/social-data-pipeline-and-push/pratyaksha/dashboard'
+  _DASHBOARD_IMAGE: 'asia-south1-docker.pkg.dev/social-data-pipeline-and-push/pratyaksha/dashboard'
+  _WEBSITE_IMAGE: 'asia-south1-docker.pkg.dev/social-data-pipeline-and-push/pratyaksha/website'
   _TAG: 'latest'
   _VITE_AIRTABLE_API_KEY: ''
   _VITE_AIRTABLE_BASE_ID: ''
@@ -58,6 +114,7 @@ substitutions:
   _VITE_FIREBASE_MESSAGING_SENDER_ID: ''
   _VITE_FIREBASE_APP_ID: ''
   _VITE_FIREBASE_VAPID_KEY: ''
+  _OPENROUTER_API_KEY: ''
 
 # Build options
 options:
@@ -65,5 +122,7 @@ options:
 
 # Output images
 images:
-  - '${_IMAGE_NAME}:${_TAG}'
-  - '${_IMAGE_NAME}:latest'
+  - '${_DASHBOARD_IMAGE}:${_TAG}'
+  - '${_DASHBOARD_IMAGE}:latest'
+  - '${_WEBSITE_IMAGE}:${_TAG}'
+  - '${_WEBSITE_IMAGE}:latest'
