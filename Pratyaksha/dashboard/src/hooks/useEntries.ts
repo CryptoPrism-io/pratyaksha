@@ -8,6 +8,8 @@ import {
   toggleBookmark,
   type CreateEntryInput,
   type UpdateEntryInput,
+  type Entry,
+  type EntryFormat,
 } from "../lib/airtable"
 import {
   toTimelineData,
@@ -234,4 +236,152 @@ export function useToggleBookmark() {
       queryClient.invalidateQueries({ queryKey: ["entries"] })
     },
   })
+}
+
+// ========== Decomposition Hooks ==========
+
+// Entry with children grouped together
+export interface EntryWithChildren extends Entry {
+  children: Entry[]
+}
+
+/**
+ * Get entries organized by parent-child relationships
+ * Parent entries include their child entries, orphan entries stand alone
+ */
+export function useEntriesWithDecomposition() {
+  const { data: entries, ...rest } = useEntries()
+
+  const organized = useMemo(() => {
+    if (!entries) return { parents: [], standalone: [] }
+
+    // Separate entries into parents, children, and standalone
+    const parentMap = new Map<string, EntryWithChildren>()
+    const childrenByParent = new Map<string, Entry[]>()
+    const standalone: Entry[] = []
+
+    // First pass: identify structure
+    for (const entry of entries) {
+      if (entry.isDecomposed) {
+        // This is a parent entry
+        parentMap.set(entry.id, { ...entry, children: [] })
+      } else if (entry.parentEntryId) {
+        // This is a child entry
+        const existing = childrenByParent.get(entry.parentEntryId) || []
+        existing.push(entry)
+        childrenByParent.set(entry.parentEntryId, existing)
+      } else {
+        // This is a standalone entry
+        standalone.push(entry)
+      }
+    }
+
+    // Second pass: attach children to parents
+    for (const [parentId, children] of childrenByParent) {
+      const parent = parentMap.get(parentId)
+      if (parent) {
+        // Sort children by sequence order
+        parent.children = children.sort(
+          (a, b) => (a.sequenceOrder || 0) - (b.sequenceOrder || 0)
+        )
+      } else {
+        // Parent not found (maybe filtered out), treat children as standalone
+        standalone.push(...children)
+      }
+    }
+
+    // Convert parent map to array, sorted by date (newest first)
+    const parents = Array.from(parentMap.values()).sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    )
+
+    return { parents, standalone }
+  }, [entries])
+
+  return {
+    data: organized,
+    ...rest,
+  }
+}
+
+/**
+ * Get child entries for a specific parent entry
+ */
+export function useChildEntries(parentId: string | null) {
+  const { data: entries, ...rest } = useEntries()
+
+  const children = useMemo(() => {
+    if (!entries || !parentId) return []
+
+    return entries
+      .filter((entry) => entry.parentEntryId === parentId)
+      .sort((a, b) => (a.sequenceOrder || 0) - (b.sequenceOrder || 0))
+  }, [entries, parentId])
+
+  return {
+    data: children,
+    ...rest,
+  }
+}
+
+/**
+ * Get entry format distribution data
+ */
+export function useFormatDistribution() {
+  const { data: entries, ...rest } = useEntries()
+
+  const distribution = useMemo(() => {
+    if (!entries) return []
+
+    const counts: Record<string, number> = {}
+    for (const entry of entries) {
+      const format = entry.entryFormat || "Quick Log"
+      counts[format] = (counts[format] || 0) + 1
+    }
+
+    return Object.entries(counts)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value)
+  }, [entries])
+
+  return {
+    data: distribution,
+    ...rest,
+  }
+}
+
+/**
+ * Filter entries by format type
+ */
+export function useEntriesByFormat(format: EntryFormat | null) {
+  const { data: entries, ...rest } = useEntries()
+
+  const filtered = useMemo(() => {
+    if (!entries) return []
+    if (!format) return entries
+
+    return entries.filter((entry) => entry.entryFormat === format)
+  }, [entries, format])
+
+  return {
+    data: filtered,
+    ...rest,
+  }
+}
+
+/**
+ * Get only decomposed (parent) entries
+ */
+export function useDecomposedEntries() {
+  const { data: entries, ...rest } = useEntries()
+
+  const decomposed = useMemo(() => {
+    if (!entries) return []
+    return entries.filter((entry) => entry.isDecomposed)
+  }, [entries])
+
+  return {
+    data: decomposed,
+    ...rest,
+  }
 }

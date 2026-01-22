@@ -37,7 +37,18 @@ export interface EntryFields {
   "Entry Theme Tags (AI)"?: string | { value: string; state: string }
   "Is Deleted?"?: boolean
   "Is Bookmarked?"?: boolean
+  // Entry format and decomposition fields
+  "Entry Format"?: string
+  "Parent Entry ID"?: string
+  "Is Decomposed?"?: boolean
+  "Decomposition Count"?: number
+  "Sequence Order"?: number
+  "Approximate Time"?: string
+  "Overarching Theme"?: string
 }
+
+// Entry format types
+export type EntryFormat = "Quick Log" | "Daily Log" | "End of Day" | "Consolidated"
 
 export interface Entry {
   id: string
@@ -66,6 +77,14 @@ export interface Entry {
   createdTime: string
   isDeleted: boolean
   isBookmarked: boolean
+  // Entry format and decomposition fields
+  entryFormat: EntryFormat | string
+  parentEntryId: string | null
+  isDecomposed: boolean
+  decompositionCount: number
+  sequenceOrder: number | null
+  approximateTime: string | null
+  overarchingTheme: string | null
 }
 
 function extractAIField(value: string | { value: string; state: string } | undefined): string {
@@ -106,6 +125,14 @@ function transformRecord(record: AirtableRecord): Entry {
     createdTime: record.createdTime,
     isDeleted: fields["Is Deleted?"] || false,
     isBookmarked: fields["Is Bookmarked?"] || false,
+    // Entry format and decomposition fields
+    entryFormat: (fields["Entry Format"] as EntryFormat) || "Quick Log",
+    parentEntryId: fields["Parent Entry ID"] || null,
+    isDecomposed: fields["Is Decomposed?"] || false,
+    decompositionCount: fields["Decomposition Count"] || 0,
+    sequenceOrder: fields["Sequence Order"] || null,
+    approximateTime: fields["Approximate Time"] || null,
+    overarchingTheme: fields["Overarching Theme"] || null,
   }
 }
 
@@ -114,9 +141,90 @@ export interface CreateEntryInput {
   type?: string
   name?: string
   userId?: string
+  format?: EntryFormat
+  autoDecompose?: boolean // Whether to auto-decompose consolidated entries (default: true)
 }
 
+// Response type for entry creation with potential decomposition
+export interface CreateEntryResponse {
+  success: boolean
+  entry?: {
+    id: string
+    fields: Record<string, unknown>
+  }
+  processing?: {
+    intent: { type: string; name: string; snapshot: string; format: string; isConsolidated: boolean }
+    emotion: { inferredMode: string; inferredEnergy: string; energyShape: string; sentimentAI: string }
+    themes: { themeTagsAI: string[]; contradiction: string | null; loops: string | null }
+    insights: { summaryAI: string; actionableInsightsAI: string; nextAction: string }
+    decomposition?: {
+      shouldDecompose: boolean
+      eventCount: number
+      events: Array<{
+        text: string
+        approximateTime?: string
+        sequenceOrder: number
+        suggestedType?: string
+      }>
+      overarchingTheme?: string
+      decompositionRationale: string
+    }
+  }
+  childEntries?: Array<{
+    id: string
+    parentId: string
+    sequenceOrder: number
+    fields: Record<string, unknown>
+  }>
+  decomposed?: boolean
+  error?: string
+}
+
+/**
+ * Create a new entry using the backend AI processing pipeline
+ * This routes through /api/process-entry which handles:
+ * - AI classification and analysis
+ * - Automatic decomposition of consolidated entries
+ * - Creating parent and child entries in Airtable
+ */
 export async function createEntry(input: CreateEntryInput): Promise<Entry> {
+  // Use the backend API for full AI processing
+  const response = await fetch("/api/process-entry", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      text: input.text,
+      type: input.type,
+      format: input.format,
+      autoDecompose: input.autoDecompose ?? true,
+      userId: input.userId,
+    }),
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ error: "Unknown error" }))
+    throw new Error(errorData.error || `API error: ${response.status}`)
+  }
+
+  const result: CreateEntryResponse = await response.json()
+
+  if (!result.success || !result.entry) {
+    throw new Error(result.error || "Failed to create entry")
+  }
+
+  // Transform the response to Entry format
+  return transformRecord({
+    id: result.entry.id,
+    createdTime: new Date().toISOString(),
+    fields: result.entry.fields as EntryFields,
+  })
+}
+
+/**
+ * Create entry directly to Airtable (bypasses AI processing)
+ * Use this for quick entries that don't need analysis
+ */
+export async function createEntryDirect(input: CreateEntryInput): Promise<Entry> {
   if (!API_KEY) {
     throw new Error("No Airtable API key configured")
   }
@@ -140,6 +248,7 @@ export async function createEntry(input: CreateEntryInput): Promise<Entry> {
     Date: dateStr,
     Timestamp: timestampStr,
     "Entry Length (Words)": wordCount,
+    "Entry Format": input.format || "Quick Log",
   }
 
   // Add User_ID if provided
@@ -368,6 +477,7 @@ export interface UpdateEntryInput {
   recordId: string
   text: string
   type?: string
+  format?: EntryFormat
 }
 
 export interface UpdateEntryResponse {
@@ -386,7 +496,7 @@ export async function updateEntry(input: UpdateEntryInput): Promise<UpdateEntryR
   const response = await fetch(`/api/entry/${input.recordId}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text: input.text, type: input.type }),
+    body: JSON.stringify({ text: input.text, type: input.type, format: input.format }),
   })
 
   if (!response.ok) {

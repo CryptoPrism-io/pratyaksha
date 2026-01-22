@@ -1,6 +1,6 @@
 // Shared types for the AI processing pipeline
 
-// Entry Types (from GPT system prompt)
+// Entry Types (content classification - what the entry is about)
 export const ENTRY_TYPES = [
   "Emotional",
   "Cognitive",
@@ -20,6 +20,16 @@ export const ENTRY_TYPES = [
 ] as const
 
 export type EntryType = (typeof ENTRY_TYPES)[number]
+
+// Entry Formats (structure classification - how the entry is written)
+export const ENTRY_FORMATS = [
+  "Quick Log",      // Brief, single moment capture (default)
+  "Daily Log",      // Individual event during the day
+  "End of Day",     // Comprehensive day reflection, may contain multiple events
+  "Consolidated",   // Multiple distinct events/moments bundled together
+] as const
+
+export type EntryFormat = (typeof ENTRY_FORMATS)[number]
 
 // Inferred Modes (psychological states)
 export const INFERRED_MODES = [
@@ -103,6 +113,24 @@ export interface IntentAgentOutput {
   type: EntryType
   name: string
   snapshot: string
+  format: EntryFormat // NEW: Detected entry format
+  isConsolidated: boolean // NEW: Flag if entry contains multiple distinct events
+}
+
+// Decomposition Agent Output - for splitting consolidated logs
+export interface DecomposedEvent {
+  text: string // Extracted event text
+  approximateTime?: string // e.g., "morning", "afternoon", "8:30 AM"
+  sequenceOrder: number // Order of occurrence
+  suggestedType?: EntryType // AI-suggested type for this event
+}
+
+export interface DecompositionAgentOutput {
+  shouldDecompose: boolean // Whether the entry should be split
+  eventCount: number // Number of distinct events detected
+  events: DecomposedEvent[] // Individual events extracted
+  overarchingTheme?: string // Theme that connects all events
+  decompositionRationale: string // Why the AI decided to decompose (or not)
 }
 
 export interface EmotionAgentOutput {
@@ -131,12 +159,23 @@ export interface ProcessingResult {
   themes: ThemeAgentOutput
   insights: InsightAgentOutput
   tokensUsed: number
+  decomposition?: DecompositionAgentOutput // NEW: Present if entry was analyzed for decomposition
+}
+
+// Child Entry Result (for decomposed events)
+export interface ChildEntryResult {
+  id: string
+  parentId: string
+  sequenceOrder: number
+  fields: Record<string, unknown>
 }
 
 // API Request/Response types
 export interface ProcessEntryRequest {
   text: string
   type?: EntryType
+  format?: EntryFormat // NEW: User can specify format
+  autoDecompose?: boolean // NEW: Whether to auto-decompose consolidated logs (default: true)
 }
 
 export interface ProcessEntryResponse {
@@ -146,6 +185,9 @@ export interface ProcessEntryResponse {
     fields: Record<string, unknown>
   }
   processing?: ProcessingResult
+  // NEW: Child entries created from decomposition
+  childEntries?: ChildEntryResult[]
+  decomposed?: boolean
   error?: string
 }
 

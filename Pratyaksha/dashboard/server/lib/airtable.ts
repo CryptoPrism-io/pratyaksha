@@ -29,6 +29,14 @@ export interface AirtableEntryFields {
   "Entry Theme Tags (AI)"?: string
   "Is Deleted?"?: boolean
   "Is Bookmarked?"?: boolean
+  // NEW: Entry format and decomposition fields
+  "Entry Format"?: string // Quick Log | Daily Log | End of Day | Consolidated
+  "Parent Entry ID"?: string // Links child entries to their parent consolidated entry
+  "Is Decomposed?"?: boolean // True if this consolidated entry has been split into children
+  "Decomposition Count"?: number // Number of child entries generated
+  "Sequence Order"?: number // Order within parent (for child entries)
+  "Approximate Time"?: string // When this event occurred (for child entries)
+  "Overarching Theme"?: string // Theme connecting all events (for parent entries)
 }
 
 export interface AirtableRecord {
