@@ -1,0 +1,29 @@
+steps:
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'asia-south1-docker.pkg.dev/social-data-pipeline-and-push/pratyaksha/website:$COMMIT_SHA'
+      - '-t'
+      - 'asia-south1-docker.pkg.dev/social-data-pipeline-and-push/pratyaksha/website:latest'
+      - '.'
+    dir: 'Pratyaksha/website'
+
+  # Push the container image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'asia-south1-docker.pkg.dev/social-data-pipeline-and-push/pratyaksha/website:$COMMIT_SHA'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'asia-south1-docker.pkg.dev/social-data-pipeline-and-push/pratyaksha/website:latest'
+
+images:
+  - 'asia-south1-docker.pkg.dev/social-data-pipeline-and-push/pratyaksha/website:$COMMIT_SHA'
+  - 'asia-south1-docker.pkg.dev/social-data-pipeline-and-push/pratyaksha/website:latest'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
