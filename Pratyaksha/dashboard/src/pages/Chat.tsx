@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useMemo } from "react"
-import { Trash2, AlertCircle, Sparkles, RotateCcw } from "lucide-react"
+import { AlertCircle, Sparkles, RotateCcw } from "lucide-react"
 import { useChat } from "../hooks/useChat"
 import { ChatMessage } from "../components/chat/ChatMessage"
 import { ChatInput } from "../components/chat/ChatInput"
