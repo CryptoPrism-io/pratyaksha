@@ -17,10 +17,10 @@ pyairtable/
 .DS_Store
 Thumbs.db
 
-# Node.js (root level)
+# Node.js (root level only)
 node_modules/
-package-lock.json
-package.json
+/package-lock.json
+/package.json
 
 # Temp data files
 airtable_data.json
