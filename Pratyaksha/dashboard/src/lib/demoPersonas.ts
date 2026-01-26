@@ -7,26 +7,43 @@ import { getKratosDemoData } from "./demoData/kratosData"
 import { getSherlockDemoData } from "./demoData/sherlockData"
 import { getNovaDemoData } from "./demoData/novaData"
 
+// Type for demo entries that don't have the decomposition fields
+type DemoEntryBase = Omit<Entry, "entryFormat" | "parentEntryId" | "isDecomposed" | "decompositionCount" | "sequenceOrder" | "approximateTime" | "overarchingTheme">
+
+// Helper to add required fields with defaults to demo entries
+function withDefaults(entries: DemoEntryBase[]): Entry[] {
+  return entries.map(entry => ({
+    ...entry,
+    entryFormat: "Quick Log" as const,
+    parentEntryId: null,
+    isDecomposed: false,
+    decompositionCount: 0,
+    sequenceOrder: null,
+    approximateTime: null,
+    overarchingTheme: null,
+  }))
+}
+
 /**
  * Get demo data for a specific persona
  */
 export function getDemoData(persona: DemoPersona): Entry[] {
   switch (persona) {
     case "mario":
-      return getMarioDemoData()
+      return withDefaults(getMarioDemoData())
     case "kratos":
-      return getKratosDemoData()
+      return withDefaults(getKratosDemoData() as DemoEntryBase[])
     case "sherlock":
-      return getSherlockDemoData()
+      return withDefaults(getSherlockDemoData() as DemoEntryBase[])
     case "nova":
-      return getNovaDemoData()
+      return withDefaults(getNovaDemoData() as DemoEntryBase[])
     default:
-      return getMarioDemoData()
+      return withDefaults(getMarioDemoData())
   }
 }
 
 // Mario Demo Data - 45 entries spanning 6 weeks
-function getMarioDemoData(): Entry[] {
+function getMarioDemoData(): DemoEntryBase[] {
   return [
     // Week 1 - Castle Adventures & Bowser Encounters
     {

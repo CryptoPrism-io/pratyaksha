@@ -552,6 +552,8 @@ export interface Stats {
   mostCommonType: string
   positiveRatio: number
   negativeRatio: number
+  uniqueModes: number
+  sentimentBreakdown: { positive: number; negative: number; neutral: number }
 }
 
 export function calculateStats(entries: Entry[]): Stats {
@@ -569,6 +571,10 @@ export function calculateStats(entries: Entry[]): Stats {
 
   const positive = entries.filter((e) => e.sentimentAI.toLowerCase().includes("positive")).length
   const negative = entries.filter((e) => e.sentimentAI.toLowerCase().includes("negative")).length
+  const neutral = total - positive - negative
+
+  // Count unique modes
+  const uniqueModes = Object.keys(modeCounts).filter(k => k && k !== "Unknown" && k !== "").length
 
   return {
     totalEntries: total,
@@ -578,5 +584,7 @@ export function calculateStats(entries: Entry[]): Stats {
     mostCommonType,
     positiveRatio: Math.round((positive / total) * 100),
     negativeRatio: Math.round((negative / total) * 100),
+    uniqueModes,
+    sentimentBreakdown: { positive, negative, neutral },
   }
 }
