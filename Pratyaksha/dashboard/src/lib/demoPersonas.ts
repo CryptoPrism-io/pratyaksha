@@ -32,11 +32,11 @@ export function getDemoData(persona: DemoPersona): Entry[] {
     case "mario":
       return withDefaults(getMarioDemoData())
     case "kratos":
-      return withDefaults(getKratosDemoData() as DemoEntryBase[])
+      return withDefaults(getKratosDemoData())
     case "sherlock":
-      return withDefaults(getSherlockDemoData() as DemoEntryBase[])
+      return withDefaults(getSherlockDemoData())
     case "nova":
-      return withDefaults(getNovaDemoData() as DemoEntryBase[])
+      return withDefaults(getNovaDemoData())
     default:
       return withDefaults(getMarioDemoData())
   }

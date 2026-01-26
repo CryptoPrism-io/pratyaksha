@@ -1,7 +1,7 @@
 // Kratos Demo Data - God of War themed entries
-import type { Entry } from "../airtable"
+// Note: Returns base demo entries without decomposition fields (added by withDefaults in demoPersonas.ts)
 
-export function getKratosDemoData(): Entry[] {
+export function getKratosDemoData() {
   return [
     // Week 1 - Training Atreus, Patience Struggles
     {

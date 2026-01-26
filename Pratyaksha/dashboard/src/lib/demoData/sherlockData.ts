@@ -1,7 +1,7 @@
 // Sherlock Holmes Demo Data - Detective themed entries
-import type { Entry } from "../airtable"
+// Note: Returns base demo entries without decomposition fields (added by withDefaults in demoPersonas.ts)
 
-export function getSherlockDemoData(): Entry[] {
+export function getSherlockDemoData() {
   return [
     // Week 1 - New Case Intrigue
     {

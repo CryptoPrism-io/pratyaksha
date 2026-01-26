@@ -1,7 +1,7 @@
 // Nova Demo Data - Startup Founder themed entries
-import type { Entry } from "../airtable"
+// Note: Returns base demo entries without decomposition fields (added by withDefaults in demoPersonas.ts)
 
-export function getNovaDemoData(): Entry[] {
+export function getNovaDemoData() {
   return [
     // Week 1 - Pitch Deck Stress, Investor Meetings
     {
