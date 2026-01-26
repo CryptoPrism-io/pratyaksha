@@ -1,9 +1,16 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { BaseOverlay, AnimatedText, GlassCard, TypewriterText } from './BaseOverlay'
-import { STATE_CONTENT, STATES, STATE_COLORS } from '@/lib/constants'
-import { BarChart3, PieChart, Tags, TrendingUp, Sparkles } from 'lucide-react'
-import { DemoModeChart, DemoTimelineChart, DemoThemeCloud, DemoActivityChart } from '@/components/DemoCharts'
+import { BaseOverlay } from './BaseOverlay'
+import {
+  Brain,
+  Zap,
+  GitBranch,
+  BarChart3,
+  Lightbulb,
+  Mic,
+  Sparkles,
+} from 'lucide-react'
+import { DemoModeChart, DemoTimelineChart, DemoThemeCloud, DemoRadarChart, DemoSankeyChart, DemoDashboardPreview } from '@/components/DemoCharts'
 
 interface FeaturesOverlayProps {
   isVisible: boolean
@@ -12,107 +19,156 @@ interface FeaturesOverlayProps {
   isPreloading?: boolean
 }
 
-// Chart cards configuration
-const CHART_CARDS = [
+// Stats configuration
+const STATS = [
+  { value: '21+', label: 'Visualizations', sublabel: 'Charts & insights', color: '#a78bfa' },
+  { value: '4', label: 'AI Agents', sublabel: 'Working in sequence', color: '#60a5fa' },
+  { value: '12', label: 'Contradictions', sublabel: 'Tracked patterns', color: '#f472b6' },
+  { value: '<2s', label: 'Processing', sublabel: 'Per entry analysis', color: '#34d399' },
+]
+
+// Features with associated demo charts
+const FEATURES = [
   {
-    id: 'modes',
-    title: 'Cognitive Modes',
-    description: 'Track your mental states',
-    icon: PieChart,
-    Chart: DemoModeChart,
+    id: 'intent',
+    icon: Brain,
+    title: 'Intent Classification',
+    description: 'Automatically categorizes your entry: Emotional, Cognitive, Work, Health, Reflection, or 10 other types.',
+    color: '#a78bfa',
+    Chart: DemoSankeyChart,
+    chartLabel: 'Entry Type → Sentiment Flow',
   },
   {
-    id: 'timeline',
-    title: 'Emotional Timeline',
-    description: 'See your journey unfold',
-    icon: TrendingUp,
-    Chart: DemoTimelineChart,
+    id: 'mood',
+    icon: Zap,
+    title: 'Mood & Energy Shapes',
+    description: 'Beyond simple moods — detect whether your energy is Rising, Chaotic, Centered, Expanding, or Flat.',
+    color: '#f472b6',
+    Chart: DemoRadarChart,
+    chartLabel: 'Energy Shape Radar',
   },
   {
-    id: 'themes',
-    title: 'Theme Patterns',
-    description: 'Discover recurring themes',
-    icon: Tags,
+    id: 'contradiction',
+    icon: GitBranch,
+    title: 'Contradiction Tracking',
+    description: 'Unique feature: Spot internal conflicts like "Action vs Fear" or "Growth vs Comfort" across entries.',
+    color: '#fbbf24',
     Chart: DemoThemeCloud,
+    chartLabel: 'Contradiction Patterns',
   },
   {
-    id: 'activity',
-    title: 'Daily Rhythm',
-    description: 'Your journaling habits',
+    id: 'viz',
     icon: BarChart3,
-    Chart: DemoActivityChart,
+    title: '21 Visualizations',
+    description: 'Sankey flows, GitHub-style heatmaps, radar charts, theme clouds, emotional timelines, and more.',
+    color: '#60a5fa',
+    Chart: DemoDashboardPreview,
+    chartLabel: 'Dashboard Preview',
+  },
+  {
+    id: 'insights',
+    icon: Lightbulb,
+    title: 'Actionable Insights',
+    description: 'Each entry ends with a personalized "Next Action" suggestion based on your cognitive patterns.',
+    color: '#34d399',
+    Chart: DemoTimelineChart,
+    chartLabel: 'Insight Timeline',
+  },
+  {
+    id: 'voice',
+    icon: Mic,
+    title: 'Voice Journaling',
+    description: 'Speak your thoughts freely. Real-time transcription means less friction, more flow.',
+    color: '#f97316',
+    Chart: DemoRadarChart,
+    chartLabel: 'Voice Entry Patterns',
   },
 ]
 
 export function FeaturesOverlay({ isVisible, onNext, transitionOpacity, isPreloading }: FeaturesOverlayProps) {
-  const content = STATE_CONTENT[STATES.ILLUMINATED]
-  const color = STATE_COLORS[STATES.ILLUMINATED]
-  const [hoveredCard, setHoveredCard] = useState<string | null>(null)
+  const [activeFeature, setActiveFeature] = useState<string | null>(null)
+
+  // Handle both hover (desktop) and tap (mobile)
+  const handleInteraction = (featureId: string) => {
+    setActiveFeature(prev => prev === featureId ? null : featureId)
+  }
 
   return (
     <BaseOverlay isVisible={isVisible} transitionOpacity={transitionOpacity} isPreloading={isPreloading}>
-      <div className="flex flex-col items-center justify-start text-center px-4 sm:px-6 max-w-5xl mx-auto py-4">
-        {/* Badge */}
-        <AnimatedText delay={0} animation="scaleIn">
-          <motion.div
-            className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full mb-3 sm:mb-5 text-xs sm:text-sm"
-            style={{ backgroundColor: `${color.hex}20`, color: color.hex }}
-            whileHover={{ scale: 1.05 }}
+      <div className="flex flex-col items-center justify-start px-4 sm:px-6 max-w-5xl mx-auto py-4">
+        {/* Stats Bar */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={isVisible ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-3xl mb-6"
+        >
+          <div
+            className="grid grid-cols-4 gap-2 sm:gap-4 p-3 sm:p-4 rounded-2xl"
+            style={{
+              backgroundColor: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.06)',
+            }}
           >
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
-            >
-              <BarChart3 className="w-4 h-4" />
-            </motion.div>
-            21 Visualizations
-          </motion.div>
-        </AnimatedText>
+            {STATS.map((stat, i) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 10 }}
+                animate={isVisible ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.4, delay: 0.1 + i * 0.1 }}
+                className="text-center"
+              >
+                <div
+                  className="text-xl sm:text-2xl lg:text-3xl font-bold mb-1"
+                  style={{ color: stat.color }}
+                >
+                  {stat.value}
+                </div>
+                <div className="text-[10px] sm:text-xs text-white/70 font-medium">{stat.label}</div>
+                <div className="text-[8px] sm:text-[10px] text-white/40 hidden sm:block">{stat.sublabel}</div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
 
-        {/* Headline */}
-        <AnimatedText delay={0.1} animation="pop">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2 sm:mb-3">
-            {content.headline}
+        {/* Section Title */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={isVisible ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="text-center mb-6"
+        >
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-2" style={{ textAlign: 'center' }}>
+            Beyond simple journaling
           </h2>
-        </AnimatedText>
-
-        {/* Subline with typewriter effect */}
-        <AnimatedText delay={0.15} animation="slideUp">
-          <p className="text-sm sm:text-lg text-white/70 mb-4 sm:mb-6 max-w-lg">
-            <TypewriterText
-              text={content.subline}
-              delay={0.2}
-              speed={18}
-              highlights={[
-                { words: ['21'], color: '#fbbf24', fontClass: 'font-cabinet' },
-                { words: ['see'], color: '#f59e0b', fontClass: 'font-playfair', italic: true },
-                { words: ['show'], color: '#fcd34d', fontClass: 'font-syne' },
-              ]}
-            />
+          <p className="text-sm sm:text-base text-white/60 max-w-lg mx-auto" style={{ textAlign: 'center' }}>
+            Pratyaksha doesn't just store your thoughts — it analyzes them with 4 specialized AI agents to reveal patterns you've never seen before.
           </p>
-        </AnimatedText>
+        </motion.div>
 
-        {/* Chart cards - 2x2 grid */}
-        <div className="grid grid-cols-2 gap-2 sm:gap-3 w-full max-w-2xl relative">
-          {CHART_CARDS.map((card, index) => {
-            const Icon = card.icon
-            const Chart = card.Chart
-            const isHovered = hoveredCard === card.id
+        {/* Features Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 w-full max-w-4xl relative">
+          {FEATURES.map((feature, index) => {
+            const Icon = feature.icon
+            const Chart = feature.Chart
+            const isActive = activeFeature === feature.id
+            const delay = 0.4 + index * 0.1
 
             return (
               <motion.div
-                key={card.id}
+                key={feature.id}
                 initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                animate={isVisible ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
-                onMouseEnter={() => setHoveredCard(card.id)}
-                onMouseLeave={() => setHoveredCard(null)}
-                className="relative"
-                style={{ zIndex: isHovered ? 50 : 1 }}
+                animate={isVisible ? { opacity: 1, y: 0, scale: 1 } : {}}
+                transition={{ duration: 0.5, delay }}
+                onMouseEnter={() => window.innerWidth > 768 && setActiveFeature(feature.id)}
+                onMouseLeave={() => window.innerWidth > 768 && setActiveFeature(null)}
+                onClick={() => window.innerWidth <= 768 && handleInteraction(feature.id)}
+                className="relative cursor-pointer"
+                style={{ zIndex: isActive ? 50 : 1 }}
               >
                 <motion.div
-                  animate={isHovered ? {
-                    scale: 1.618,
+                  animate={isActive ? {
+                    scale: window.innerWidth <= 768 ? 1.02 : 1.08,
                     zIndex: 50,
                   } : {
                     scale: 1,
@@ -125,40 +181,92 @@ export function FeaturesOverlay({ isVisible, onNext, transitionOpacity, isPreloa
                   }}
                   className="origin-center"
                 >
-                  <GlassCard className={`h-full !p-2 sm:!p-3 transition-all duration-300 border ${
-                    isHovered
-                      ? 'bg-slate-900/95 border-white/30 shadow-2xl shadow-black/50'
-                      : 'hover:bg-white/10 border-transparent hover:border-white/20'
-                  }`}>
+                  {/* Card */}
+                  <div
+                    className="rounded-xl p-4 transition-all duration-300 h-full"
+                    style={{
+                      backgroundColor: isActive ? 'rgba(15,15,20,0.98)' : 'rgba(255,255,255,0.03)',
+                      border: `1px solid ${isActive ? feature.color + '50' : 'rgba(255,255,255,0.06)'}`,
+                      boxShadow: isActive ? `0 20px 40px -10px ${feature.color}30` : 'none',
+                    }}
+                  >
                     {/* Header */}
-                    <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2">
+                    <div className="flex items-start gap-3 mb-3">
                       <div
-                        className="w-5 h-5 sm:w-6 sm:h-6 rounded flex items-center justify-center flex-shrink-0"
-                        style={{ backgroundColor: `${color.hex}20` }}
+                        className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                        style={{ backgroundColor: feature.color + '20' }}
                       >
-                        <Icon className="w-3 h-3 sm:w-3.5 sm:h-3.5" style={{ color: color.hex }} />
+                        <Icon className="w-5 h-5" style={{ color: feature.color }} />
                       </div>
-                      <div className="text-left min-w-0">
-                        <h3 className="text-white font-medium text-[10px] sm:text-xs leading-tight truncate">
-                          {card.title}
-                        </h3>
-                        <p className="text-white/50 text-[8px] sm:text-[10px] leading-tight truncate">
-                          {card.description}
-                        </p>
+                      <div>
+                        <h3 className="text-sm font-semibold text-white mb-1">{feature.title}</h3>
+                        {!isActive && (
+                          <p className="text-xs text-white/50 line-clamp-2">{feature.description}</p>
+                        )}
                       </div>
                     </div>
 
-                    {/* Chart container */}
-                    <div className={`w-full rounded bg-white/5 overflow-hidden transition-all duration-300 ${
-                      isHovered ? 'h-32 sm:h-40' : 'h-20 sm:h-28'
-                    }`}>
-                      {isVisible && <Chart animate={!isHovered} />}
-                    </div>
-                  </GlassCard>
+                    {/* Hover content: Show visualization */}
+                    {isActive ? (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        {/* Chart label */}
+                        <div className="flex items-center gap-2 mb-2">
+                          <div
+                            className="w-2 h-2 rounded-full"
+                            style={{ backgroundColor: feature.color }}
+                          />
+                          <span className="text-[10px] text-white/50 uppercase tracking-wider">
+                            {feature.chartLabel}
+                          </span>
+                        </div>
+
+                        {/* Chart container */}
+                        <div
+                          className="w-full h-36 rounded-lg overflow-hidden"
+                          style={{ backgroundColor: 'rgba(255,255,255,0.03)' }}
+                        >
+                          <Chart animate={false} />
+                        </div>
+
+                        {/* Description below chart */}
+                        <p className="text-[10px] text-white/40 mt-2 line-clamp-2">
+                          {feature.description}
+                        </p>
+                      </motion.div>
+                    ) : (
+                      /* Default: Just the colored accent line */
+                      <div
+                        className="h-1 rounded-full mt-2"
+                        style={{
+                          background: `linear-gradient(to right, ${feature.color}50, transparent)`,
+                        }}
+                      />
+                    )}
+
+                    {/* Glow indicator */}
+                    <motion.div
+                      className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full"
+                      style={{ backgroundColor: feature.color }}
+                      initial={{ scale: 0 }}
+                      animate={isVisible ? {
+                        scale: [0, 1.2, 1],
+                        boxShadow: [
+                          `0 0 0 0 ${feature.color}`,
+                          `0 0 10px 3px ${feature.color}50`,
+                          `0 0 5px 1px ${feature.color}30`,
+                        ]
+                      } : {}}
+                      transition={{ duration: 0.5, delay: delay + 0.1 }}
+                    />
+                  </div>
                 </motion.div>
 
-                {/* Overlay to dim other cards when one is hovered */}
-                {hoveredCard && hoveredCard !== card.id && (
+                {/* Dim other cards when one is hovered */}
+                {activeFeature && activeFeature !== feature.id && (
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 0.5 }}
@@ -171,48 +279,55 @@ export function FeaturesOverlay({ isVisible, onNext, transitionOpacity, isPreloa
           })}
         </div>
 
-        {/* Footer */}
-        <AnimatedText delay={0.6} animation="slideUp" className="mt-3 sm:mt-4">
-          <p className="text-white/40 text-[10px] sm:text-xs">
-            + 17 more visualizations in the full dashboard
-          </p>
-        </AnimatedText>
-
-        {/* CTA Buttons */}
+        {/* Footer hint */}
         <motion.div
+          initial={{ opacity: 0 }}
+          animate={isVisible ? { opacity: 1 } : {}}
+          transition={{ delay: 1.2 }}
+          className="mt-6 flex items-center gap-2 text-white/30 text-xs"
+        >
+          <motion.div
+            className="w-8 h-px bg-gradient-to-r from-transparent to-white/20"
+            initial={{ scaleX: 0 }}
+            animate={isVisible ? { scaleX: 1 } : {}}
+            transition={{ delay: 1.3, duration: 0.5 }}
+          />
+          <span className="hidden sm:inline">Hover to see sample visualizations</span>
+          <span className="sm:hidden">Tap to see sample visualizations</span>
+          <motion.div
+            className="w-8 h-px bg-gradient-to-l from-transparent to-white/20"
+            initial={{ scaleX: 0 }}
+            animate={isVisible ? { scaleX: 1 } : {}}
+            transition={{ delay: 1.3, duration: 0.5 }}
+          />
+        </motion.div>
+
+        {/* CTA */}
+        <motion.button
+          onClick={onNext}
           initial={{ opacity: 0, y: 20 }}
           animate={isVisible ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5, delay: 0.8 }}
-          className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-center gap-3"
+          transition={{ duration: 0.5, delay: 1.4 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.98 }}
+          className="mt-4 group flex items-center gap-2 px-6 py-3 rounded-full transition-all"
+          style={{
+            background: 'linear-gradient(to right, rgba(168,85,247,0.2), rgba(236,72,153,0.2))',
+            border: '1px solid rgba(168,85,247,0.3)',
+          }}
         >
-          {/* Primary: Continue to final CTA */}
-          <motion.button
-            onClick={onNext}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.98 }}
-            className="group flex items-center gap-2 px-6 py-3 rounded-full bg-white/10 border border-white/20 text-white hover:bg-white/20 hover:border-white/30 transition-all duration-300"
+          <Sparkles className="w-4 h-4" style={{ color: '#c4b5fd' }} />
+          <span className="text-sm font-medium" style={{ color: '#c4b5fd' }}>
+            Ready to Start
+          </span>
+          <motion.span
+            animate={{ x: [0, 4, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+            style={{ color: '#c4b5fd' }}
           >
-            <motion.div
-              animate={{ rotate: [0, 15, -15, 0] }}
-              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-            >
-              <Sparkles className="w-4 h-4" style={{ color: STATE_COLORS[STATES.ILLUMINATED].hex }} />
-            </motion.div>
-            <span className="text-sm font-medium">Begin Your Journey</span>
-          </motion.button>
-
-          {/* Secondary: Explore Dashboard */}
-          <motion.a
-            href="https://pratyaksha-963362833537.asia-south1.run.app/dashboard"
-            target="_blank"
-            rel="noopener noreferrer"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.98 }}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/20 text-white/70 hover:text-white hover:border-white/30 text-sm transition-all"
-          >
-            Explore Dashboard
-          </motion.a>
-        </motion.div>
+            →
+          </motion.span>
+        </motion.button>
       </div>
     </BaseOverlay>
   )

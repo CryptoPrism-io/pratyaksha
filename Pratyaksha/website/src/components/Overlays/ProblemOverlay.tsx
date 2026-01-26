@@ -130,7 +130,7 @@ export function ProblemOverlay({ isVisible, onNext, transitionOpacity, isPreload
               >
                 <motion.div
                   animate={isHovered ? {
-                    scale: 1.618,
+                    scale: window.innerWidth <= 768 ? 1.03 : 1.12,
                     zIndex: 50,
                   } : {
                     scale: 1,

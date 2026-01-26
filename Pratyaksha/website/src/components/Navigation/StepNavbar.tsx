@@ -39,19 +39,52 @@ export function StepNavbar({ currentStep, totalSteps, stepConfig, isLocked, onNa
       <div className="max-w-6xl mx-auto">
         {/* Main navbar row */}
         <div className="flex items-center justify-between h-12">
-          {/* Logo */}
+          {/* Logo with bright colors */}
           <motion.a
             href="#"
             className="flex items-center gap-2 group"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-sm border border-white/10 flex items-center justify-center group-hover:border-white/20 transition-colors">
-              <Sparkles className="w-4 h-4 text-white" />
-            </div>
+            <motion.div
+              className="w-9 h-9 rounded-xl backdrop-blur-sm border border-white/20 flex items-center justify-center group-hover:border-white/40 transition-colors"
+              style={{
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(168,85,247,0.2) 100%)',
+              }}
+              animate={{
+                boxShadow: [
+                  '0 0 15px rgba(168,85,247,0.3)',
+                  '0 0 25px rgba(236,72,153,0.4)',
+                  '0 0 15px rgba(168,85,247,0.3)',
+                ],
+              }}
+              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              <motion.div
+                animate={{ rotate: [0, 10, -10, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                <Sparkles className="w-4 h-4 text-white" />
+              </motion.div>
+            </motion.div>
             <div className="hidden sm:flex flex-col">
-              <span className="text-white font-semibold text-sm leading-tight">Pratyaksha</span>
-              <span className="text-white/40 text-[10px] leading-tight">Cognitive Journal</span>
+              <motion.span
+                className="font-semibold text-sm leading-tight"
+                style={{
+                  background: 'linear-gradient(90deg, #ffffff, #f0abfc, #ffffff)',
+                  backgroundSize: '200% 100%',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+                animate={{
+                  backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+                }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+              >
+                Pratyaksha
+              </motion.span>
+              <span className="text-white/50 text-[10px] leading-tight">Cognitive Journal</span>
             </div>
           </motion.a>
 
