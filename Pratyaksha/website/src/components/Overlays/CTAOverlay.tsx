@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { BaseOverlay } from './BaseOverlay'
+import { VerticalBranding } from './VerticalBranding'
 import { ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react'
 
 interface CTAOverlayProps {
@@ -10,13 +11,15 @@ interface CTAOverlayProps {
 
 const BENEFITS = [
   'No credit card required',
-  '4 AI agents analyzing every entry',
-  '21+ visualizations included',
+  '21+ visualizations',
+  'Analysis in <2 seconds',
+  'Your data stays private',
 ]
 
 export function CTAOverlay({ isVisible, transitionOpacity, isPreloading }: CTAOverlayProps) {
   return (
     <BaseOverlay isVisible={isVisible} transitionOpacity={transitionOpacity} isPreloading={isPreloading}>
+      <VerticalBranding isVisible={isVisible} animationStyle="flicker" />
       <div className="flex flex-col items-center justify-center text-center px-4 sm:px-6 max-w-4xl mx-auto">
         {/* Card container */}
         <motion.div
@@ -67,9 +70,22 @@ export function CTAOverlay({ isVisible, transitionOpacity, isPreloading }: CTAOv
               style={{ textAlign: 'center' }}
             >
               Ready to see your mind{' '}
-              <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+              <motion.span
+                style={{
+                  color: '#f0abfc',
+                  textShadow: '0 0 10px #e879f9, 0 0 20px #d946ef, 0 0 40px #c026d3, 0 0 60px #a855f7',
+                }}
+                animate={{
+                  textShadow: [
+                    '0 0 10px #e879f9, 0 0 20px #d946ef, 0 0 40px #c026d3, 0 0 60px #a855f7',
+                    '0 0 15px #f0abfc, 0 0 30px #e879f9, 0 0 50px #d946ef, 0 0 80px #c026d3',
+                    '0 0 10px #e879f9, 0 0 20px #d946ef, 0 0 40px #c026d3, 0 0 60px #a855f7',
+                  ],
+                }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+              >
                 clearly?
-              </span>
+              </motion.span>
             </motion.h2>
 
             {/* Description */}
@@ -91,7 +107,7 @@ export function CTAOverlay({ isVisible, transitionOpacity, isPreloading }: CTAOv
               className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8"
             >
               <motion.a
-                href="https://pratyaksha-963362833537.asia-south1.run.app/dashboard"
+                href="https://pratyaksha-dashboard-963362833537.asia-south1.run.app"
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.05 }}
@@ -102,12 +118,12 @@ export function CTAOverlay({ isVisible, transitionOpacity, isPreloading }: CTAOv
                   boxShadow: '0 10px 40px -10px rgba(168, 85, 247, 0.4)',
                 }}
               >
-                Start Journaling Free
+                Decode Your Patterns
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </motion.a>
 
               <motion.a
-                href="https://pratyaksha-963362833537.asia-south1.run.app"
+                href="https://pratyaksha-dashboard-963362833537.asia-south1.run.app"
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.05 }}
@@ -126,7 +142,7 @@ export function CTAOverlay({ isVisible, transitionOpacity, isPreloading }: CTAOv
               initial={{ opacity: 0, y: 20 }}
               animate={isVisible ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: 0.5 }}
-              className="flex flex-col sm:flex-row items-center justify-center gap-x-6 gap-y-3"
+              className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2"
             >
               {BENEFITS.map((benefit, i) => (
                 <motion.div
@@ -134,9 +150,9 @@ export function CTAOverlay({ isVisible, transitionOpacity, isPreloading }: CTAOv
                   initial={{ opacity: 0, y: 10 }}
                   animate={isVisible ? { opacity: 1, y: 0 } : {}}
                   transition={{ duration: 0.4, delay: 0.6 + i * 0.1 }}
-                  className="inline-flex items-center gap-2 text-sm text-white/50"
+                  className="inline-flex items-center gap-1.5 text-xs text-white/50"
                 >
-                  <CheckCircle2 className="w-4 h-4 flex-shrink-0" style={{ color: '#34d399' }} />
+                  <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#34d399' }} />
                   <span>{benefit}</span>
                 </motion.div>
               ))}

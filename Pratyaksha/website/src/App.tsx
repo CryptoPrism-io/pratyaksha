@@ -83,17 +83,17 @@ function App() {
       {/* Enhanced scroll hint with safe area support */}
       {stepConfig.type === 'text' && !isLocked && currentStep < totalSteps - 1 && (
         <div
-          className="fixed left-1/2 -translate-x-1/2 z-40 flex flex-col items-center text-white/50 scroll-hint"
-          style={{ bottom: 'calc(2rem + env(safe-area-inset-bottom, 0px))' }}
+          className="fixed left-1/2 z-40 flex flex-col items-center text-center text-white/20 scroll-hint"
+          style={{ bottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))', transform: 'translateX(calc(-50% - 25px))' }}
         >
-          <span className="text-xs sm:text-sm mb-2 tracking-widest uppercase">
+          <span className="text-[9px] sm:text-[10px] mb-1 tracking-wider uppercase text-center">
             {currentStep === 0 ? 'Scroll to explore' : 'Continue'}
           </span>
-          <div className="flex flex-col items-center gap-1">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="flex flex-col items-center">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 14l-7 7m0 0l-7-7" />
             </svg>
-            <svg className="w-5 h-5 -mt-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-3.5 h-3.5 -mt-2 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 14l-7 7m0 0l-7-7" />
             </svg>
           </div>

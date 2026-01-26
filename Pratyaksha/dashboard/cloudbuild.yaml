@@ -68,14 +68,30 @@ steps:
 
   # ============================================
   # DEPLOY TO CLOUD RUN
+  # Website → pratyaksha (MAIN URL)
+  # Dashboard → pratyaksha-dashboard (NEW SERVICE)
   # ============================================
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'deploy-website'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'pratyaksha'
+      - '--image'
+      - '${_WEBSITE_IMAGE}:latest'
+      - '--region'
+      - 'asia-south1'
+      - '--allow-unauthenticated'
+    waitFor: ['push-website']
+
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     id: 'deploy-dashboard'
     entrypoint: 'gcloud'
     args:
       - 'run'
       - 'deploy'
-      - 'pratyaksha'
+      - 'pratyaksha-dashboard'
       - '--image'
       - '${_DASHBOARD_IMAGE}:latest'
       - '--region'
@@ -84,20 +100,6 @@ steps:
       - '--set-env-vars'
       - 'AIRTABLE_API_KEY=${_VITE_AIRTABLE_API_KEY},AIRTABLE_BASE_ID=${_VITE_AIRTABLE_BASE_ID},AIRTABLE_TABLE_ID=${_VITE_AIRTABLE_TABLE_ID},OPENROUTER_API_KEY=${_OPENROUTER_API_KEY}'
     waitFor: ['push-dashboard']
-
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    id: 'deploy-website'
-    entrypoint: 'gcloud'
-    args:
-      - 'run'
-      - 'deploy'
-      - 'pratyaksha-website'
-      - '--image'
-      - '${_WEBSITE_IMAGE}:latest'
-      - '--region'
-      - 'asia-south1'
-      - '--allow-unauthenticated'
-    waitFor: ['push-website']
 
 # Default substitutions
 substitutions:

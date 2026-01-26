@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { BaseOverlay, AnimatedText } from './BaseOverlay'
+import { VerticalBranding } from './VerticalBranding'
 import { STATE_CONTENT, STATES } from '@/lib/constants'
 import { Brain, Heart, Tags, Lightbulb, FileText, Sparkles } from 'lucide-react'
 
@@ -81,6 +82,7 @@ export function SolutionOverlay({ isVisible, onNext, transitionOpacity, isPreloa
 
   return (
     <BaseOverlay isVisible={isVisible} transitionOpacity={transitionOpacity} isPreloading={isPreloading}>
+      <VerticalBranding isVisible={isVisible} animationStyle="pulse" />
       <div className="flex flex-col items-center justify-start text-center px-4 sm:px-6 max-w-4xl mx-auto py-4">
         {/* Badge */}
         <motion.div
@@ -101,7 +103,7 @@ export function SolutionOverlay({ isVisible, onNext, transitionOpacity, isPreloa
 
         {/* Headline */}
         <AnimatedText delay={0.1} animation="pop">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3" style={{ textAlign: 'center' }}>
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-3" style={{ textAlign: 'center' }}>
             {content.headline}
           </h2>
         </AnimatedText>
@@ -189,7 +191,7 @@ export function SolutionOverlay({ isVisible, onNext, transitionOpacity, isPreloa
               />
             ))}
 
-            {/* White dot - travels down center */}
+            {/* White dot - travels down center then fades as colored dots appear */}
             <motion.div
               className="absolute w-2.5 h-2.5 rounded-full left-1/2"
               style={{
@@ -197,45 +199,45 @@ export function SolutionOverlay({ isVisible, onNext, transitionOpacity, isPreloa
                 boxShadow: '0 0 12px rgba(255,255,255,0.9), 0 0 24px rgba(255,255,255,0.5)',
                 marginLeft: '-5px',
               }}
-              initial={{ opacity: 0, top: 0 }}
+              initial={{ opacity: 0, top: 0, scale: 0 }}
               animate={isVisible ? {
                 opacity: [0, 1, 1, 0],
+                scale: [0, 1, 1, 0],
                 top: ['0px', '16px', '16px', '16px'],
               } : {}}
               transition={{
-                duration: 0.4,
+                duration: 0.5,
                 delay: 1.5,
-                repeat: Infinity,
-                repeatDelay: 3.6,
+                times: [0, 0.4, 0.8, 1],
+                ease: 'easeOut',
               }}
             />
 
-            {/* 4 colored dots - appear at center, move horizontally, then down */}
+            {/* 4 colored dots - appear at center, move horizontally, then down, stay at final position */}
             {[0, 1, 2, 3].map((i) => {
               const targetLeft = 20 + i * 20 // 20%, 40%, 60%, 80%
 
               return (
                 <motion.div
                   key={`dot-${i}`}
-                  className="absolute w-2 h-2 rounded-full"
+                  className="absolute rounded-full"
                   style={{
                     backgroundColor: AGENTS[i].color,
                     boxShadow: `0 0 10px ${AGENTS[i].color}, 0 0 16px ${AGENTS[i].color}70`,
                     marginLeft: '-4px',
                   }}
-                  initial={{ opacity: 0, left: '50%', top: '16px' }}
+                  initial={{ opacity: 0, left: '50%', top: '16px', scale: 0, width: 8, height: 8 }}
                   animate={isVisible ? {
-                    opacity: [0, 1, 1, 1, 0],
+                    opacity: [0, 1, 1, 1, 1],
+                    scale: [0, 0.5, 0.8, 1, 1],
                     left: ['50%', '50%', `${targetLeft}%`, `${targetLeft}%`, `${targetLeft}%`],
                     top: ['16px', '16px', '16px', '48px', '48px'],
                   } : {}}
                   transition={{
-                    duration: 1.3,
-                    delay: 1.8,
-                    repeat: Infinity,
-                    repeatDelay: 2.7,
+                    duration: 1.5,
+                    delay: 1.8 + i * 0.1,
                     times: [0, 0.1, 0.4, 0.85, 1],
-                    ease: 'easeInOut',
+                    ease: 'easeOut',
                   }}
                 />
               )
@@ -284,7 +286,7 @@ export function SolutionOverlay({ isVisible, onNext, transitionOpacity, isPreloa
                     <div
                       className="rounded-xl text-center transition-all duration-300 h-full"
                       style={{
-                        backgroundColor: isHovered ? 'rgba(15,15,20,0.98)' : 'rgba(255,255,255,0.03)',
+                        backgroundColor: isHovered ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.03)',
                         border: `1px solid ${isHovered ? agent.color + '60' : agent.color + '30'}`,
                         padding: isHovered ? '1rem' : '0.75rem',
                         boxShadow: isHovered ? `0 20px 40px -10px ${agent.color}30` : 'none',
@@ -316,7 +318,7 @@ export function SolutionOverlay({ isVisible, onNext, transitionOpacity, isPreloa
                       </motion.div>
 
                       {/* Title */}
-                      <h3 className={`font-semibold text-white ${isHovered ? 'text-[10px] sm:text-sm mb-2' : 'text-xs sm:text-sm mb-1'}`}>
+                      <h3 className={`font-semibold text-white ${isHovered ? 'text-xs sm:text-sm mb-2' : 'text-xs sm:text-sm mb-1'}`}>
                         {isHovered ? agent.hoverTitle : agent.name}
                       </h3>
 
@@ -331,8 +333,8 @@ export function SolutionOverlay({ isVisible, onNext, transitionOpacity, isPreloa
                               transition={{ delay: i * 0.05 }}
                               className="text-left"
                             >
-                              <span className="text-[7px] sm:text-[9px] text-white/40 block">{item.label}</span>
-                              <span className="text-[8px] sm:text-[10px] font-medium" style={{ color: agent.color }}>
+                              <span className="text-[9px] sm:text-[10px] text-white/40 block">{item.label}</span>
+                              <span className="text-[10px] sm:text-xs font-medium" style={{ color: agent.color }}>
                                 {item.value}
                               </span>
                             </motion.div>
@@ -346,7 +348,7 @@ export function SolutionOverlay({ isVisible, onNext, transitionOpacity, isPreloa
                                 initial={{ opacity: 0, scale: 0.8 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: 0.1 + i * 0.05 }}
-                                className="text-[7px] sm:text-[8px] px-1 sm:px-1.5 py-0.5 rounded-full"
+                                className="text-[8px] sm:text-[9px] px-1.5 sm:px-2 py-0.5 rounded-full"
                                 style={{ backgroundColor: agent.color + '20', color: agent.color }}
                               >
                                 {cap}
@@ -370,21 +372,6 @@ export function SolutionOverlay({ isVisible, onNext, transitionOpacity, isPreloa
                         </>
                       )}
 
-                      {/* Processing indicator */}
-                      <motion.div
-                        className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full"
-                        style={{ backgroundColor: agent.color }}
-                        initial={{ scale: 0 }}
-                        animate={isVisible ? {
-                          scale: [0, 1.2, 1],
-                          boxShadow: [
-                            `0 0 0 0 ${agent.color}`,
-                            `0 0 12px 4px ${agent.color}50`,
-                            `0 0 6px 2px ${agent.color}30`,
-                          ]
-                        } : {}}
-                        transition={{ duration: 0.5, delay: delay + 0.2 }}
-                      />
                     </div>
                   </motion.div>
 

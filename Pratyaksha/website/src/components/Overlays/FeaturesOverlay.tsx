@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { BaseOverlay } from './BaseOverlay'
+import { VerticalBranding } from './VerticalBranding'
 import {
   Brain,
   Zap,
@@ -10,7 +11,7 @@ import {
   Mic,
   Sparkles,
 } from 'lucide-react'
-import { DemoModeChart, DemoTimelineChart, DemoThemeCloud, DemoRadarChart, DemoSankeyChart, DemoDashboardPreview } from '@/components/DemoCharts'
+import { DemoModeChart, DemoTimelineChart, DemoThemeCloud, DemoRadarChart, DemoSankeyChart, DemoDashboardPreview, DemoVoiceWave } from '@/components/DemoCharts'
 
 interface FeaturesOverlayProps {
   isVisible: boolean
@@ -80,8 +81,8 @@ const FEATURES = [
     title: 'Voice Journaling',
     description: 'Speak your thoughts freely. Real-time transcription means less friction, more flow.',
     color: '#f97316',
-    Chart: DemoRadarChart,
-    chartLabel: 'Voice Entry Patterns',
+    Chart: DemoVoiceWave,
+    chartLabel: 'Real-time Transcription',
   },
 ]
 
@@ -95,6 +96,7 @@ export function FeaturesOverlay({ isVisible, onNext, transitionOpacity, isPreloa
 
   return (
     <BaseOverlay isVisible={isVisible} transitionOpacity={transitionOpacity} isPreloading={isPreloading}>
+      <VerticalBranding isVisible={isVisible} animationStyle="breathe" />
       <div className="flex flex-col items-center justify-start px-4 sm:px-6 max-w-5xl mx-auto py-4">
         {/* Stats Bar */}
         <motion.div
@@ -185,7 +187,7 @@ export function FeaturesOverlay({ isVisible, onNext, transitionOpacity, isPreloa
                   <div
                     className="rounded-xl p-4 transition-all duration-300 h-full"
                     style={{
-                      backgroundColor: isActive ? 'rgba(15,15,20,0.98)' : 'rgba(255,255,255,0.03)',
+                      backgroundColor: isActive ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.03)',
                       border: `1px solid ${isActive ? feature.color + '50' : 'rgba(255,255,255,0.06)'}`,
                       boxShadow: isActive ? `0 20px 40px -10px ${feature.color}30` : 'none',
                     }}

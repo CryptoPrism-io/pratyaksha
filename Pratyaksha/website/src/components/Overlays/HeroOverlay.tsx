@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { BaseOverlay } from './BaseOverlay'
+import { VerticalBranding } from './VerticalBranding'
 import { ChevronDown, Play, ArrowRight, Sparkles } from 'lucide-react'
 
 // Value propositions that cycle
@@ -114,69 +115,17 @@ export function HeroOverlay({ isVisible, onNext, transitionOpacity, isPreloading
 
   return (
     <BaseOverlay isVisible={isVisible} transitionOpacity={transitionOpacity} isPreloading={isPreloading}>
-      {/* 4-Corner Vertical Branding */}
-      {/* Top Left - Hook sentence */}
-      <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={isVisible ? { opacity: 1, x: 0 } : {}}
-        transition={{ duration: 0.6, delay: 0.8 }}
-        className="fixed top-6 left-6 sm:top-8 sm:left-8 z-20 max-w-[140px] sm:max-w-[180px]"
-      >
-        <p className="text-[10px] sm:text-xs text-white/40 leading-relaxed font-light tracking-wide">
-          The patterns you can't see are the ones controlling you.
-        </p>
-      </motion.div>
+      {/* Vertical Side Branding */}
+      <VerticalBranding isVisible={isVisible} animationStyle="glow" />
 
-      {/* Top Right - Sanskrit */}
-      <motion.div
-        initial={{ opacity: 0, x: 20 }}
-        animate={isVisible ? { opacity: 1, x: 0 } : {}}
-        transition={{ duration: 0.6, delay: 0.6 }}
-        className="fixed top-6 right-6 sm:top-8 sm:right-8 z-20"
-      >
-        <span
-          className="text-xl sm:text-2xl md:text-3xl text-white/30 font-bold"
-          style={{ fontFamily: 'serif' }}
-        >
-          प्रत्यक्ष
-        </span>
-      </motion.div>
-
-      {/* Bottom Left - Pratyaksha name */}
-      <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={isVisible ? { opacity: 1, x: 0 } : {}}
-        transition={{ duration: 0.6, delay: 0.7 }}
-        className="fixed bottom-6 left-6 sm:bottom-8 sm:left-8 z-20"
-      >
-        <span className="text-xs sm:text-sm font-semibold tracking-widest text-white/30 uppercase">
-          Pratyaksha
-        </span>
-      </motion.div>
-
-      {/* Bottom Right - Logo */}
-      <motion.div
-        initial={{ opacity: 0, x: 20 }}
-        animate={isVisible ? { opacity: 1, x: 0 } : {}}
-        transition={{ duration: 0.6, delay: 0.9 }}
-        className="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-20"
-      >
-        <div
-          className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center"
-          style={{ backgroundColor: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.2)' }}
-        >
-          <img src="/brain.svg" alt="Pratyaksha" className="w-5 h-5 sm:w-6 sm:h-6 opacity-50" />
-        </div>
-      </motion.div>
-
-      <div className="flex flex-col items-center justify-center text-center px-4 sm:px-6 max-w-4xl mx-auto relative">
+      <div className="flex flex-col items-center justify-start text-center px-4 sm:px-6 max-w-4xl mx-auto relative pt-8 sm:pt-12">
 
         {/* Badge */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={isVisible ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5 }}
-          className="mb-6 sm:mb-8"
+          className="mb-10 sm:mb-14"
         >
           <div
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full"
@@ -197,7 +146,7 @@ export function HeroOverlay({ isVisible, onNext, transitionOpacity, isPreloading
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={isVisible ? { opacity: 1, scale: 1, y: 0 } : {}}
           transition={{ duration: 0.8, ease: 'easeOut' }}
-          className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mb-2 text-white"
+          className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mb-4 sm:mb-6 text-white"
           style={{
             fontFamily: 'serif',
             textShadow: '0 0 40px rgba(255,255,255,0.5), 0 0 80px rgba(168,85,247,0.6), 0 0 120px rgba(236,72,153,0.4)',
@@ -222,7 +171,7 @@ export function HeroOverlay({ isVisible, onNext, transitionOpacity, isPreloading
           initial={{ opacity: 0, y: 10 }}
           animate={isVisible ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="text-xl sm:text-2xl md:text-3xl font-bold mb-6 sm:mb-8"
+          className="text-xl sm:text-2xl md:text-3xl font-bold mb-10 sm:mb-14"
         >
           <motion.span
             style={{
@@ -247,15 +196,16 @@ export function HeroOverlay({ isVisible, onNext, transitionOpacity, isPreloading
           initial={{ opacity: 0, y: 10 }}
           animate={isVisible ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, delay: 0.4 }}
-          className="mb-8 sm:mb-10 text-center"
+          className="mb-12 sm:mb-16 text-center"
           onMouseEnter={() => setIsDefinitionHovered(true)}
           onMouseLeave={() => setIsDefinitionHovered(false)}
         >
           <motion.div
-            className="inline-block text-left px-4 py-3 rounded-lg cursor-pointer transition-all duration-300"
+            className="inline-block text-left px-4 py-3 rounded-xl backdrop-blur-md cursor-pointer transition-all duration-300"
             style={{
-              backgroundColor: isDefinitionHovered ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.03)',
-              border: isDefinitionHovered ? '1px solid rgba(167,139,250,0.3)' : '1px solid rgba(255,255,255,0.08)'
+              backgroundColor: isDefinitionHovered ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.03)',
+              border: isDefinitionHovered ? '1px solid rgba(167,139,250,0.5)' : '1px solid rgba(255,255,255,0.08)',
+              boxShadow: isDefinitionHovered ? '0 20px 40px -10px rgba(167,139,250,0.3)' : 'none',
             }}
             animate={{ scale: isDefinitionHovered ? 1.02 : 1 }}
             transition={{ type: 'spring', stiffness: 300, damping: 25 }}
@@ -293,10 +243,10 @@ export function HeroOverlay({ isVisible, onNext, transitionOpacity, isPreloading
           initial={{ opacity: 0, y: 20 }}
           animate={isVisible ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, delay: 0.6 }}
-          className="flex flex-col sm:flex-row items-center gap-4 mb-4"
+          className="flex flex-col sm:flex-row items-center gap-4 mb-8 sm:mb-10"
         >
           <motion.a
-            href="https://pratyaksha-963362833537.asia-south1.run.app/dashboard"
+            href="https://pratyaksha-dashboard-963362833537.asia-south1.run.app"
             target="_blank"
             rel="noopener noreferrer"
             whileHover={{ scale: 1.05 }}
@@ -312,7 +262,7 @@ export function HeroOverlay({ isVisible, onNext, transitionOpacity, isPreloading
           </motion.a>
 
           <motion.a
-            href="https://pratyaksha-963362833537.asia-south1.run.app"
+            href="https://pratyaksha-dashboard-963362833537.asia-south1.run.app"
             target="_blank"
             rel="noopener noreferrer"
             whileHover={{ scale: 1.05 }}

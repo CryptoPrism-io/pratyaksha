@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { BaseOverlay, AnimatedText, TypewriterText } from './BaseOverlay'
+import { VerticalBranding } from './VerticalBranding'
 import { STATE_CONTENT, STATES, STATE_COLORS } from '@/lib/constants'
 import { AlertCircle, ArrowRight, FileText, Search, Clock, Lightbulb } from 'lucide-react'
 
@@ -74,6 +75,7 @@ export function ProblemOverlay({ isVisible, onNext, transitionOpacity, isPreload
 
   return (
     <BaseOverlay isVisible={isVisible} transitionOpacity={transitionOpacity} isPreloading={isPreloading}>
+      <VerticalBranding isVisible={isVisible} animationStyle="shake" />
       <div className="flex flex-col items-center justify-start text-center px-4 sm:px-6 max-w-4xl mx-auto py-2">
         {/* Badge */}
         <motion.div
@@ -89,7 +91,7 @@ export function ProblemOverlay({ isVisible, onNext, transitionOpacity, isPreload
 
         {/* Headline */}
         <AnimatedText delay={0.1} animation="pop">
-          <h2 className="text-xl sm:text-3xl md:text-4xl font-bold text-white mb-2">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-2">
             {content.headline}
           </h2>
         </AnimatedText>
@@ -144,10 +146,14 @@ export function ProblemOverlay({ isVisible, onNext, transitionOpacity, isPreload
                   className="origin-center"
                 >
                   <div
-                    className={`bg-slate-900/95 backdrop-blur border rounded-lg text-left h-full transition-all duration-300 ${
-                      isHovered ? 'p-3 shadow-2xl shadow-black/50' : 'p-2.5 sm:p-3'
+                    className={`backdrop-blur-md rounded-xl text-left h-full transition-all duration-300 ${
+                      isHovered ? 'p-3' : 'p-2.5 sm:p-3'
                     }`}
-                    style={{ borderColor: isHovered ? `${problem.color}60` : `${problem.color}40` }}
+                    style={{
+                      backgroundColor: isHovered ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.03)',
+                      border: `1px solid ${isHovered ? problem.color + '50' : 'rgba(255,255,255,0.08)'}`,
+                      boxShadow: isHovered ? `0 20px 40px -10px ${problem.color}30` : 'none',
+                    }}
                   >
                     {/* Header */}
                     <div className="flex items-center gap-2 mb-2">
@@ -161,10 +167,10 @@ export function ProblemOverlay({ isVisible, onNext, transitionOpacity, isPreload
                         <Icon className={`${isHovered ? 'w-3.5 h-3.5' : 'w-3 h-3 sm:w-3.5 sm:h-3.5'}`} style={{ color: problem.color }} />
                       </motion.div>
                       <div>
-                        <h3 className={`text-white font-medium ${isHovered ? 'text-xs' : 'text-[10px] sm:text-xs'}`}>
+                        <h3 className={`text-white font-medium ${isHovered ? 'text-sm' : 'text-xs sm:text-sm'}`}>
                           {problem.title}
                         </h3>
-                        <p className={`text-white/40 ${isHovered ? 'text-[10px]' : 'text-[8px] sm:text-[10px]'}`}>
+                        <p className={`text-white/40 ${isHovered ? 'text-xs' : 'text-[10px] sm:text-xs'}`}>
                           {problem.shortDesc}
                         </p>
                       </div>
@@ -182,8 +188,8 @@ export function ProblemOverlay({ isVisible, onNext, transitionOpacity, isPreload
                             transition={{ delay: i * 0.05 }}
                             className="flex items-start gap-2"
                           >
-                            <span className="text-[8px] text-white/40 w-12 flex-shrink-0">{item.label}:</span>
-                            <span className="text-[9px] font-medium" style={{ color: problem.color }}>{item.value}</span>
+                            <span className="text-[9px] sm:text-[10px] text-white/40 w-12 flex-shrink-0">{item.label}:</span>
+                            <span className="text-[10px] sm:text-xs font-medium" style={{ color: problem.color }}>{item.value}</span>
                           </motion.div>
                         ))}
 
@@ -194,33 +200,26 @@ export function ProblemOverlay({ isVisible, onNext, transitionOpacity, isPreload
                           transition={{ delay: 0.2 }}
                           className="mt-2 pt-2 border-t border-white/10"
                         >
-                          <p className="text-[8px] text-white/50 italic">
+                          <p className="text-[9px] sm:text-[10px] text-white/50 italic">
                             {problem.example}
                           </p>
                         </motion.div>
                       </div>
                     ) : (
-                      /* Default state - pulsing indicator */
-                      <motion.div
-                        className="rounded px-2 py-1.5"
-                        style={{ backgroundColor: `${problem.color}15` }}
+                      /* Default state - subtle hint */
+                      <div
+                        className="rounded-lg px-2 py-1.5 mt-1"
+                        style={{
+                          backgroundColor: 'rgba(255,255,255,0.03)',
+                          border: '1px solid rgba(255,255,255,0.06)',
+                        }}
                       >
-                        <span className="text-[10px] sm:text-xs text-white/50">
+                        <span className="text-[10px] sm:text-xs text-white/40">
                           Hover to explore
                         </span>
-                      </motion.div>
+                      </div>
                     )}
 
-                    {/* Animated indicator dot */}
-                    <motion.div
-                      className="absolute -top-1 -right-1 w-2 h-2 rounded-full"
-                      style={{ backgroundColor: problem.color }}
-                      animate={{
-                        scale: [1, 1.3, 1],
-                        opacity: [0.7, 1, 0.7],
-                      }}
-                      transition={{ duration: 2, repeat: Infinity, delay: index * 0.3 }}
-                    />
                   </div>
                 </motion.div>
 
