@@ -1,4 +1,4 @@
-name: Deploy to Cloud Run
+name: Deploy Pratyaksha to Cloud Run
 
 on:
   push:
@@ -6,10 +6,72 @@ on:
       - main
     paths:
       - 'Pratyaksha/dashboard/**'
+      - 'Pratyaksha/website/**'
   workflow_dispatch:
 
+env:
+  PROJECT_ID: social-data-pipeline-and-push
+  REGION: asia-south1
+
 jobs:
-  deploy:
+  # ============================================
+  # WEBSITE DEPLOYMENT (Main Landing Page)
+  # ============================================
+  deploy-website:
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: Pratyaksha/website
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+          token_format: access_token
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Install dependencies
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm ci
+
+      - name: Build website
+        run: npm run build
+
+      - name: Deploy Website to Cloud Run
+        run: |
+          gcloud run deploy pratyaksha \
+            --source . \
+            --platform managed \
+            --region ${{ env.REGION }} \
+            --memory 256Mi \
+            --cpu 1 \
+            --allow-unauthenticated \
+            --project ${{ env.PROJECT_ID }}
+
+      - name: Display Website URL
+        run: echo "Website deployed to https://pratyaksha-963362833537.asia-south1.run.app"
+
+  # ============================================
+  # DASHBOARD DEPLOYMENT
+  # ============================================
+  deploy-dashboard:
     permissions:
       contents: read
       id-token: write
@@ -18,11 +80,6 @@ jobs:
     defaults:
       run:
         working-directory: Pratyaksha/dashboard
-
-    env:
-      PROJECT_ID: social-data-pipeline-and-push
-      SERVICE: pratyaksha
-      REGION: asia-south1
 
     steps:
       - name: Checkout code
@@ -65,9 +122,9 @@ jobs:
       - name: Build server
         run: npm run build:server
 
-      - name: Deploy to Cloud Run
+      - name: Deploy Dashboard to Cloud Run
         run: |
-          gcloud run deploy ${{ env.SERVICE }} \
+          gcloud run deploy pratyaksha-dashboard \
             --source . \
             --platform managed \
             --region ${{ env.REGION }} \
@@ -77,5 +134,5 @@ jobs:
             --set-env-vars "AIRTABLE_API_KEY=${{ secrets.AIRTABLE_API_KEY }},AIRTABLE_BASE_ID=${{ secrets.AIRTABLE_BASE_ID }},AIRTABLE_TABLE_ID=${{ secrets.AIRTABLE_TABLE_ID }},OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }},GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}" \
             --project ${{ env.PROJECT_ID }}
 
-      - name: Display Cloud Run URL
-        run: echo "Deployed to https://pratyaksha-963362833537.asia-south1.run.app"
+      - name: Display Dashboard URL
+        run: echo "Dashboard deployed to https://pratyaksha-dashboard-963362833537.asia-south1.run.app"
