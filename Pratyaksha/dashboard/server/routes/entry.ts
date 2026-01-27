@@ -124,11 +124,11 @@ export async function processEntry(
       "Entry Sentiment (AI)": emotion.sentimentAI,
       "Entry Theme Tags (AI)": themes.themeTagsAI.join(", "),
       "Entry Length (Words)": wordCount,
-      // New decomposition-related fields
-      "Entry Format": finalFormat,
-      "Is Decomposed?": isDecomposed,
-      "Decomposition Count": isDecomposed ? decomposition!.eventCount : undefined,
-      "Overarching Theme": decomposition?.overarchingTheme || undefined,
+      // NOTE: Decomposition fields disabled until Airtable schema is updated
+      // "Entry Format": finalFormat,
+      // "Is Decomposed?": isDecomposed,
+      // "Decomposition Count": isDecomposed ? decomposition!.eventCount : undefined,
+      // "Overarching Theme": decomposition?.overarchingTheme || undefined,
     }
 
     console.log("[Entry] Pushing parent entry to Airtable...")
@@ -172,11 +172,11 @@ export async function processEntry(
             "Entry Sentiment (AI)": childProcessing.emotion.sentimentAI,
             "Entry Theme Tags (AI)": childProcessing.themes.themeTagsAI.join(", "),
             "Entry Length (Words)": childWordCount,
-            // Child-specific fields
-            "Entry Format": "Daily Log",
-            "Parent Entry ID": parentRecord.id,
-            "Sequence Order": event.sequenceOrder,
-            "Approximate Time": event.approximateTime || undefined,
+            // NOTE: Child-specific fields disabled until Airtable schema is updated
+            // "Entry Format": "Daily Log",
+            // "Parent Entry ID": parentRecord.id,
+            // "Sequence Order": event.sequenceOrder,
+            // "Approximate Time": event.approximateTime || undefined,
           }
 
           const childRecord = await createAirtableEntry(childFields)
@@ -280,7 +280,8 @@ export async function updateEntry(
       "Entry Sentiment (AI)": emotion.sentimentAI,
       "Entry Theme Tags (AI)": themes.themeTagsAI.join(", "),
       "Entry Length (Words)": wordCount,
-      "Entry Format": finalFormat,
+      // NOTE: Decomposition fields disabled until Airtable schema is updated
+      // "Entry Format": finalFormat,
     }
 
     const record = await updateAirtableEntry(recordId, updateFields)
