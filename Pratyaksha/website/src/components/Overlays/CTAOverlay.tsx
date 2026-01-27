@@ -107,7 +107,7 @@ export function CTAOverlay({ isVisible, transitionOpacity, isPreloading }: CTAOv
               className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8"
             >
               <motion.a
-                href="https://pratyaksha-dashboard-963362833537.asia-south1.run.app"
+                href="https://pratyaksha-dashboard-963362833537.asia-south1.run.app/dashboard"
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.05 }}
@@ -123,7 +123,7 @@ export function CTAOverlay({ isVisible, transitionOpacity, isPreloading }: CTAOv
               </motion.a>
 
               <motion.a
-                href="https://pratyaksha-dashboard-963362833537.asia-south1.run.app"
+                href="https://pratyaksha-dashboard-963362833537.asia-south1.run.app/dashboard"
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.05 }}
