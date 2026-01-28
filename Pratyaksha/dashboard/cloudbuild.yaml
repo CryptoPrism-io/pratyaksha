@@ -1,12 +1,10 @@
-# Cloud Build configuration for Pratyaksha
-# Builds both Dashboard and Website Docker images
+# Cloud Build configuration for Pratyaksha (Unified App)
+# Single deployment with dashboard + blog + research
 
 steps:
-  # ============================================
-  # DASHBOARD BUILD
-  # ============================================
+  # Build Docker image
   - name: 'gcr.io/cloud-builders/docker'
-    id: 'build-dashboard'
+    id: 'build'
     args:
       - 'build'
       - '--build-arg'
@@ -30,81 +28,40 @@ steps:
       - '--build-arg'
       - 'VITE_FIREBASE_VAPID_KEY=${_VITE_FIREBASE_VAPID_KEY}'
       - '-t'
-      - '${_DASHBOARD_IMAGE}:${_TAG}'
+      - '${_IMAGE}:${_TAG}'
       - '-t'
-      - '${_DASHBOARD_IMAGE}:latest'
+      - '${_IMAGE}:latest'
       - '.'
 
+  # Push to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
-    id: 'push-dashboard'
+    id: 'push'
     args:
       - 'push'
       - '--all-tags'
-      - '${_DASHBOARD_IMAGE}'
-    waitFor: ['build-dashboard']
+      - '${_IMAGE}'
+    waitFor: ['build']
 
-  # ============================================
-  # WEBSITE BUILD
-  # ============================================
-  - name: 'gcr.io/cloud-builders/docker'
-    id: 'build-website'
-    dir: '../website'
-    args:
-      - 'build'
-      - '-t'
-      - '${_WEBSITE_IMAGE}:${_TAG}'
-      - '-t'
-      - '${_WEBSITE_IMAGE}:latest'
-      - '.'
-    waitFor: ['-']  # Start immediately, parallel with dashboard
-
-  - name: 'gcr.io/cloud-builders/docker'
-    id: 'push-website'
-    args:
-      - 'push'
-      - '--all-tags'
-      - '${_WEBSITE_IMAGE}'
-    waitFor: ['build-website']
-
-  # ============================================
-  # DEPLOY TO CLOUD RUN
-  # Website → pratyaksha (MAIN URL)
-  # Dashboard → pratyaksha-dashboard (NEW SERVICE)
-  # ============================================
+  # Deploy to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    id: 'deploy-website'
+    id: 'deploy'
     entrypoint: 'gcloud'
     args:
       - 'run'
       - 'deploy'
       - 'pratyaksha'
       - '--image'
-      - '${_WEBSITE_IMAGE}:latest'
-      - '--region'
-      - 'asia-south1'
-      - '--allow-unauthenticated'
-    waitFor: ['push-website']
-
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    id: 'deploy-dashboard'
-    entrypoint: 'gcloud'
-    args:
-      - 'run'
-      - 'deploy'
-      - 'pratyaksha-dashboard'
-      - '--image'
-      - '${_DASHBOARD_IMAGE}:latest'
+      - '${_IMAGE}:latest'
       - '--region'
       - 'asia-south1'
       - '--allow-unauthenticated'
       - '--set-env-vars'
-      - 'AIRTABLE_API_KEY=${_VITE_AIRTABLE_API_KEY},AIRTABLE_BASE_ID=${_VITE_AIRTABLE_BASE_ID},AIRTABLE_TABLE_ID=${_VITE_AIRTABLE_TABLE_ID},OPENROUTER_API_KEY=${_OPENROUTER_API_KEY}'
-    waitFor: ['push-dashboard']
+      - 'AIRTABLE_API_KEY=${_VITE_AIRTABLE_API_KEY},AIRTABLE_BASE_ID=${_VITE_AIRTABLE_BASE_ID},AIRTABLE_TABLE_ID=${_VITE_AIRTABLE_TABLE_ID},OPENROUTER_API_KEY=${_OPENROUTER_API_KEY},GROQ_API_KEY=${_GROQ_API_KEY}'
+    waitFor: ['push']
 
 # Default substitutions
 substitutions:
-  _DASHBOARD_IMAGE: 'asia-south1-docker.pkg.dev/social-data-pipeline-and-push/pratyaksha/dashboard'
-  _WEBSITE_IMAGE: 'asia-south1-docker.pkg.dev/social-data-pipeline-and-push/pratyaksha/website'
+  _IMAGE: 'asia-south1-docker.pkg.dev/social-data-pipeline-and-push/pratyaksha/dashboard'
   _TAG: 'latest'
   _VITE_AIRTABLE_API_KEY: ''
   _VITE_AIRTABLE_BASE_ID: ''
@@ -117,6 +74,7 @@ substitutions:
   _VITE_FIREBASE_APP_ID: ''
   _VITE_FIREBASE_VAPID_KEY: ''
   _OPENROUTER_API_KEY: ''
+  _GROQ_API_KEY: ''
 
 # Build options
 options:
@@ -124,7 +82,5 @@ options:
 
 # Output images
 images:
-  - '${_DASHBOARD_IMAGE}:${_TAG}'
-  - '${_DASHBOARD_IMAGE}:latest'
-  - '${_WEBSITE_IMAGE}:${_TAG}'
-  - '${_WEBSITE_IMAGE}:latest'
+  - '${_IMAGE}:${_TAG}'
+  - '${_IMAGE}:latest'
