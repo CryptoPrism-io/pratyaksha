@@ -87,71 +87,78 @@ export function StepFramePlayer({ stepConfig, animationProgress, direction }: St
   const [loadError, setLoadError] = useState<string | null>(null)
   const [isFadingOut, setIsFadingOut] = useState(false)
 
-  // Load all frames on mount
+  // Load frames with lazy loading - t1 first, then others in background
   useEffect(() => {
     let mounted = true
 
-    async function loadAllFrames() {
-      const transitions = ['t1', 't2', 't3', 't4']
+    async function loadFramesLazily() {
       const loadedFrames: Record<string, HTMLImageElement[]> = {}
-      let totalLoaded = 0
-      const totalFrames = transitions.reduce((sum, t) => {
-        const m = frameManifest[t as keyof typeof frameManifest]
-        return sum + (m?.count || 0)
-      }, 0)
 
-      // Update loading message based on progress
-      const updateMessage = (progress: number) => {
-        if (progress < 25) setLoadingMessage(LOADING_MESSAGES[0])
-        else if (progress < 50) setLoadingMessage(LOADING_MESSAGES[1])
-        else if (progress < 75) setLoadingMessage(LOADING_MESSAGES[2])
-        else setLoadingMessage(LOADING_MESSAGES[3])
+      // Phase 1: Load only t1 (first transition) - this is all we need to start
+      const t1Manifest = frameManifest['t1' as keyof typeof frameManifest]
+      if (!t1Manifest) {
+        setLoadError('Unable to load experience. Please refresh the page.')
+        return
       }
 
-      const failedTransitions: string[] = []
+      setLoadingMessage('Preparing your journey...')
 
-      for (const t of transitions) {
-        const manifest = frameManifest[t as keyof typeof frameManifest]
-        if (!manifest) continue
+      try {
+        const t1Frames = await preloadFrames('t1', t1Manifest.count, (loaded) => {
+          if (!mounted) return
+          const progress = Math.round((loaded / t1Manifest.count) * 100)
+          setLoadProgress(progress)
+          if (progress < 50) setLoadingMessage('Loading visuals...')
+          else if (progress < 80) setLoadingMessage('Almost ready...')
+          else setLoadingMessage('Initializing experience...')
+        })
 
-        try {
-          const transitionFrames = await preloadFrames(t, manifest.count, (loaded) => {
-            if (!mounted) return
-            const progress = Math.round(((totalLoaded + loaded) / totalFrames) * 100)
-            setLoadProgress(progress)
-            updateMessage(progress)
-          })
+        if (!mounted) return
 
+        if (t1Frames.length < t1Manifest.count * 0.5) {
+          setLoadError('Unable to load experience. Please refresh the page.')
+          return
+        }
+
+        loadedFrames['t1'] = t1Frames
+        setFrames({ ...loadedFrames })
+
+        // Show content immediately after t1 loads
+        setIsFadingOut(true)
+        setTimeout(() => {
+          if (mounted) setIsLoading(false)
+        }, 500)
+
+        // Phase 2: Load remaining transitions in background (don't block UI)
+        const remainingTransitions = ['t2', 't3', 't4']
+
+        for (const t of remainingTransitions) {
           if (!mounted) return
 
-          loadedFrames[t] = transitionFrames
-          totalLoaded += transitionFrames.length
+          const manifest = frameManifest[t as keyof typeof frameManifest]
+          if (!manifest) continue
 
-          // Check if we got enough frames (at least 50%)
-          if (transitionFrames.length < manifest.count * 0.5) {
-            failedTransitions.push(t)
+          try {
+            const transitionFrames = await preloadFrames(t, manifest.count)
+            if (!mounted) return
+
+            loadedFrames[t] = transitionFrames
+            // Update frames state incrementally
+            setFrames(prev => ({ ...prev, [t]: transitionFrames }))
+          } catch (err) {
+            console.warn(`Background load failed for ${t}:`, err)
+            // Continue loading others even if one fails
           }
-        } catch (err) {
-          console.error(`Failed to load frames for ${t}:`, err)
-          failedTransitions.push(t)
         }
-      }
-
-      if (mounted) {
-        if (failedTransitions.length === transitions.length) {
+      } catch (err) {
+        console.error('Failed to load initial frames:', err)
+        if (mounted) {
           setLoadError('Unable to load experience. Please refresh the page.')
-        } else {
-          setFrames(loadedFrames)
-          // Smooth fade out transition
-          setIsFadingOut(true)
-          setTimeout(() => {
-            if (mounted) setIsLoading(false)
-          }, 500)
         }
       }
     }
 
-    loadAllFrames()
+    loadFramesLazily()
 
     return () => {
       mounted = false

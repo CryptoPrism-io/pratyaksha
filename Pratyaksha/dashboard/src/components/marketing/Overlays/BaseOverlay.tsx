@@ -68,7 +68,7 @@ export function BaseOverlay({
   )
 }
 
-// Pop animation variants
+// Pop animation variants - use tween for filter to avoid negative blur values
 const popVariants: Variants = {
   hidden: {
     opacity: 0,
@@ -85,6 +85,7 @@ const popVariants: Variants = {
       type: 'spring',
       stiffness: 300,
       damping: 20,
+      filter: { type: 'tween', duration: 0.3 }, // Prevent negative blur from spring overshoot
     },
   },
   exit: {
@@ -244,6 +245,7 @@ export function TextReveal({
                 type: 'spring',
                 stiffness: 300,
                 damping: 20,
+                filter: { type: 'tween', duration: 0.3 },
               },
             },
           }}
