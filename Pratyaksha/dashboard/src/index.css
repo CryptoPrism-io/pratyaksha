@@ -1,3 +1,17 @@
+/* Marketing Page Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@700,800&display=swap');
+
+/* Font utility classes for highlights */
+.font-playfair { font-family: 'Playfair Display', Georgia, serif; }
+.font-space { font-family: 'Space Grotesk', sans-serif; }
+.font-syne { font-family: 'Syne', sans-serif; }
+.font-satoshi { font-family: 'Satoshi', sans-serif; }
+.font-cabinet { font-family: 'Cabinet Grotesk', sans-serif; }
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -416,5 +430,77 @@ h1, h2, h3, h4, h5, h6 {
 
 .animate-input-glow {
   animation: input-glow 2s ease-in-out infinite;
+}
+
+/* =====================================================
+   Marketing Page Styles (Animated Scroll Experience)
+   ===================================================== */
+
+/* Overlay positioning for marketing page */
+.overlay-container {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: calc(4rem + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
+}
+
+.overlay-container > * {
+  pointer-events: auto;
+}
+
+/* Content overlay text shadows */
+.content-overlay {
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+}
+
+.content-overlay h1,
+.content-overlay h2,
+.content-overlay h3 {
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.9), 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.content-overlay p {
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+}
+
+/* Enhanced dark glass card for marketing */
+.glass-card-dark {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+}
+
+/* Scroll hint animation */
+@keyframes scroll-hint-bounce {
+  0%, 100% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(8px);
+    opacity: 1;
+  }
+}
+
+.scroll-hint {
+  animation: scroll-hint-bounce 2s ease-in-out infinite;
+}
+
+/* Safe area support for notched devices */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
 }
 

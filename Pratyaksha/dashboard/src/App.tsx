@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { Header } from "./components/layout/Header"
-import { Landing } from "./pages/Landing"
+import { AppLayout } from "./components/layout/AppLayout"
+import MarketingHome from "./pages/MarketingHome"
 import { Dashboard } from "./pages/Dashboard"
 import { Logs } from "./pages/Logs"
 // Insights page removed - functionality merged into Compare
@@ -10,6 +10,9 @@ import { Chat } from "./pages/Chat"
 import { Profile } from "./pages/Profile"
 import { Login } from "./pages/Login"
 import { Signup } from "./pages/Signup"
+import { Blog } from "./pages/Blog"
+import { BlogPostPage } from "./pages/BlogPostPage"
+import { Research } from "./pages/Research"
 import { Toaster } from "./components/ui/sonner"
 import { ThemeProvider } from "./components/theme-provider"
 import { DateFilterProvider } from "./contexts/DateFilterContext"
@@ -43,36 +46,36 @@ function App() {
           <OfflineProvider>
             <DateFilterProvider defaultPreset="30">
             <BrowserRouter>
-              <div className="min-h-screen bg-background text-foreground">
-                <Header />
-                <main>
-                  <Routes>
-                    <Route path="/" element={<Landing />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/logs" element={<Logs />} />
-                    {/* Insights route removed - use Compare instead */}
-                    <Route path="/compare" element={<Compare />} />
-                    <Route path="/chat" element={<Chat />} />
-                    <Route path="/profile" element={<Profile />} />
-                    <Route
-                      path="/login"
-                      element={
-                        <PublicOnlyRoute>
-                          <Login />
-                        </PublicOnlyRoute>
-                      }
-                    />
-                    <Route
-                      path="/signup"
-                      element={
-                        <PublicOnlyRoute>
-                          <Signup />
-                        </PublicOnlyRoute>
-                      }
-                    />
-                  </Routes>
-                </main>
-              </div>
+              <AppLayout>
+                <Routes>
+                  <Route path="/" element={<MarketingHome />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/logs" element={<Logs />} />
+                  {/* Insights route removed - use Compare instead */}
+                  <Route path="/compare" element={<Compare />} />
+                  <Route path="/chat" element={<Chat />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/blog" element={<Blog />} />
+                  <Route path="/blog/:slug" element={<BlogPostPage />} />
+                  <Route path="/research" element={<Research />} />
+                  <Route
+                    path="/login"
+                    element={
+                      <PublicOnlyRoute>
+                        <Login />
+                      </PublicOnlyRoute>
+                    }
+                  />
+                  <Route
+                    path="/signup"
+                    element={
+                      <PublicOnlyRoute>
+                        <Signup />
+                      </PublicOnlyRoute>
+                    }
+                  />
+                </Routes>
+              </AppLayout>
               <Toaster position="bottom-right" richColors closeButton />
               <InstallPrompt />
               <OfflineIndicator />

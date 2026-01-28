@@ -1,0 +1,22 @@
+{
+  "t1": {
+    "path": "/frames/t1",
+    "count": 120,
+    "pattern": "frame-%04d.jpg"
+  },
+  "t2": {
+    "path": "/frames/t2",
+    "count": 120,
+    "pattern": "frame-%04d.jpg"
+  },
+  "t3": {
+    "path": "/frames/t3",
+    "count": 120,
+    "pattern": "frame-%04d.jpg"
+  },
+  "t4": {
+    "path": "/frames/t4",
+    "count": 120,
+    "pattern": "frame-%04d.jpg"
+  }
+}
