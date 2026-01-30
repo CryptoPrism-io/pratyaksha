@@ -544,3 +544,95 @@ export function getBlueprintCompletionStats(blueprint: LifeBlueprint): {
     totalSections,
   };
 }
+
+// ==================== AI CONTEXT HELPERS ====================
+
+/**
+ * Get blueprint data formatted for AI context
+ * Returns a structure that can be sent to the chat API
+ */
+export interface BlueprintForAI {
+  vision: Array<{ text: string; category: string }>;
+  antiVision: Array<{ text: string; category: string }>;
+  levers: Array<{ name: string; description: string; pushesToward: string }>;
+  timeHorizonGoals: {
+    sixMonths: string[];
+    oneYear: string[];
+    threeYears: string[];
+    fiveYears: string[];
+    tenYears: string[];
+  };
+  keyReflections: Record<string, string>;
+  completedSections: string[];
+}
+
+export function getBlueprintForAI(blueprint: LifeBlueprint): BlueprintForAI {
+  // Extract vision items
+  const vision = blueprint.vision.map(v => ({
+    text: v.text,
+    category: v.category,
+  }));
+
+  // Extract anti-vision items
+  const antiVision = blueprint.antiVision.map(v => ({
+    text: v.text,
+    category: v.category,
+  }));
+
+  // Extract levers
+  const levers = blueprint.levers.map(l => ({
+    name: l.name,
+    description: l.description,
+    pushesToward: l.pushesToward,
+  }));
+
+  // Group time horizon goals
+  const timeHorizonGoals = {
+    sixMonths: blueprint.timeHorizonGoals
+      .filter(g => g.horizon === "6months" && !g.completed)
+      .map(g => g.text),
+    oneYear: blueprint.timeHorizonGoals
+      .filter(g => g.horizon === "1year" && !g.completed)
+      .map(g => g.text),
+    threeYears: blueprint.timeHorizonGoals
+      .filter(g => g.horizon === "3years" && !g.completed)
+      .map(g => g.text),
+    fiveYears: blueprint.timeHorizonGoals
+      .filter(g => g.horizon === "5years" && !g.completed)
+      .map(g => g.text),
+    tenYears: blueprint.timeHorizonGoals
+      .filter(g => g.horizon === "10years" && !g.completed)
+      .map(g => g.text),
+  };
+
+  // Extract key reflections (questionId -> answer map)
+  const keyReflections: Record<string, string> = {};
+  blueprint.responses.forEach(r => {
+    // Only include substantive answers
+    if (r.answer && r.answer.length > 10) {
+      keyReflections[r.questionId] = r.answer;
+    }
+  });
+
+  return {
+    vision,
+    antiVision,
+    levers,
+    timeHorizonGoals,
+    keyReflections,
+    completedSections: blueprint.completedSections,
+  };
+}
+
+/**
+ * Check if blueprint has any meaningful data for AI
+ */
+export function hasBlueprintForAI(blueprint: LifeBlueprint): boolean {
+  return (
+    blueprint.vision.length > 0 ||
+    blueprint.antiVision.length > 0 ||
+    blueprint.levers.length > 0 ||
+    blueprint.timeHorizonGoals.length > 0 ||
+    blueprint.responses.length > 0
+  );
+}

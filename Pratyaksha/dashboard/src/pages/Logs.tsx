@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from "react"
 import { useSearchParams } from "react-router-dom"
-import { LogEntryForm } from "../components/logs/LogEntryForm"
+import { GuidedEntryForm } from "../components/logs/GuidedEntryForm"
+import { SmartPromptCard } from "../components/logs/SmartPromptCard"
 import { EntriesTable } from "../components/charts/EntriesTable"
 import { FilterBar, type FilterState } from "../components/filters/FilterBar"
 import { useEntries } from "../hooks/useEntries"
@@ -22,6 +23,7 @@ export function Logs() {
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS)
   const searchInputRef = useRef<HTMLInputElement>(null)
   const [urlFiltersApplied, setUrlFiltersApplied] = useState(false)
+  const [selectedPrompt, setSelectedPrompt] = useState<string | undefined>(undefined)
 
   // Read URL params on mount and apply filters
   useEffect(() => {
@@ -96,10 +98,25 @@ export function Logs() {
       {/* Onboarding Tour - continues from Dashboard */}
       <OnboardingTour />
 
-      <div className="container mx-auto space-y-8 px-4 py-6 md:px-6">
-        {/* Log Entry Form - Above the fold */}
+      <div className="container mx-auto space-y-6 px-4 py-6 md:px-6">
+        {/* Smart Prompts - Personalized suggestions based on user's blueprint */}
+        <SmartPromptCard
+          onSelectPrompt={(text) => {
+            setSelectedPrompt(text)
+            // Scroll to form
+            document.querySelector('[data-tour="log-entry-form"]')?.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            })
+          }}
+        />
+
+        {/* Guided Entry Form - Above the fold */}
         <div data-tour="log-entry-form">
-          <LogEntryForm />
+          <GuidedEntryForm
+            initialPrompt={selectedPrompt}
+            onSuccess={() => setSelectedPrompt(undefined)}
+          />
         </div>
 
         {/* Historical Entries Section */}

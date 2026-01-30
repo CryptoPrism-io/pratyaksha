@@ -1,6 +1,11 @@
-// AI Chat Route - Full historical context chat
+// AI Chat Route - Full historical context chat with personalization
 import { Request, Response } from "express"
 import { MODELS } from "../lib/openrouter"
+import {
+  UserContext,
+  buildUserContextPrompt,
+  hasPersonalContext
+} from "../lib/userContextBuilder"
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY
 const AIRTABLE_API_KEY = process.env.VITE_AIRTABLE_API_KEY || process.env.AIRTABLE_API_KEY
@@ -14,6 +19,8 @@ interface ChatRequest {
     role: "user" | "assistant"
     content: string
   }>
+  // NEW: Optional user context for personalization
+  userContext?: UserContext
 }
 
 interface EntryRecord {
@@ -185,7 +192,7 @@ ${recentEntries.map((e, i) => `${i + 1}. [${e.date}] ${e.type} - ${e.mode} / ${e
 `.trim()
 }
 
-const SYSTEM_PROMPT = `You are Pratyaksha AI, a thoughtful and insightful companion for cognitive journaling. You have access to the user's complete journal history and can help them understand patterns, emotions, and growth opportunities.
+const SYSTEM_PROMPT_BASE = `You are Pratyaksha AI, a thoughtful and insightful companion for cognitive journaling. You have access to the user's complete journal history and can help them understand patterns, emotions, and growth opportunities.
 
 Your role is to:
 1. Provide warm, empathetic responses that feel personal and supportive
@@ -194,6 +201,8 @@ Your role is to:
 4. Ask clarifying questions when helpful
 5. Celebrate growth and progress when you notice it
 6. Suggest actionable next steps when appropriate
+7. When the user has shared their vision/goals, reference them when discussing direction or progress
+8. Gently alert when patterns seem to drift toward their stated anti-vision
 
 Guidelines:
 - Be conversational and natural, not clinical
@@ -201,6 +210,8 @@ Guidelines:
 - Acknowledge the emotional weight of what the user shares
 - Keep responses focused and digestible (2-4 paragraphs typically)
 - If asked about something not in their data, be honest about limitations
+- When the user has defined goals, connect patterns to those goals
+- Adjust your tone based on user's stated stress level and emotional openness
 
 IMPORTANT: Return your response as plain text, NOT as JSON. Just write naturally.`
 
@@ -208,7 +219,7 @@ export async function chat(
   req: Request<object, object, ChatRequest>,
   res: Response
 ) {
-  const { message, history = [] } = req.body
+  const { message, history = [], userContext } = req.body
 
   if (!message || typeof message !== "string") {
     return res.status(400).json({
@@ -233,9 +244,18 @@ export async function chat(
 
     console.log(`[Chat] Loaded ${entries.length} entries for context`)
 
-    // Build messages array
+    // Build personalized context if available
+    let personalContextSection = ""
+    if (userContext && hasPersonalContext(userContext)) {
+      personalContextSection = buildUserContextPrompt(userContext)
+      console.log("[Chat] User context included for personalization")
+    }
+
+    // Build messages array with optional personalization
     const messages = [
-      { role: "system", content: SYSTEM_PROMPT },
+      { role: "system", content: SYSTEM_PROMPT_BASE },
+      // Inject personal context if available (before journal data)
+      ...(personalContextSection ? [{ role: "system", content: personalContextSection }] : []),
       { role: "system", content: `Here is the user's journal data:\n\n${contextSummary}` },
       // Include recent history (last 10 exchanges)
       ...history.slice(-10).map(h => ({

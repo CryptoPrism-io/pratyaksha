@@ -35,6 +35,8 @@ import { DateFilterBar } from "../components/filters/DateFilterBar"
 import { OnboardingTour } from "../components/onboarding/OnboardingTour"
 import { MobileChartCarousel } from "../components/mobile/MobileChartCarousel"
 import { useIsMobile } from "../hooks/useMediaQuery"
+import { VisionAlignmentCard } from "../components/insights/VisionAlignmentCard"
+import { PatternWarningBanner } from "../components/insights/PatternWarningBanner"
 
 // Icon map for personas
 const PERSONA_ICONS: Record<DemoPersona, React.ReactNode> = {
@@ -193,6 +195,9 @@ export function Dashboard() {
             <DateFilterBar compact fullWidthMobile />
           </div>
         </div>
+
+        {/* Pattern Warning Banner - Shows when anti-vision drift detected */}
+        <PatternWarningBanner className="mt-4" />
       </div>
 
       {/* Charts - Mobile Carousel or Desktop Grid */}
@@ -309,6 +314,11 @@ export function Dashboard() {
           >
             <DailyRhythm />
           </ChartCard>
+
+          {/* Row 6: Vision Alignment (shows if user has set vision/goals) */}
+          <div className="col-span-1 lg:col-span-4">
+            <VisionAlignmentCard />
+          </div>
         </DashboardGrid>
       )}
 

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Mic, MicOff, Send, Loader2, Brain, Sparkles, Sun, Moon, Heart, CloudRain, Target, Pencil, WifiOff, ChevronRight, X, User, Baby, Users, Smile, Flame, ChevronDown, Lock } from "lucide-react"
 import { Button } from "../ui/button"
 import { useSpeechToText } from "../../hooks/useSpeechToText"
@@ -460,12 +460,28 @@ const PROCESSING_STEPS = [
 
 interface GuidedEntryFormProps {
   onSuccess?: () => void
+  initialPrompt?: string // Pre-filled prompt from SmartPromptCard
 }
 
-export function GuidedEntryForm({ onSuccess }: GuidedEntryFormProps) {
+export function GuidedEntryForm({ onSuccess, initialPrompt }: GuidedEntryFormProps) {
   const [activeMode, setActiveMode] = useState<EntryMode | null>(null)
   const [inputMethod, setInputMethod] = useState<"voice" | "text" | null>(null)
   const [text, setText] = useState("")
+
+  // Handle initial prompt - auto-select free write mode with text input
+  const prevInitialPrompt = useRef<string | undefined>(undefined)
+  useEffect(() => {
+    if (initialPrompt && initialPrompt !== prevInitialPrompt.current) {
+      prevInitialPrompt.current = initialPrompt
+      // Find free write mode and auto-select it
+      const freeWriteMode = ENTRY_MODES.find(m => m.id === "free")
+      if (freeWriteMode) {
+        setActiveMode(freeWriteMode)
+        setInputMethod("text")
+        setText(initialPrompt + "\n\n")
+      }
+    }
+  }, [initialPrompt])
   const [isProcessing, setIsProcessing] = useState(false)
   const [processingStep, setProcessingStep] = useState(0)
   const [currentNudgeIndex, setCurrentNudgeIndex] = useState(0)
