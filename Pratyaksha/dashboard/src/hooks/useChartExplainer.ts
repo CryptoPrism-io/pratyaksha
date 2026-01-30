@@ -33,6 +33,9 @@ interface UseChartExplainerOptions {
   chartData: Record<string, unknown>
   summary?: ChartDataSummary
   userContext?: UserContext
+  // Karma integration - optional callbacks for checking/spending Karma
+  canAffordKarma?: () => boolean
+  spendKarma?: () => boolean
 }
 
 interface UseChartExplainerReturn {
@@ -40,6 +43,7 @@ interface UseChartExplainerReturn {
   isLoading: boolean
   error: string | null
   isFromCache: boolean
+  insufficientKarma: boolean
   fetchExplanation: () => Promise<void>
   clearCache: () => void
 }
@@ -120,30 +124,47 @@ export function useChartExplainer({
   chartType,
   chartData,
   summary,
-  userContext
+  userContext,
+  canAffordKarma,
+  spendKarma
 }: UseChartExplainerOptions): UseChartExplainerReturn {
   const [explanation, setExplanation] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isFromCache, setIsFromCache] = useState(false)
+  const [insufficientKarma, setInsufficientKarma] = useState(false)
 
   const fetchExplanation = useCallback(async () => {
     // Generate hash from current data
     const dataHash = generateDataHash(chartData)
 
-    // Check cache first
+    // Check cache first - no Karma cost for cached results
     const cachedExplanation = readCache(chartType, dataHash)
     if (cachedExplanation) {
       setExplanation(cachedExplanation)
       setIsFromCache(true)
       setError(null)
+      setInsufficientKarma(false)
       return
+    }
+
+    // Check Karma if callback provided (not cached, so this will cost)
+    if (canAffordKarma && !canAffordKarma()) {
+      setInsufficientKarma(true)
+      setError("Insufficient Karma")
+      return
+    }
+
+    // Spend Karma before API call
+    if (spendKarma) {
+      spendKarma()
     }
 
     // Fetch from API
     setIsLoading(true)
     setError(null)
     setIsFromCache(false)
+    setInsufficientKarma(false)
 
     try {
       const response = await fetch("/api/explain", {
@@ -189,6 +210,7 @@ export function useChartExplainer({
     isLoading,
     error,
     isFromCache,
+    insufficientKarma,
     fetchExplanation,
     clearCache
   }

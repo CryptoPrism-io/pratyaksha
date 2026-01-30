@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import { Brain, LayoutDashboard, PlusCircle, GitCompareArrows, MessageSquare, User, MoreVertical, Download } from "lucide-react"
+import { Brain, LayoutDashboard, PlusCircle, GitCompareArrows, MessageSquare, User, MoreVertical, Download, BookOpen, FlaskConical } from "lucide-react"
 import { cn } from "../../lib/utils"
 import { ThemeToggle } from "../theme-toggle"
 import { resetOnboardingTour } from "../onboarding/OnboardingTour"
@@ -8,6 +8,7 @@ import { toast } from "sonner"
 import { usePWAInstall } from "@/hooks/usePWAInstall"
 import { UserMenu } from "../auth/UserMenu"
 import { useAuth } from "../../contexts/AuthContext"
+import { KarmaDisplay } from "../gamification/KarmaDisplay"
 
 export function Header() {
   const location = useLocation()
@@ -104,6 +105,7 @@ export function Header() {
             <span className="hidden sm:inline">Chat</span>
           </Link>
           <div className="ml-1 border-l pl-1 sm:ml-2 sm:pl-2 md:ml-4 md:pl-4 flex items-center gap-1 sm:gap-2">
+            <KarmaDisplay compact />
             <ThemeToggle />
             {user ? (
               <UserMenu compact />
@@ -167,6 +169,28 @@ export function Header() {
                       <LayoutDashboard className="h-4 w-4" />
                       From Dashboard
                     </button>
+                    <div className="my-1 border-t" />
+
+                    {/* Resources Section */}
+                    <div className="px-3 py-1.5 text-xs font-medium text-muted-foreground">
+                      Resources
+                    </div>
+                    <Link
+                      to="/blog"
+                      className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-muted transition-colors"
+                      onClick={() => setShowMenu(false)}
+                    >
+                      <BookOpen className="h-4 w-4" />
+                      Blog
+                    </Link>
+                    <Link
+                      to="/research"
+                      className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-muted transition-colors"
+                      onClick={() => setShowMenu(false)}
+                    >
+                      <FlaskConical className="h-4 w-4" />
+                      Research
+                    </Link>
                   </div>
                 </>
               )}

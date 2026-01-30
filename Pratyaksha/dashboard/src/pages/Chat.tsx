@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState, useMemo } from "react"
 import { AlertCircle, Sparkles, RotateCcw } from "lucide-react"
 import { useChat } from "../hooks/useChat"
+import { useKarma } from "../contexts/KarmaContext"
 import { ChatMessage } from "../components/chat/ChatMessage"
 import { ChatInput } from "../components/chat/ChatInput"
 import { ChatEmptyState } from "../components/chat/ChatEmptyState"
 import { TypingIndicator } from "../components/chat/TypingIndicator"
 import { FollowUpSuggestions } from "../components/chat/FollowUpSuggestions"
+import { InsufficientKarmaDialog } from "../components/gamification/InsufficientKarmaDialog"
 import { Button } from "../components/ui/button"
 import { toast } from "sonner"
 import { cn } from "../lib/utils"
@@ -13,6 +15,9 @@ import { cn } from "../lib/utils"
 export function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [showFollowUp, setShowFollowUp] = useState(false)
+  const [showKarmaDialog, setShowKarmaDialog] = useState(false)
+
+  const { canAfford, spendKarma } = useKarma()
 
   const { messages, isLoading, error, sendMessage, clearMessages } = useChat({
     onError: (err) => {
@@ -47,6 +52,15 @@ export function Chat() {
   }, [messages])
 
   const handleSend = (message: string) => {
+    // Check if user can afford the AI chat message
+    if (!canAfford("AI_CHAT_MESSAGE")) {
+      setShowKarmaDialog(true)
+      return
+    }
+
+    // Deduct Karma
+    spendKarma("AI_CHAT_MESSAGE")
+
     setShowFollowUp(false)
     sendMessage(message)
   }
@@ -154,6 +168,14 @@ export function Chat() {
 
       {/* Input */}
       <ChatInput onSend={handleSend} isLoading={isLoading} />
+
+      {/* Insufficient Karma Dialog */}
+      <InsufficientKarmaDialog
+        open={showKarmaDialog}
+        onOpenChange={setShowKarmaDialog}
+        requiredCost="AI_CHAT_MESSAGE"
+        action="AI Chat"
+      />
     </div>
   )
 }

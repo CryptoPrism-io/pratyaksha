@@ -21,7 +21,9 @@ import { InstallPrompt } from "./components/pwa/InstallPrompt"
 import { OfflineProvider } from "./contexts/OfflineContext"
 import { OfflineIndicator } from "./components/offline/OfflineIndicator"
 import { AuthProvider } from "./contexts/AuthContext"
+import { KarmaProvider } from "./contexts/KarmaContext"
 import { PublicOnlyRoute } from "./components/auth/ProtectedRoute"
+import { FirstTimeOnboarding } from "./components/onboarding/FirstTimeOnboarding"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -42,6 +44,7 @@ function App() {
     >
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
+          <KarmaProvider>
           <DemoPersonaProvider>
           <OfflineProvider>
             <DateFilterProvider defaultPreset="30">
@@ -77,12 +80,14 @@ function App() {
                 </Routes>
               </AppLayout>
               <Toaster position="bottom-right" richColors closeButton />
+              <FirstTimeOnboarding />
               <InstallPrompt />
               <OfflineIndicator />
             </BrowserRouter>
           </DateFilterProvider>
           </OfflineProvider>
           </DemoPersonaProvider>
+          </KarmaProvider>
         </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>

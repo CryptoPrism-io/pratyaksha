@@ -1,8 +1,9 @@
-import React, { useState, useCallback, useMemo } from "react"
+import React, { useState, useCallback, useMemo, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { DashboardGrid, ChartCard } from "../components/layout/DashboardGrid"
 import { useStats, useEntries } from "../hooks/useEntries"
 import { useAuth } from "../contexts/AuthContext"
+import { useKarma } from "../contexts/KarmaContext"
 import { useDemoPersona, type DemoPersona } from "../contexts/DemoPersonaContext"
 import { Brain, FileText, TrendingUp, Activity, Keyboard, Plus, Gamepad2, Sword, Search, Rocket, GitBranch, Zap, BarChart3, LineChart, AlertTriangle, Hash, Lightbulb, Clock } from "lucide-react"
 import {
@@ -46,6 +47,7 @@ const PERSONA_ICONS: Record<DemoPersona, React.ReactNode> = {
 export function Dashboard() {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { checkDailyDashboardBonus } = useKarma()
   const { persona, personaConfig, changePersona, allPersonas } = useDemoPersona()
   const { data: stats, isLoading } = useStats()
   const { data: entries, refetch } = useEntries()
@@ -54,6 +56,15 @@ export function Dashboard() {
   const queryClient = useQueryClient()
   const isMobile = useIsMobile()
   const isDemoMode = !user
+
+  // Check for daily dashboard bonus on mount
+  useEffect(() => {
+    // Small delay to ensure context is ready
+    const timer = setTimeout(() => {
+      checkDailyDashboardBonus()
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [checkDailyDashboardBonus])
 
   // Charts array for mobile carousel
   const mobileCharts = useMemo(() => [
