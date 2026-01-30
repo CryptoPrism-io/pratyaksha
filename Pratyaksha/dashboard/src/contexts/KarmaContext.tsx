@@ -10,6 +10,7 @@ import {
   KARMA_REWARDS,
   KARMA_COSTS,
   UNLOCK_THRESHOLDS,
+  LAUNCH_CONFIG,
   getCurrentUnlockLevel,
   getEntriesUntilNextLevel,
   isTierUnlockedByEntryCount,
@@ -17,6 +18,7 @@ import {
   isToday,
   isYesterday,
   getSoulMappingProgress,
+  shouldAutoGiftKarma,
   type UnlockTier,
 } from "../lib/gamificationStorage";
 import { toast } from "sonner";
@@ -50,6 +52,11 @@ interface KarmaContextValue {
   checkDailyDashboardBonus: () => number;
   updateStreak: () => void;
   syncWithServer: () => Promise<void>;
+
+  // Admin functions
+  giftKarma: (amount: number, reason?: string) => void;
+  setKarma: (amount: number) => void;
+  checkAutoGift: () => number;
 
   // For debugging
   resetGamification: () => void;
@@ -90,6 +97,33 @@ export function KarmaProvider({ children }: KarmaProviderProps) {
   useEffect(() => {
     saveGamificationState(state);
   }, [state]);
+
+  // Check for auto-gift when karma is low (launch period feature)
+  useEffect(() => {
+    if (!LAUNCH_CONFIG.AUTO_GIFT_ENABLED) return;
+
+    const { shouldGift, amount, reason } = shouldAutoGiftKarma(state);
+    if (shouldGift) {
+      // Delay slightly to avoid immediate toast on load
+      const timer = setTimeout(() => {
+        setState(prev => ({
+          ...prev,
+          karma: prev.karma + amount,
+          lastAutoGift: new Date().toISOString(),
+          totalGiftsReceived: prev.totalGiftsReceived + 1,
+        }));
+
+        toast.success(`+${amount} Karma Gift!`, {
+          description: reason,
+          duration: 5000,
+        });
+
+        console.log(`[Karma] Auto-gifted ${amount} Karma. Reason: ${reason}`);
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [state.karma]); // Only check when karma changes
 
   // Sync with server when user logs in
   useEffect(() => {
@@ -291,6 +325,60 @@ export function KarmaProvider({ children }: KarmaProviderProps) {
     }
   }, [state.lastEntryDate, state.streakDays]);
 
+  // Check and trigger auto-gift during launch period
+  const checkAutoGift = useCallback((): number => {
+    const { shouldGift, amount, reason } = shouldAutoGiftKarma(state);
+
+    if (!shouldGift) {
+      return 0;
+    }
+
+    setState(prev => ({
+      ...prev,
+      karma: prev.karma + amount,
+      lastAutoGift: new Date().toISOString(),
+      totalGiftsReceived: prev.totalGiftsReceived + 1,
+    }));
+
+    toast.success(`+${amount} Karma Gift!`, {
+      description: reason,
+      duration: 5000,
+    });
+
+    console.log(`[Karma] Auto-gifted ${amount} Karma. Reason: ${reason}`);
+    return amount;
+  }, [state]);
+
+  // Admin: Gift Karma to user (for launch promotions, support, etc.)
+  const giftKarma = useCallback((amount: number, reason?: string) => {
+    if (amount <= 0) return;
+
+    setState(prev => ({
+      ...prev,
+      karma: prev.karma + amount,
+      totalGiftsReceived: prev.totalGiftsReceived + 1,
+    }));
+
+    toast.success(`+${amount} Karma Gift!`, {
+      description: reason || "You received bonus Karma!",
+      duration: 4000,
+    });
+
+    console.log(`[Karma] Gifted ${amount} Karma. Reason: ${reason || "No reason provided"}`);
+  }, []);
+
+  // Admin: Set Karma to specific amount (for support/debugging)
+  const setKarma = useCallback((amount: number) => {
+    if (amount < 0) return;
+
+    setState(prev => ({
+      ...prev,
+      karma: amount,
+    }));
+
+    console.log(`[Karma] Set karma to ${amount}`);
+  }, []);
+
   // Reset gamification (for testing)
   const resetGamification = useCallback(() => {
     setState(DEFAULT_GAMIFICATION_STATE);
@@ -321,6 +409,11 @@ export function KarmaProvider({ children }: KarmaProviderProps) {
     checkDailyDashboardBonus,
     updateStreak,
     syncWithServer,
+
+    // Admin
+    giftKarma,
+    setKarma,
+    checkAutoGift,
     resetGamification,
   };
 

@@ -20,6 +20,10 @@ export interface GamificationState {
   // Entry tracking for unlocks
   totalEntriesLogged: number;
 
+  // Launch period auto-gift tracking
+  lastAutoGift: string | null;
+  totalGiftsReceived: number;
+
   // Timestamps
   createdAt: string;
   lastUpdatedAt: string;
@@ -90,6 +94,26 @@ export const ALL_SOUL_MAPPING_TOPICS = [
 
 export type SoulMappingTopicId = typeof ALL_SOUL_MAPPING_TOPICS[number];
 
+// ==================== LAUNCH CONFIG ====================
+
+// Toggle this during launch period to auto-gift karma when users run low
+export const LAUNCH_CONFIG = {
+  // Set to true during beta/launch to be generous with Karma
+  AUTO_GIFT_ENABLED: true,
+
+  // When user's karma falls below this, auto-gift kicks in
+  LOW_KARMA_THRESHOLD: 10,
+
+  // Amount to gift when user is low
+  AUTO_GIFT_AMOUNT: 100,
+
+  // Cooldown between auto-gifts (24 hours in ms)
+  AUTO_GIFT_COOLDOWN: 24 * 60 * 60 * 1000,
+
+  // Launch period end date (set to null for no end)
+  LAUNCH_PERIOD_END: null as string | null, // e.g., "2025-03-01"
+} as const;
+
 // ==================== STORAGE KEY ====================
 
 export const GAMIFICATION_STORAGE_KEY = "pratyaksha-gamification";
@@ -103,6 +127,8 @@ export const DEFAULT_GAMIFICATION_STATE: GamificationState = {
   lastEntryDate: null,
   lastDailyDashboardBonus: null,
   totalEntriesLogged: 0,
+  lastAutoGift: null,
+  totalGiftsReceived: 0,
   createdAt: new Date().toISOString(),
   lastUpdatedAt: new Date().toISOString(),
 };
@@ -223,6 +249,50 @@ export function isYesterday(dateString: string | null): boolean {
   const yesterdayStr = yesterday.toISOString().split("T")[0];
   const compareDate = dateString.split("T")[0];
   return yesterdayStr === compareDate;
+}
+
+/**
+ * Check if auto-gift should be triggered during launch period
+ */
+export function shouldAutoGiftKarma(state: GamificationState): {
+  shouldGift: boolean;
+  amount: number;
+  reason: string;
+} {
+  // Check if auto-gift is enabled
+  if (!LAUNCH_CONFIG.AUTO_GIFT_ENABLED) {
+    return { shouldGift: false, amount: 0, reason: "Auto-gift disabled" };
+  }
+
+  // Check if launch period has ended
+  if (LAUNCH_CONFIG.LAUNCH_PERIOD_END) {
+    const endDate = new Date(LAUNCH_CONFIG.LAUNCH_PERIOD_END);
+    if (new Date() > endDate) {
+      return { shouldGift: false, amount: 0, reason: "Launch period ended" };
+    }
+  }
+
+  // Check if user's karma is above threshold
+  if (state.karma >= LAUNCH_CONFIG.LOW_KARMA_THRESHOLD) {
+    return { shouldGift: false, amount: 0, reason: "Karma above threshold" };
+  }
+
+  // Check cooldown
+  if (state.lastAutoGift) {
+    const lastGiftTime = new Date(state.lastAutoGift).getTime();
+    const now = Date.now();
+    if (now - lastGiftTime < LAUNCH_CONFIG.AUTO_GIFT_COOLDOWN) {
+      const hoursRemaining = Math.ceil((LAUNCH_CONFIG.AUTO_GIFT_COOLDOWN - (now - lastGiftTime)) / (60 * 60 * 1000));
+      return { shouldGift: false, amount: 0, reason: `Cooldown: ${hoursRemaining}h remaining` };
+    }
+  }
+
+  // All checks passed - should gift!
+  return {
+    shouldGift: true,
+    amount: LAUNCH_CONFIG.AUTO_GIFT_AMOUNT,
+    reason: "Welcome bonus during launch!",
+  };
 }
 
 /**
