@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { AppLayout } from "./components/layout/AppLayout"
 import MarketingHome from "./pages/MarketingHome"
+import { Landing } from "./pages/Landing"
 import { Dashboard } from "./pages/Dashboard"
 import { Logs } from "./pages/Logs"
 // Insights page removed - functionality merged into Compare
@@ -24,6 +25,7 @@ import { AuthProvider } from "./contexts/AuthContext"
 import { KarmaProvider } from "./contexts/KarmaContext"
 import { PublicOnlyRoute } from "./components/auth/ProtectedRoute"
 import { FirstTimeOnboarding } from "./components/onboarding/FirstTimeOnboarding"
+import { MothCursor } from "./components/ui/MothCursor"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -42,16 +44,19 @@ function App() {
       enableSystem
       disableTransitionOnChange
     >
+      {/* Global moth cursor */}
+      <MothCursor />
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <KarmaProvider>
           <DemoPersonaProvider>
           <OfflineProvider>
             <DateFilterProvider defaultPreset="30">
+            <KarmaProvider>
             <BrowserRouter>
               <AppLayout>
                 <Routes>
-                  <Route path="/" element={<MarketingHome />} />
+                  <Route path="/" element={<Landing />} />
+                  <Route path="/home-old" element={<MarketingHome />} />
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/logs" element={<Logs />} />
                   {/* Insights route removed - use Compare instead */}
@@ -84,10 +89,10 @@ function App() {
               <InstallPrompt />
               <OfflineIndicator />
             </BrowserRouter>
+            </KarmaProvider>
           </DateFilterProvider>
           </OfflineProvider>
           </DemoPersonaProvider>
-          </KarmaProvider>
         </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>
