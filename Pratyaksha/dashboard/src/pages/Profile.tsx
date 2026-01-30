@@ -9,7 +9,7 @@ import { FirstTimeOnboarding } from "@/components/onboarding/FirstTimeOnboarding
 import { KarmaDisplayExpanded } from "@/components/gamification/KarmaDisplay"
 import { SoulMappingProgress } from "@/components/gamification/SoulMappingProgress"
 import { LevelProgressCard } from "@/components/gamification/LevelProgressCard"
-import { LifeBlueprintEditor } from "@/components/gamification/LifeBlueprintEditor"
+import { LifeBlueprintGuided } from "@/components/gamification/LifeBlueprintGuided"
 import {
   hasCompletedFirstTimeOnboarding,
   loadOnboardingProfile,
@@ -158,8 +158,8 @@ export function Profile() {
           <SoulMappingProgress />
         </div>
 
-        {/* Life Blueprint */}
-        <LifeBlueprintEditor className="mb-6" />
+        {/* Life Blueprint - Guided Reflection */}
+        <LifeBlueprintGuided className="mb-6" />
 
         {/* Build Your Profile Section */}
         <div className="rounded-xl glass-card p-6 mb-6">
