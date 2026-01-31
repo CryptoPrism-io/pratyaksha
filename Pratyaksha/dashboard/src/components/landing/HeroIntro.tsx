@@ -539,62 +539,89 @@ export function HeroIntro() {
 
   const scatteredWords = useMemo(() => generateScatteredWords(), [])
 
-  // Left-to-right reveal over 2.5 seconds
+  // Outside-to-center reveal over 3 seconds with smooth easing
   const [revealProgress, setRevealProgress] = useState(0)
+  const [becomingAlive, setBecomingAlive] = useState(false)
 
   useEffect(() => {
     if (!isFlickering) return
 
-    const duration = 2500 // 2.5 seconds
-    const startTime = Date.now()
+    const duration = 3000 // 3 seconds for smoother reveal
+    let startTime: number | null = null
+    let animationFrame: number
 
-    const revealInterval = setInterval(() => {
-      const elapsed = Date.now() - startTime
-      const progress = Math.min(elapsed / duration, 1)
-      setRevealProgress(progress)
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp
+      const elapsed = timestamp - startTime
 
-      if (progress >= 1) {
-        clearInterval(revealInterval)
+      // Smooth ease-in-out cubic for fluid motion
+      const linearProgress = Math.min(elapsed / duration, 1)
+      const easedProgress = linearProgress < 0.5
+        ? 4 * linearProgress * linearProgress * linearProgress
+        : 1 - Math.pow(-2 * linearProgress + 2, 3) / 2
+
+      setRevealProgress(easedProgress)
+
+      if (linearProgress < 1) {
+        animationFrame = requestAnimationFrame(animate)
+      } else {
         setIsFlickering(false)
+        // "Becoming" comes to life after words settle
+        setTimeout(() => setBecomingAlive(true), 300)
       }
-    }, 30) // Update every 30ms for smooth reveal
+    }
+
+    animationFrame = requestAnimationFrame(animate)
 
     return () => {
-      clearInterval(revealInterval)
+      if (animationFrame) cancelAnimationFrame(animationFrame)
     }
   }, [isFlickering])
+
   const totalWords = scatteredWords.length
 
-  // Get word opacity - left-to-right reveal based on x position
-  // Fast flash up (0.01 → 1), slow fade down (1 → 0.01)
-  const getWordOpacity = (index: number, xPercent: number) => {
+  // Get word opacity - outside-to-center reveal based on distance from center
+  // Words at edges reveal first, center words reveal last
+  const getWordOpacity = (index: number, xPercent: number, yPercent: number) => {
     if (isFlickering) {
-      // Calculate reveal threshold based on x position (0-100%)
-      // Words on left (low x) reveal first, words on right (high x) reveal last
-      const revealThreshold = xPercent / 100
+      // Calculate distance from center (50%, 50%)
+      const centerX = 50
+      const centerY = 50
+      const distX = Math.abs(xPercent - centerX)
+      const distY = Math.abs(yPercent - centerY)
+      const distanceFromCenter = Math.sqrt(distX * distX + distY * distY)
 
-      // Add some fuzziness for natural feel
-      const fuzz = (Math.sin(index * 0.5) * 0.03) // Slight variation per word
-      const adjustedThreshold = revealThreshold + fuzz
+      // Normalize: max distance is ~70 (corner to center)
+      // Invert so outer words (high distance) have LOW threshold (reveal first)
+      const maxDistance = 70
+      const normalizedDistance = Math.min(distanceFromCenter / maxDistance, 1)
+      const revealThreshold = 1 - normalizedDistance // 0 = edge (first), 1 = center (last)
+
+      // Small random variation for organic feel
+      const variation = (Math.sin(index * 0.7) * 0.05)
+      const adjustedThreshold = Math.max(0, Math.min(1, revealThreshold + variation))
 
       if (revealProgress >= adjustedThreshold) {
-        // How long since this word was revealed (0 to ~1)
+        // How long since this word was revealed
         const timeSinceReveal = revealProgress - adjustedThreshold
 
-        // Fast flash up phase (first 0.02 of progress = ~50ms)
-        if (timeSinceReveal < 0.02) {
-          // Quick rise from 0.01 to 1
-          const flashProgress = timeSinceReveal / 0.02
-          return 0.01 + (flashProgress * 0.99) // 0.01 → 1
+        // Smooth flash up (0.05 of progress)
+        if (timeSinceReveal < 0.05) {
+          const flashProgress = timeSinceReveal / 0.05
+          // Smooth ease-out for flash
+          const easedFlash = 1 - Math.pow(1 - flashProgress, 3)
+          return 0.02 + (easedFlash * 0.98) // 0.02 → 1
         }
 
-        // Slow fade down phase (remaining time)
-        // Use easing for smooth slow fade
-        const fadeProgress = Math.min(1, (timeSinceReveal - 0.02) / 0.4) // Takes ~1 second to fade
-        const easedFade = fadeProgress * fadeProgress // Quadratic ease - starts slow
+        // Smooth fade down to settled opacity
+        const fadeProgress = Math.min(1, (timeSinceReveal - 0.05) / 0.5)
+        // Smooth ease-in-out for fade
+        const easedFade = fadeProgress < 0.5
+          ? 2 * fadeProgress * fadeProgress
+          : 1 - Math.pow(-2 * fadeProgress + 2, 2) / 2
         return 1 - (easedFade * 0.9) // 1 → 0.1
       }
-      return 0.01 // Not yet revealed, barely visible
+      return 0.02 // Not yet revealed
     }
     // After reveal: settled at 0.1
     return 0.1
@@ -685,15 +712,15 @@ export function HeroIntro() {
               left: `${item.x}%`,
               top: `${item.y}%`,
               transform: `rotate(${item.rotation}deg) translateX(-50%) translateY(-50%)`,
-              // During reveal: inline style
+              // During reveal: smooth transition
               ...(isFlickering && {
-                opacity: getWordOpacity(index, item.x),
-                transition: "opacity 0.05s ease-out",
+                opacity: getWordOpacity(index, item.x, item.y),
+                transition: "opacity 0.12s cubic-bezier(0.4, 0, 0.2, 1)",
               }),
               // Baby moth hover: random opacity 0.01-0.06
               ...(!isFlickering && hasMothHover && {
                 opacity: mothHoverOpacity,
-                transition: "opacity 0.15s ease-out",
+                transition: "opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
               }),
             }}
           >
@@ -702,14 +729,17 @@ export function HeroIntro() {
         )
       })}
 
-      {/* PERSISTENT "Becoming" - stays throughout all phases */}
+      {/* PERSISTENT "Becoming" - comes to life after words reveal */}
       <div className="relative z-10 flex flex-col items-center">
-        {/* Glow behind Becoming */}
+        {/* Glow behind Becoming - pulses when coming to life */}
         <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-20"
+          className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-20 transition-all duration-1000 ${
+            becomingAlive ? "animate-pulse-glow" : ""
+          }`}
           style={{
-            opacity: 0.5,
-            filter: "blur(60px)",
+            opacity: becomingAlive ? 0.7 : 0.3,
+            filter: becomingAlive ? "blur(80px)" : "blur(60px)",
+            transform: `translate(-50%, -50%) scale(${becomingAlive ? 1.1 : 1})`,
           }}
         >
           <span className="font-clash text-7xl md:text-8xl lg:text-9xl font-semibold whitespace-nowrap tracking-[0.15em] brand-gradient-animated">
@@ -717,11 +747,20 @@ export function HeroIntro() {
           </span>
         </div>
 
-        {/* The main Becoming text with orbiting moth - spaced out letters */}
-        <h1 className="font-clash text-7xl md:text-8xl lg:text-9xl font-semibold tracking-[0.15em] relative">
+        {/* The main Becoming text with orbiting moth - animates when coming to life */}
+        <h1
+          className={`font-clash text-7xl md:text-8xl lg:text-9xl font-semibold tracking-[0.15em] relative transition-all duration-700 ${
+            becomingAlive ? "scale-105" : "scale-100 opacity-70"
+          }`}
+          style={{
+            textShadow: becomingAlive
+              ? "0 0 40px rgba(20, 184, 166, 0.4), 0 0 80px rgba(244, 63, 94, 0.3)"
+              : "none",
+          }}
+        >
           <span className="brand-gradient-animated">Becoming</span>
-          {/* Orbiting moth appears immediately */}
-          <OrbitingMoth onPositionUpdate={handleOrbitMothPosition} isFluttering={isCollisionFlutter} />
+          {/* Orbiting moth appears when Becoming comes to life */}
+          {becomingAlive && <OrbitingMoth onPositionUpdate={handleOrbitMothPosition} isFluttering={isCollisionFlutter} />}
         </h1>
 
         {/* Hero content fades in */}
