@@ -27,6 +27,8 @@ import {
   LayoutDashboard,
   PenLine,
   Play,
+  Menu,
+  X,
 } from "lucide-react"
 import { cn } from "../lib/utils"
 import { HeroIntro } from "../components/landing/HeroIntro"
@@ -285,14 +287,210 @@ const discoveryFeatures = [
 ]
 
 export function Landing() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
   return (
     <div className="flex min-h-screen flex-col overflow-hidden relative">
-      {/* Theme toggle - fixed top right */}
-      <div className="fixed top-6 right-6 z-[9999] pointer-events-auto">
-        <div className="glass-feature-card p-2 pointer-events-auto">
-          <ThemeToggle />
+      {/* Sleek Navbar */}
+      <nav className="fixed top-0 left-0 right-0 z-[9999] pointer-events-auto">
+        <div className="mx-auto px-4 sm:px-6 py-3 sm:py-4">
+          <div className="flex items-center justify-between backdrop-blur-md bg-background/60 border border-white/10 rounded-full px-4 sm:px-6 py-2.5 sm:py-3 shadow-lg">
+            {/* Logo */}
+            <Link to="/" className="flex items-center gap-2 group">
+              <Sparkles className="h-5 w-5 text-teal-500 group-hover:rotate-12 transition-transform" />
+              <span className="font-space font-medium text-lg tracking-tight">Becoming</span>
+            </Link>
+
+            {/* Nav Links - Hidden on mobile */}
+            <div className="hidden md:flex items-center font-space text-sm tracking-wide">
+              {/* Primary: What, Why, How */}
+              <a href="#what" className="px-4 py-2 text-muted-foreground hover:text-foreground transition-all nav-link-underline">
+                What
+              </a>
+              <span className="text-border/60">|</span>
+              <a href="#why" className="px-4 py-2 text-muted-foreground hover:text-foreground transition-all nav-link-underline">
+                Why
+              </a>
+              <span className="text-border/60">|</span>
+              <a href="#how" className="px-4 py-2 text-muted-foreground hover:text-foreground transition-all nav-link-underline">
+                How
+              </a>
+
+              <span className="text-border/40 mx-2">|</span>
+
+              {/* Secondary with Dropdowns: Blog, Research, About */}
+              {/* Blog Dropdown */}
+              <div className="relative group">
+                <Link to="/blog" className="px-4 py-2 text-muted-foreground hover:text-foreground transition-all flex items-center gap-1 nav-link-underline">
+                  Blog
+                  <ChevronRight className="h-3 w-3 rotate-90 opacity-50" />
+                </Link>
+                <div className="absolute top-full left-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                  <div className="bg-background/95 backdrop-blur-md border border-border/50 rounded-xl shadow-xl p-2 min-w-[180px]">
+                    <Link to="/blog" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
+                      All Posts
+                    </Link>
+                    <Link to="/blog?tag=Product" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
+                      Product Updates
+                    </Link>
+                    <Link to="/blog?tag=Science" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
+                      Science & Research
+                    </Link>
+                    <Link to="/blog?tag=Guides" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
+                      Guides & Tutorials
+                    </Link>
+                  </div>
+                </div>
+              </div>
+
+              <span className="text-border/60">|</span>
+
+              {/* Research Dropdown */}
+              <div className="relative group">
+                <Link to="/research" className="px-4 py-2 text-muted-foreground hover:text-foreground transition-all flex items-center gap-1 nav-link-underline">
+                  Research
+                  <ChevronRight className="h-3 w-3 rotate-90 opacity-50" />
+                </Link>
+                <div className="absolute top-full left-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                  <div className="bg-background/95 backdrop-blur-md border border-border/50 rounded-xl shadow-xl p-2 min-w-[200px]">
+                    <Link to="/research" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
+                      Overview
+                    </Link>
+                    <Link to="/research#cognitive-patterns" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
+                      Cognitive Patterns
+                    </Link>
+                    <Link to="/research#ai-pipeline" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
+                      AI Pipeline
+                    </Link>
+                    <Link to="/research#methodology" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
+                      Methodology
+                    </Link>
+                  </div>
+                </div>
+              </div>
+
+              <span className="text-border/60">|</span>
+
+              {/* About Dropdown */}
+              <div className="relative group">
+                <a href="#about" className="px-4 py-2 text-muted-foreground hover:text-foreground transition-all flex items-center gap-1 nav-link-underline">
+                  About
+                  <ChevronRight className="h-3 w-3 rotate-90 opacity-50" />
+                </a>
+                <div className="absolute top-full right-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                  <div className="bg-background/95 backdrop-blur-md border border-border/50 rounded-xl shadow-xl p-2 min-w-[180px]">
+                    <a href="#about" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
+                      Our Story
+                    </a>
+                    <a href="#mission" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
+                      Mission
+                    </a>
+                    <a href="#team" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
+                      Team
+                    </a>
+                    <a href="#contact" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
+                      Contact
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right side: Theme + CTA + Mobile Menu */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              <ThemeToggle />
+              <Link
+                to="/signup"
+                className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-gradient-to-r from-teal-500 to-teal-600 text-white text-sm font-medium transition-transform font-space cta-pulse"
+              >
+                Get Started
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+              {/* Mobile hamburger button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-2 rounded-full hover:bg-muted/50 transition-colors"
+                aria-label="Toggle menu"
+              >
+                {mobileMenuOpen ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Menu className="h-5 w-5" />
+                )}
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+
+        {/* Mobile Menu Panel */}
+        {mobileMenuOpen && (
+          <div className="md:hidden absolute top-full left-0 right-0 px-4 pb-4">
+            <div className="backdrop-blur-md bg-background/95 border border-white/10 rounded-2xl shadow-xl p-4 mt-2">
+              <div className="flex flex-col gap-1 font-space text-sm">
+                {/* Primary Links */}
+                <a
+                  href="#what"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-4 py-3 rounded-xl text-foreground hover:bg-muted/50 transition-all font-medium"
+                >
+                  What
+                </a>
+                <a
+                  href="#why"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-4 py-3 rounded-xl text-foreground hover:bg-muted/50 transition-all font-medium"
+                >
+                  Why
+                </a>
+                <a
+                  href="#how"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-4 py-3 rounded-xl text-foreground hover:bg-muted/50 transition-all font-medium"
+                >
+                  How
+                </a>
+
+                <div className="border-t border-border/30 my-2" />
+
+                {/* Secondary Links */}
+                <Link
+                  to="/blog"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-4 py-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all"
+                >
+                  Blog
+                </Link>
+                <Link
+                  to="/research"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-4 py-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all"
+                >
+                  Research
+                </Link>
+                <a
+                  href="#about"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-4 py-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all"
+                >
+                  About
+                </a>
+
+                <div className="border-t border-border/30 my-2" />
+
+                {/* CTA */}
+                <Link
+                  to="/signup"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-teal-500 to-teal-600 text-white font-medium hover:scale-[1.02] transition-transform"
+                >
+                  Get Started
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+      </nav>
 
       {/* Floating background orbs for glassmorphism depth */}
       <BackgroundOrbs intensity="subtle" />
@@ -301,14 +499,14 @@ export function Landing() {
       <HeroIntro />
 
       {/* ==================== STAKES SECTION (The Problem) - Glassmorphism ==================== */}
-      <section className="relative py-24 md:py-32 border-t overflow-hidden">
+      <section id="why" className="relative py-24 md:py-32 border-t overflow-hidden">
         {/* Giant background number */}
-        <BackgroundNumber number="01" position="top-left" variant="rose" size="xl" className="opacity-[0.0375]" />
+        <span className="bg-number bg-number-gradient bg-number-xl top-0 left-0" aria-hidden="true">01</span>
 
         {/* Ambient glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-rose-500/5 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.card-lift]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto [&_.glass-teal]:pointer-events-auto">
           <div className="mx-auto max-w-4xl">
             {/* Opening hook */}
             <RevealOnScroll className="text-center mb-16">
@@ -364,14 +562,14 @@ export function Landing() {
       </section>
 
       {/* ==================== DIFFERENTIATOR SECTION - Glassmorphism ==================== */}
-      <section className="py-24 md:py-32 border-t relative overflow-hidden">
+      <section id="what" className="py-24 md:py-32 border-t relative overflow-hidden">
         {/* Giant background number */}
-        <BackgroundNumber number="02" position="top-right" variant="teal" size="xl" className="opacity-[0.0375]" />
+        <span className="bg-number bg-number-gradient bg-number-xl top-0 left-0" aria-hidden="true">02</span>
 
         {/* Background orbs */}
         <div className="absolute top-20 right-20 w-80 h-80 bg-teal-500/8 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.card-lift]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto [&_.glass-teal]:pointer-events-auto [&_.hover-glow]:pointer-events-auto">
           <div className="mx-auto max-w-4xl">
             <RevealOnScroll className="text-center mb-16">
               <div className="mb-4 inline-flex items-center gap-2 rounded-full glass-teal px-4 py-2 text-sm">
@@ -414,15 +612,15 @@ export function Landing() {
       </section>
 
       {/* ==================== THE PLAN (How It Works) - Glassmorphism ==================== */}
-      <section id="how-it-works" className="py-24 md:py-32 border-t relative overflow-hidden">
+      <section id="how" className="py-24 md:py-32 border-t relative overflow-hidden">
         {/* Giant background number */}
-        <BackgroundNumber number="03" position="center" variant="teal" size="xl" className="opacity-[0.025]" />
+        <span className="bg-number bg-number-gradient bg-number-xl top-0 left-0" aria-hidden="true">03</span>
 
         {/* Background orbs */}
         <div className="absolute top-10 left-1/4 w-72 h-72 bg-teal-500/8 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-10 right-1/4 w-64 h-64 bg-rose-500/8 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.card-lift]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto [&_.card-shine]:pointer-events-auto">
           <RevealOnScroll className="mx-auto max-w-2xl text-center mb-16">
             <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-5xl">
               <TextHighlight variant="teal">Four steps</TextHighlight> to becoming.
@@ -460,7 +658,7 @@ export function Landing() {
             <div className="text-center mt-12">
               <Link
                 to="/signup"
-                className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-teal-500 to-teal-600 px-8 py-4 text-lg font-medium text-white transition-all hover:scale-105 hover:shadow-xl hover:shadow-teal-500/25"
+                className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-teal-500 to-teal-600 px-8 py-4 text-lg font-medium text-white transition-all cta-pulse"
               >
                 Start Becoming
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
@@ -471,14 +669,14 @@ export function Landing() {
       </section>
 
       {/* ==================== GUIDE SECTION (Empathy + Authority) - Glassmorphism ==================== */}
-      <section className="py-24 md:py-32 border-t relative overflow-hidden">
-        {/* Giant background number */}
-        <BackgroundNumber number="05" position="top-right" variant="rose" size="xl" className="opacity-[0.0375]" />
+      <section id="about" className="py-24 md:py-32 border-t relative overflow-hidden">
+        {/* Giant background number - white with drop shadow */}
+        <span className="bg-number bg-number-gradient bg-number-xl top-0 left-0" aria-hidden="true">04</span>
 
         {/* Background orb */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-violet-500/5 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.card-lift]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto">
           <div className="mx-auto max-w-4xl">
             {/* Section headline */}
             <RevealOnScroll className="text-center mb-16">
@@ -541,13 +739,13 @@ export function Landing() {
       {/* ==================== SUCCESS SECTION (Testimonials) - Glassmorphism ==================== */}
       <section className="py-24 md:py-32 border-t relative overflow-hidden">
         {/* Giant background number */}
-        <BackgroundNumber number="06" position="top-left" variant="teal" size="xl" className="opacity-[0.0375]" />
+        <span className="bg-number bg-number-gradient bg-number-xl top-0 left-0" aria-hidden="true">05</span>
 
         {/* Subtle background */}
         <div className="absolute inset-0 bg-gradient-to-b from-muted/30 via-background to-muted/20 -z-10" />
         <div className="absolute top-1/3 right-0 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.card-lift]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto [&_.hover-glow]:pointer-events-auto">
           <div className="mx-auto max-w-4xl">
             <div className="text-center mb-16">
               <h2 className="text-3xl font-bold tracking-tight md:text-5xl mb-4">
@@ -590,13 +788,13 @@ export function Landing() {
       {/* ==================== PRODUCT FEATURES SECTION (Glassmorphism + Chart Previews) ==================== */}
       <section className="py-24 md:py-32 border-t relative overflow-hidden">
         {/* Giant background number */}
-        <BackgroundNumber number="04" position="top-left" variant="amber" size="xl" className="opacity-[0.0375]" />
+        <span className="bg-number bg-number-gradient bg-number-xl top-0 left-0" aria-hidden="true">06</span>
 
         {/* Section-specific orbs */}
         <div className="absolute top-20 left-10 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-20 right-10 w-80 h-80 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto [&_.glass-teal]:pointer-events-auto">
           <RevealOnScroll className="mx-auto max-w-2xl text-center mb-16">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full glass-teal px-4 py-2 text-sm">
               <Sparkles className="h-4 w-4 text-teal-500" />
@@ -689,14 +887,14 @@ export function Landing() {
       {/* ==================== SELF-DISCOVERY SECTION - Glassmorphism ==================== */}
       <section className="py-24 md:py-32 border-t relative overflow-hidden">
         {/* Giant background number */}
-        <BackgroundNumber number="07" position="top-right" variant="amber" size="xl" className="opacity-[0.0375]" />
+        <span className="bg-number bg-number-gradient bg-number-xl top-0 left-0" aria-hidden="true">07</span>
 
         {/* Background */}
         <div className="absolute inset-0 bg-gradient-to-b from-muted/20 via-background to-muted/30 -z-10" />
         <div className="absolute top-1/2 left-10 w-64 h-64 bg-violet-500/8 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-10 right-20 w-72 h-72 bg-pink-500/8 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto [&_.card-scale-glow]:pointer-events-auto [&_.glass-teal]:pointer-events-auto">
           <div className="mx-auto max-w-2xl text-center mb-16">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full glass-teal px-4 py-2 text-sm">
               <Compass className="h-4 w-4 text-teal-500" />
@@ -734,6 +932,110 @@ export function Landing() {
         </div>
       </section>
 
+      {/* ==================== ABOUT US SECTION ==================== */}
+      <section className="py-24 md:py-32 border-t relative overflow-hidden">
+        <span className="bg-number bg-number-gradient bg-number-xl top-0 left-0" aria-hidden="true">08</span>
+
+        {/* Background orbs */}
+        <div className="absolute top-20 right-20 w-80 h-80 bg-teal-500/8 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-20 left-20 w-72 h-72 bg-violet-500/8 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto [&_.card-lift]:pointer-events-auto [&_.glass-teal]:pointer-events-auto">
+          {/* Mission Section */}
+          <div id="mission" className="mx-auto max-w-4xl mb-24">
+            <RevealOnScroll className="text-center mb-12">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full glass-teal px-4 py-2 text-sm">
+                <Target className="h-4 w-4 text-teal-500" />
+                <span>Our Mission</span>
+              </div>
+              <h2 className="text-3xl font-bold tracking-tight md:text-5xl mb-6">
+                Help you become who you <TextHighlight variant="gradient">want to be</TextHighlight>.
+              </h2>
+            </RevealOnScroll>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="glass-feature-card p-6 text-center card-lift">
+                <div className="w-12 h-12 rounded-full bg-teal-500/10 flex items-center justify-center mx-auto mb-4">
+                  <Eye className="w-6 h-6 text-teal-500" />
+                </div>
+                <h3 className="font-semibold mb-2">See Clearly</h3>
+                <p className="text-sm text-muted-foreground">Make your invisible patterns visible through beautiful visualizations.</p>
+              </div>
+              <div className="glass-feature-card p-6 text-center card-lift">
+                <div className="w-12 h-12 rounded-full bg-rose-500/10 flex items-center justify-center mx-auto mb-4">
+                  <Brain className="w-6 h-6 text-rose-500" />
+                </div>
+                <h3 className="font-semibold mb-2">Understand Deeply</h3>
+                <p className="text-sm text-muted-foreground">AI that truly knows your goals, fears, and aspirations.</p>
+              </div>
+              <div className="glass-feature-card p-6 text-center card-lift">
+                <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto mb-4">
+                  <TrendingUp className="w-6 h-6 text-amber-500" />
+                </div>
+                <h3 className="font-semibold mb-2">Grow Intentionally</h3>
+                <p className="text-sm text-muted-foreground">Stay on track toward who you want to become.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Team Section */}
+          <div id="team" className="mx-auto max-w-4xl mb-24">
+            <RevealOnScroll className="text-center mb-12">
+              <h2 className="text-2xl font-bold tracking-tight md:text-4xl mb-4">
+                Built by people who <TextHighlight variant="rose">needed this</TextHighlight>.
+              </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                We're not a faceless corporation. We're a small team of builders, thinkers, and journalers
+                who got tired of watching our own patterns repeat.
+              </p>
+            </RevealOnScroll>
+
+            <div className="glass-feature-card p-8 text-center">
+              <div className="flex items-center justify-center gap-4 mb-6">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-teal-500 to-rose-500 flex items-center justify-center text-white text-2xl font-bold">
+                  B
+                </div>
+              </div>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                "We journaled for years and still felt stuck. We built Becoming to finally see our own patterns—and we're sharing it with you."
+              </p>
+              <p className="mt-4 font-medium text-teal-600 dark:text-teal-400">— The Becoming Team</p>
+            </div>
+          </div>
+
+          {/* Contact Section */}
+          <div id="contact" className="mx-auto max-w-2xl">
+            <RevealOnScroll className="text-center">
+              <h2 className="text-2xl font-bold tracking-tight md:text-3xl mb-4">
+                Get in touch
+              </h2>
+              <p className="text-muted-foreground mb-8">
+                Questions, feedback, or just want to say hi? We'd love to hear from you.
+              </p>
+
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a
+                  href="mailto:hello@becoming.app"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full glass-feature-card hover:scale-105 transition-transform"
+                >
+                  <MessageCircle className="h-5 w-5 text-teal-500" />
+                  <span>hello@becoming.app</span>
+                </a>
+                <a
+                  href="https://twitter.com/becomingapp"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full glass-feature-card hover:scale-105 transition-transform"
+                >
+                  <Sparkles className="h-5 w-5 text-rose-500" />
+                  <span>@becomingapp</span>
+                </a>
+              </div>
+            </RevealOnScroll>
+          </div>
+        </div>
+      </section>
+
       {/* ==================== FINAL CTA SECTION - Enhanced Glassmorphism ==================== */}
       <section className="py-24 md:py-32 border-t relative overflow-hidden">
         {/* Themed background image */}
@@ -750,8 +1052,8 @@ export function Landing() {
         <div className="absolute top-0 left-1/4 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="container mx-auto px-4 relative z-10">
-          <RevealOnScroll className="mx-auto max-w-4xl rounded-3xl glass-feature-card p-12 text-center relative overflow-hidden">
+        <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto">
+          <RevealOnScroll className="mx-auto max-w-4xl rounded-3xl glass-feature-card p-12 text-center relative overflow-hidden pointer-events-auto">
             {/* Animated gradient border */}
             <div className="absolute inset-0 rounded-3xl p-px bg-gradient-to-r from-teal-500/50 via-rose-500/30 to-teal-500/50 -z-10 opacity-50" />
 
@@ -770,7 +1072,7 @@ export function Landing() {
             </p>
             <Link
               to="/signup"
-              className="group relative z-10 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-teal-500 to-teal-600 px-8 py-4 text-lg font-medium text-white transition-all hover:scale-105 hover:shadow-xl hover:shadow-teal-500/30"
+              className="group relative z-10 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-teal-500 to-teal-600 px-8 py-4 text-lg font-medium text-white transition-all cta-pulse"
             >
               Start Becoming
               <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />

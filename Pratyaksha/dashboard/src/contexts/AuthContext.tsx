@@ -10,6 +10,7 @@ import {
   isFirebaseConfigured,
   type User,
 } from "../lib/firebase"
+import { syncOnboardingFromServer } from "../lib/onboardingStorage"
 
 interface AuthContextValue {
   user: User | null
@@ -40,8 +41,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
       return
     }
 
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser)
+
+      // Sync onboarding status from server when user logs in
+      // This ensures cross-device consistency
+      if (firebaseUser) {
+        await syncOnboardingFromServer(firebaseUser.uid)
+      }
+
       setLoading(false)
     })
 

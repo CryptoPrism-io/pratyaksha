@@ -129,7 +129,7 @@ function FreeFloatingMoth({ id, variant, startX, startY, targetX, targetY, onArr
 
   return (
     <div
-      className="fixed pointer-events-none z-30 transition-transform"
+      className="fixed pointer-events-none z-[1] transition-transform"
       style={{
         left: position.x - 8,
         top: position.y - 5 + hoverOffset,
@@ -255,28 +255,18 @@ const scatterWords = [
   "awakening", "transforming", "transcending", "becoming", "being",
 ]
 
-// Variety of elegant fonts - serifs, sans, display
+// Space Grotesk with different weights for variety
 const fonts = [
-  "font-cormorant font-light",
-  "font-cormorant font-medium",
-  "font-cormorant font-semibold",
-  "font-cormorant italic font-light",
-  "font-cormorant italic font-medium",
-  "font-playfair font-normal",
-  "font-playfair font-medium",
-  "font-playfair font-semibold",
-  "font-playfair italic",
-  "font-playfair italic font-medium",
-  "font-satoshi font-light",
-  "font-satoshi font-normal",
-  "font-satoshi font-medium",
-  "font-satoshi font-bold",
-  "font-clash font-normal",
-  "font-clash font-medium",
-  "font-clash font-semibold",
-  "font-cabinet font-bold",
-  "font-syne font-semibold",
+  "font-space font-light",
+  "font-space font-normal",
   "font-space font-medium",
+  "font-space font-semibold",
+  "font-space font-bold",
+  "font-space font-light tracking-wide",
+  "font-space font-normal tracking-wide",
+  "font-space font-medium tracking-wide",
+  "font-space font-semibold tracking-tight",
+  "font-space font-bold tracking-tight",
 ]
 
 // High contrast colors - bright on dark, dark on light
@@ -295,24 +285,23 @@ const colors = [
 // Only allowed angles: 0°, 45°, 90°, -90°
 const allowedAngles = [0, 45, 90, -90]
 
-// Random sizes - from tiny to half of "Becoming"
+// Random sizes - range from 18px to 42px
 const sizeClasses = [
-  "text-4xl",    // 2.25rem - largest
-  "text-3xl",    // 1.875rem
-  "text-2xl",    // 1.5rem
-  "text-xl",     // 1.25rem
-  "text-lg",     // 1.125rem
-  "text-base",   // 1rem
-  "text-sm",     // 0.875rem
-  "text-xs",     // 0.75rem
-  "text-[10px]", // tiny
-  "text-[11px]",
-  "text-[13px]",
-  "text-[15px]",
-  "text-[17px]",
-  "text-[19px]",
-  "text-[22px]",
+  "text-[42px]", // largest
+  "text-[40px]",
+  "text-[38px]",
+  "text-[36px]",
+  "text-[34px]",
+  "text-[32px]",
+  "text-[30px]",
+  "text-[28px]",
   "text-[26px]",
+  "text-[24px]",
+  "text-[22px]",
+  "text-[21px]",
+  "text-[20px]",
+  "text-[19px]",
+  "text-[18px]", // smallest
 ]
 
 // Stats with numeric targets for animation
@@ -367,22 +356,21 @@ function AnimatedCounter({ target, suffix = "", start }: { target: number; suffi
 
 // Size to approximate width/height in % for collision detection
 const sizeToPercent: Record<string, { w: number; h: number }> = {
-  "text-4xl": { w: 10, h: 3.5 },
-  "text-3xl": { w: 8, h: 3 },
-  "text-2xl": { w: 6, h: 2.5 },
-  "text-xl": { w: 5, h: 2 },
-  "text-lg": { w: 4, h: 1.8 },
-  "text-base": { w: 3.5, h: 1.5 },
-  "text-sm": { w: 3, h: 1.2 },
-  "text-xs": { w: 2.5, h: 1 },
-  "text-[10px]": { w: 2, h: 0.8 },
-  "text-[11px]": { w: 2.2, h: 0.9 },
-  "text-[13px]": { w: 2.5, h: 1 },
-  "text-[15px]": { w: 3, h: 1.2 },
-  "text-[17px]": { w: 3.5, h: 1.4 },
-  "text-[19px]": { w: 4, h: 1.6 },
-  "text-[22px]": { w: 5, h: 1.8 },
-  "text-[26px]": { w: 6, h: 2.2 },
+  "text-[42px]": { w: 12, h: 4 },
+  "text-[40px]": { w: 11, h: 3.8 },
+  "text-[38px]": { w: 10, h: 3.6 },
+  "text-[36px]": { w: 9.5, h: 3.4 },
+  "text-[34px]": { w: 9, h: 3.2 },
+  "text-[32px]": { w: 8.5, h: 3 },
+  "text-[30px]": { w: 8, h: 2.8 },
+  "text-[28px]": { w: 7, h: 2.6 },
+  "text-[26px]": { w: 6.5, h: 2.4 },
+  "text-[24px]": { w: 6, h: 2.2 },
+  "text-[22px]": { w: 5.5, h: 2 },
+  "text-[21px]": { w: 5, h: 1.9 },
+  "text-[20px]": { w: 4.8, h: 1.8 },
+  "text-[19px]": { w: 4.5, h: 1.7 },
+  "text-[18px]": { w: 4.2, h: 1.6 },
 }
 
 // Generate scattered word data - center-out reveal with Fibonacci sizing, no overlap
@@ -399,6 +387,7 @@ const generateScatteredWords = () => {
     opacity: number
     distanceFromCenter: number
     ring: number
+    parallaxFactor: number // Different scroll speeds for depth effect
   }> = []
 
   const centerX = 50
@@ -409,11 +398,10 @@ const generateScatteredWords = () => {
   const placedBoxes: Array<{ x: number; y: number; w: number; h: number }> = []
 
   const isInExclusionZone = (px: number, py: number) => {
-    // Main "Becoming" text zone: 15-85% width, 42-58% height
-    const inTextZone = px > 15 && px < 85 && py > 42 && py < 58
-    // Moth/metamorphosis zone above: 35-65% width, 30-44% height
-    const inMothZone = px > 35 && px < 65 && py > 30 && py < 44
-    return inTextZone || inMothZone
+    // Large exclusion zone around "Becoming" - no words here
+    // Center zone: 20-80% width, 35-75% height
+    const inBecomingZone = px > 20 && px < 80 && py > 35 && py < 75
+    return inBecomingZone
   }
 
   const overlapsExisting = (x: number, y: number, w: number, h: number) => {
@@ -468,6 +456,9 @@ const generateScatteredWords = () => {
 
     placedBoxes.push({ x, y, w, h })
 
+    // Parallax factor based on size - larger words move faster (appear closer)
+    const parallaxFactor = 0.05 + (sizeIndex / sizeClasses.length) * 0.2 // 0.05 to 0.25
+
     words.push({
       id: i,
       word,
@@ -480,6 +471,7 @@ const generateScatteredWords = () => {
       opacity: 0.4 + Math.random() * 0.5, // Random opacity too
       distanceFromCenter: distanceFromTextCenter,
       ring: sizeIndex, // Just for reference
+      parallaxFactor,
     })
   }
 
@@ -497,6 +489,30 @@ export function HeroIntro() {
 
   // Left-to-right reveal state
   const [isFlickering, setIsFlickering] = useState(true)
+
+  // Parallax scroll state
+  const [scrollY, setScrollY] = useState(0)
+  const rafRef = useRef<number>()
+
+  // Smooth parallax scrolling effect
+  useEffect(() => {
+    const handleScroll = () => {
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current)
+      }
+      rafRef.current = requestAnimationFrame(() => {
+        setScrollY(window.scrollY)
+      })
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current)
+      }
+    }
+  }, [])
 
   // Moth collision and spawning state
   const [spawnedMoths, setSpawnedMoths] = useState<Array<{
@@ -590,6 +606,7 @@ export function HeroIntro() {
   // Outside-to-center reveal over 3 seconds with smooth easing
   const [revealProgress, setRevealProgress] = useState(0)
   const [becomingAlive, setBecomingAlive] = useState(false)
+  const [becomingOpacity, setBecomingOpacity] = useState(1) // Keep at 1 throughout
 
   useEffect(() => {
     if (!isFlickering) return
@@ -626,10 +643,98 @@ export function HeroIntro() {
     }
   }, [isFlickering])
 
+  // Typing effect state - starts with "B" visible during initial animation
+  const [typedText, setTypedText] = useState("B")
+  const [showCursor, setShowCursor] = useState(false)
+  const [cursorFlicker, setCursorFlicker] = useState(false)
+
+  // Animate "Becoming" with typing effect: b (already shown) → be → ... → becoming...
+  useEffect(() => {
+    if (!becomingAlive) return
+
+    // Flicker cursor 3 times rapidly
+    const flickerCursor = (callback: () => void) => {
+      let flicks = 0
+      const flick = () => {
+        setCursorFlicker(true)
+        setTimeout(() => {
+          setCursorFlicker(false)
+          flicks++
+          if (flicks < 3) {
+            setTimeout(flick, 100)
+          } else {
+            setTimeout(callback, 150)
+          }
+        }, 80)
+      }
+      flick()
+    }
+
+    // Typing sequence - continues from "B" which is already visible
+    const sequence = [
+      { text: "Be", delay: 90 },
+      { text: "Bec", delay: 90 },
+      { text: "Beco", delay: 90 },
+      { text: "Becom", delay: 90 },
+      { text: "Become", delay: 90 },
+      { text: "Become.", delay: "flicker" }, // First flicker - hesitation
+      { text: "Become", delay: 120 },  // Backspace .
+      { text: "Becom", delay: "flicker" },   // Second flicker - correction
+      { text: "Becomi", delay: 90 },
+      { text: "Becomin", delay: 90 },
+      { text: "Becoming", delay: 90 },
+      { text: "Becoming.", delay: 400 },   // First dot - deliberate
+      { text: "Becoming..", delay: 600 },  // Second dot - building
+      { text: "Becoming...", delay: "flicker-800" }, // Third dot - statement, then flicker
+    ]
+
+    let currentIndex = 0
+    let timeoutId: NodeJS.Timeout
+
+    // Show cursor when typing continues
+    setShowCursor(true)
+
+    const typeNext = () => {
+      if (currentIndex < sequence.length) {
+        const step = sequence[currentIndex]
+        setTypedText(step.text)
+
+        // Opacity stays at 1 throughout
+        currentIndex++
+
+        if (currentIndex < sequence.length) {
+          const nextDelay = sequence[currentIndex - 1].delay
+          if (nextDelay === "flicker") {
+            // Dramatic flicker pause
+            flickerCursor(typeNext)
+          } else if (typeof nextDelay === "string" && nextDelay.startsWith("flicker-")) {
+            // Delayed flicker: wait, then flicker
+            const delay = parseInt(nextDelay.split("-")[1])
+            setTimeout(() => flickerCursor(typeNext), delay)
+          } else {
+            timeoutId = setTimeout(typeNext, nextDelay as number)
+          }
+        } else {
+          // Final flicker then done - opacity stays at 1
+          flickerCursor(() => {
+            setShowCursor(false)
+          })
+        }
+      }
+    }
+
+    // Start typing continuation after a brief pause
+    timeoutId = setTimeout(typeNext, 100)
+
+    return () => {
+      clearTimeout(timeoutId)
+    }
+  }, [becomingAlive])
+
   const totalWords = scatteredWords.length
 
-  // Get word opacity - outside-to-center reveal based on distance from center
-  // Words at edges reveal first, center words reveal last
+  // Get word opacity - outside-to-center reveal
+  // Outside words = 1 opacity, center words = 0.01 opacity (based on distance)
   const getWordOpacity = (index: number, xPercent: number, yPercent: number) => {
     if (isFlickering) {
       // Calculate distance from center (50%, 50%)
@@ -640,39 +745,26 @@ export function HeroIntro() {
       const distanceFromCenter = Math.sqrt(distX * distX + distY * distY)
 
       // Normalize: max distance is ~70 (corner to center)
-      // Invert so outer words (high distance) have LOW threshold (reveal first)
       const maxDistance = 70
       const normalizedDistance = Math.min(distanceFromCenter / maxDistance, 1)
-      const revealThreshold = 1 - normalizedDistance // 0 = edge (first), 1 = center (last)
+
+      // Reveal threshold: outer words (high distance) reveal first
+      const revealThreshold = 1 - normalizedDistance // 0 = edge, 1 = center
 
       // Small random variation for organic feel
-      const variation = (Math.sin(index * 0.7) * 0.05)
+      const variation = (Math.sin(index * 0.7) * 0.03)
       const adjustedThreshold = Math.max(0, Math.min(1, revealThreshold + variation))
 
       if (revealProgress >= adjustedThreshold) {
-        // How long since this word was revealed
-        const timeSinceReveal = revealProgress - adjustedThreshold
-
-        // Smooth flash up (0.05 of progress)
-        if (timeSinceReveal < 0.05) {
-          const flashProgress = timeSinceReveal / 0.05
-          // Smooth ease-out for flash
-          const easedFlash = 1 - Math.pow(1 - flashProgress, 3)
-          return 0.02 + (easedFlash * 0.98) // 0.02 → 1
-        }
-
-        // Smooth fade down to settled opacity
-        const fadeProgress = Math.min(1, (timeSinceReveal - 0.05) / 0.5)
-        // Smooth ease-in-out for fade
-        const easedFade = fadeProgress < 0.5
-          ? 2 * fadeProgress * fadeProgress
-          : 1 - Math.pow(-2 * fadeProgress + 2, 2) / 2
-        return 1 - (easedFade * 0.9) // 1 → 0.1
+        // Word is revealed - opacity based on reveal progress (wave position)
+        // Start of wave (outer) = 0.67, end of wave (inner) = 0.11
+        const waveOpacity = 0.67 - (revealProgress * 0.56) // 0.67 → 0.11 as wave moves inward
+        return Math.max(0.11, waveOpacity)
       }
-      return 0.02 // Not yet revealed
+      return 0 // Not yet revealed
     }
-    // After reveal: settled at 0.1
-    return 0.1
+    // After reveal: all words settle to 0.07 (CSS handles hover)
+    return 0.07
   }
 
   return (
@@ -694,86 +786,113 @@ export function HeroIntro() {
         />
       ))}
 
-      {/* Background - subtle, muted */}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-br from-teal-900/5 via-background to-rose-900/5" />
-      <div className="absolute inset-0 -z-10 hero-pattern opacity-10" />
+      {/* Background - FIXED to persist on scroll */}
+      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-teal-900/5 via-background to-rose-900/5 pointer-events-none" />
+      <div className="fixed inset-0 -z-10 hero-pattern opacity-10 pointer-events-none" />
 
-      {/* Ambient glow - subtle pastel, not vibrant */}
+      {/* Ambient glow - FIXED to persist on scroll */}
       <div
-        className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-teal-800/30 rounded-full blur-[180px]"
+        className="fixed top-1/4 left-1/4 w-[500px] h-[500px] bg-teal-800/30 rounded-full blur-[180px] pointer-events-none -z-10"
         style={{ opacity: 0.12 }}
       />
       <div
-        className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-rose-800/30 rounded-full blur-[180px]"
+        className="fixed bottom-1/4 right-1/4 w-[500px] h-[500px] bg-rose-800/30 rounded-full blur-[180px] pointer-events-none -z-10"
         style={{ opacity: 0.10 }}
       />
 
-      {/* Scattered words - with flicker effect, moth sitting, and hover */}
-      {scatteredWords.map((item, index) => {
-        const hasMothSitting = mothsOnWords.has(index)
-        const mothSittingOpacity = hasMothSitting ? 0.5 + Math.random() * 0.3 : 0 // 0.5-0.8 when moth sits
+      {/* Scattered words - FIXED to stay visible on scroll, z-20 to be above section content */}
+      <div className="fixed inset-0 z-20 pointer-events-none">
+        {scatteredWords.map((item, index) => {
+          const hasMothSitting = mothsOnWords.has(index)
+          // Parallax offset - larger words move faster (feel closer)
+          const parallaxOffset = scrollY * item.parallaxFactor
 
-        return (
+          return (
+            <div
+              key={item.id}
+              className={`absolute select-none ${item.size} ${item.font} ${item.color} ${
+                !isFlickering && !hasMothSitting ? "pointer-events-auto cursor-default scattered-word" : ""
+              }`}
+              style={{
+                left: `${item.x}%`,
+                top: `${item.y}%`,
+                transform: `rotate(${item.rotation}deg) translateX(-50%) translateY(calc(-50% - ${parallaxOffset}px))`,
+                willChange: 'transform',
+                // During reveal: smooth transition
+                ...(isFlickering && {
+                  opacity: getWordOpacity(index, item.x, item.y),
+                  transition: "opacity 0.12s cubic-bezier(0.4, 0, 0.2, 1)",
+                }),
+                // Moth sitting on word: high opacity
+                ...(!isFlickering && hasMothSitting && {
+                  opacity: 0.7,
+                  transition: "opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
+                  textShadow: "0 0 10px currentColor",
+                }),
+              }}
+            >
+              {item.word}
+            </div>
+          )
+        })}
+      </div>
+
+      {/* PERSISTENT "Becoming" - in dark container to stand out */}
+      {/* z-30 keeps it above scattered words (z-20), pointer-events-none allows hover on words behind */}
+      <div className="relative z-30 flex flex-col items-center w-full pointer-events-none">
+        {/* Dark container around Becoming - black bg with 0.11 opacity - FULL WIDTH edge-to-edge */}
+        <div
+          className="relative w-full py-10 backdrop-blur-sm border-y border-white/5 flex flex-col items-center"
+          style={{ backgroundColor: "rgba(0, 0, 0, 0.11)" }}
+        >
+          {/* Glow behind Becoming - syncs with typing */}
           <div
-            key={item.id}
-            className={`absolute select-none ${item.size} ${item.font} ${item.color} ${
-              !isFlickering && !hasMothSitting ? "pointer-events-auto cursor-default scattered-word" : "pointer-events-none"
+            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-20 transition-all duration-1000 ${
+              becomingAlive && becomingOpacity > 0.9 ? "animate-pulse-glow" : ""
             }`}
             style={{
-              left: `${item.x}%`,
-              top: `${item.y}%`,
-              transform: `rotate(${item.rotation}deg) translateX(-50%) translateY(-50%)`,
-              // During reveal: smooth transition
-              ...(isFlickering && {
-                opacity: getWordOpacity(index, item.x, item.y),
-                transition: "opacity 0.12s cubic-bezier(0.4, 0, 0.2, 1)",
-              }),
-              // Moth sitting on word: high opacity
-              ...(!isFlickering && hasMothSitting && {
-                opacity: 0.7,
-                transition: "opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
-                textShadow: "0 0 10px currentColor",
-              }),
+              opacity: becomingOpacity * 0.7,
+              filter: `blur(${60 + becomingOpacity * 20}px)`,
+              transform: `translate(-50%, -50%) scale(${0.9 + becomingOpacity * 0.2})`,
             }}
           >
-            {item.word}
+            <span className="font-space font-bold text-3xl sm:text-4xl md:text-5xl lg:text-7xl xl:text-8xl tracking-tight whitespace-nowrap brand-gradient-animated">
+              {typedText}
+            </span>
           </div>
-        )
-      })}
 
-      {/* PERSISTENT "Becoming" - comes to life after words reveal */}
-      <div className="relative z-10 flex flex-col items-center">
-        {/* Glow behind Becoming - pulses when coming to life */}
-        <div
-          className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-20 transition-all duration-1000 ${
-            becomingAlive ? "animate-pulse-glow" : ""
-          }`}
-          style={{
-            opacity: becomingAlive ? 0.7 : 0.3,
-            filter: becomingAlive ? "blur(80px)" : "blur(60px)",
-            transform: `translate(-50%, -50%) scale(${becomingAlive ? 1.1 : 1})`,
-          }}
-        >
-          <span className="font-clash text-7xl md:text-8xl lg:text-9xl font-semibold whitespace-nowrap tracking-[0.15em] brand-gradient-animated">
-            Becoming
-          </span>
+          {/* The main Becoming text with typing effect - Darker Grotesque */}
+          {/* "B" shows during initial animation, then continues typing */}
+          <h1
+            className={`font-space font-bold text-3xl sm:text-4xl md:text-5xl lg:text-7xl xl:text-8xl tracking-tight relative transition-transform duration-700 ${
+              becomingAlive ? "lg:scale-105" : "scale-100"
+            }`}
+            style={{
+              opacity: becomingOpacity,
+              textShadow: becomingOpacity > 0.5
+                ? `0 0 ${40 * becomingOpacity}px rgba(20, 184, 166, ${0.4 * becomingOpacity}), 0 0 ${80 * becomingOpacity}px rgba(244, 63, 94, ${0.3 * becomingOpacity})`
+                : "none",
+            }}
+          >
+            <span className="brand-gradient-animated">
+              {typedText}
+            </span>
+            {/* Flickering cursor during typing */}
+            {showCursor && (
+              <span
+                className="inline-block w-[2px] h-[0.75em] ml-1"
+                style={{
+                  verticalAlign: "baseline",
+                  background: "linear-gradient(180deg, #115e59, #9f1239)",
+                  opacity: cursorFlicker ? 1 : undefined,
+                  animation: cursorFlicker ? "none" : "cursor-blink 0.6s ease-in-out infinite",
+                }}
+              />
+            )}
+            {/* Orbiting moth appears when typing is complete */}
+            {becomingAlive && !showCursor && <OrbitingMoth onPositionUpdate={handleOrbitMothPosition} isFluttering={isCollisionFlutter} />}
+          </h1>
         </div>
-
-        {/* The main Becoming text with orbiting moth - animates when coming to life */}
-        <h1
-          className={`font-clash text-7xl md:text-8xl lg:text-9xl font-semibold tracking-[0.15em] relative transition-all duration-700 ${
-            becomingAlive ? "scale-105" : "scale-100 opacity-70"
-          }`}
-          style={{
-            textShadow: becomingAlive
-              ? "0 0 40px rgba(20, 184, 166, 0.4), 0 0 80px rgba(244, 63, 94, 0.3)"
-              : "none",
-          }}
-        >
-          <span className="brand-gradient-animated">Becoming</span>
-          {/* Orbiting moth appears when Becoming comes to life */}
-          {becomingAlive && <OrbitingMoth onPositionUpdate={handleOrbitMothPosition} isFluttering={isCollisionFlutter} />}
-        </h1>
 
         {/* Hero content fades in */}
         <div
@@ -785,7 +904,7 @@ export function HeroIntro() {
         >
           <div className="h-6 md:h-10" />
 
-          <p className="mb-3 text-2xl md:text-3xl lg:text-4xl text-center font-satoshi font-medium text-foreground/90">
+          <p className="mb-3 text-2xl md:text-3xl lg:text-4xl text-center font-space font-medium text-foreground/90">
             Who do you want to become?
           </p>
 
@@ -793,7 +912,7 @@ export function HeroIntro() {
             We're with you every step of the way—until you become who you're meant to be.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pointer-events-auto">
             <Link
               to="/signup"
               className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-teal-700 to-teal-800 px-10 py-5 text-xl font-medium text-white shadow-lg shadow-teal-900/20 transition-all hover:scale-105 hover:shadow-xl hover:shadow-teal-900/30"
