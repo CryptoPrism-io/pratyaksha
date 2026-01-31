@@ -59,56 +59,82 @@ function useCursorTracker(onPosition: (x: number, y: number) => void) {
   }, [onPosition])
 }
 
-// Free-floating moth that wanders randomly across entire screen - tiny single color
+// Baby moth that flies to a word and sits on it
 interface FreeFloatingMothProps {
   id: number
   variant: number
   startX: number
   startY: number
-  onPositionUpdate?: (id: number, x: number, y: number) => void
+  targetX: number  // Target word position (viewport %)
+  targetY: number
+  onArrived?: (id: number) => void
 }
 
-function FreeFloatingMoth({ id, variant, startX, startY, onPositionUpdate }: FreeFloatingMothProps) {
-  const ref = useRef<HTMLDivElement>(null)
-  const duration = useMemo(() => 20 + Math.random() * 15, [])
-  const delay = useMemo(() => Math.random() * 2, [])
-
-  // Random path that covers entire screen
-  const pathStyle = useMemo(() => {
-    const paths = [
-      "float-path-fullscreen-1",
-      "float-path-fullscreen-2",
-      "float-path-fullscreen-3",
-      "float-path-fullscreen-4",
-    ]
-    return paths[id % paths.length]
-  }, [id])
+function FreeFloatingMoth({ id, variant, startX, startY, targetX, targetY, onArrived }: FreeFloatingMothProps) {
+  const [position, setPosition] = useState({ x: startX, y: startY })
+  const [hasArrived, setHasArrived] = useState(false)
+  const arrivedRef = useRef(false)
 
   // Pick a single color based on variant
   const color = SINGLE_COLORS[variant % SINGLE_COLORS.length]
 
-  // Report position for word hover detection
+  // Animate flying to target word
   useEffect(() => {
-    if (!onPositionUpdate) return
-    const interval = setInterval(() => {
-      if (ref.current) {
-        const rect = ref.current.getBoundingClientRect()
-        onPositionUpdate(id, rect.left + rect.width / 2, rect.top + rect.height / 2)
+    const duration = 2000 + Math.random() * 1500 // 2-3.5 seconds flight
+    const startTime = Date.now()
+
+    // Convert target from % to viewport pixels
+    const targetPxX = (targetX / 100) * window.innerWidth
+    const targetPxY = (targetY / 100) * window.innerHeight
+
+    let animationFrame: number
+
+    const animate = () => {
+      const elapsed = Date.now() - startTime
+      const progress = Math.min(elapsed / duration, 1)
+
+      // Smooth ease-out for natural flight
+      const eased = 1 - Math.pow(1 - progress, 3)
+
+      // Add slight wobble during flight
+      const wobbleX = Math.sin(progress * Math.PI * 4) * (1 - progress) * 20
+      const wobbleY = Math.cos(progress * Math.PI * 3) * (1 - progress) * 15
+
+      const newX = startX + (targetPxX - startX) * eased + wobbleX
+      const newY = startY + (targetPxY - startY) * eased + wobbleY
+
+      setPosition({ x: newX, y: newY })
+
+      if (progress < 1) {
+        animationFrame = requestAnimationFrame(animate)
+      } else {
+        // Arrived at target
+        setHasArrived(true)
+        if (!arrivedRef.current) {
+          arrivedRef.current = true
+          onArrived?.(id)
+        }
       }
-    }, 100)
-    return () => clearInterval(interval)
-  }, [id, onPositionUpdate])
+    }
+
+    animationFrame = requestAnimationFrame(animate)
+
+    return () => {
+      if (animationFrame) cancelAnimationFrame(animationFrame)
+    }
+  }, [id, startX, startY, targetX, targetY, onArrived])
+
+  // Gentle hover animation when sitting on word
+  const hoverOffset = hasArrived ? Math.sin(Date.now() / 500) * 2 : 0
 
   return (
     <div
-      ref={ref}
-      className={`fixed pointer-events-none z-30 ${pathStyle}`}
+      className="fixed pointer-events-none z-30 transition-transform"
       style={{
-        left: startX,
-        top: startY,
-        animationDuration: `${duration}s`,
-        animationDelay: `${delay}s`,
-        opacity: 0.8,
+        left: position.x - 8,
+        top: position.y - 5 + hoverOffset,
+        opacity: 0.9,
+        transform: `rotate(${hasArrived ? 0 : Math.sin(Date.now() / 200) * 15}deg)`,
       }}
     >
       <TinyMothSVG color={color} />
@@ -473,20 +499,31 @@ export function HeroIntro() {
   const [isFlickering, setIsFlickering] = useState(true)
 
   // Moth collision and spawning state
-  const [spawnedMoths, setSpawnedMoths] = useState<Array<{ id: number; variant: number; x: number; y: number }>>([])
+  const [spawnedMoths, setSpawnedMoths] = useState<Array<{
+    id: number
+    variant: number
+    x: number
+    y: number
+    targetWordIndex: number
+    targetX: number
+    targetY: number
+  }>>([])
   const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 })
   const [orbitMothPos, setOrbitMothPos] = useState({ x: -100, y: -100 })
   const [canSpawn, setCanSpawn] = useState(true)
   const [isCollisionFlutter, setIsCollisionFlutter] = useState(false)
   const heroRef = useRef<HTMLElement>(null)
 
-  // Track baby moth positions for word hover effect
-  const [babyMothPositions, setBabyMothPositions] = useState<Record<number, { x: number; y: number }>>({})
+  // Track which words have moths sitting on them
+  const [mothsOnWords, setMothsOnWords] = useState<Set<number>>(new Set())
 
-  // Handle baby moth position updates
-  const handleBabyMothPosition = useCallback((id: number, x: number, y: number) => {
-    setBabyMothPositions(prev => ({ ...prev, [id]: { x, y } }))
-  }, [])
+  // Handle when a moth arrives at its target word
+  const handleMothArrived = useCallback((mothId: number) => {
+    const moth = spawnedMoths.find(m => m.id === mothId)
+    if (moth) {
+      setMothsOnWords(prev => new Set([...prev, moth.targetWordIndex]))
+    }
+  }, [spawnedMoths])
 
   const MAX_MOTHS = 50
 
@@ -502,6 +539,9 @@ export function HeroIntro() {
   const handleOrbitMothPosition = useCallback((x: number, y: number) => {
     setOrbitMothPos({ x, y })
   }, [])
+
+  // Generate scattered words first (needed for moth targets)
+  const scatteredWords = useMemo(() => generateScatteredWords(), [])
 
   // Check for collision between cursor and orbiting moth (only after animation)
   useEffect(() => {
@@ -522,12 +562,22 @@ export function HeroIntro() {
       // Dispatch event for cursor moth to flutter too
       window.dispatchEvent(new CustomEvent("moth-collision-flutter"))
 
-      // Spawn new tiny moth at collision point
+      // Pick a random word that doesn't already have a moth
+      const availableWords = scatteredWords.filter((_, idx) => !mothsOnWords.has(idx))
+      if (availableWords.length === 0) return
+
+      const targetWord = availableWords[Math.floor(Math.random() * availableWords.length)]
+      const targetWordIndex = scatteredWords.findIndex(w => w.id === targetWord.id)
+
+      // Spawn new tiny moth that flies to the target word
       const newMoth = {
         id: Date.now(),
         variant: spawnedMoths.length,
         x: (cursorPos.x + orbitMothPos.x) / 2,
         y: (cursorPos.y + orbitMothPos.y) / 2,
+        targetWordIndex,
+        targetX: targetWord.x,
+        targetY: targetWord.y,
       }
       setSpawnedMoths(prev => [...prev, newMoth])
       setCanSpawn(false)
@@ -535,9 +585,7 @@ export function HeroIntro() {
       // Cooldown before next spawn
       setTimeout(() => setCanSpawn(true), 1500)
     }
-  }, [phase, cursorPos, orbitMothPos, canSpawn, spawnedMoths.length])
-
-  const scatteredWords = useMemo(() => generateScatteredWords(), [])
+  }, [phase, cursorPos, orbitMothPos, canSpawn, spawnedMoths.length, scatteredWords, mothsOnWords])
 
   // Outside-to-center reveal over 3 seconds with smooth easing
   const [revealProgress, setRevealProgress] = useState(0)
@@ -627,51 +675,12 @@ export function HeroIntro() {
     return 0.1
   }
 
-  // Check if any baby moth is near a word position (in viewport coordinates)
-  const isBabyMothNearWord = useCallback((wordXPercent: number, wordYPercent: number): number | null => {
-    const viewportWidth = window.innerWidth
-    const viewportHeight = window.innerHeight
-    const wordX = (wordXPercent / 100) * viewportWidth
-    const wordY = (wordYPercent / 100) * viewportHeight
-    const threshold = 60 // pixels
-
-    for (const pos of Object.values(babyMothPositions)) {
-      const distance = Math.sqrt(Math.pow(pos.x - wordX, 2) + Math.pow(pos.y - wordY, 2))
-      if (distance < threshold) {
-        // Return random opacity between 0.01 and 0.06
-        return 0.01 + Math.random() * 0.05
-      }
-    }
-    return null
-  }, [babyMothPositions])
-
-  // Track which words are being hovered by baby moths
-  const [mothHoveredWords, setMothHoveredWords] = useState<Record<number, number>>({})
-
-  // Update moth-hovered words periodically
-  useEffect(() => {
-    if (isFlickering || spawnedMoths.length === 0) return
-
-    const interval = setInterval(() => {
-      const newHovered: Record<number, number> = {}
-      scatteredWords.forEach((word, index) => {
-        const mothOpacity = isBabyMothNearWord(word.x, word.y)
-        if (mothOpacity !== null) {
-          newHovered[index] = mothOpacity
-        }
-      })
-      setMothHoveredWords(newHovered)
-    }, 100)
-
-    return () => clearInterval(interval)
-  }, [isFlickering, spawnedMoths.length, scatteredWords, isBabyMothNearWord])
-
   return (
     <section
       ref={heroRef}
       className="relative min-h-screen flex items-center justify-center overflow-hidden"
     >
-      {/* Spawned free-floating moths - fly across entire screen */}
+      {/* Baby moths - fly to random words and sit on them */}
       {spawnedMoths.map((moth) => (
         <FreeFloatingMoth
           key={moth.id}
@@ -679,7 +688,9 @@ export function HeroIntro() {
           variant={moth.variant}
           startX={moth.x}
           startY={moth.y}
-          onPositionUpdate={handleBabyMothPosition}
+          targetX={moth.targetX}
+          targetY={moth.targetY}
+          onArrived={handleMothArrived}
         />
       ))}
 
@@ -697,16 +708,16 @@ export function HeroIntro() {
         style={{ opacity: 0.10 }}
       />
 
-      {/* Scattered words - with flicker effect then hover */}
+      {/* Scattered words - with flicker effect, moth sitting, and hover */}
       {scatteredWords.map((item, index) => {
-        const mothHoverOpacity = mothHoveredWords[index]
-        const hasMothHover = mothHoverOpacity !== undefined
+        const hasMothSitting = mothsOnWords.has(index)
+        const mothSittingOpacity = hasMothSitting ? 0.5 + Math.random() * 0.3 : 0 // 0.5-0.8 when moth sits
 
         return (
           <div
             key={item.id}
             className={`absolute select-none ${item.size} ${item.font} ${item.color} ${
-              !isFlickering && !hasMothHover ? "pointer-events-auto cursor-default scattered-word" : "pointer-events-none"
+              !isFlickering && !hasMothSitting ? "pointer-events-auto cursor-default scattered-word" : "pointer-events-none"
             }`}
             style={{
               left: `${item.x}%`,
@@ -717,10 +728,11 @@ export function HeroIntro() {
                 opacity: getWordOpacity(index, item.x, item.y),
                 transition: "opacity 0.12s cubic-bezier(0.4, 0, 0.2, 1)",
               }),
-              // Baby moth hover: random opacity 0.01-0.06
-              ...(!isFlickering && hasMothHover && {
-                opacity: mothHoverOpacity,
-                transition: "opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+              // Moth sitting on word: high opacity
+              ...(!isFlickering && hasMothSitting && {
+                opacity: 0.7,
+                transition: "opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
+                textShadow: "0 0 10px currentColor",
               }),
             }}
           >
