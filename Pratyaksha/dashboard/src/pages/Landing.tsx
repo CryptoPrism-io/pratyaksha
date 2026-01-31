@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom"
+import { useState, useEffect, useRef } from "react"
+import { ThemeToggle } from "../components/theme-toggle"
 import {
   ArrowRight,
   Brain,
@@ -19,74 +21,249 @@ import {
   Compass,
   Map,
   Bell,
+  Mic,
+  BarChart3,
+  GitCompare,
+  LayoutDashboard,
+  PenLine,
+  Play,
 } from "lucide-react"
 import { cn } from "../lib/utils"
+import { HeroIntro } from "../components/landing/HeroIntro"
+import { BackgroundOrbs } from "../components/landing/BackgroundOrbs"
+import { DemoTimelineChart } from "../components/marketing/DemoCharts/DemoTimelineChart"
+import { DemoModeChart } from "../components/marketing/DemoCharts/DemoModeChart"
+import { DemoRadarChart } from "../components/marketing/DemoCharts/DemoRadarChart"
+import { DemoHeatmapChart } from "../components/marketing/DemoCharts/DemoHeatmapChart"
+import { DemoContradictionChart } from "../components/marketing/DemoCharts/DemoContradictionChart"
+import { DemoTrendChart } from "../components/marketing/DemoCharts/DemoTrendChart"
+import { ThemedBackground } from "../components/ui/ThemedImage"
+import {
+  BackgroundNumber,
+  TextHighlight,
+  RevealOnScroll,
+  UnderlineAccent,
+  NumberHighlight,
+} from "../components/typography"
 
-// Stats that matter to customers
-const stats = [
-  { label: "AI Agents", value: "9", description: "Specialized analysis" },
-  { label: "Data Points", value: "95+", description: "Per user profile" },
-  { label: "Warning Types", value: "4", description: "Proactive alerts" },
+// Animated counter with increasing speed effect
+function AnimatedStatCounter({
+  target,
+  suffix = "",
+  className = ""
+}: {
+  target: number
+  suffix?: string
+  className?: string
+}) {
+  const [count, setCount] = useState(0)
+  const [hasAnimated, setHasAnimated] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !hasAnimated) {
+          setHasAnimated(true)
+        }
+      },
+      { threshold: 0.5 }
+    )
+
+    if (ref.current) observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [hasAnimated])
+
+  useEffect(() => {
+    if (!hasAnimated) return
+
+    const duration = 1500 // 1.5 seconds total
+    let startTime: number | null = null
+
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp
+      const elapsed = timestamp - startTime
+      const progress = Math.min(elapsed / duration, 1)
+
+      // Increasing speed: ease-in cubic (starts slow, ends fast)
+      const easeIn = progress * progress * progress
+
+      const currentCount = Math.floor(easeIn * target)
+      setCount(currentCount)
+
+      if (progress < 1) {
+        requestAnimationFrame(animate)
+      } else {
+        setCount(target)
+      }
+    }
+
+    requestAnimationFrame(animate)
+  }, [hasAnimated, target])
+
+  return (
+    <div ref={ref} className={className}>
+      {count}{suffix}
+    </div>
+  )
+}
+
+// The three pillars of Becoming
+const pillars = [
+  { label: "The Journal", value: "📓", description: "Keep you on track" },
+  { label: "The Dashboard", value: "📊", description: "See it visually" },
+  { label: "The AI", value: "🤖", description: "Warn you early" },
 ]
 
-// The 3-step plan
+// The 4-step journey
 const steps = [
   {
     number: "1",
-    title: "Define Your Vision",
-    description: "Tell us who you want to become—and who you don't want to become.",
+    title: "Define",
+    description: "Who you want to become—and who you don't.",
     icon: Compass,
-    color: "from-violet-500 to-purple-500",
+    color: "from-teal-500 to-cyan-500",
   },
   {
     number: "2",
-    title: "Journal Your Truth",
-    description: "Write freely. 9 AI agents analyze every word for patterns.",
+    title: "Journal",
+    description: "Write or speak your truth. 9 agents analyze.",
     icon: MessageCircle,
-    color: "from-blue-500 to-cyan-500",
+    color: "from-teal-400 to-teal-600",
   },
   {
     number: "3",
-    title: "Stay On Course",
-    description: "Get warnings when patterns drift toward your anti-vision.",
+    title: "See",
+    description: "Dashboard shows your patterns visually.",
+    icon: LayoutDashboard,
+    color: "from-rose-400 to-pink-500",
+  },
+  {
+    number: "4",
+    title: "Stay On Track",
+    description: "AI warns you before you drift too far.",
     icon: Bell,
-    color: "from-emerald-500 to-green-500",
+    color: "from-rose-500 to-rose-600",
   },
 ]
 
-// Comparison: Us vs Generic AI
+// Comparison: Other apps vs Becoming
 const comparison = [
-  { feature: "AI Agents", generic: "1 generic pass", pratyaksha: "9 specialized agents" },
-  { feature: "Data Points", generic: "Conversation only", pratyaksha: "95+ structured fields" },
-  { feature: "Goal Awareness", generic: "None", pratyaksha: "Vision + Anti-Vision" },
-  { feature: "Pattern Detection", generic: "None", pratyaksha: "4 warning types" },
-  { feature: "Context Depth", generic: "~10⁴ tokens", pratyaksha: "10²⁴× more" },
+  { feature: "Focus", generic: "Track mood", becoming: "Track who you're becoming" },
+  { feature: "AI", generic: "1 generic pass", becoming: "9 specialized agents" },
+  { feature: "Goals", generic: "None", becoming: "Vision + Anti-Vision" },
+  { feature: "Warnings", generic: "None", becoming: "Drift alerts" },
+  { feature: "Visibility", generic: "Data sits there", becoming: "Dashboard shows patterns" },
 ]
 
 // Testimonials (success stories)
 const testimonials = [
   {
-    quote: "Within 2 weeks, Pratyaksha showed me a pattern I never saw—and it was pulling me toward exactly what I said I didn't want to become.",
+    quote: "I finally saw who I was becoming—and it wasn't who I wanted to be. Becoming showed me the pattern before it was too late.",
     author: "Priya",
     role: "Software Engineer",
-    highlight: "pattern I never saw",
+    highlight: "who I was becoming",
   },
   {
-    quote: "Other apps track mood. This one tracks whether I'm becoming who I actually want to be. Completely different.",
+    quote: "Other apps track my mood. Becoming tracks whether I'm on track to become the person I actually want to be.",
     author: "Marcus",
     role: "Entrepreneur",
-    highlight: "who I actually want to be",
+    highlight: "person I actually want to be",
   },
   {
-    quote: "The anti-vision warning stopped me in my tracks. I was drifting toward burnout—the exact thing I wrote I feared.",
+    quote: "The dashboard made it visual. The AI made it actionable. Now I can see my progress toward who I want to become.",
     author: "Sarah",
     role: "Product Manager",
-    highlight: "anti-vision warning",
+    highlight: "see my progress",
   },
 ]
 
-// Features (supporting, not leading)
-const features = [
+// Product Features (the tech you actually built) - with 6 UNIQUE chart demos
+const productFeatures: Array<{
+  icon: typeof Mic
+  title: string
+  description: string
+  color: string
+  badge: string
+  chart?: React.FC<{ animate?: boolean }>
+}> = [
+  {
+    icon: LayoutDashboard,
+    title: "Emotional Timeline",
+    description: "See your emotional journey over time. Sentiment analysis shows highs, lows, and patterns.",
+    color: "from-teal-500 to-cyan-500",
+    badge: "Beautiful",
+    chart: DemoTimelineChart,
+  },
+  {
+    icon: Activity,
+    title: "Energy Radar",
+    description: "Track your energy dimensions: Focus, Clarity, Drive, Calm, and Peace.",
+    color: "from-violet-500 to-purple-500",
+    badge: "Insightful",
+    chart: DemoRadarChart,
+  },
+  {
+    icon: Calendar,
+    title: "Activity Heatmap",
+    description: "GitHub-style consistency tracker. See your journaling patterns across weeks.",
+    color: "from-emerald-500 to-green-500",
+    badge: "Visual",
+    chart: DemoHeatmapChart,
+  },
+  {
+    icon: BarChart3,
+    title: "Mode Distribution",
+    description: "See the balance of your mental states: Reflective, Hopeful, Focused, Creative.",
+    color: "from-rose-500 to-pink-500",
+    badge: "Clear",
+    chart: DemoModeChart,
+  },
+  {
+    icon: GitCompare,
+    title: "Contradiction Flow",
+    description: "Spot internal conflicts like Action vs Fear, Growth vs Comfort in your entries.",
+    color: "from-amber-500 to-orange-500",
+    badge: "Unique",
+    chart: DemoContradictionChart,
+  },
+  {
+    icon: TrendingUp,
+    title: "Mood Trends",
+    description: "Watch your emotional balance shift over weeks. See your growth trajectory.",
+    color: "from-blue-500 to-indigo-500",
+    badge: "Deep",
+    chart: DemoTrendChart,
+  },
+]
+
+// Additional features without charts
+const additionalFeatures = [
+  {
+    icon: Mic,
+    title: "Voice Logging",
+    description: "Speak your thoughts. AI transcribes and analyzes in real-time.",
+    color: "from-rose-500 to-pink-500",
+    badge: "Hands-free",
+  },
+  {
+    icon: MessageCircle,
+    title: "AI Chat",
+    description: "Conversational AI that knows your history, goals, and patterns.",
+    color: "from-teal-500 to-emerald-500",
+    badge: "Context-aware",
+  },
+  {
+    icon: Brain,
+    title: "9-Agent Pipeline",
+    description: "Every entry processed by Intent, Emotion, Theme, and more agents.",
+    color: "from-indigo-500 to-violet-500",
+    badge: "Powerful",
+  },
+]
+
+// Self-Discovery Features
+const discoveryFeatures = [
   {
     icon: Map,
     title: "Life Blueprint",
@@ -105,133 +282,49 @@ const features = [
     description: "4 warning types alert you before you drift too far.",
     color: "from-amber-500 to-orange-500",
   },
-  {
-    icon: MessageCircle,
-    title: "AI That Knows You",
-    description: "Chat with AI that references YOUR goals, not generic advice.",
-    color: "from-blue-500 to-cyan-500",
-  },
-  {
-    icon: Target,
-    title: "Smart Prompts",
-    description: "Personalized journal prompts based on your Life Blueprint.",
-    color: "from-emerald-500 to-green-500",
-  },
-  {
-    icon: LineChart,
-    title: "Vision Alignment",
-    description: "See how your entries align with your stated direction.",
-    color: "from-indigo-500 to-violet-500",
-  },
 ]
 
 export function Landing() {
   return (
-    <div className="flex min-h-screen flex-col overflow-hidden">
-      {/* ==================== HERO SECTION ==================== */}
-      <section className="relative min-h-screen flex items-center justify-center">
-        {/* Animated gradient background */}
-        <div className="absolute inset-0 -z-10 bg-gradient-to-br from-primary/5 via-purple-500/10 to-blue-500/5 animate-gradient" />
-
-        {/* Dot pattern overlay */}
-        <div className="absolute inset-0 -z-10 hero-pattern opacity-50" />
-
-        {/* Floating orbs */}
-        <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl animate-float" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-float animation-delay-400" />
-
-        <div className="container mx-auto px-4 py-20 md:py-32">
-          <div className="mx-auto max-w-4xl text-center">
-            {/* Badge - Emotional hook */}
-            <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-sm animate-slide-up">
-              <Eye className="h-4 w-4 text-primary" />
-              <span>What if your journal knew your goals?</span>
-            </div>
-
-            {/* Main heading - Customer transformation */}
-            <h1 className="mb-6 text-4xl font-bold tracking-tight md:text-6xl lg:text-7xl animate-slide-up animation-delay-200">
-              <span className="block">Finally, a journal that</span>
-              <span className="gradient-text">warns you when you're drifting.</span>
-            </h1>
-
-            {/* Subtitle - The promise */}
-            <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground md:text-xl animate-slide-up animation-delay-400">
-              Define your vision. Journal your truth.
-              Let 9 AI agents keep you on course toward who you want to become.
-            </p>
-
-            {/* CTA buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up animation-delay-600">
-              <Link
-                to="/signup"
-                className="group inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-lg font-medium text-primary-foreground transition-all hover:scale-105 hover:shadow-xl animate-glow"
-              >
-                Start Your Journey
-                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-              </Link>
-
-              <a
-                href="#how-it-works"
-                className="inline-flex items-center gap-2 rounded-full border border-primary/30 px-8 py-4 text-lg font-medium transition-all hover:bg-primary/10 hover:border-primary/50"
-              >
-                See How It Works
-              </a>
-            </div>
-
-            {/* Social proof */}
-            <p className="mt-6 text-sm text-muted-foreground animate-slide-up animation-delay-800">
-              Free to start. No credit card required.
-            </p>
-
-            {/* Stats */}
-            <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-8 border-t border-border/50 pt-12">
-              {stats.map((stat, index) => (
-                <div
-                  key={stat.label}
-                  className="text-center animate-slide-up opacity-0"
-                  style={{
-                    animationDelay: `${800 + index * 150}ms`,
-                    animationFillMode: 'forwards'
-                  }}
-                >
-                  <div className="text-3xl font-bold text-foreground md:text-4xl">{stat.value}</div>
-                  <div className="text-sm font-medium text-foreground">{stat.label}</div>
-                  <div className="text-xs text-muted-foreground">{stat.description}</div>
-                </div>
-              ))}
-            </div>
-          </div>
+    <div className="flex min-h-screen flex-col overflow-hidden relative">
+      {/* Theme toggle - fixed top right */}
+      <div className="fixed top-6 right-6 z-[9999] pointer-events-auto">
+        <div className="glass-feature-card p-2 pointer-events-auto">
+          <ThemeToggle />
         </div>
+      </div>
 
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <div className="h-10 w-6 rounded-full border-2 border-muted-foreground/30 flex items-start justify-center p-1">
-            <div className="h-2 w-1 rounded-full bg-muted-foreground/50 animate-pulse" />
-          </div>
-        </div>
-      </section>
+      {/* Floating background orbs for glassmorphism depth */}
+      <BackgroundOrbs intensity="subtle" />
 
-      {/* ==================== STAKES SECTION (The Problem) ==================== */}
-      <section className="relative py-24 md:py-32 border-t">
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-background via-red-500/5 to-background" />
+      {/* ==================== HERO SECTION (Animated Intro) ==================== */}
+      <HeroIntro />
 
-        <div className="container mx-auto px-4">
+      {/* ==================== STAKES SECTION (The Problem) - Glassmorphism ==================== */}
+      <section className="relative py-24 md:py-32 border-t overflow-hidden">
+        {/* Giant background number */}
+        <BackgroundNumber number="01" position="top-left" variant="rose" size="xl" className="opacity-[0.0375]" />
+
+        {/* Ambient glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-rose-500/5 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="container mx-auto px-4 relative z-10">
           <div className="mx-auto max-w-4xl">
             {/* Opening hook */}
-            <div className="text-center mb-16">
+            <RevealOnScroll className="text-center mb-16">
               <h2 className="text-3xl font-bold tracking-tight md:text-5xl mb-6">
-                You've journaled before. Maybe for years.
+                You're already <TextHighlight variant="rose">becoming</TextHighlight> someone.
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                But here's what most apps won't tell you...
+                The question is: <span className="text-foreground font-medium">who?</span>
               </p>
-            </div>
+            </RevealOnScroll>
 
-            {/* The 3 problems */}
+            {/* The 3 problems - glass cards with hover lift */}
             <div className="grid md:grid-cols-3 gap-6 mb-12">
-              <div className="p-6 rounded-2xl border bg-card hover:shadow-lg transition-shadow">
-                <div className="h-12 w-12 rounded-xl bg-red-500/10 flex items-center justify-center mb-4">
-                  <Sparkles className="h-6 w-6 text-red-500" />
+              <div className="glass-feature-card p-6 card-lift">
+                <div className="h-12 w-12 rounded-xl glass-rose flex items-center justify-center mb-4">
+                  <Sparkles className="h-6 w-6 text-rose-500" />
                 </div>
                 <h3 className="font-semibold text-lg mb-2">Writing without insight</h3>
                 <p className="text-muted-foreground text-sm">
@@ -239,8 +332,8 @@ export function Landing() {
                 </p>
               </div>
 
-              <div className="p-6 rounded-2xl border bg-card hover:shadow-lg transition-shadow">
-                <div className="h-12 w-12 rounded-xl bg-amber-500/10 flex items-center justify-center mb-4">
+              <div className="glass-feature-card p-6 card-lift">
+                <div className="h-12 w-12 rounded-xl bg-amber-500/10 backdrop-blur-sm border border-amber-500/20 flex items-center justify-center mb-4">
                   <Target className="h-6 w-6 text-amber-500" />
                 </div>
                 <h3 className="font-semibold text-lg mb-2">Goals without tracking</h3>
@@ -249,8 +342,8 @@ export function Landing() {
                 </p>
               </div>
 
-              <div className="p-6 rounded-2xl border bg-card hover:shadow-lg transition-shadow">
-                <div className="h-12 w-12 rounded-xl bg-orange-500/10 flex items-center justify-center mb-4">
+              <div className="glass-feature-card p-6 card-lift">
+                <div className="h-12 w-12 rounded-xl bg-orange-500/10 backdrop-blur-sm border border-orange-500/20 flex items-center justify-center mb-4">
                   <TrendingUp className="h-6 w-6 text-orange-500" />
                 </div>
                 <h3 className="font-semibold text-lg mb-2">Patterns forming unseen</h3>
@@ -260,89 +353,102 @@ export function Landing() {
               </div>
             </div>
 
-            {/* Empathy close */}
-            <p className="text-center text-muted-foreground text-lg max-w-2xl mx-auto">
-              <span className="text-foreground font-medium">We built Pratyaksha because we lived this.</span> We journaled for years—and still felt stuck.
-            </p>
+            {/* Empathy close - glass panel */}
+            <div className="glass-teal p-6 rounded-2xl text-center">
+              <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+                <span className="text-foreground font-medium">We built Becoming because we lived this.</span> We journaled for years—and still felt stuck.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ==================== DIFFERENTIATOR SECTION ==================== */}
-      <section className="py-24 md:py-32 border-t">
-        <div className="container mx-auto px-4">
+      {/* ==================== DIFFERENTIATOR SECTION - Glassmorphism ==================== */}
+      <section className="py-24 md:py-32 border-t relative overflow-hidden">
+        {/* Giant background number */}
+        <BackgroundNumber number="02" position="top-right" variant="teal" size="xl" className="opacity-[0.0375]" />
+
+        {/* Background orbs */}
+        <div className="absolute top-20 right-20 w-80 h-80 bg-teal-500/8 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="container mx-auto px-4 relative z-10">
           <div className="mx-auto max-w-4xl">
-            <div className="text-center mb-16">
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-sm">
-                <Zap className="h-4 w-4 text-primary" />
+            <RevealOnScroll className="text-center mb-16">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full glass-teal px-4 py-2 text-sm">
+                <Zap className="h-4 w-4 text-teal-500" />
                 <span>Not just another AI journal</span>
               </div>
               <h2 className="text-3xl font-bold tracking-tight md:text-5xl mb-4">
-                This isn't ChatGPT with a journal skin.
+                This isn't ChatGPT with a <TextHighlight variant="gradient">journal skin</TextHighlight>.
               </h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Pratyaksha operates with <span className="text-foreground font-semibold">10²⁴× more structured context</span> than vanilla AI.
+                Becoming operates with <span className="text-foreground font-semibold">10²⁴× more structured context</span> than vanilla AI.
               </p>
-            </div>
+            </RevealOnScroll>
 
-            {/* Comparison table */}
-            <div className="rounded-2xl border overflow-hidden mb-8">
-              <div className="grid grid-cols-3 bg-muted/50">
+            {/* Comparison table - glass effect */}
+            <div className="glass-feature-card overflow-hidden mb-8">
+              <div className="grid grid-cols-3 bg-muted/30 backdrop-blur-sm">
                 <div className="p-4 font-medium text-sm text-muted-foreground">Feature</div>
                 <div className="p-4 font-medium text-sm text-muted-foreground text-center">Generic AI</div>
-                <div className="p-4 font-medium text-sm text-center bg-primary/10 text-primary">Pratyaksha</div>
+                <div className="p-4 font-medium text-sm text-center glass-teal text-teal-600 dark:text-teal-400">Becoming</div>
               </div>
               {comparison.map((row, index) => (
-                <div key={row.feature} className={cn("grid grid-cols-3", index % 2 === 0 ? "bg-background" : "bg-muted/30")}>
+                <div key={row.feature} className={cn("grid grid-cols-3 transition-colors duration-200 hover:bg-muted/20", index % 2 === 0 ? "bg-transparent" : "bg-muted/10")}>
                   <div className="p-4 text-sm font-medium">{row.feature}</div>
                   <div className="p-4 text-sm text-muted-foreground text-center">{row.generic}</div>
-                  <div className="p-4 text-sm text-center font-medium bg-primary/5">{row.pratyaksha}</div>
+                  <div className="p-4 text-sm text-center font-medium bg-teal-500/5">{row.becoming}</div>
                 </div>
               ))}
             </div>
 
-            {/* Key insight */}
-            <div className="p-6 rounded-2xl bg-gradient-to-r from-primary/10 via-purple-500/10 to-blue-500/10 border border-primary/20 text-center">
+            {/* Key insight - premium glass */}
+            <div className="glass-feature-card p-6 text-center hover-glow">
               <p className="text-lg">
                 <span className="font-semibold">The difference:</span> Generic AI gives you "take a deep breath."
-                Pratyaksha says <span className="text-primary font-medium">"I see you're drifting toward burnout—the thing you said you fear most."</span>
+                Becoming says <span className="text-teal-600 dark:text-teal-400 font-medium">"I see you're drifting toward burnout—the thing you said you fear most."</span>
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ==================== THE PLAN (How It Works) ==================== */}
-      <section id="how-it-works" className="py-24 md:py-32 border-t">
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-background via-muted/30 to-background" />
+      {/* ==================== THE PLAN (How It Works) - Glassmorphism ==================== */}
+      <section id="how-it-works" className="py-24 md:py-32 border-t relative overflow-hidden">
+        {/* Giant background number */}
+        <BackgroundNumber number="03" position="center" variant="teal" size="xl" className="opacity-[0.025]" />
 
-        <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-2xl text-center mb-16">
+        {/* Background orbs */}
+        <div className="absolute top-10 left-1/4 w-72 h-72 bg-teal-500/8 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-10 right-1/4 w-64 h-64 bg-rose-500/8 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="container mx-auto px-4 relative z-10">
+          <RevealOnScroll className="mx-auto max-w-2xl text-center mb-16">
             <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-5xl">
-              Three steps. That's all.
+              <TextHighlight variant="teal">Four steps</TextHighlight> to becoming.
             </h2>
             <p className="text-lg text-muted-foreground">
-              From drifting unconsciously to living intentionally.
+              From <TextHighlight variant="rose">drifting</TextHighlight> unconsciously to living <TextHighlight variant="teal">intentionally</TextHighlight>.
             </p>
-          </div>
+          </RevealOnScroll>
 
-          <div className="mx-auto max-w-5xl">
-            <div className="grid gap-8 md:grid-cols-3">
-              {steps.map((step) => (
+          <div className="mx-auto max-w-6xl">
+            <div className="grid gap-6 md:grid-cols-4">
+              {steps.map((step, index) => (
                 <div key={step.number} className="relative group">
-                  {/* Connector line (hidden on mobile) */}
-                  {step.number !== "3" && (
-                    <div className="hidden md:block absolute top-12 left-full w-full h-0.5 bg-gradient-to-r from-border to-transparent z-0" />
+                  {/* Connector line with gradient (hidden on mobile) */}
+                  {step.number !== "4" && (
+                    <div className="hidden md:block absolute top-12 left-full w-full h-0.5 bg-gradient-to-r from-teal-500/30 via-rose-500/20 to-transparent z-0" />
                   )}
 
-                  <div className="relative z-10 text-center p-6 rounded-2xl border bg-card hover:shadow-xl transition-all hover:-translate-y-1">
+                  <div className="relative z-10 text-center glass-feature-card p-6 card-shine">
                     <div className={cn(
-                      "mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r text-white text-2xl font-bold",
+                      "mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r text-white text-2xl font-bold transition-transform duration-300 group-hover:scale-110",
                       step.color
                     )}>
                       <step.icon className="h-8 w-8" />
                     </div>
-                    <div className="text-xs font-medium text-primary mb-2">Step {step.number}</div>
+                    <div className="text-xs font-medium text-teal-600 dark:text-teal-400 mb-2">Step {step.number}</div>
                     <h3 className="mb-2 text-xl font-semibold">{step.title}</h3>
                     <p className="text-sm text-muted-foreground">{step.description}</p>
                   </div>
@@ -350,30 +456,46 @@ export function Landing() {
               ))}
             </div>
 
-            {/* CTA after plan */}
+            {/* CTA after plan - glass button */}
             <div className="text-center mt-12">
               <Link
                 to="/signup"
-                className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-lg font-medium text-primary-foreground transition-all hover:scale-105 hover:shadow-xl"
+                className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-teal-500 to-teal-600 px-8 py-4 text-lg font-medium text-white transition-all hover:scale-105 hover:shadow-xl hover:shadow-teal-500/25"
               >
-                Start Your Journey
-                <ArrowRight className="h-5 w-5" />
+                Start Becoming
+                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ==================== GUIDE SECTION (Empathy + Authority) ==================== */}
-      <section className="py-24 md:py-32 border-t">
-        <div className="container mx-auto px-4">
+      {/* ==================== GUIDE SECTION (Empathy + Authority) - Glassmorphism ==================== */}
+      <section className="py-24 md:py-32 border-t relative overflow-hidden">
+        {/* Giant background number */}
+        <BackgroundNumber number="05" position="top-right" variant="rose" size="xl" className="opacity-[0.0375]" />
+
+        {/* Background orb */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-violet-500/5 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="container mx-auto px-4 relative z-10">
           <div className="mx-auto max-w-4xl">
+            {/* Section headline */}
+            <RevealOnScroll className="text-center mb-16">
+              <h2 className="text-3xl font-bold tracking-tight md:text-5xl mb-4">
+                Meet your <TextHighlight variant="gradient">guide</TextHighlight>.
+              </h2>
+              <p className="text-lg text-muted-foreground">
+                We built this because we <TextHighlight variant="rose">needed</TextHighlight> it ourselves.
+              </p>
+            </RevealOnScroll>
+
             <div className="grid md:grid-cols-2 gap-12 items-center">
-              {/* Empathy side */}
-              <div>
-                <h2 className="text-3xl font-bold tracking-tight md:text-4xl mb-6">
-                  We built this because we needed it ourselves.
-                </h2>
+              {/* Empathy side - glass panel */}
+              <div className="glass-feature-card p-8">
+                <h3 className="text-2xl font-bold tracking-tight md:text-3xl mb-6">
+                  The problem we lived.
+                </h3>
                 <div className="space-y-4 text-muted-foreground">
                   <p>
                     We journaled for years. Set goals every January. Watched them fade by March.
@@ -383,30 +505,30 @@ export function Landing() {
                     Then we wondered: <span className="text-foreground font-medium">what if AI could actually know where we're trying to go—and tell us when we drift?</span>
                   </p>
                   <p>
-                    That question became Pratyaksha.
+                    That question became <span className="brand-gradient font-semibold">Becoming</span>.
                   </p>
                 </div>
               </div>
 
-              {/* Authority side - stats */}
+              {/* Authority side - stats with glass - animated counters */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="p-6 rounded-2xl bg-gradient-to-br from-violet-500/10 to-purple-500/10 border border-violet-500/20 text-center">
-                  <div className="text-4xl font-bold text-violet-500 mb-1">9</div>
+                <div className="glass-feature-card p-6 text-center card-lift">
+                  <AnimatedStatCounter target={9} className="text-4xl font-bold text-violet-500 mb-1" />
                   <div className="text-sm font-medium">AI Agents</div>
                   <div className="text-xs text-muted-foreground">Specialized analysis</div>
                 </div>
-                <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20 text-center">
-                  <div className="text-4xl font-bold text-blue-500 mb-1">95+</div>
+                <div className="glass-feature-card p-6 text-center card-lift">
+                  <AnimatedStatCounter target={95} suffix="+" className="text-4xl font-bold text-blue-500 mb-1" />
                   <div className="text-sm font-medium">Data Points</div>
                   <div className="text-xs text-muted-foreground">Per user profile</div>
                 </div>
-                <div className="p-6 rounded-2xl bg-gradient-to-br from-pink-500/10 to-rose-500/10 border border-pink-500/20 text-center">
-                  <div className="text-4xl font-bold text-pink-500 mb-1">17</div>
+                <div className="glass-feature-card p-6 text-center card-lift">
+                  <AnimatedStatCounter target={17} className="text-4xl font-bold text-pink-500 mb-1" />
                   <div className="text-sm font-medium">Soul Topics</div>
                   <div className="text-xs text-muted-foreground">Deep self-discovery</div>
                 </div>
-                <div className="p-6 rounded-2xl bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20 text-center">
-                  <div className="text-4xl font-bold text-amber-500 mb-1">4</div>
+                <div className="glass-feature-card p-6 text-center card-lift">
+                  <AnimatedStatCounter target={4} className="text-4xl font-bold text-amber-500 mb-1" />
                   <div className="text-sm font-medium">Warning Types</div>
                   <div className="text-xs text-muted-foreground">Proactive alerts</div>
                 </div>
@@ -416,13 +538,20 @@ export function Landing() {
         </div>
       </section>
 
-      {/* ==================== SUCCESS SECTION (Testimonials) ==================== */}
-      <section className="py-24 md:py-32 border-t bg-muted/30">
-        <div className="container mx-auto px-4">
+      {/* ==================== SUCCESS SECTION (Testimonials) - Glassmorphism ==================== */}
+      <section className="py-24 md:py-32 border-t relative overflow-hidden">
+        {/* Giant background number */}
+        <BackgroundNumber number="06" position="top-left" variant="teal" size="xl" className="opacity-[0.0375]" />
+
+        {/* Subtle background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-muted/30 via-background to-muted/20 -z-10" />
+        <div className="absolute top-1/3 right-0 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="container mx-auto px-4 relative z-10">
           <div className="mx-auto max-w-4xl">
             <div className="text-center mb-16">
               <h2 className="text-3xl font-bold tracking-tight md:text-5xl mb-4">
-                This is what clarity feels like.
+                This is what <TextHighlight variant="teal">clarity</TextHighlight> feels like.
               </h2>
               <p className="text-lg text-muted-foreground">
                 Real stories from people who stopped drifting.
@@ -430,16 +559,20 @@ export function Landing() {
             </div>
 
             <div className="grid md:grid-cols-3 gap-6">
-              {testimonials.map((testimonial) => (
-                <div key={testimonial.author} className="p-6 rounded-2xl bg-card border hover:shadow-lg transition-shadow">
-                  <Quote className="h-8 w-8 text-primary/30 mb-4" />
+              {testimonials.map((testimonial, index) => (
+                <div
+                  key={testimonial.author}
+                  className="glass-feature-card p-6 card-lift hover-glow"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <Quote className="h-8 w-8 text-teal-500/40 mb-4" />
                   <p className="text-sm mb-4 leading-relaxed">
                     "{testimonial.quote.split(testimonial.highlight)[0]}
-                    <span className="text-primary font-medium">{testimonial.highlight}</span>
+                    <span className="text-teal-600 dark:text-teal-400 font-medium">{testimonial.highlight}</span>
                     {testimonial.quote.split(testimonial.highlight)[1]}"
                   </p>
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center font-semibold text-primary">
+                    <div className="h-10 w-10 rounded-full glass-teal flex items-center justify-center font-semibold text-teal-600 dark:text-teal-400">
                       {testimonial.author[0]}
                     </div>
                     <div>
@@ -454,33 +587,140 @@ export function Landing() {
         </div>
       </section>
 
-      {/* ==================== FEATURES SECTION (Supporting) ==================== */}
-      <section className="py-24 md:py-32 border-t">
-        <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-2xl text-center mb-16">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-sm">
-              <Layers className="h-4 w-4 text-primary" />
-              <span>Everything you need</span>
+      {/* ==================== PRODUCT FEATURES SECTION (Glassmorphism + Chart Previews) ==================== */}
+      <section className="py-24 md:py-32 border-t relative overflow-hidden">
+        {/* Giant background number */}
+        <BackgroundNumber number="04" position="top-left" variant="amber" size="xl" className="opacity-[0.0375]" />
+
+        {/* Section-specific orbs */}
+        <div className="absolute top-20 left-10 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-20 right-10 w-80 h-80 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="container mx-auto px-4 relative z-10">
+          <RevealOnScroll className="mx-auto max-w-2xl text-center mb-16">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full glass-teal px-4 py-2 text-sm">
+              <Sparkles className="h-4 w-4 text-teal-500" />
+              <span>See your patterns</span>
             </div>
             <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-5xl">
-              Tools to stay on course.
+              Your mind, <TextHighlight variant="teal">beautifully</TextHighlight> visualized.
             </h2>
             <p className="text-lg text-muted-foreground">
-              Not just tracking—transformation.
+              Hover over each card to preview the visualization.
+            </p>
+          </RevealOnScroll>
+
+          {/* Glassmorphism feature cards with chart previews */}
+          <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-2 lg:grid-cols-3 hover-dim-siblings">
+            {productFeatures.map((feature, index) => (
+              <div
+                key={feature.title}
+                className="group glass-feature-card p-6 hover-reveal-container"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                {/* Header */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className={cn(
+                    "inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r text-white transition-transform duration-300 group-hover:scale-110",
+                    feature.color
+                  )}>
+                    <feature.icon className="h-6 w-6" />
+                  </div>
+                  <span className="text-xs font-medium px-2 py-1 rounded-full bg-muted/50 text-muted-foreground backdrop-blur-sm">
+                    {feature.badge}
+                  </span>
+                </div>
+
+                <h3 className="mb-2 text-lg font-semibold">{feature.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                  {feature.description}
+                </p>
+
+                {/* Real chart demo - reveals on hover */}
+                {feature.chart && (
+                  <div className="h-32 rounded-xl bg-muted/50 dark:bg-black/20 overflow-hidden border border-border/50 transition-all duration-500 group-hover:h-40">
+                    <feature.chart animate={true} />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Additional features - smaller cards */}
+          <div className="mt-8 mx-auto max-w-4xl grid gap-4 md:grid-cols-3">
+            {additionalFeatures.map((feature, index) => (
+              <div
+                key={feature.title}
+                className="group glass-feature-card p-5 flex items-start gap-4"
+              >
+                <div className={cn(
+                  "flex-shrink-0 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r text-white",
+                  feature.color
+                )}>
+                  <feature.icon className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-sm mb-1">{feature.title}</h3>
+                  <p className="text-xs text-muted-foreground">{feature.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Dashboard Preview Teaser */}
+          <div className="mt-16 mx-auto max-w-4xl text-center">
+            <div className="glass-teal p-8 rounded-2xl">
+              <p className="text-foreground mb-6 text-lg">
+                10+ visualizations. All connected to your journal. See your transformation unfold.
+              </p>
+              <Link
+                to="/dashboard"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-teal-500 to-teal-600 text-white font-medium hover:scale-105 transition-transform"
+              >
+                <Play className="h-4 w-4" />
+                Explore the Dashboard
+                <ChevronRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ==================== SELF-DISCOVERY SECTION - Glassmorphism ==================== */}
+      <section className="py-24 md:py-32 border-t relative overflow-hidden">
+        {/* Giant background number */}
+        <BackgroundNumber number="07" position="top-right" variant="amber" size="xl" className="opacity-[0.0375]" />
+
+        {/* Background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-muted/20 via-background to-muted/30 -z-10" />
+        <div className="absolute top-1/2 left-10 w-64 h-64 bg-violet-500/8 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-10 right-20 w-72 h-72 bg-pink-500/8 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="mx-auto max-w-2xl text-center mb-16">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full glass-teal px-4 py-2 text-sm">
+              <Compass className="h-4 w-4 text-teal-500" />
+              <span>Know yourself</span>
+            </div>
+            <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-5xl">
+              Go deeper than mood tracking.
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              Define who you want to become. Let AI help you get there.
             </p>
           </div>
 
-          <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {features.map((feature, index) => (
+          <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-3 hover-dim-siblings">
+            {discoveryFeatures.map((feature, index) => (
               <div
                 key={feature.title}
-                className="group relative rounded-2xl border bg-card p-8 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                className="glass-feature-card p-8 card-scale-glow"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                {/* Gradient border on hover */}
-                <div className={`absolute inset-0 rounded-2xl bg-gradient-to-r ${feature.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
-
-                <div className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r ${feature.color} text-white`}>
+                <div className={cn(
+                  "mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r text-white transition-transform duration-300 group-hover:scale-110",
+                  feature.color
+                )}>
                   <feature.icon className="h-6 w-6" />
                 </div>
 
@@ -494,30 +734,51 @@ export function Landing() {
         </div>
       </section>
 
-      {/* ==================== FINAL CTA SECTION ==================== */}
-      <section className="py-24 md:py-32 border-t">
-        <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-4xl rounded-3xl bg-gradient-to-r from-primary/10 via-purple-500/10 to-blue-500/10 p-12 text-center border border-primary/20">
-            <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-4xl">
-              Your patterns are already forming.
+      {/* ==================== FINAL CTA SECTION - Enhanced Glassmorphism ==================== */}
+      <section className="py-24 md:py-32 border-t relative overflow-hidden">
+        {/* Themed background image */}
+        <ThemedBackground
+          lightSrc="/images/landing/hero-light.svg"
+          darkSrc="/images/landing/hero-dark.svg"
+          className="absolute inset-0 opacity-30"
+          overlay={false}
+        >
+          <div className="absolute inset-0" />
+        </ThemedBackground>
+
+        {/* Background orbs */}
+        <div className="absolute top-0 left-1/4 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="container mx-auto px-4 relative z-10">
+          <RevealOnScroll className="mx-auto max-w-4xl rounded-3xl glass-feature-card p-12 text-center relative overflow-hidden">
+            {/* Animated gradient border */}
+            <div className="absolute inset-0 rounded-3xl p-px bg-gradient-to-r from-teal-500/50 via-rose-500/30 to-teal-500/50 -z-10 opacity-50" />
+
+            {/* Animated glow orbs inside */}
+            <div className="absolute -top-20 -left-20 w-48 h-48 bg-teal-500/20 rounded-full blur-3xl floating-orb floating-orb-teal" />
+            <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-rose-500/15 rounded-full blur-3xl floating-orb floating-orb-rose" />
+
+            <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-4xl relative z-10">
+              Your patterns are already <TextHighlight variant="gradient">forming</TextHighlight>.
             </h2>
-            <p className="mx-auto mb-2 max-w-xl text-xl text-muted-foreground">
+            <p className="mx-auto mb-2 max-w-xl text-xl text-muted-foreground relative z-10">
               The question is: are they the ones you want?
             </p>
-            <p className="mx-auto mb-8 max-w-xl text-muted-foreground">
+            <p className="mx-auto mb-8 max-w-xl text-muted-foreground relative z-10">
               Define your vision. Let AI keep you on course.
             </p>
             <Link
               to="/signup"
-              className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-lg font-medium text-primary-foreground transition-all hover:scale-105 hover:shadow-xl"
+              className="group relative z-10 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-teal-500 to-teal-600 px-8 py-4 text-lg font-medium text-white transition-all hover:scale-105 hover:shadow-xl hover:shadow-teal-500/30"
             >
-              Start Your Journey
-              <ArrowRight className="h-5 w-5" />
+              Start Becoming
+              <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
             </Link>
-            <p className="mt-4 text-sm text-muted-foreground">
+            <p className="mt-4 text-sm text-muted-foreground relative z-10">
               Free to start. No credit card required.
             </p>
-          </div>
+          </RevealOnScroll>
         </div>
       </section>
 
@@ -528,14 +789,14 @@ export function Landing() {
             {/* Brand */}
             <div className="col-span-2 md:col-span-1">
               <div className="flex items-center gap-2 mb-3">
-                <Brain className="h-6 w-6 text-primary" />
-                <span className="font-semibold">Pratyaksha</span>
+                <Sparkles className="h-6 w-6 text-teal-500" />
+                <span className="font-semibold gradient-text">Becoming</span>
               </div>
               <p className="text-sm text-muted-foreground mb-2">
-                प्रत्यक्ष — Direct Perception
+                Who you want to be.
               </p>
               <p className="text-xs text-muted-foreground">
-                AI that knows where you're going.
+                A journal. A dashboard. An AI that keeps you on track.
               </p>
             </div>
 
@@ -571,7 +832,7 @@ export function Landing() {
           </div>
 
           <div className="pt-8 border-t text-center text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} Pratyaksha. All rights reserved.
+            &copy; {new Date().getFullYear()} Becoming. All rights reserved.
           </div>
         </div>
       </footer>

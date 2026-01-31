@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion'
+import { useTheme } from 'next-themes'
+import { useEffect, useState } from 'react'
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
 
 // Demo data - realistic cognitive modes
@@ -25,6 +27,13 @@ interface DemoModeChartProps {
 }
 
 export function DemoModeChart({ animate = true }: DemoModeChartProps) {
+  const { resolvedTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => setMounted(true), [])
+
+  const isDark = mounted && resolvedTheme === 'dark'
+
   return (
     <motion.div
       initial={animate ? { opacity: 0, scale: 0.9 } : false}
@@ -60,8 +69,8 @@ export function DemoModeChart({ animate = true }: DemoModeChartProps) {
       {/* Center label */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div className="text-center">
-          <div className="text-sm font-semibold text-white">{DEMO_DATA[0].mode}</div>
-          <div className="text-xs text-white/60">{DEMO_DATA[0].percentage}%</div>
+          <div className="text-sm font-semibold text-foreground">{DEMO_DATA[0].mode}</div>
+          <div className="text-xs text-muted-foreground">{DEMO_DATA[0].percentage}%</div>
         </div>
       </div>
     </motion.div>

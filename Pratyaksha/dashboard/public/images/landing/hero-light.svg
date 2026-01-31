@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="heroGradLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#faf5f0" stop-opacity="1"/>
+      <stop offset="50%" stop-color="#f5ebe0" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#faf5f0" stop-opacity="1"/>
+    </linearGradient>
+    <radialGradient id="tealGlowLight" cx="30%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#14b8a6" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#14b8a6" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="roseGlowLight" cx="70%" cy="60%" r="40%">
+      <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#f43f5e" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="softBlur" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="40"/>
+    </filter>
+  </defs>
+
+  <!-- Base gradient -->
+  <rect width="100%" height="100%" fill="url(#heroGradLight)"/>
+
+  <!-- Ambient orbs -->
+  <ellipse cx="500" cy="400" rx="400" ry="350" fill="url(#tealGlowLight)" filter="url(#softBlur)"/>
+  <ellipse cx="1400" cy="600" rx="350" ry="300" fill="url(#roseGlowLight)" filter="url(#softBlur)"/>
+
+  <!-- Abstract moth wing shapes -->
+  <g opacity="0.05" transform="translate(960, 540)">
+    <path d="M-200,-100 Q-100,-200 0,-150 Q100,-200 200,-100 Q150,0 200,100 Q100,150 0,100 Q-100,150 -200,100 Q-150,0 -200,-100"
+          fill="#14b8a6" transform="rotate(-15)"/>
+    <path d="M-150,-80 Q-80,-150 0,-120 Q80,-150 150,-80 Q120,0 150,80 Q80,120 0,80 Q-80,120 -150,80 Q-120,0 -150,-80"
+          fill="#f43f5e" transform="rotate(10)"/>
+  </g>
+
+  <!-- Subtle grid pattern -->
+  <pattern id="gridLight" patternUnits="userSpaceOnUse" width="60" height="60">
+    <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#14b8a6" stroke-width="0.5" opacity="0.05"/>
+  </pattern>
+  <rect width="100%" height="100%" fill="url(#gridLight)"/>
+</svg>

@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion'
+import { useTheme } from 'next-themes'
+import { useEffect, useState } from 'react'
 import {
   ComposedChart,
   Area,
@@ -36,6 +38,15 @@ interface DemoTimelineChartProps {
 }
 
 export function DemoTimelineChart({ animate = true }: DemoTimelineChartProps) {
+  const { resolvedTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => setMounted(true), [])
+
+  const isDark = mounted && resolvedTheme === 'dark'
+  const axisColor = isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)'
+  const textColor = isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)'
+
   return (
     <motion.div
       initial={animate ? { opacity: 0, y: 20 } : false}
@@ -54,7 +65,7 @@ export function DemoTimelineChart({ animate = true }: DemoTimelineChartProps) {
 
           <XAxis
             dataKey="day"
-            stroke="rgba(255,255,255,0.3)"
+            stroke={axisColor}
             fontSize={10}
             tickLine={false}
             axisLine={false}
@@ -62,7 +73,7 @@ export function DemoTimelineChart({ animate = true }: DemoTimelineChartProps) {
 
           <YAxis
             domain={[-1, 1]}
-            stroke="rgba(255,255,255,0.3)"
+            stroke={axisColor}
             fontSize={9}
             tickLine={false}
             axisLine={false}
@@ -93,7 +104,7 @@ export function DemoTimelineChart({ animate = true }: DemoTimelineChartProps) {
       </ResponsiveContainer>
 
       {/* Legend */}
-      <div className="flex justify-center gap-4 mt-1 text-[10px] text-white/50">
+      <div className="flex justify-center gap-4 mt-1 text-[10px] text-muted-foreground">
         <span className="flex items-center gap-1">
           <span className="w-2 h-2 rounded-full bg-[#22c55e]" />
           Positive

@@ -11,6 +11,16 @@ import { registerToken, updatePreferences, sendNotification, getSettings, testNo
 import { explainChart } from "./routes/explain"
 import { chat } from "./routes/chat"
 import speechRouter from "./routes/speech"
+import { getUserProfile, upsertUserProfile } from "./routes/userProfile"
+import {
+  generateCustom,
+  getOnboardingImage,
+  getLandingImage,
+  getAchievementImage,
+  generateAllOnboarding,
+  listPrompts,
+  previewPrompt
+} from "./routes/imageGen"
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -58,6 +68,19 @@ app.get("/api/notifications/preferences", (_req, res) => {
     error: "userId is required. Use GET /api/notifications/settings/:userId instead.",
   })
 })
+
+// User Profile routes
+app.get("/api/user-profile/:uid", getUserProfile)
+app.post("/api/user-profile", upsertUserProfile)
+
+// Image Generation routes (Gemini)
+app.post("/api/image/generate", generateCustom)
+app.get("/api/image/onboarding/:slideId", getOnboardingImage)
+app.get("/api/image/landing/:imageId", getLandingImage)
+app.get("/api/image/achievement/:achievementId", getAchievementImage)
+app.post("/api/image/batch/onboarding", generateAllOnboarding)
+app.get("/api/image/prompts", listPrompts)
+app.get("/api/image/prompt/:category/:id", previewPrompt)
 
 // Cron routes (called by Cloud Scheduler)
 app.post("/api/cron/notifications", cronNotifications)
