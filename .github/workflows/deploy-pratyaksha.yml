@@ -43,40 +43,10 @@ jobs:
         with:
           project_id: ${{ env.PROJECT_ID }}
 
-      - name: Install dependencies
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - run: npm ci
-
-      - name: Build frontend
-        env:
-          VITE_AIRTABLE_API_KEY: ${{ secrets.VITE_AIRTABLE_API_KEY }}
-          VITE_AIRTABLE_BASE_ID: ${{ secrets.VITE_AIRTABLE_BASE_ID }}
-          VITE_AIRTABLE_TABLE_ID: ${{ secrets.VITE_AIRTABLE_TABLE_ID }}
-          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
-          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
-          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
-          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
-          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
-          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
-          VITE_FIREBASE_VAPID_KEY: ${{ secrets.VITE_FIREBASE_VAPID_KEY }}
-        run: npm run build
-
-      - name: Build server
-        run: npm run build:server
-
-      - name: Deploy to Cloud Run (Main URL)
+      - name: Deploy with Cloud Build
         run: |
-          gcloud run deploy pratyaksha \
-            --source . \
-            --platform managed \
-            --region ${{ env.REGION }} \
-            --memory 512Mi \
-            --cpu 1 \
-            --allow-unauthenticated \
-            --set-env-vars "AIRTABLE_API_KEY=${{ secrets.AIRTABLE_API_KEY }},AIRTABLE_BASE_ID=${{ secrets.AIRTABLE_BASE_ID }},AIRTABLE_TABLE_ID=${{ secrets.AIRTABLE_TABLE_ID }},AIRTABLE_USER_PROFILES_TABLE_ID=${{ secrets.AIRTABLE_USER_PROFILES_TABLE_ID }},OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }},GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}" \
+          gcloud builds submit --config=cloudbuild.yaml \
+            --substitutions="_VITE_AIRTABLE_API_KEY=${{ secrets.VITE_AIRTABLE_API_KEY }},_VITE_AIRTABLE_BASE_ID=${{ secrets.VITE_AIRTABLE_BASE_ID }},_VITE_AIRTABLE_TABLE_ID=${{ secrets.VITE_AIRTABLE_TABLE_ID }},_VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }},_VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }},_VITE_FIREBASE_PROJECT_ID=${{ secrets.VITE_FIREBASE_PROJECT_ID }},_VITE_FIREBASE_STORAGE_BUCKET=${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }},_VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }},_VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }},_VITE_FIREBASE_VAPID_KEY=${{ secrets.VITE_FIREBASE_VAPID_KEY }},_OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }},_GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}" \
             --project ${{ env.PROJECT_ID }}
 
       - name: Display URL
