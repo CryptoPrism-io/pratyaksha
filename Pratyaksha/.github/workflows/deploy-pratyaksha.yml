@@ -14,7 +14,7 @@ env:
 
 jobs:
   # ============================================
-  # DASHBOARD DEPLOYMENT (Main App - Becoming)
+  # BECOMING DASHBOARD DEPLOYMENT (Main URL)
   # ============================================
   deploy-dashboard:
     permissions:
