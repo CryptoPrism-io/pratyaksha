@@ -8,7 +8,8 @@ import {
 import { useOnboardingProfile } from "@/hooks/useOnboardingProfile";
 import { useAuth } from "@/contexts/AuthContext";
 import { useKarma } from "@/contexts/KarmaContext";
-import { hasCompletedFirstTimeOnboarding, calculateEarnedBadges } from "@/lib/onboardingStorage";
+import { useEntries } from "@/hooks/useEntries";
+import { hasCompletedFirstTimeOnboarding, calculateEarnedBadges, markOnboardingCompleted } from "@/lib/onboardingStorage";
 import { OnboardingProgress } from "./OnboardingProgress";
 import { BadgeRevealQueue } from "./BadgeReveal";
 import { cn } from "@/lib/utils";
@@ -56,6 +57,9 @@ export function FirstTimeOnboarding({
     canProceed,
   } = useOnboardingProfile();
 
+  // Check if user has existing entries (existing user = skip onboarding)
+  const { data: entries, isLoading: entriesLoading } = useEntries();
+
   // Check if should show onboarding
   useEffect(() => {
     if (forceShow) {
@@ -70,14 +74,30 @@ export function FirstTimeOnboarding({
 
     // Check if first time user
     const hasCompleted = hasCompletedFirstTimeOnboarding();
-    if (!hasCompleted) {
-      // Small delay to let the app load
-      const timer = setTimeout(() => {
-        setIsOpen(true);
-      }, 500);
-      return () => clearTimeout(timer);
+
+    // Already completed - don't show
+    if (hasCompleted) {
+      return;
     }
-  }, [forceShow, user]);
+
+    // Wait for entries to load before deciding
+    if (entriesLoading) {
+      return;
+    }
+
+    // If user has existing entries, they're not new - auto-complete onboarding
+    if (entries && entries.length > 0) {
+      console.log("[Onboarding] Existing user with entries - skipping onboarding");
+      markOnboardingCompleted();
+      return;
+    }
+
+    // New user with no entries - show onboarding after small delay
+    const timer = setTimeout(() => {
+      setIsOpen(true);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [forceShow, user, entries, entriesLoading]);
 
   // Prefill name from Firebase user if available
   useEffect(() => {
@@ -279,14 +299,14 @@ export function FirstTimeOnboarding({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent
         className={cn(
-          "sm:max-w-lg max-h-[90vh] overflow-y-auto",
+          "w-full max-w-[95vw] sm:max-w-xl md:max-w-2xl max-h-[90vh] overflow-y-auto",
           "bg-gradient-to-b from-background to-background/95",
           "border-border/50"
         )}
         aria-describedby="onboarding-description"
       >
         <DialogTitle className="sr-only">
-          Welcome to Pratyaksha - Step {currentSlide} of {totalSlides}
+          Welcome to Becoming - Step {currentSlide} of {totalSlides}
         </DialogTitle>
         <div id="onboarding-description" className="sr-only">
           Complete the onboarding to personalize your experience

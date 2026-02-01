@@ -1,6 +1,6 @@
 {
-  "name": "Pratyaksha - Cognitive Journal",
-  "short_name": "Pratyaksha",
+  "name": "Becoming - Cognitive Journal",
+  "short_name": "Becoming",
   "description": "AI-powered cognitive journaling dashboard for self-awareness and emotional tracking",
   "start_url": "/",
   "display": "standalone",
@@ -8,6 +8,7 @@
   "theme_color": "#6366f1",
   "orientation": "portrait-primary",
   "scope": "/",
+  "permissions": ["microphone"],
   "icons": [
     {
       "src": "/icons/icon-72x72.png",
@@ -64,14 +65,14 @@
       "sizes": "1920x1080",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "Pratyaksha Dashboard"
+      "label": "Becoming Dashboard"
     },
     {
       "src": "/screenshots/mobile.png",
       "sizes": "390x844",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Pratyaksha Mobile"
+      "label": "Becoming Mobile"
     }
   ],
   "categories": ["productivity", "health", "lifestyle"],

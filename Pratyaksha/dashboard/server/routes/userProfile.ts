@@ -1,6 +1,21 @@
 // User Profile routes for syncing with Airtable
 import { Request, Response } from "express"
 
+// Helper to parse badges (stored as JSON string in Airtable)
+function parseBadges(badges: unknown): string[] {
+  if (!badges) return []
+  if (Array.isArray(badges)) return badges
+  if (typeof badges === "string") {
+    try {
+      const parsed = JSON.parse(badges)
+      return Array.isArray(parsed) ? parsed : []
+    } catch {
+      return []
+    }
+  }
+  return []
+}
+
 const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID
 const USER_PROFILES_TABLE_ID = process.env.AIRTABLE_USER_PROFILES_TABLE_ID
@@ -34,6 +49,20 @@ interface GamificationData {
   totalEntriesLogged?: number
 }
 
+// Life Blueprint data structure
+interface LifeBlueprintData {
+  vision?: Array<{ id: string; text: string; category: string; createdAt: string }>
+  antiVision?: Array<{ id: string; text: string; category: string; createdAt: string }>
+  levers?: Array<{ id: string; name: string; description: string; pushesToward: string; createdAt: string }>
+  shortTermGoals?: Array<{ id: string; text: string; category: string; targetDate?: string; completed: boolean; completedAt?: string; createdAt: string }>
+  longTermGoals?: Array<{ id: string; text: string; category: string; targetDate?: string; completed: boolean; completedAt?: string; createdAt: string }>
+  responses?: Array<{ questionId: string; answer: string; answeredAt: string; updatedAt?: string }>
+  timeHorizonGoals?: Array<{ id: string; horizon: string; text: string; category?: string; completed: boolean; completedAt?: string; createdAt: string }>
+  completedSections?: string[]
+  lastUpdatedAt?: string
+  createdAt?: string
+}
+
 interface UserProfileData {
   firebaseUid: string
   email?: string
@@ -45,6 +74,7 @@ interface UserProfileData {
   fcmToken?: string
   personalization?: PersonalizationData
   gamification?: GamificationData
+  lifeBlueprint?: LifeBlueprintData
 }
 
 /**
@@ -103,6 +133,16 @@ export async function getUserProfile(req: Request, res: Response) {
         }
       }
 
+      // Parse life blueprint data from Life Blueprint field (stored as JSON string)
+      let lifeBlueprint: LifeBlueprintData = {}
+      if (record.fields["Life Blueprint"]) {
+        try {
+          lifeBlueprint = JSON.parse(record.fields["Life Blueprint"])
+        } catch (e) {
+          console.error("[UserProfile] Failed to parse life blueprint JSON:", e)
+        }
+      }
+
       return res.json({
         success: true,
         profile: {
@@ -113,12 +153,13 @@ export async function getUserProfile(req: Request, res: Response) {
           dailyReminderEnabled: record.fields["Daily Reminder Enabled"] || false,
           reminderTime: record.fields["Reminder Time"],
           onboardingCompleted: record.fields["Onboarding Completed"] || false,
-          badges: record.fields["Badges"] || [],
+          badges: parseBadges(record.fields["Badges"]),
           fcmToken: record.fields["FCM Token"],
           createdAt: record.fields["Created At"],
           lastActive: record.fields["Last Active"],
           personalization,
           gamification,
+          lifeBlueprint,
         },
       })
     }
@@ -169,10 +210,11 @@ export async function upsertUserProfile(req: Request, res: Response) {
     if (profileData.dailyReminderEnabled !== undefined) fields["Daily Reminder Enabled"] = profileData.dailyReminderEnabled
     if (profileData.reminderTime !== undefined) fields["Reminder Time"] = profileData.reminderTime
     if (profileData.onboardingCompleted !== undefined) fields["Onboarding Completed"] = profileData.onboardingCompleted
-    if (profileData.badges !== undefined) fields["Badges"] = profileData.badges
+    if (profileData.badges !== undefined) fields["Badges"] = JSON.stringify(profileData.badges)
     if (profileData.fcmToken !== undefined) fields["FCM Token"] = profileData.fcmToken
     if (profileData.personalization !== undefined) fields["Settings"] = JSON.stringify(profileData.personalization)
     if (profileData.gamification !== undefined) fields["Gamification"] = JSON.stringify(profileData.gamification)
+    if (profileData.lifeBlueprint !== undefined) fields["Life Blueprint"] = JSON.stringify(profileData.lifeBlueprint)
 
     let response: Response
     let url: string
@@ -232,6 +274,16 @@ export async function upsertUserProfile(req: Request, res: Response) {
       }
     }
 
+    // Parse life blueprint data from response
+    let lifeBlueprint: LifeBlueprintData = {}
+    if (data.fields["Life Blueprint"]) {
+      try {
+        lifeBlueprint = JSON.parse(data.fields["Life Blueprint"])
+      } catch (e) {
+        console.error("[UserProfile] Failed to parse life blueprint JSON:", e)
+      }
+    }
+
     return res.json({
       success: true,
       profile: {
@@ -242,12 +294,13 @@ export async function upsertUserProfile(req: Request, res: Response) {
         dailyReminderEnabled: data.fields["Daily Reminder Enabled"] || false,
         reminderTime: data.fields["Reminder Time"],
         onboardingCompleted: data.fields["Onboarding Completed"] || false,
-        badges: data.fields["Badges"] || [],
+        badges: parseBadges(data.fields["Badges"]),
         fcmToken: data.fields["FCM Token"],
         createdAt: data.fields["Created At"],
         lastActive: data.fields["Last Active"],
         personalization,
         gamification,
+        lifeBlueprint,
       },
     })
   } catch (error) {

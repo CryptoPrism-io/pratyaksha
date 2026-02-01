@@ -155,7 +155,7 @@ export function loadGamificationState(): GamificationState {
 }
 
 /**
- * Save gamification state to localStorage
+ * Save gamification state to localStorage and trigger cloud sync
  */
 export function saveGamificationState(state: GamificationState): void {
   if (typeof window === "undefined") return;
@@ -166,6 +166,12 @@ export function saveGamificationState(state: GamificationState): void {
       lastUpdatedAt: new Date().toISOString(),
     };
     localStorage.setItem(GAMIFICATION_STORAGE_KEY, JSON.stringify(updatedState));
+
+    // Trigger cloud sync (debounced in the sync hook)
+    window.dispatchEvent(new StorageEvent("storage", {
+      key: GAMIFICATION_STORAGE_KEY,
+      newValue: JSON.stringify(updatedState),
+    }));
   } catch (error) {
     console.error("[Gamification] Failed to save state:", error);
   }

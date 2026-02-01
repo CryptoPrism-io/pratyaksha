@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react"
+import { useState, useRef, useCallback, useEffect } from "react"
 
 export interface SpeechResult {
   rawText: string
@@ -15,6 +15,55 @@ interface UseSpeechToTextOptions {
   processIntent?: boolean // If true, uses /process endpoint (slower but smarter)
 }
 
+// Keep a module-level stream reference to persist across hook instances
+let sharedStreamRef: MediaStream | null = null
+let streamAcquirePromise: Promise<MediaStream> | null = null
+
+/**
+ * Get or create a shared microphone stream.
+ * This prevents repeated permission prompts by reusing the same stream.
+ */
+async function getSharedMicrophoneStream(): Promise<MediaStream> {
+  // If we already have an active stream, return it
+  if (sharedStreamRef && sharedStreamRef.active) {
+    return sharedStreamRef
+  }
+
+  // If we're already acquiring a stream, wait for it
+  if (streamAcquirePromise) {
+    return streamAcquirePromise
+  }
+
+  // Acquire a new stream
+  streamAcquirePromise = navigator.mediaDevices.getUserMedia({
+    audio: {
+      echoCancellation: true,
+      noiseSuppression: true,
+      sampleRate: 16000,
+    },
+  })
+
+  try {
+    sharedStreamRef = await streamAcquirePromise
+    console.log("[SpeechToText] Microphone stream acquired")
+    return sharedStreamRef
+  } finally {
+    streamAcquirePromise = null
+  }
+}
+
+/**
+ * Release the shared microphone stream.
+ * Call this when the app is backgrounded or user navigates away.
+ */
+export function releaseMicrophoneStream(): void {
+  if (sharedStreamRef) {
+    sharedStreamRef.getTracks().forEach(track => track.stop())
+    sharedStreamRef = null
+    console.log("[SpeechToText] Microphone stream released")
+  }
+}
+
 export function useSpeechToText(options: UseSpeechToTextOptions = {}) {
   const { onTranscript, onError, processIntent = true } = options
 
@@ -27,8 +76,36 @@ export function useSpeechToText(options: UseSpeechToTextOptions = {}) {
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
-  const streamRef = useRef<MediaStream | null>(null)
+  const localStreamRef = useRef<MediaStream | null>(null)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  // Clean up stream when component unmounts (but keep shared stream alive)
+  useEffect(() => {
+    return () => {
+      // Stop any active recording
+      if (mediaRecorderRef.current?.state === "recording") {
+        mediaRecorderRef.current.stop()
+      }
+      if (timerRef.current) {
+        clearInterval(timerRef.current)
+      }
+    }
+  }, [])
+
+  // Release stream when page is hidden (battery optimization)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden && !isRecording) {
+        // Release stream when app goes to background and not recording
+        releaseMicrophoneStream()
+      }
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange)
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
+    }
+  }, [isRecording])
 
   const startRecording = useCallback(async () => {
     try {
@@ -38,15 +115,9 @@ export function useSpeechToText(options: UseSpeechToTextOptions = {}) {
       setDuration(0)
       chunksRef.current = []
 
-      // Request microphone access
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          sampleRate: 16000,
-        },
-      })
-      streamRef.current = stream
+      // Get shared microphone stream (reuses existing permission)
+      const stream = await getSharedMicrophoneStream()
+      localStreamRef.current = stream
 
       // Create MediaRecorder with webm format (supported by Groq)
       const mediaRecorder = new MediaRecorder(stream, {
@@ -61,8 +132,8 @@ export function useSpeechToText(options: UseSpeechToTextOptions = {}) {
       }
 
       mediaRecorder.onstop = async () => {
-        // Stop all tracks
-        streamRef.current?.getTracks().forEach((track) => track.stop())
+        // DON'T stop the tracks here - keep the stream alive for next recording
+        // The stream will be released when the page is hidden or explicitly released
 
         // Create audio blob
         const audioBlob = new Blob(chunksRef.current, { type: "audio/webm" })
@@ -89,7 +160,11 @@ export function useSpeechToText(options: UseSpeechToTextOptions = {}) {
       }, 1000)
 
     } catch (err) {
-      const errMsg = err instanceof Error ? err.message : "Failed to access microphone"
+      const errMsg = err instanceof Error
+        ? (err.name === "NotAllowedError"
+          ? "Microphone access denied. Please allow microphone in browser settings."
+          : err.message)
+        : "Failed to access microphone"
       setError(errMsg)
       onError?.(errMsg)
     }

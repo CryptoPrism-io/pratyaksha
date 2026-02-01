@@ -157,7 +157,7 @@ export function loadLifeBlueprint(): LifeBlueprint {
 }
 
 /**
- * Save life blueprint to localStorage
+ * Save life blueprint to localStorage and trigger cloud sync
  */
 export function saveLifeBlueprint(blueprint: LifeBlueprint): void {
   if (typeof window === "undefined") return;
@@ -168,6 +168,12 @@ export function saveLifeBlueprint(blueprint: LifeBlueprint): void {
       lastUpdatedAt: new Date().toISOString(),
     };
     localStorage.setItem(LIFE_BLUEPRINT_STORAGE_KEY, JSON.stringify(updated));
+
+    // Trigger cloud sync (debounced in the sync hook)
+    window.dispatchEvent(new StorageEvent("storage", {
+      key: LIFE_BLUEPRINT_STORAGE_KEY,
+      newValue: JSON.stringify(updated),
+    }));
   } catch (error) {
     console.error("[LifeBlueprint] Failed to save:", error);
   }

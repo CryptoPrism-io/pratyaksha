@@ -149,13 +149,19 @@ export function loadOnboardingProfile(): UserOnboardingProfile {
 }
 
 /**
- * Save onboarding profile to localStorage
+ * Save onboarding profile to localStorage and trigger cloud sync
  */
 export function saveOnboardingProfile(profile: UserOnboardingProfile): void {
   if (typeof window === "undefined") return;
 
   try {
     localStorage.setItem(ONBOARDING_STORAGE_KEY, JSON.stringify(profile));
+
+    // Trigger cloud sync (debounced in the sync hook)
+    window.dispatchEvent(new StorageEvent("storage", {
+      key: ONBOARDING_STORAGE_KEY,
+      newValue: JSON.stringify(profile),
+    }));
   } catch (error) {
     console.error("Failed to save onboarding profile:", error);
   }

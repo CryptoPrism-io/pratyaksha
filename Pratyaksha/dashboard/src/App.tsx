@@ -23,6 +23,7 @@ import { OfflineProvider } from "./contexts/OfflineContext"
 import { OfflineIndicator } from "./components/offline/OfflineIndicator"
 import { AuthProvider } from "./contexts/AuthContext"
 import { KarmaProvider } from "./contexts/KarmaContext"
+import { ProfileSyncProvider } from "./contexts/ProfileSyncContext"
 import { PublicOnlyRoute } from "./components/auth/ProtectedRoute"
 import { FirstTimeOnboarding } from "./components/onboarding/FirstTimeOnboarding"
 import { MothCursor } from "./components/ui/MothCursor"
@@ -48,6 +49,7 @@ function App() {
       <MothCursor />
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
+          <ProfileSyncProvider>
           <DemoPersonaProvider>
           <OfflineProvider>
             <DateFilterProvider defaultPreset="30">
@@ -93,6 +95,7 @@ function App() {
           </DateFilterProvider>
           </OfflineProvider>
           </DemoPersonaProvider>
+          </ProfileSyncProvider>
         </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>

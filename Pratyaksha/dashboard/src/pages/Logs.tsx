@@ -6,6 +6,12 @@ import { EntriesTable } from "../components/charts/EntriesTable"
 import { FilterBar, type FilterState } from "../components/filters/FilterBar"
 import { useEntries } from "../hooks/useEntries"
 import { OnboardingTour } from "../components/onboarding/OnboardingTour"
+import { DemoBanner } from "../components/layout/DemoBanner"
+import {
+  useMicrophonePermission,
+  hasMicrophonePermissionBeenAsked,
+  markMicrophonePermissionAsked
+} from "../hooks/useMicrophonePermission"
 
 const DEFAULT_FILTERS: FilterState = {
   search: "",
@@ -24,6 +30,25 @@ export function Logs() {
   const searchInputRef = useRef<HTMLInputElement>(null)
   const [urlFiltersApplied, setUrlFiltersApplied] = useState(false)
   const [selectedPrompt, setSelectedPrompt] = useState<string | undefined>(undefined)
+
+  // Pre-request microphone permission for voice logging
+  const { permission, requestPermission, isSupported } = useMicrophonePermission()
+
+  // Proactively request microphone permission on first visit to Logs page
+  useEffect(() => {
+    // Only request if:
+    // 1. MediaDevices API is supported
+    // 2. Permission hasn't been granted yet
+    // 3. We haven't asked in this session
+    if (isSupported && permission === "prompt" && !hasMicrophonePermissionBeenAsked()) {
+      // Small delay to not be intrusive on page load
+      const timer = setTimeout(() => {
+        markMicrophonePermissionAsked()
+        requestPermission()
+      }, 2000)
+      return () => clearTimeout(timer)
+    }
+  }, [isSupported, permission, requestPermission])
 
   // Read URL params on mount and apply filters
   useEffect(() => {
@@ -93,7 +118,10 @@ export function Logs() {
   return (
     <div className="min-h-screen dashboard-glass-bg">
       {/* Screen reader only H1 */}
-      <h1 className="sr-only">Pratyaksha Logs - Journal Entries</h1>
+      <h1 className="sr-only">Becoming Logs - Journal Entries</h1>
+
+      {/* Demo Mode Banner - guides users to sign in */}
+      <DemoBanner showPersonaSelector={false} />
 
       {/* Onboarding Tour - continues from Dashboard */}
       <OnboardingTour />
