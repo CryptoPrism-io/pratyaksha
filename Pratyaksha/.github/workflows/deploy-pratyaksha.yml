@@ -1,4 +1,4 @@
-name: Deploy Pratyaksha to Cloud Run
+name: Deploy Becoming to Cloud Run
 
 on:
   push:
