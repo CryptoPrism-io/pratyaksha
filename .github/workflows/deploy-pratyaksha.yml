@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'dashboard/**'
+      - 'Pratyaksha/dashboard/**'
   workflow_dispatch:
 
 env:
@@ -24,7 +24,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: dashboard
+        working-directory: Pratyaksha/dashboard
 
     steps:
       - name: Checkout code
