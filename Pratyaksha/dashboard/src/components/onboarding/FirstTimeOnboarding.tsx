@@ -13,7 +13,6 @@ import { hasCompletedFirstTimeOnboarding, calculateEarnedBadges, markOnboardingC
 import { OnboardingProgress } from "./OnboardingProgress";
 import { BadgeRevealQueue } from "./BadgeReveal";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 
 // Import all slides
 import { SlideWelcome } from "./slides/SlideWelcome";

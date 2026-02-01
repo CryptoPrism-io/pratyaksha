@@ -14,7 +14,6 @@ import {
   hasCompletedFirstTimeOnboarding,
   loadOnboardingProfile,
   BADGES,
-  PROFESSION_OPTIONS,
   type BadgeId
 } from "@/lib/onboardingStorage"
 import { DemoBanner } from "../components/layout/DemoBanner"

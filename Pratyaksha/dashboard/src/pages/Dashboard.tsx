@@ -1,10 +1,10 @@
-import React, { useState, useCallback, useMemo, useEffect } from "react"
+import { useState, useCallback, useMemo, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { DashboardGrid, ChartCard } from "../components/layout/DashboardGrid"
 import { useStats, useEntries } from "../hooks/useEntries"
 import { useAuth } from "../contexts/AuthContext"
 import { useKarma } from "../contexts/KarmaContext"
-import { useDemoPersona, type DemoPersona } from "../contexts/DemoPersonaContext"
+import { useDemoPersona } from "../contexts/DemoPersonaContext"
 import { Brain, FileText, TrendingUp, Activity, Keyboard, Plus, GitBranch, Zap, BarChart3, LineChart, AlertTriangle, Hash, Clock } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useQueryClient } from "@tanstack/react-query"
@@ -35,14 +35,13 @@ export function Dashboard() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const { checkDailyDashboardBonus } = useKarma()
-  const { persona } = useDemoPersona()
+  useDemoPersona()
   const { data: stats, isLoading } = useStats()
   const { data: entries, refetch } = useEntries()
   const [showShortcuts, setShowShortcuts] = useState(false)
   const { theme, setTheme } = useTheme()
   const queryClient = useQueryClient()
   const isMobile = useIsMobile()
-  const isDemoMode = !user
 
   // Check for daily dashboard bonus on mount
   useEffect(() => {

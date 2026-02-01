@@ -2,6 +2,9 @@
 import type { Entry } from "./airtable"
 import { countBy, groupBy, sentimentToScore } from "./utils"
 
+// Re-export Entry type for use by other modules
+export type { Entry } from "./airtable"
+
 // Emotional Timeline data
 export interface TimelinePoint {
   date: string

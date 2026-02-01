@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { ENTRY_MODE_OPTIONS, BADGES, type UserOnboardingProfile, type BadgeId } from "@/lib/onboardingStorage";
-import { BackgroundNumber, StaggerText, UnderlineAccent } from "@/components/typography";
+import { BackgroundNumber, UnderlineAccent } from "@/components/typography";
 
 interface SlideCommitmentProps {
   profile: UserOnboardingProfile;

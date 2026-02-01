@@ -2,7 +2,7 @@ import { Sparkles, ArrowRight } from "lucide-react";
 import { BrandWordmark } from "@/components/brand/BrandWordmark";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { BackgroundNumber, BrushUnderline, StaggerText } from "@/components/typography";
+import { BackgroundNumber, BrushUnderline } from "@/components/typography";
 
 interface SlideWelcomeProps {
   onNext: () => void;

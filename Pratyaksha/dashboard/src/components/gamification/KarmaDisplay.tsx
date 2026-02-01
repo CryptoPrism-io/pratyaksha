@@ -1,5 +1,5 @@
 // Karma Display - Shows current Karma balance in header or expanded view
-import { Sparkles, TrendingUp, Info } from "lucide-react";
+import { Sparkles, TrendingUp } from "lucide-react";
 import { useKarma } from "../../contexts/KarmaContext";
 import { KARMA_REWARDS, KARMA_COSTS } from "../../lib/gamificationStorage";
 import {

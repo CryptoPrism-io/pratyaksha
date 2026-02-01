@@ -12,7 +12,6 @@ import {
   saveStoredWarnings,
   dismissWarning,
   loadDismissedWarnings,
-  getActiveWarnings
 } from "../../lib/patternWarningStorage"
 import {
   AlertTriangle,

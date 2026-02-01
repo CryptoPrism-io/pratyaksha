@@ -1,4 +1,4 @@
-import { Shield, Lock, Trash2, Heart, ArrowRight, ArrowLeft, Check } from "lucide-react";
+import { Lock, Trash2, Heart, ArrowRight, ArrowLeft, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { BackgroundNumber, BrushUnderline } from "@/components/typography";

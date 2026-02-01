@@ -144,7 +144,6 @@ function FreeFloatingMoth({ id, variant, startX, startY, targetX, targetY, onArr
 
 // Tiny single-color moth for spawned moths
 function TinyMothSVG({ color }: { color: string }) {
-  const uniqueId = useMemo(() => `tiny-moth-${Math.random().toString(36).slice(2, 9)}`, [])
 
   return (
     <svg width={16} height={10} viewBox="0 0 80 50">
@@ -329,10 +328,6 @@ function AnimatedCounter({ target, suffix = "", start }: { target: number; suffi
       const elapsed = timestamp - startTime
       const progress = Math.min(elapsed / duration, 1)
 
-      // Ease-out cubic for increasing speed feel (fast at start, slows at end)
-      // But we want increasing speed, so use ease-in: progress^3
-      const easeIn = progress * progress * progress
-
       // For "increasing speed" effect, use ease-in-out but weighted toward end
       const easeInOut = progress < 0.5
         ? 4 * progress * progress * progress
@@ -449,10 +444,6 @@ const generateScatteredWords = () => {
     const distanceFromTextCenter = Math.sqrt(
       Math.pow((x + w/2) - centerX, 2) + Math.pow(((y + h/2) - centerY) * 1.5, 2)
     )
-
-    const minDist = 20
-    const maxDist = 70
-    const normalizedDistance = Math.min(1, Math.max(0, (distanceFromTextCenter - minDist) / (maxDist - minDist)))
 
     placedBoxes.push({ x, y, w, h })
 
@@ -606,7 +597,7 @@ export function HeroIntro() {
   // Outside-to-center reveal over 3 seconds with smooth easing
   const [revealProgress, setRevealProgress] = useState(0)
   const [becomingAlive, setBecomingAlive] = useState(false)
-  const [becomingOpacity, setBecomingOpacity] = useState(1) // Keep at 1 throughout
+  const [becomingOpacity] = useState(1) // Keep at 1 throughout
 
   useEffect(() => {
     if (!isFlickering) return
@@ -689,7 +680,7 @@ export function HeroIntro() {
     ]
 
     let currentIndex = 0
-    let timeoutId: NodeJS.Timeout
+    let timeoutId: ReturnType<typeof setTimeout>
 
     // Show cursor when typing continues
     setShowCursor(true)
@@ -730,8 +721,6 @@ export function HeroIntro() {
       clearTimeout(timeoutId)
     }
   }, [becomingAlive])
-
-  const totalWords = scatteredWords.length
 
   // Get word opacity - outside-to-center reveal
   // Outside words = 1 opacity, center words = 0.01 opacity (based on distance)
@@ -934,7 +923,7 @@ export function HeroIntro() {
           </p>
 
           <div className="mt-12 grid grid-cols-3 gap-6 sm:gap-10 border-t border-border/50 pt-8 w-full max-w-3xl">
-            {stats.map((stat, index) => (
+            {stats.map((stat) => (
               <div key={stat.label} className="text-center">
                 <div className="text-3xl font-bold text-foreground md:text-4xl tabular-nums">
                   <AnimatedCounter

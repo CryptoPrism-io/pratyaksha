@@ -32,9 +32,7 @@ export function DemoHeatmapChart({ animate = true }: DemoHeatmapChartProps) {
 
   useEffect(() => setMounted(true), [])
 
-  const isDark = mounted && resolvedTheme === 'dark'
   const cellSize = 12
-  const gap = 3
 
   return (
     <motion.div

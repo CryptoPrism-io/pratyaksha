@@ -6,7 +6,6 @@ import {
   getAlignmentSummary,
   getSortedCategories,
   getDriftWarningLevel,
-  type AlignmentScore
 } from "../../lib/visionAlignment"
 import {
   Target,

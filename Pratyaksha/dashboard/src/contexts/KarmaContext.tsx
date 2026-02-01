@@ -9,7 +9,6 @@ import {
   DEFAULT_GAMIFICATION_STATE,
   KARMA_REWARDS,
   KARMA_COSTS,
-  UNLOCK_THRESHOLDS,
   LAUNCH_CONFIG,
   getCurrentUnlockLevel,
   getEntriesUntilNextLevel,

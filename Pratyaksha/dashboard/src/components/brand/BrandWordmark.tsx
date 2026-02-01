@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils"
+import { MothLogo } from "./MothLogo"
 
 interface BrandWordmarkProps {
   className?: string
@@ -117,7 +118,6 @@ export function BrandLogo({
   size?: "sm" | "md" | "lg"
   animated?: boolean
 }) {
-  const { MothLogo } = require("./MothLogo")
 
   const logoSizes = {
     sm: "sm" as const,

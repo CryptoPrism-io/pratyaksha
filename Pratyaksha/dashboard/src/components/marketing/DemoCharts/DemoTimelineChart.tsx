@@ -45,7 +45,6 @@ export function DemoTimelineChart({ animate = true }: DemoTimelineChartProps) {
 
   const isDark = mounted && resolvedTheme === 'dark'
   const axisColor = isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)'
-  const textColor = isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)'
 
   return (
     <motion.div

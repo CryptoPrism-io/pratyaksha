@@ -8,11 +8,9 @@ import {
   Lightbulb,
   Target,
   AlertTriangle,
-  Gauge,
   Clock,
   Sparkles,
   X,
-  Lock,
 } from "lucide-react";
 import {
   LIFE_CATEGORIES,
@@ -28,12 +26,7 @@ import {
   getQuestionResponse,
   markSectionCompleted,
   isSectionCompleted,
-  addTimeHorizonGoal,
-  getGoalsByHorizon,
-  toggleTimeHorizonGoal,
-  removeTimeHorizonGoal,
   type LifeBlueprint,
-  type TimeHorizonGoal,
 } from "../../lib/lifeBlueprintStorage";
 import { Button } from "../ui/button";
 import { cn } from "../../lib/utils";
@@ -58,7 +51,7 @@ const SECTION_ORDER: Section[] = [
   { type: "summary" },
 ];
 
-export function LifeBlueprintGuided({ className, onComplete }: LifeBlueprintGuidedProps) {
+export function LifeBlueprintGuided({ className }: LifeBlueprintGuidedProps) {
   const [blueprint, setBlueprint] = useState<LifeBlueprint>(() => loadLifeBlueprint());
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);

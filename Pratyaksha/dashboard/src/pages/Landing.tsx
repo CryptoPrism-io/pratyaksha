@@ -10,11 +10,8 @@ import {
   AlertTriangle,
   Eye,
   TrendingUp,
-  Shield,
   MessageCircle,
   Calendar,
-  LineChart,
-  Layers,
   Activity,
   ChevronRight,
   Quote,
@@ -25,7 +22,6 @@ import {
   BarChart3,
   GitCompare,
   LayoutDashboard,
-  PenLine,
   Play,
   Menu,
   X,
@@ -41,11 +37,8 @@ import { DemoContradictionChart } from "../components/marketing/DemoCharts/DemoC
 import { DemoTrendChart } from "../components/marketing/DemoCharts/DemoTrendChart"
 import { ThemedBackground } from "../components/ui/ThemedImage"
 import {
-  BackgroundNumber,
   TextHighlight,
   RevealOnScroll,
-  UnderlineAccent,
-  NumberHighlight,
 } from "../components/typography"
 
 // Animated counter with increasing speed effect
@@ -109,13 +102,6 @@ function AnimatedStatCounter({
     </div>
   )
 }
-
-// The three pillars of Becoming
-const pillars = [
-  { label: "The Journal", value: "📓", description: "Keep you on track" },
-  { label: "The Dashboard", value: "📊", description: "See it visually" },
-  { label: "The AI", value: "🤖", description: "Warn you early" },
-]
 
 // The 4-step journey
 const steps = [
@@ -632,7 +618,7 @@ export function Landing() {
 
           <div className="mx-auto max-w-6xl">
             <div className="grid gap-6 md:grid-cols-4">
-              {steps.map((step, index) => (
+              {steps.map((step) => (
                 <div key={step.number} className="relative group">
                   {/* Connector line with gradient (hidden on mobile) */}
                   {step.number !== "4" && (

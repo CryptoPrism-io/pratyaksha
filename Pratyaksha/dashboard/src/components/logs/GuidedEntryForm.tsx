@@ -9,7 +9,7 @@ import { useKarma } from "../../contexts/KarmaContext"
 import { toast } from "sonner"
 import { cn } from "../../lib/utils"
 import { ERROR_MESSAGES } from "../../lib/errorMessages"
-import { UNLOCK_THRESHOLDS, getTopicTier } from "../../lib/gamificationStorage"
+import { UNLOCK_THRESHOLDS } from "../../lib/gamificationStorage"
 import confetti from "canvas-confetti"
 
 // Entry modes with their prompts/nudges

@@ -64,15 +64,13 @@ export function detectPatternWarnings(
   warnings.push(...goalStallWarnings);
 
   // Determine highest severity
-  let highestSeverity: "none" | "info" | "warning" | "alert" = "none";
+  type Severity = "none" | "info" | "warning" | "alert";
+  let highestSeverity: Severity = "none";
+  const severityRank: Record<Severity, number> = { "none": 0, "info": 1, "warning": 2, "alert": 3 };
   for (const warning of warnings) {
-    if (warning.severity === "alert") {
-      highestSeverity = "alert";
-      break;
-    } else if (warning.severity === "warning" && highestSeverity !== "alert") {
-      highestSeverity = "warning";
-    } else if (warning.severity === "info" && highestSeverity === "none") {
-      highestSeverity = "info";
+    const warningSev = warning.severity as Severity;
+    if (severityRank[warningSev] > severityRank[highestSeverity]) {
+      highestSeverity = warningSev;
     }
   }
 

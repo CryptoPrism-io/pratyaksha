@@ -32,8 +32,6 @@ export function DemoModeChart({ animate = true }: DemoModeChartProps) {
 
   useEffect(() => setMounted(true), [])
 
-  const isDark = mounted && resolvedTheme === 'dark'
-
   return (
     <motion.div
       initial={animate ? { opacity: 0, scale: 0.9 } : false}

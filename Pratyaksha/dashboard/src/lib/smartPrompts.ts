@@ -2,7 +2,7 @@
 // Generates personalized journal prompts based on Life Blueprint and recent entries
 
 import type { Entry } from "./transforms";
-import type { LifeBlueprint, VisionCategory, TimeHorizonGoal } from "./lifeBlueprintStorage";
+import type { LifeBlueprint, VisionCategory, GoalCategory } from "./lifeBlueprintStorage";
 import type { GamificationState } from "./gamificationStorage";
 
 // ==================== TYPES ====================
@@ -13,7 +13,7 @@ export interface SmartPrompt {
   type: "goal-check" | "missing-area" | "lever-reminder" | "anti-vision-check" | "soul-mapping" | "time-horizon";
   priority: "high" | "medium" | "low";
   relatedGoal?: string;
-  relatedCategory?: VisionCategory;
+  relatedCategory?: VisionCategory | GoalCategory;
   icon?: string;
   dismissedAt?: string;
 }
@@ -64,7 +64,7 @@ export function generateSmartPrompts(
   const recentThemes = new Set<string>();
   const recentText = recentWeekEntries.map(e => e.text?.toLowerCase() || "").join(" ");
   recentWeekEntries.forEach(e => {
-    e.themeTagsAI?.forEach(t => recentThemes.add(t.toLowerCase()));
+    e.themeTagsAI?.forEach((t: string) => recentThemes.add(t.toLowerCase()));
   });
 
   // 1. Goal Check Prompts (check if goal not mentioned recently)
@@ -163,7 +163,7 @@ function generateMissingAreaPrompts(
     const themes = entry.themeTagsAI || [];
 
     CATEGORY_KEYWORDS.forEach((keywords, category) => {
-      if (keywords.some(kw => text.includes(kw) || themes.some(t => t.toLowerCase().includes(kw)))) {
+      if (keywords.some(kw => text.includes(kw) || themes.some((t: string) => t.toLowerCase().includes(kw)))) {
         categoriesWithEntries.add(category);
       }
     });

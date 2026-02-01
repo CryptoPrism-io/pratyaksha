@@ -269,7 +269,7 @@ interface VisionListProps {
   color: "emerald" | "rose";
 }
 
-function VisionList({ items, onRemove, color }: VisionListProps) {
+function VisionList({ items, onRemove }: VisionListProps) {
   if (items.length === 0) return null;
 
   return (

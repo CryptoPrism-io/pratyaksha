@@ -1,10 +1,12 @@
 // Hook for managing Life Blueprint state
 import { useState, useCallback, useEffect } from "react";
-import {
+import type {
   LifeBlueprint,
   VisionCategory,
   GoalCategory,
   Lever,
+} from "../lib/lifeBlueprintStorage";
+import {
   loadLifeBlueprint,
   saveLifeBlueprint,
   addVisionItem,

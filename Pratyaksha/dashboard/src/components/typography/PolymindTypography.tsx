@@ -33,14 +33,6 @@ export function BackgroundNumber({
     center: "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
   };
 
-  const variantClasses = {
-    default: "bg-number",
-    teal: "bg-number bg-number-teal",
-    rose: "bg-number bg-number-rose",
-    amber: "bg-number bg-number-amber",
-    white: "bg-number bg-number-white",
-  };
-
   const sizeClasses = {
     sm: "bg-number-sm",
     md: "bg-number-md",

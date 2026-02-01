@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Brain, ArrowRight, ExternalLink, BookOpen, Beaker, Activity, Waves, Sparkles, GitCompare, Target } from 'lucide-react'
+import { Brain, ArrowRight, ExternalLink, Beaker, Activity, Waves, Sparkles, GitCompare, Target } from 'lucide-react'
 import { BlogLayout } from '../components/blog'
 import { cn } from '../lib/utils'
 
