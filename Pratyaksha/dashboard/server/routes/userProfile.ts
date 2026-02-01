@@ -216,41 +216,41 @@ export async function upsertUserProfile(req: Request, res: Response) {
     if (profileData.gamification !== undefined) fields["Gamification"] = JSON.stringify(profileData.gamification)
     if (profileData.lifeBlueprint !== undefined) fields["Life Blueprint"] = JSON.stringify(profileData.lifeBlueprint)
 
-    let response: Response
+    let fetchResponse: globalThis.Response
     let url: string
 
     if (existingRecord) {
       // Update existing record
       url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${USER_PROFILES_TABLE_ID}/${existingRecord.id}`
-      response = await fetch(url, {
+      fetchResponse = await fetch(url, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${AIRTABLE_API_KEY}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ fields }),
-      }) as unknown as Response
+      })
     } else {
       // Create new record
       fields["Created At"] = new Date().toISOString()
       url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${USER_PROFILES_TABLE_ID}`
-      response = await fetch(url, {
+      fetchResponse = await fetch(url, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${AIRTABLE_API_KEY}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ fields }),
-      }) as unknown as Response
+      })
     }
 
-    if (!response.ok) {
-      const error = await (response as unknown as globalThis.Response).text()
+    if (!fetchResponse.ok) {
+      const error = await fetchResponse.text()
       console.error("[UserProfile] Airtable error:", error)
       return res.status(500).json({ success: false, error: "Failed to save profile" })
     }
 
-    const data = await (response as unknown as globalThis.Response).json()
+    const data = await fetchResponse.json()
 
     console.log(`[UserProfile] ${existingRecord ? "Updated" : "Created"} profile for ${profileData.firebaseUid}`)
 
