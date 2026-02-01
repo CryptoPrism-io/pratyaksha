@@ -104,8 +104,8 @@ export function getFrequencyLabel(frequency: NotificationFrequency): string {
 const PREFS_KEY = "pratyaksha_notification_prefs"
 const FCM_TOKEN_KEY = "pratyaksha_fcm_token"
 
-// Timeout for notification operations (10 seconds)
-const NOTIFICATION_TIMEOUT_MS = 10000
+// Timeout for notification operations (30 seconds - FCM can be slow)
+const NOTIFICATION_TIMEOUT_MS = 30000
 
 /**
  * Wrap a promise with a timeout
@@ -159,11 +159,17 @@ export async function requestPermission(): Promise<NotificationPermission> {
 /**
  * Register the Firebase messaging service worker
  */
-async function registerFirebaseServiceWorker(): Promise<ServiceWorkerRegistration | null> {
+async function registerFirebaseServiceWorker(forceRefresh = false): Promise<ServiceWorkerRegistration | null> {
   try {
     // Check if already registered
     const existingReg = await navigator.serviceWorker.getRegistration("/firebase-messaging-sw.js")
+
     if (existingReg) {
+      if (forceRefresh) {
+        // Force update the service worker
+        console.log("[Notifications] Force refreshing Firebase SW...")
+        await existingReg.update()
+      }
       console.log("[Notifications] Firebase SW already registered")
       return existingReg
     }
@@ -193,7 +199,7 @@ async function registerFirebaseServiceWorker(): Promise<ServiceWorkerRegistratio
 /**
  * Get the FCM token for this device
  */
-export async function getFCMToken(): Promise<string | null> {
+export async function getFCMToken(retry = true): Promise<string | null> {
   if (!hasConfig) {
     console.warn("[Notifications] Firebase not configured")
     return null
@@ -241,12 +247,20 @@ export async function getFCMToken(): Promise<string | null> {
 
     return null
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+
+    // If timed out and retry is enabled, try once more with force refresh
+    if (errorMessage.includes("timed out") && retry) {
+      console.warn("[Notifications] FCM token timed out, retrying with SW refresh...")
+      await registerFirebaseServiceWorker(true) // Force refresh SW
+      return getFCMToken(false) // Retry without further retries
+    }
+
     // Only log as warning since this commonly fails when:
     // - Push service is unavailable (browser/network issue)
     // - User hasn't granted permission yet
     // - Running in incognito mode
     // - Service worker registration timing issues
-    const errorMessage = error instanceof Error ? error.message : String(error)
     if (errorMessage.includes("Registration failed") || errorMessage.includes("AbortError")) {
       console.warn("[Notifications] Push service unavailable - notifications will be disabled")
     } else {
@@ -276,7 +290,7 @@ export function setupForegroundListener(
     console.log("[Notifications] Foreground message received:", payload)
 
     callback({
-      title: payload.notification?.title || "Pratyaksha",
+      title: payload.notification?.title || "Becoming",
       body: payload.notification?.body || "",
       data: payload.data,
     })

@@ -154,7 +154,8 @@ export function useNotifications(): UseNotificationsReturn {
       // Get FCM token
       const token = await getFCMToken()
       if (!token) {
-        setError("Could not setup push notifications. Please try again.")
+        setError("Push service unavailable. Try: 1) Different browser, 2) Check if notifications are blocked in Windows settings, 3) Disable VPN/firewall temporarily.")
+        setIsLoading(false)
         return false
       }
 

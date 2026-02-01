@@ -1,5 +1,5 @@
 // Notification Settings Component
-import { Bell, BellOff, Clock, Flame, Calendar, Globe, Moon } from "lucide-react"
+import { Bell, BellOff, Clock, Flame, Calendar, Globe, Moon, AlertCircle } from "lucide-react"
 import { useNotifications } from "@/hooks/useNotifications"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
@@ -43,6 +43,7 @@ export function NotificationSettings() {
     permission,
     isEnabled,
     isLoading,
+    error,
     preferences,
     enableNotifications,
     disableNotifications,
@@ -102,6 +103,19 @@ export function NotificationSettings() {
 
   return (
     <div className="space-y-6">
+      {/* Error display */}
+      {error && (
+        <div className="rounded-lg border border-amber-500/50 bg-amber-500/5 p-4">
+          <div className="flex items-center gap-3 text-amber-600 dark:text-amber-400">
+            <AlertCircle className="h-5 w-5 flex-shrink-0" />
+            <div>
+              <p className="font-medium">Setup Issue</p>
+              <p className="text-sm text-muted-foreground">{error}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main toggle */}
       <div className="flex items-center justify-between rounded-lg border p-4">
         <div className="flex items-center gap-3">
