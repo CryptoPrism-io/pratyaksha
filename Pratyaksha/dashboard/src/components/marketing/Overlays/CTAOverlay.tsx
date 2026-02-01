@@ -82,9 +82,9 @@ export function CTAOverlay({ isVisible, transitionOpacity, isPreloading }: CTAOv
               delay={0.3}
               speed={18}
               highlights={[
-                { words: ['Transform'], color: '#a78bfa', fontClass: 'font-cabinet' },
-                { words: ['thoughts'], color: '#60a5fa', fontClass: 'font-playfair', italic: true },
-                { words: ['actionable'], color: '#34d399', fontClass: 'font-syne', uppercase: true },
+                { words: ['Transform'], color: '#a78bfa', fontClass: 'font-space' },
+                { words: ['thoughts'], color: '#60a5fa', fontClass: 'font-space', italic: true },
+                { words: ['actionable'], color: '#34d399', fontClass: 'font-space', uppercase: true },
                 { words: ['self-insight'], color: '#fbbf24', fontClass: 'font-space' },
               ]}
             />
@@ -194,7 +194,7 @@ export function CTAOverlay({ isVisible, transitionOpacity, isPreloading }: CTAOv
             <div className="w-6 h-6 rounded bg-white/10 flex items-center justify-center">
               <span className="text-xs font-bold">P</span>
             </div>
-            <span className="text-sm font-medium">Pratyaksha</span>
+            <span className="text-sm font-medium">Becoming</span>
           </motion.div>
         </AnimatedText>
       </div>

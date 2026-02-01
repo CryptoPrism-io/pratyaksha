@@ -17,30 +17,30 @@ import { cn } from "../../lib/utils"
 import { ChartExplainer } from "./ChartExplainer"
 import type { BenchmarkStatus } from "../../lib/transforms"
 
-// Categorize energy shapes into meaningful groups
+// Categorize energy shapes into meaningful groups - Teal, Amber, Rose brand palette
 const ENERGY_CATEGORIES = {
   growth: {
     name: "Growth & Momentum",
     description: "Positive energy patterns indicating progress",
     shapes: ["Rising", "Expanding", "Pulsing"],
-    color: "hsl(142, 76%, 36%)", // Green
-    fillColor: "hsl(142, 76%, 36%)",
+    color: "hsl(166, 76%, 47%)", // Teal-500
+    fillColor: "hsl(166, 76%, 47%)",
     benchmark: 3, // Optimal count per shape
   },
   stability: {
     name: "Stability & Balance",
     description: "Grounded and consistent energy states",
     shapes: ["Centered", "Stabilized", "Flat", "Cyclical"],
-    color: "hsl(221, 83%, 53%)", // Blue
-    fillColor: "hsl(221, 83%, 53%)",
+    color: "hsl(38, 92%, 50%)", // Amber-500
+    fillColor: "hsl(38, 92%, 50%)",
     benchmark: 4,
   },
   challenge: {
     name: "Stress & Challenge",
     description: "Patterns that may need attention",
     shapes: ["Chaotic", "Heavy", "Collapsing", "Contracted", "Uneven"],
-    color: "hsl(25, 95%, 53%)", // Amber/Orange
-    fillColor: "hsl(25, 95%, 53%)",
+    color: "hsl(347, 77%, 64%)", // Rose-400
+    fillColor: "hsl(347, 77%, 64%)",
     benchmark: 2, // Lower is better for challenging patterns
   },
 }
@@ -292,11 +292,11 @@ export function EnergyRadarGroup() {
 
   const positiveRatio = growthPercentage + stabilityPercentage
 
-  // Category styling for borders/backgrounds
+  // Category styling for borders/backgrounds - Teal, Amber, Rose
   const categoryStyles: Record<CategoryKey, string> = {
-    growth: "border-green-200 dark:border-green-900 bg-green-50/50 dark:bg-green-950/20",
-    stability: "border-blue-200 dark:border-blue-900 bg-blue-50/50 dark:bg-blue-950/20",
-    challenge: "border-amber-200 dark:border-amber-900 bg-amber-50/50 dark:bg-amber-950/20",
+    growth: "border-teal-200 dark:border-teal-900 bg-teal-50/50 dark:bg-teal-950/20",
+    stability: "border-amber-200 dark:border-amber-900 bg-amber-50/50 dark:bg-amber-950/20",
+    challenge: "border-rose-200 dark:border-rose-900 bg-rose-50/50 dark:bg-rose-950/20",
   }
 
   // Mobile: Carousel view
@@ -310,7 +310,7 @@ export function EnergyRadarGroup() {
             <div className="flex items-center gap-1.5 mb-0.5">
               <div className="h-1.5 flex-1 rounded-full bg-muted overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-green-500 via-blue-500 to-amber-500"
+                  className="h-full bg-gradient-to-r from-teal-500 via-amber-500 to-rose-500"
                   style={{ width: `${Math.min(positiveRatio, 100)}%` }}
                 />
               </div>
@@ -381,7 +381,7 @@ export function EnergyRadarGroup() {
           <div className="flex items-center gap-2 mb-1">
             <div className="h-2 flex-1 rounded-full bg-muted overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-green-500 via-blue-500 to-amber-500"
+                className="h-full bg-gradient-to-r from-teal-500 via-amber-500 to-rose-500"
                 style={{ width: `${Math.min(positiveRatio, 100)}%` }}
               />
             </div>
@@ -405,7 +405,7 @@ export function EnergyRadarGroup() {
 
       {/* Three radar charts */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1">
-        <div className="p-3 rounded-lg border border-green-200 dark:border-green-900 bg-green-50/50 dark:bg-green-950/20">
+        <div className="p-3 rounded-lg border border-teal-200 dark:border-teal-900 bg-teal-50/50 dark:bg-teal-950/20">
           <CategoryRadar
             categoryKey="growth"
             data={categoryData.growth}
@@ -413,7 +413,7 @@ export function EnergyRadarGroup() {
             totalEntries={totalEntries}
           />
         </div>
-        <div className="p-3 rounded-lg border border-blue-200 dark:border-blue-900 bg-blue-50/50 dark:bg-blue-950/20">
+        <div className="p-3 rounded-lg border border-amber-200 dark:border-amber-900 bg-amber-50/50 dark:bg-amber-950/20">
           <CategoryRadar
             categoryKey="stability"
             data={categoryData.stability}
@@ -421,7 +421,7 @@ export function EnergyRadarGroup() {
             totalEntries={totalEntries}
           />
         </div>
-        <div className="p-3 rounded-lg border border-amber-200 dark:border-amber-900 bg-amber-50/50 dark:bg-amber-950/20">
+        <div className="p-3 rounded-lg border border-rose-200 dark:border-rose-900 bg-rose-50/50 dark:bg-rose-950/20">
           <CategoryRadar
             categoryKey="challenge"
             data={categoryData.challenge}

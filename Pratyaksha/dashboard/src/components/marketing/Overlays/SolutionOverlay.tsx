@@ -114,9 +114,9 @@ export function SolutionOverlay({ isVisible, onNext, transitionOpacity, isPreloa
               delay={0.2}
               speed={18}
               highlights={[
-                { words: ['Four'], color: '#a78bfa', fontClass: 'font-cabinet' },
-                { words: ['agents'], color: '#8b5cf6', fontClass: 'font-syne', uppercase: true },
-                { words: ['understand'], color: '#c084fc', fontClass: 'font-playfair', italic: true },
+                { words: ['Four'], color: '#a78bfa', fontClass: 'font-space' },
+                { words: ['agents'], color: '#8b5cf6', fontClass: 'font-space', uppercase: true },
+                { words: ['understand'], color: '#c084fc', fontClass: 'font-space', italic: true },
               ]}
             />
           </p>

@@ -11,23 +11,23 @@ function formatDateLocal(date: Date): string {
   return `${year}-${month}-${day}`
 }
 
-// Entry type color mapping
+// Entry type color mapping - Teal, Rose, Amber brand palette
 const TYPE_COLORS: Record<string, string> = {
   Emotional: "bg-rose-500",
-  Cognitive: "bg-purple-500",
+  Cognitive: "bg-teal-600",
   Family: "bg-amber-500",
-  Work: "bg-blue-500",
-  Relationship: "bg-pink-500",
-  Health: "bg-green-500",
-  Creativity: "bg-orange-500",
-  Social: "bg-cyan-500",
-  Reflection: "bg-indigo-500",
-  Decision: "bg-yellow-500",
-  Avoidance: "bg-red-500",
-  Growth: "bg-emerald-500",
-  Stress: "bg-red-400",
+  Work: "bg-teal-500",
+  Relationship: "bg-rose-400",
+  Health: "bg-teal-400",
+  Creativity: "bg-amber-400",
+  Social: "bg-teal-300",
+  Reflection: "bg-amber-600",
+  Decision: "bg-amber-300",
+  Avoidance: "bg-rose-600",
+  Growth: "bg-teal-500",
+  Stress: "bg-rose-500",
   Communication: "bg-teal-500",
-  Routine: "bg-slate-500",
+  Routine: "bg-amber-500",
 }
 
 // Get a consistent color for any type

@@ -9,16 +9,17 @@ import { AlertCircle, RefreshCw, PieChart as PieChartIcon } from "lucide-react"
 import { ERROR_MESSAGES } from "../../lib/errorMessages"
 import { ChartExplainer } from "./ChartExplainer"
 
+// Brand colors - Teal, Rose, Amber spectrum
 const COLORS = [
-  "hsl(160, 84%, 52%)",  // positive green
-  "hsl(220, 70%, 55%)",  // blue
-  "hsl(30, 80%, 55%)",   // orange
-  "hsl(280, 65%, 55%)",  // purple
-  "hsl(0, 70%, 55%)",    // red
-  "hsl(180, 60%, 45%)",  // teal
-  "hsl(45, 90%, 50%)",   // yellow
-  "hsl(330, 70%, 55%)",  // pink
-  "hsl(200, 60%, 50%)",  // sky blue
+  "hsl(166, 76%, 47%)",  // teal-500
+  "hsl(347, 77%, 64%)",  // rose-400
+  "hsl(38, 92%, 50%)",   // amber-500
+  "hsl(168, 84%, 36%)",  // teal-600
+  "hsl(350, 89%, 60%)",  // rose-500
+  "hsl(43, 96%, 56%)",   // amber-400
+  "hsl(167, 77%, 72%)",  // teal-300
+  "hsl(352, 70%, 82%)",  // rose-200
+  "hsl(48, 96%, 53%)",   // yellow-400
 ]
 
 // Custom active shape for hover effect

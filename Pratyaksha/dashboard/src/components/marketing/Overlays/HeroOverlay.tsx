@@ -103,14 +103,14 @@ export function HeroOverlay({ isVisible, onNext, transitionOpacity, isPreloading
           className="mb-6 sm:mb-8"
         >
           <span className="text-xl sm:text-2xl md:text-3xl text-white/90 font-light tracking-[0.3em] uppercase">
-            Pratyaksha
+            Becoming
           </span>
         </motion.div>
 
         {/* Meaning/tagline */}
         <AnimatedText delay={0.5} animation="slideUp">
           <p className="text-base sm:text-lg md:text-xl text-white/60 max-w-md mb-4 italic">
-            "Direct Perception"
+            "Your Journey of Transformation"
           </p>
         </AnimatedText>
 
@@ -122,9 +122,9 @@ export function HeroOverlay({ isVisible, onNext, transitionOpacity, isPreloading
               delay={0.5}
               speed={18}
               highlights={[
-                { words: ['mind'], color: '#a78bfa', fontClass: 'font-playfair', italic: true },
-                { words: ['patterns'], color: '#60a5fa', fontClass: 'font-syne', uppercase: true },
-                { words: ['Transform'], color: '#34d399', fontClass: 'font-cabinet' },
+                { words: ['mind'], color: '#a78bfa', fontClass: 'font-space', italic: true },
+                { words: ['patterns'], color: '#60a5fa', fontClass: 'font-space', uppercase: true },
+                { words: ['Transform'], color: '#34d399', fontClass: 'font-space' },
               ]}
             />
           </p>

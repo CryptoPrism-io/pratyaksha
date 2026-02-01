@@ -3,10 +3,8 @@ import { Lock, Unlock, TrendingUp, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useKarma } from "../../contexts/KarmaContext";
 import { useEntries } from "../../hooks/useEntries";
-import {
-  UNLOCK_THRESHOLDS,
-  type UnlockTier,
-} from "../../lib/gamificationStorage";
+import type { UnlockTier } from "../../lib/gamificationStorage";
+import { UNLOCK_THRESHOLDS } from "../../lib/gamificationStorage";
 import { cn } from "../../lib/utils";
 
 const TIER_INFO: Record<UnlockTier, { label: string; color: string; bgColor: string; borderColor: string; features: string[] }> = {

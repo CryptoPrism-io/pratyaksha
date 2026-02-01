@@ -3,7 +3,7 @@ import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
 
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme()
+  const { setTheme, resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
 
   // Prevent hydration mismatch
@@ -11,10 +11,15 @@ export function ThemeToggle() {
     setMounted(true)
   }, [])
 
+  const handleToggle = () => {
+    const newTheme = resolvedTheme === "dark" ? "light" : "dark"
+    setTheme(newTheme)
+  }
+
   if (!mounted) {
     return (
       <button
-        className="rounded-full p-2 hover:bg-muted transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+        className="rounded-full p-2.5 hover:bg-white/20 transition-all min-w-[44px] min-h-[44px] flex items-center justify-center pointer-events-auto"
         aria-label="Toggle theme"
       >
         <Sun className="h-5 w-5" />
@@ -22,16 +27,19 @@ export function ThemeToggle() {
     )
   }
 
+  const isDark = resolvedTheme === "dark"
+
   return (
     <button
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="rounded-full p-2 hover:bg-muted transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-      aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+      type="button"
+      onClick={handleToggle}
+      className="rounded-full p-2.5 hover:bg-white/20 dark:hover:bg-black/20 transition-all min-w-[44px] min-h-[44px] flex items-center justify-center pointer-events-auto cursor-pointer"
+      aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
     >
-      {theme === "dark" ? (
-        <Sun className="h-5 w-5 text-yellow-500" />
+      {isDark ? (
+        <Sun className="h-5 w-5 text-yellow-400" />
       ) : (
-        <Moon className="h-5 w-5" />
+        <Moon className="h-5 w-5 text-slate-700" />
       )}
     </button>
   )

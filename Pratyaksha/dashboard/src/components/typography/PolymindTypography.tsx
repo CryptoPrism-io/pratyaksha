@@ -9,13 +9,14 @@ import { useEffect, useRef, useState } from "react";
 interface BackgroundNumberProps {
   number: string | number;
   position?: "top-left" | "top-right" | "bottom-left" | "bottom-right" | "center";
-  variant?: "teal" | "rose" | "amber" | "default";
+  variant?: "teal" | "rose" | "amber" | "white" | "default";
   size?: "sm" | "md" | "lg" | "xl";
   className?: string;
 }
 
 /**
  * Giant semi-transparent background number for visual impact
+ * Classes: bg-number (base) + bg-number-{variant} + bg-number-{size}
  */
 export function BackgroundNumber({
   number,
@@ -37,6 +38,7 @@ export function BackgroundNumber({
     teal: "bg-number bg-number-teal",
     rose: "bg-number bg-number-rose",
     amber: "bg-number bg-number-amber",
+    white: "bg-number bg-number-white",
   };
 
   const sizeClasses = {
@@ -49,7 +51,8 @@ export function BackgroundNumber({
   return (
     <span
       className={cn(
-        variantClasses[variant],
+        "bg-number",
+        variant !== "default" && `bg-number-${variant}`,
         sizeClasses[size],
         positionClasses[position],
         className

@@ -85,9 +85,9 @@ export function FeaturesOverlay({ isVisible, onNext, transitionOpacity, isPreloa
               delay={0.2}
               speed={18}
               highlights={[
-                { words: ['21'], color: '#fbbf24', fontClass: 'font-cabinet' },
-                { words: ['see'], color: '#f59e0b', fontClass: 'font-playfair', italic: true },
-                { words: ['show'], color: '#fcd34d', fontClass: 'font-syne' },
+                { words: ['21'], color: '#fbbf24', fontClass: 'font-space' },
+                { words: ['see'], color: '#f59e0b', fontClass: 'font-space', italic: true },
+                { words: ['show'], color: '#fcd34d', fontClass: 'font-space' },
               ]}
             />
           </p>

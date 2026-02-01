@@ -50,7 +50,7 @@ export function StepNavbar({ currentStep, totalSteps, stepConfig, isLocked, onNa
               <Sparkles className="w-4 h-4 text-white" />
             </div>
             <div className="hidden sm:flex flex-col">
-              <span className="text-white font-semibold text-sm leading-tight">Pratyaksha</span>
+              <span className="text-white font-semibold text-sm leading-tight">Becoming</span>
               <span className="text-white/40 text-[10px] leading-tight">Cognitive Journal</span>
             </div>
           </motion.a>

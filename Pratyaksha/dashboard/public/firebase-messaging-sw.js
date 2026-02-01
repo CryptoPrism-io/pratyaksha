@@ -5,15 +5,15 @@
 importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js');
 
-// Firebase config - these values are replaced at build time or use defaults
+// Firebase config - MUST match the values in .env for notifications to work
 // The service worker needs this config to initialize Firebase for push notifications
 const firebaseConfig = {
-  apiKey: "AIzaSyDj1l6tqDChFEDPFPPasCZwFBqHGLI8Jy8",
+  apiKey: "AIzaSyCHp8lTFL2SuOnoz-d_B7_9FEZ8wcaas1U",
   authDomain: "pratyaksha-3f089.firebaseapp.com",
   projectId: "pratyaksha-3f089",
   storageBucket: "pratyaksha-3f089.firebasestorage.app",
-  messagingSenderId: "660572274498",
-  appId: "1:660572274498:web:0d97f1a05dfdd6f80f9c6f"
+  messagingSenderId: "1073339927212",
+  appId: "1:1073339927212:web:1cf1d561c4b0c1d5212d09"
 };
 
 // Initialize Firebase immediately
@@ -25,13 +25,13 @@ try {
   messaging.onBackgroundMessage((payload) => {
     console.log('[FCM SW] Background message received:', payload);
 
-    const notificationTitle = payload.notification?.title || 'Pratyaksha';
+    const notificationTitle = payload.notification?.title || 'Becoming';
     const notificationOptions = {
       body: payload.notification?.body || '',
       icon: '/icons/icon-192x192.png',
       badge: '/icons/icon-72x72.png',
       vibrate: [100, 50, 100],
-      tag: payload.data?.tag || 'pratyaksha-notification',
+      tag: payload.data?.tag || 'becoming-notification',
       data: payload.data,
       actions: getNotificationActions(payload.data?.type),
     };
@@ -128,7 +128,7 @@ self.addEventListener('push', (event) => {
 
     // If Firebase messaging doesn't handle it, show notification manually
     if (payload.notification) {
-      const notificationTitle = payload.notification.title || 'Pratyaksha';
+      const notificationTitle = payload.notification.title || 'Becoming';
       const notificationOptions = {
         body: payload.notification.body || '',
         icon: '/icons/icon-192x192.png',

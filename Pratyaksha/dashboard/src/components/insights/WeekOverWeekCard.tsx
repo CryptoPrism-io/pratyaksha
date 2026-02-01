@@ -35,7 +35,7 @@ function TrendBadge({ value, percent, trend, suffix = "", positiveIsGood = true 
         "flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium",
         isGood && "bg-green-500/10 text-green-600",
         isBad && "bg-red-500/10 text-red-600",
-        trend === "same" && "bg-slate-500/10 text-slate-600"
+        trend === "same" && "bg-slate-500/10 text-slate-700 dark:text-slate-400"
       )}
     >
       {trend === "up" && <TrendingUp className="h-3 w-3" />}
@@ -106,7 +106,7 @@ function SentimentBadge({ sentiment }: { sentiment: string }) {
         "flex items-center gap-1.5 px-2 py-1 rounded-full text-sm font-medium",
         sentiment === "Positive" && "bg-green-500/10 text-green-600",
         sentiment === "Negative" && "bg-red-500/10 text-red-600",
-        sentiment === "Neutral" && "bg-slate-500/10 text-slate-600"
+        sentiment === "Neutral" && "bg-slate-500/10 text-slate-700 dark:text-slate-400"
       )}
     >
       {sentiment === "Positive" && <Smile className="h-4 w-4" />}

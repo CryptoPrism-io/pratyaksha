@@ -93,11 +93,11 @@ function EntryModal({ entry, onClose, onEdit, onDelete, onToggleBookmark }: Entr
   return createPortal(
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm">
       <div className="flex min-h-full items-center justify-center p-4">
-        <div className="w-full max-w-[calc(100vw-2rem)] sm:max-w-2xl rounded-xl glass-card p-4 sm:p-6 shadow-2xl">
+        <div className="w-full max-w-[calc(100vw-2rem)] sm:max-w-2xl rounded-xl p-4 sm:p-6 shadow-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
           <div className="mb-4 flex items-start justify-between">
             <div>
-              <h3 className="text-xl font-semibold">{entry.name || "Untitled Entry"}</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="text-xl font-semibold text-slate-900 dark:text-white">{entry.name || "Untitled Entry"}</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-400">
                 {new Date(entry.date).toLocaleDateString("en-US", {
                   weekday: "long",
                   year: "numeric",
@@ -162,51 +162,51 @@ function EntryModal({ entry, onClose, onEdit, onDelete, onToggleBookmark }: Entr
           </div>
 
           {/* Entry Text */}
-          <div className="mb-6 rounded-lg bg-muted/50 p-4">
-            <p className="whitespace-pre-wrap text-sm leading-relaxed">
+          <div className="mb-6 rounded-lg bg-slate-100 dark:bg-slate-800 p-4">
+            <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-800 dark:text-slate-200">
               {entry.text || "No content"}
             </p>
           </div>
 
           {/* Metadata Grid */}
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-lg border p-3">
-              <p className="text-xs font-medium text-muted-foreground">Type</p>
-              <p className="font-medium">{entry.type || "—"}</p>
+            <div className="rounded-lg border border-slate-200 dark:border-slate-700 p-3 bg-slate-50 dark:bg-slate-800/50">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">Type</p>
+              <p className="font-medium text-slate-900 dark:text-white">{entry.type || "—"}</p>
             </div>
-            <div className="rounded-lg border p-3">
-              <p className="text-xs font-medium text-muted-foreground">Mode</p>
-              <p className="font-medium">{entry.inferredMode || "—"}</p>
+            <div className="rounded-lg border border-slate-200 dark:border-slate-700 p-3 bg-slate-50 dark:bg-slate-800/50">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">Mode</p>
+              <p className="font-medium text-slate-900 dark:text-white">{entry.inferredMode || "—"}</p>
             </div>
-            <div className="rounded-lg border p-3">
-              <p className="text-xs font-medium text-muted-foreground">Energy</p>
-              <p className="font-medium">{entry.inferredEnergy || "—"}</p>
+            <div className="rounded-lg border border-slate-200 dark:border-slate-700 p-3 bg-slate-50 dark:bg-slate-800/50">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">Energy</p>
+              <p className="font-medium text-slate-900 dark:text-white">{entry.inferredEnergy || "—"}</p>
             </div>
-            <div className="rounded-lg border p-3">
-              <p className="text-xs font-medium text-muted-foreground">Energy Shape</p>
-              <p className="font-medium">{entry.energyShape || "—"}</p>
+            <div className="rounded-lg border border-slate-200 dark:border-slate-700 p-3 bg-slate-50 dark:bg-slate-800/50">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">Energy Shape</p>
+              <p className="font-medium text-slate-900 dark:text-white">{entry.energyShape || "—"}</p>
             </div>
-            <div className="rounded-lg border p-3">
-              <p className="text-xs font-medium text-muted-foreground">Sentiment</p>
+            <div className="rounded-lg border border-slate-200 dark:border-slate-700 p-3 bg-slate-50 dark:bg-slate-800/50">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">Sentiment</p>
               <span className={`inline-block rounded-full px-2 py-1 text-xs font-medium ${SENTIMENT_BADGE[getSentimentType(entry.sentimentAI)]}`}>
                 {entry.sentimentAI || "—"}
               </span>
             </div>
-            <div className="rounded-lg border p-3">
-              <p className="text-xs font-medium text-muted-foreground">Contradiction</p>
-              <p className="font-medium">{entry.contradiction || "—"}</p>
+            <div className="rounded-lg border border-slate-200 dark:border-slate-700 p-3 bg-slate-50 dark:bg-slate-800/50">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">Contradiction</p>
+              <p className="font-medium text-slate-900 dark:text-white">{entry.contradiction || "—"}</p>
             </div>
           </div>
 
           {/* Tags */}
           {entry.themeTagsAI.length > 0 && (
             <div className="mt-4">
-              <p className="mb-2 text-xs font-medium text-muted-foreground">Theme Tags</p>
+              <p className="mb-2 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">Theme Tags</p>
               <div className="flex flex-wrap gap-2">
                 {entry.themeTagsAI.map((tag) => (
                   <span
                     key={tag}
-                    className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary"
+                    className="rounded-full bg-slate-200 dark:bg-slate-700 px-3 py-1 text-xs font-medium text-slate-700 dark:text-slate-300"
                   >
                     {tag}
                   </span>
@@ -217,16 +217,16 @@ function EntryModal({ entry, onClose, onEdit, onDelete, onToggleBookmark }: Entr
 
           {/* Snapshot & Insights */}
           {entry.snapshot && (
-            <div className="mt-4 rounded-lg border p-3">
-              <p className="text-xs font-medium text-muted-foreground">Snapshot</p>
-              <p className="mt-1 text-sm">{entry.snapshot}</p>
+            <div className="mt-4 rounded-lg border border-slate-200 dark:border-slate-700 p-3 bg-slate-50 dark:bg-slate-800/50">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">Snapshot</p>
+              <p className="mt-1 text-sm text-slate-800 dark:text-slate-200">{entry.snapshot}</p>
             </div>
           )}
 
           {entry.actionableInsightsAI && (
-            <div className="mt-4 rounded-lg border border-primary/30 bg-primary/10 p-3">
-              <p className="text-xs font-medium text-primary">Actionable Insights</p>
-              <p className="mt-1 text-sm text-foreground">{entry.actionableInsightsAI}</p>
+            <div className="mt-4 rounded-lg border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/30 p-3">
+              <p className="text-xs font-medium text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">Actionable Insights</p>
+              <p className="mt-1 text-sm text-slate-800 dark:text-slate-200">{entry.actionableInsightsAI}</p>
             </div>
           )}
         </div>
@@ -283,7 +283,16 @@ export function EntriesTable({ filters, selectedIndex: externalSelectedIndex, on
       })
       toast.success(entry.isBookmarked ? "Bookmark removed" : "Bookmark added")
     } catch (error) {
-      toast.error("Failed to update bookmark")
+      const errorMessage = error instanceof Error ? error.message : "Unknown error"
+      console.error("[Bookmark] Error:", errorMessage)
+      // Check for common Airtable field-not-found error
+      if (errorMessage.includes("UNKNOWN_FIELD_NAME") || errorMessage.includes("Is Bookmarked")) {
+        toast.error("Bookmark field not configured", {
+          description: "Add 'Is Bookmarked?' checkbox field to Airtable"
+        })
+      } else {
+        toast.error("Failed to update bookmark", { description: errorMessage })
+      }
     }
   }
 

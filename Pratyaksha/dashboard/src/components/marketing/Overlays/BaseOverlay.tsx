@@ -263,7 +263,7 @@ export interface HighlightConfig {
   words: string[]
   color: string
   underline?: boolean
-  fontClass?: string  // e.g., 'font-playfair', 'font-syne', 'font-space'
+  fontClass?: string  // e.g., 'font-space', 'font-space', 'font-space'
   italic?: boolean
   bold?: boolean
   uppercase?: boolean

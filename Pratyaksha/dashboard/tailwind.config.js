@@ -31,9 +31,42 @@ export default {
   				DEFAULT: 'hsl(var(--muted))',
   				foreground: 'hsl(var(--muted-foreground))'
   			},
-  			positive: '#34D399',
-  			negative: '#F87171',
-  			neutral: '#9CA3AF',
+  			// Brand colors - Teal, Rose, Amber
+  			positive: '#14b8a6',  // Teal-500
+  			negative: '#f43f5e',  // Rose-500
+  			neutral: '#f59e0b',   // Amber-500
+  			brand: {
+  				teal: {
+  					50: '#f0fdfa',
+  					100: '#ccfbf1',
+  					200: '#99f6e4',
+  					300: '#5eead4',
+  					400: '#2dd4bf',
+  					500: '#14b8a6',
+  					600: '#0d9488',
+  					700: '#0f766e',
+  				},
+  				rose: {
+  					50: '#fff1f2',
+  					100: '#ffe4e6',
+  					200: '#fecdd3',
+  					300: '#fda4af',
+  					400: '#fb7185',
+  					500: '#f43f5e',
+  					600: '#e11d48',
+  					700: '#be123c',
+  				},
+  				amber: {
+  					50: '#fffbeb',
+  					100: '#fef3c7',
+  					200: '#fde68a',
+  					300: '#fcd34d',
+  					400: '#fbbf24',
+  					500: '#f59e0b',
+  					600: '#d97706',
+  					700: '#b45309',
+  				},
+  			},
   			border: 'hsl(var(--border))',
   			input: 'hsl(var(--input))',
   			ring: 'hsl(var(--ring))',
@@ -71,8 +104,66 @@ export default {
   		},
   		padding: {
   			'safe': 'env(safe-area-inset-bottom)'
-  		}
+  		},
+  		keyframes: {
+  			'glow-teal': {
+  				'0%, 100%': {
+  					opacity: '0.2',
+  					transform: 'scale(1) translate(0, 0)',
+  				},
+  				'50%': {
+  					opacity: '0.35',
+  					transform: 'scale(1.1) translate(10px, -10px)',
+  				},
+  			},
+  			'glow-rose': {
+  				'0%, 100%': {
+  					opacity: '0.2',
+  					transform: 'scale(1) translate(0, 0)',
+  				},
+  				'50%': {
+  					opacity: '0.3',
+  					transform: 'scale(1.15) translate(-10px, 10px)',
+  				},
+  			},
+  			'pulse-slow': {
+  				'0%, 100%': {
+  					opacity: '0.3',
+  					transform: 'translate(-50%, -50%) scale(1)',
+  				},
+  				'50%': {
+  					opacity: '0.5',
+  					transform: 'translate(-50%, -50%) scale(1.05)',
+  				},
+  			},
+  			'float': {
+  				'0%, 100%': {
+  					transform: 'translateY(0)',
+  				},
+  				'50%': {
+  					transform: 'translateY(-20px)',
+  				},
+  			},
+  			'gradient': {
+  				'0%, 100%': {
+  					'background-position': '0% 50%',
+  				},
+  				'50%': {
+  					'background-position': '100% 50%',
+  				},
+  			},
+  		},
+  		animation: {
+  			'glow-teal': 'glow-teal 8s ease-in-out infinite',
+  			'glow-rose': 'glow-rose 10s ease-in-out infinite',
+  			'pulse-slow': 'pulse-slow 12s ease-in-out infinite',
+  			'float': 'float 6s ease-in-out infinite',
+  			'gradient': 'gradient 15s ease infinite',
+  		},
   	}
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    require("@tailwindcss/typography"),
+  ],
 }

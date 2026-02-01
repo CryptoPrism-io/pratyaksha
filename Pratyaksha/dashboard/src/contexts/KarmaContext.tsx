@@ -2,8 +2,8 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from "react";
 import { useAuth } from "./AuthContext";
 import { useEntries } from "../hooks/useEntries";
+import type { GamificationState, UnlockTier } from "../lib/gamificationStorage";
 import {
-  GamificationState,
   loadGamificationState,
   saveGamificationState,
   DEFAULT_GAMIFICATION_STATE,
@@ -19,7 +19,6 @@ import {
   isYesterday,
   getSoulMappingProgress,
   shouldAutoGiftKarma,
-  type UnlockTier,
 } from "../lib/gamificationStorage";
 import { toast } from "sonner";
 

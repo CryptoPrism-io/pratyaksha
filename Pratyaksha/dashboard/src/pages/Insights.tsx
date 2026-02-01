@@ -5,10 +5,14 @@ import { WeekOverWeekCard } from "../components/insights/WeekOverWeekCard"
 import { MonthlySummaryCard } from "../components/insights/MonthlySummaryCard"
 import { MonthlyTrendsChart } from "../components/insights/MonthlyTrendsChart"
 import { EnergyShapeLegend } from "../components/charts/EnergyShapeLegend"
+import { DemoBanner } from "../components/layout/DemoBanner"
 
 export function Insights() {
   return (
     <div className="min-h-screen dashboard-glass-bg">
+      {/* Demo Mode Banner */}
+      <DemoBanner compact />
+
       <div className="container mx-auto px-4 py-8 md:px-8">
         {/* Page Header */}
         <div className="mb-8">

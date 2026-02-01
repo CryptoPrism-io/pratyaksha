@@ -19,11 +19,11 @@ interface NodeData {
 // Extended types for d3-sankey
 type SNode = SankeyNode<NodeData, object>
 
-// Layer colors - vibrant for visibility
+// Layer colors - Teal, Rose, Amber brand palette
 const LAYER_COLORS: Record<string, string> = {
-  type: "#3b82f6",        // Blue
-  contradiction: "#f59e0b", // Amber
-  mode: "#22c55e",         // Green
+  type: "#14b8a6",         // Teal-500
+  contradiction: "#f43f5e", // Rose-500
+  mode: "#f59e0b",         // Amber-500
 }
 
 // Default fallback color

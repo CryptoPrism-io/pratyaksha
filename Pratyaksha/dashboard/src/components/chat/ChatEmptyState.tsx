@@ -30,7 +30,7 @@ export function ChatEmptyState({ onSelect, disabled }: ChatEmptyStateProps) {
 
       {/* Welcome Text */}
       <h2 className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent mb-2">
-        Hi! I'm Pratyaksha AI
+        Hi! I'm Becoming AI
       </h2>
       <p className="text-sm text-muted-foreground text-center max-w-md mb-6">
         Your personal journal companion. I can help you discover patterns,

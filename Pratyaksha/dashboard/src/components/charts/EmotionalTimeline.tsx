@@ -22,11 +22,11 @@ import { useIsMobile } from "../../hooks/useMediaQuery"
 import { ChartExplainer } from "./ChartExplainer"
 import type { EnrichedTimelineEntry } from "../../lib/transforms"
 
-// Sentiment color palette
+// Sentiment color palette - Teal, Rose, Amber
 const SENTIMENT_COLORS = {
-  positive: "#22c55e",  // Green
-  negative: "#ef4444",  // Red
-  neutral: "#6b7280",   // Gray
+  positive: "#14b8a6",  // Teal-500
+  negative: "#f43f5e",  // Rose-500
+  neutral: "#f59e0b",   // Amber-500
 }
 
 // Get dot radius based on entry length

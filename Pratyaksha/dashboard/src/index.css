@@ -281,13 +281,25 @@ h1, h2, h3, h4, h5, h6 {
 /* Scattered word hover effect for landing page */
 .scattered-word {
   opacity: 0.07 !important;
-  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    text-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: none !important;
+  text-shadow: none;
 }
 
 .scattered-word:hover {
-  opacity: 0.67 !important;
-  transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0.75 !important;
+  transition:
+    opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    text-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-shadow:
+    0 0 10px currentColor,
+    0 0 20px currentColor,
+    0 0 40px currentColor;
+  transform: scale(1.1);
 }
 
 /* Free-floating moth paths */
@@ -433,6 +445,64 @@ h1, h2, h3, h4, h5, h6 {
 
 .animate-pulse-soft {
   animation: pulse-soft 2s ease-in-out infinite;
+}
+
+/* CTA Button Pulse - subtle attention-grabbing glow */
+@keyframes cta-pulse {
+  0%, 100% {
+    box-shadow:
+      0 4px 15px rgba(20, 184, 166, 0.3),
+      0 0 0 0 rgba(20, 184, 166, 0.4);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow:
+      0 6px 25px rgba(20, 184, 166, 0.4),
+      0 0 0 8px rgba(20, 184, 166, 0);
+    transform: scale(1.02);
+  }
+}
+
+.cta-pulse {
+  animation: cta-pulse 2.5s ease-in-out infinite;
+}
+
+.cta-pulse:hover {
+  animation: none;
+  transform: scale(1.05);
+  box-shadow: 0 8px 30px rgba(20, 184, 166, 0.5);
+}
+
+/* Nav Link Underline Animation - expands from center on hover */
+.nav-link-underline {
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.nav-link-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #14b8a6, #2dd4bf);
+  border-radius: 1px;
+  transform: translateX(-50%);
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-link-underline:hover::after {
+  width: 100%;
+}
+
+.nav-link-underline:hover {
+  color: hsl(var(--foreground));
+}
+
+/* Dark mode nav underline */
+.dark .nav-link-underline::after {
+  background: linear-gradient(90deg, #2dd4bf, #5eead4);
 }
 
 /* Premium Landing Page Animations */
@@ -1563,11 +1633,21 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
   font-size: 6rem;
   line-height: 1;
-  opacity: 0.06;
+  opacity: 0.33;
   position: absolute;
   user-select: none;
   pointer-events: none;
   z-index: 0;
+  color: currentColor;
+  /* Outer shadow (drop shadow) + inner shadow simulation */
+  text-shadow:
+    /* Outer shadow - soft glow below */
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    0 8px 24px rgba(0, 0, 0, 0.1),
+    /* Inner shadow simulation - dark edge on top-left */
+    1px 1px 0 rgba(0, 0, 0, 0.08),
+    /* Light edge on bottom-right for depth */
+    -1px -1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .bg-number-sm { font-size: 4rem; }
@@ -1579,31 +1659,93 @@ h1, h2, h3, h4, h5, h6 {
 .bg-number-page { font-size: 15vw; }
 .bg-number-page-lg { font-size: 25vw; }
 
+/* Pastel gradient - teal, amber, rose blend */
+.bg-number-gradient {
+  background: linear-gradient(
+    135deg,
+    #5eead4 0%,      /* pastel teal */
+    #99f6e4 20%,     /* lighter teal */
+    #fcd34d 40%,     /* pastel amber */
+    #fde68a 60%,     /* lighter amber */
+    #fda4af 80%,     /* pastel rose */
+    #fecdd3 100%    /* lighter rose */
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  opacity: 0.33;
+  filter: drop-shadow(0 4px 12px rgba(94, 234, 212, 0.15))
+          drop-shadow(0 8px 24px rgba(253, 164, 175, 0.12));
+}
+
 .bg-number-teal {
   color: #14b8a6;
-  opacity: 0.08;
+  opacity: 0.33;
+  text-shadow:
+    0 4px 12px rgba(20, 184, 166, 0.2),
+    0 8px 24px rgba(20, 184, 166, 0.12),
+    1px 1px 0 rgba(0, 0, 0, 0.1),
+    -1px -1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .bg-number-rose {
   color: #f43f5e;
-  opacity: 0.06;
+  opacity: 0.33;
+  text-shadow:
+    0 4px 12px rgba(244, 63, 94, 0.2),
+    0 8px 24px rgba(244, 63, 94, 0.12),
+    1px 1px 0 rgba(0, 0, 0, 0.1),
+    -1px -1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .bg-number-amber {
   color: #f59e0b;
-  opacity: 0.07;
+  opacity: 0.33;
+  text-shadow:
+    0 4px 12px rgba(245, 158, 11, 0.2),
+    0 8px 24px rgba(245, 158, 11, 0.12),
+    1px 1px 0 rgba(0, 0, 0, 0.1),
+    -1px -1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* White variant with outer + inner shadow */
+.bg-number-white {
+  color: white;
+  opacity: 0.33;
+  text-shadow:
+    /* Outer shadow */
+    0 4px 16px rgba(0, 0, 0, 0.25),
+    0 8px 32px rgba(0, 0, 0, 0.15),
+    /* Inner shadow simulation */
+    1px 1px 0 rgba(0, 0, 0, 0.12),
+    -1px -1px 0 rgba(255, 255, 255, 0.2);
+  -webkit-text-stroke: 1px rgba(0, 0, 0, 0.08);
 }
 
 .dark .bg-number {
-  opacity: 0.04;
+  opacity: 0.33;
+  text-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    0 8px 24px rgba(0, 0, 0, 0.2),
+    1px 1px 0 rgba(0, 0, 0, 0.15),
+    -1px -1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .dark .bg-number-teal {
-  opacity: 0.06;
+  opacity: 0.33;
 }
 
 .dark .bg-number-rose {
-  opacity: 0.04;
+  opacity: 0.33;
+}
+
+.dark .bg-number-white {
+  opacity: 0.33;
+  text-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.4),
+    0 8px 40px rgba(0, 0, 0, 0.25),
+    1px 1px 0 rgba(0, 0, 0, 0.2),
+    -1px -1px 0 rgba(255, 255, 255, 0.08);
 }
 
 /* Text Highlight - Marker pen effect */

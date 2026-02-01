@@ -1,66 +1,67 @@
 import { Activity, TrendingUp, TrendingDown, Minus, Zap, Heart, CircleDot, Waves, RefreshCw, AlertTriangle, Shrink, Scale } from "lucide-react"
 import { cn } from "../../lib/utils"
 
-// Energy Shapes with descriptions and icons (#11 Quick Win)
+// Energy Shapes with descriptions and icons - Teal/Rose/Amber brand palette
+// Positive = Teal, Neutral = Amber, Challenge = Rose
 const ENERGY_SHAPE_CONFIG = {
   Flat: {
     icon: Minus,
-    color: "bg-slate-500/20 text-slate-600 border-slate-500/30",
+    color: "bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-500/30",
     description: "Low variation, steady state"
   },
   Heavy: {
     icon: TrendingDown,
-    color: "bg-gray-600/20 text-gray-700 border-gray-600/30",
+    color: "bg-rose-400/20 text-rose-700 dark:text-rose-400 border-rose-400/30",
     description: "Weighed down, burdened"
   },
   Chaotic: {
     icon: AlertTriangle,
-    color: "bg-red-500/20 text-red-600 border-red-500/30",
+    color: "bg-rose-500/20 text-rose-600 border-rose-500/30",
     description: "Unpredictable, scattered energy"
   },
   Rising: {
     icon: TrendingUp,
-    color: "bg-emerald-500/20 text-emerald-600 border-emerald-500/30",
+    color: "bg-teal-500/20 text-teal-600 border-teal-500/30",
     description: "Building momentum, growth"
   },
   Collapsing: {
     icon: TrendingDown,
-    color: "bg-orange-500/20 text-orange-600 border-orange-500/30",
+    color: "bg-rose-400/20 text-rose-600 border-rose-400/30",
     description: "Energy declining, depleting"
   },
   Expanding: {
     icon: Zap,
-    color: "bg-blue-500/20 text-blue-600 border-blue-500/30",
+    color: "bg-teal-400/20 text-teal-600 border-teal-400/30",
     description: "Growing outward, energized"
   },
   Contracted: {
     icon: Shrink,
-    color: "bg-purple-500/20 text-purple-600 border-purple-500/30",
+    color: "bg-rose-300/20 text-rose-600 border-rose-300/30",
     description: "Pulled inward, contained"
   },
   Uneven: {
     icon: Waves,
-    color: "bg-yellow-500/20 text-yellow-600 border-yellow-500/30",
+    color: "bg-amber-400/20 text-amber-600 border-amber-400/30",
     description: "Inconsistent, fluctuating"
   },
   Centered: {
     icon: CircleDot,
-    color: "bg-green-500/20 text-green-600 border-green-500/30",
+    color: "bg-teal-500/20 text-teal-600 border-teal-500/30",
     description: "Balanced, grounded"
   },
   Cyclical: {
     icon: RefreshCw,
-    color: "bg-cyan-500/20 text-cyan-600 border-cyan-500/30",
+    color: "bg-amber-500/20 text-amber-600 border-amber-500/30",
     description: "Repeating pattern, rhythmic"
   },
   Stabilized: {
     icon: Scale,
-    color: "bg-teal-500/20 text-teal-600 border-teal-500/30",
+    color: "bg-teal-600/20 text-teal-700 border-teal-600/30",
     description: "Steady, equilibrium reached"
   },
   Pulsing: {
     icon: Heart,
-    color: "bg-pink-500/20 text-pink-600 border-pink-500/30",
+    color: "bg-teal-300/20 text-teal-600 border-teal-300/30",
     description: "Rhythmic bursts of energy"
   },
 } as const

@@ -2,10 +2,10 @@
 import { Check, Lock, ChevronDown, Sparkles, Baby, Heart, Smile, Users, Target, Flame, User, CloudRain, Moon } from "lucide-react";
 import { useState } from "react";
 import { useKarma } from "../../contexts/KarmaContext";
+import type { UnlockTier } from "../../lib/gamificationStorage";
 import {
   SOUL_MAPPING_TOPICS,
   UNLOCK_THRESHOLDS,
-  type UnlockTier,
 } from "../../lib/gamificationStorage";
 import { cn } from "../../lib/utils";
 

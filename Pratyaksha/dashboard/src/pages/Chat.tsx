@@ -11,6 +11,7 @@ import { InsufficientKarmaDialog } from "../components/gamification/Insufficient
 import { Button } from "../components/ui/button"
 import { toast } from "sonner"
 import { cn } from "../lib/utils"
+import { DemoBanner } from "../components/layout/DemoBanner"
 
 export function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -66,7 +67,11 @@ export function Chat() {
   }
 
   return (
-    <div className="container mx-auto max-w-4xl h-[calc(100vh-4rem)] flex flex-col bg-gradient-to-b from-violet-50/30 to-transparent dark:from-violet-950/10">
+    <div className="flex flex-col h-[calc(100vh-4rem)]">
+      {/* Demo Mode Banner */}
+      <DemoBanner compact />
+
+      <div className="container mx-auto max-w-4xl flex-1 flex flex-col bg-gradient-to-b from-violet-50/30 to-transparent dark:from-violet-950/10">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b bg-background/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="flex items-center gap-3">
@@ -79,7 +84,7 @@ export function Chat() {
           </div>
           <div>
             <h1 className="text-lg font-semibold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-              Pratyaksha AI
+              Becoming AI
             </h1>
             <p className="text-xs text-muted-foreground">
               Your personal journal companion
@@ -176,6 +181,7 @@ export function Chat() {
         requiredCost="AI_CHAT_MESSAGE"
         action="AI Chat"
       />
+      </div>
     </div>
   )
 }

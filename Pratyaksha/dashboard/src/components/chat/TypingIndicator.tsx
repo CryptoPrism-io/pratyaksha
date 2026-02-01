@@ -17,7 +17,7 @@ export function TypingIndicator() {
         {/* Header */}
         <div className="flex items-center gap-2">
           <span className="text-sm font-semibold text-violet-600 dark:text-violet-400">
-            Pratyaksha AI
+            Becoming AI
           </span>
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-900/30 text-[10px] font-medium text-violet-600 dark:text-violet-400">
             <Sparkles className="h-2.5 w-2.5 animate-pulse" />

@@ -5,14 +5,7 @@ import { useStats, useEntries } from "../hooks/useEntries"
 import { useAuth } from "../contexts/AuthContext"
 import { useKarma } from "../contexts/KarmaContext"
 import { useDemoPersona, type DemoPersona } from "../contexts/DemoPersonaContext"
-import { Brain, FileText, TrendingUp, Activity, Keyboard, Plus, Gamepad2, Sword, Search, Rocket, GitBranch, Zap, BarChart3, LineChart, AlertTriangle, Hash, Lightbulb, Clock } from "lucide-react"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/ui/select"
+import { Brain, FileText, TrendingUp, Activity, Keyboard, Plus, GitBranch, Zap, BarChart3, LineChart, AlertTriangle, Hash, Clock } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
@@ -27,7 +20,6 @@ import { ThemeCloud } from "../components/charts/ThemeCloud"
 import { EnergyModeResponsive } from "../components/charts/EnergyModeResponsive"
 import { DailyRhythm } from "../components/charts/DailyRhythm"
 import { ContradictionTracker } from "../components/charts/ContradictionTracker"
-import { InsightActions } from "../components/charts/InsightActions"
 import { StreakWidget } from "../components/streak/StreakWidget"
 import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts"
 import { KeyboardShortcutsDialog } from "../components/ui/keyboard-shortcuts-dialog"
@@ -37,20 +29,13 @@ import { MobileChartCarousel } from "../components/mobile/MobileChartCarousel"
 import { useIsMobile } from "../hooks/useMediaQuery"
 import { VisionAlignmentCard } from "../components/insights/VisionAlignmentCard"
 import { PatternWarningBanner } from "../components/insights/PatternWarningBanner"
-
-// Icon map for personas
-const PERSONA_ICONS: Record<DemoPersona, React.ReactNode> = {
-  mario: <Gamepad2 className="h-4 w-4" />,
-  kratos: <Sword className="h-4 w-4" />,
-  sherlock: <Search className="h-4 w-4" />,
-  nova: <Rocket className="h-4 w-4" />,
-}
+import { DemoBanner } from "../components/layout/DemoBanner"
 
 export function Dashboard() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const { checkDailyDashboardBonus } = useKarma()
-  const { persona, personaConfig, changePersona, allPersonas } = useDemoPersona()
+  const { persona } = useDemoPersona()
   const { data: stats, isLoading } = useStats()
   const { data: entries, refetch } = useEntries()
   const [showShortcuts, setShowShortcuts] = useState(false)
@@ -71,6 +56,7 @@ export function Dashboard() {
   // Charts array for mobile carousel
   const mobileCharts = useMemo(() => [
     { id: "streak", name: "Streak", component: <StreakWidget /> },
+    { id: "vision", name: "Vision", component: <VisionAlignmentCard /> },
     { id: "flow", name: "Flow", component: <ContradictionFlow /> },
     { id: "energy", name: "Energy", component: <EnergyRadarGroup /> },
     { id: "matrix", name: "Matrix", component: <EnergyModeResponsive /> },
@@ -78,7 +64,6 @@ export function Dashboard() {
     { id: "timeline", name: "Timeline", component: <EmotionalTimeline /> },
     { id: "contradictions", name: "Conflicts", component: <ContradictionTracker /> },
     { id: "themes", name: "Themes", component: <ThemeCloud /> },
-    { id: "insights", name: "Insights", component: <InsightActions /> },
     { id: "rhythm", name: "Rhythm", component: <DailyRhythm /> },
   ], [])
 
@@ -122,43 +107,10 @@ export function Dashboard() {
   return (
     <div className="min-h-screen dashboard-glass-bg">
       {/* Screen reader only H1 */}
-      <h1 className="sr-only">Pratyaksha Dashboard - Cognitive Analytics</h1>
+      <h1 className="sr-only">Becoming Dashboard - Cognitive Analytics</h1>
 
-      {/* Demo Mode Banner */}
-      {isDemoMode && (
-        <div className={`bg-gradient-to-r ${personaConfig.bgGradient} border-b border-${personaConfig.color}-500/20 px-4 py-2.5 text-center`}>
-          <div className="flex items-center justify-center gap-2 flex-wrap">
-            <span className={`text-${personaConfig.color}-500`}>
-              {PERSONA_ICONS[persona]}
-            </span>
-            <span className="text-sm text-muted-foreground">Viewing demo journal of</span>
-            <Select value={persona} onValueChange={(value) => changePersona(value as DemoPersona)}>
-              <SelectTrigger className="w-auto h-7 px-2 py-1 text-sm font-bold border-0 bg-transparent hover:bg-muted/50 focus:ring-0 gap-1">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {allPersonas.map((p) => (
-                  <SelectItem key={p.id} value={p.id} className="text-sm">
-                    <div className="flex items-center gap-2">
-                      {PERSONA_ICONS[p.id]}
-                      <span className="font-medium">{p.name}</span>
-                      <span className="text-muted-foreground text-xs">- {p.subtitle}</span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <span className="text-sm text-muted-foreground hidden sm:inline">from {personaConfig.subtitle}</span>
-            <span className="text-muted-foreground">•</span>
-            <button
-              onClick={() => navigate("/login")}
-              className="text-sm text-primary hover:underline font-medium"
-            >
-              Sign in to start your journal
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Demo Mode Banner - guides users to sign in */}
+      <DemoBanner />
 
       {/* Onboarding Tour */}
       <OnboardingTour />
@@ -281,7 +233,11 @@ export function Dashboard() {
             <ContradictionTracker />
           </ChartCard>
 
-          {/* Row 5: Theme Tags + Insights & Actions + Daily Rhythm */}
+          {/* Row 5: Vision Alignment + Theme Tags + Daily Rhythm */}
+          <div className="col-span-1 lg:col-span-4">
+            <VisionAlignmentCard />
+          </div>
+
           <ChartCard
             data-tour="theme-tags"
             title="Theme Tags"
@@ -294,17 +250,6 @@ export function Dashboard() {
           </ChartCard>
 
           <ChartCard
-            data-tour="insights-actions"
-            title="Insights & Actions"
-            description="AI-generated recommendations"
-            tooltip="Personalized suggestions based on your recent entries. AI analyzes patterns and provides actionable next steps for growth."
-            colSpan={4}
-            icon={Lightbulb}
-          >
-            <InsightActions />
-          </ChartCard>
-
-          <ChartCard
             data-tour="daily-rhythm"
             title="Daily Rhythm"
             description="Entry patterns by time"
@@ -314,11 +259,6 @@ export function Dashboard() {
           >
             <DailyRhythm />
           </ChartCard>
-
-          {/* Row 6: Vision Alignment (shows if user has set vision/goals) */}
-          <div className="col-span-1 lg:col-span-4">
-            <VisionAlignmentCard />
-          </div>
         </DashboardGrid>
       )}
 

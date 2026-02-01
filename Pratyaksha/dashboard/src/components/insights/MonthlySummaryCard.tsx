@@ -152,7 +152,7 @@ export function MonthlySummaryCard() {
                 "flex items-center gap-1.5 px-2 py-1 rounded-full text-sm",
                 summary.dominantSentiment === "Positive" && "bg-green-500/10 text-green-600",
                 summary.dominantSentiment === "Negative" && "bg-red-500/10 text-red-600",
-                summary.dominantSentiment === "Neutral" && "bg-slate-500/10 text-slate-600"
+                summary.dominantSentiment === "Neutral" && "bg-slate-500/10 text-slate-700 dark:text-slate-400"
               )}>
                 {summary.dominantSentiment === "Positive" && <Smile className="h-4 w-4" />}
                 {summary.dominantSentiment === "Negative" && <Frown className="h-4 w-4" />}

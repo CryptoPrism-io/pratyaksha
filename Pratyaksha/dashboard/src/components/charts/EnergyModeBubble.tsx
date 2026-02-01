@@ -37,17 +37,17 @@ const ENERGY_LEVELS = [
   "High",
 ]
 
-// Color by mode category
+// Color by mode category - Teal, Rose, Amber brand palette
 const MODE_COLORS: Record<string, string> = {
-  "Hopeful": "hsl(142, 76%, 36%)",      // Green - positive
-  "Calm": "hsl(142, 60%, 45%)",
-  "Grounded": "hsl(160, 60%, 40%)",
-  "Curious": "hsl(221, 83%, 53%)",       // Blue - neutral/exploratory
-  "Reflective": "hsl(240, 60%, 55%)",
-  "Conflicted": "hsl(25, 95%, 53%)",     // Orange - challenging
-  "Agitated": "hsl(0, 72%, 51%)",        // Red - stress
-  "Overthinking": "hsl(280, 60%, 50%)",  // Purple
-  "Self-critical": "hsl(350, 70%, 45%)",
+  "Hopeful": "hsl(166, 76%, 47%)",      // Teal-500 - positive
+  "Calm": "hsl(168, 84%, 36%)",         // Teal-600
+  "Grounded": "hsl(167, 77%, 72%)",     // Teal-300
+  "Curious": "hsl(38, 92%, 50%)",       // Amber-500 - exploratory
+  "Reflective": "hsl(43, 96%, 56%)",    // Amber-400
+  "Conflicted": "hsl(48, 96%, 53%)",    // Yellow-400 (amber adjacent)
+  "Agitated": "hsl(347, 77%, 64%)",     // Rose-400 - stress
+  "Overthinking": "hsl(350, 89%, 60%)", // Rose-500
+  "Self-critical": "hsl(352, 70%, 82%)", // Rose-200
 }
 
 export function EnergyModeBubble() {

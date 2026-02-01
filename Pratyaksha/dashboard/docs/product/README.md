@@ -29,6 +29,7 @@ Ask Claude: "Run the product-manager agent to update the product analysis"
 /prioritize feature1, feature2, feature3
 ```
 
+
 ### Market Research
 ```
 /market-scan [topic]

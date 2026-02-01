@@ -1,7 +1,7 @@
 // Pratyaksha Service Worker
-const CACHE_NAME = 'pratyaksha-v1';
-const STATIC_CACHE = 'pratyaksha-static-v1';
-const DYNAMIC_CACHE = 'pratyaksha-dynamic-v1';
+const CACHE_NAME = 'becoming-v1';
+const STATIC_CACHE = 'becoming-static-v1';
+const DYNAMIC_CACHE = 'becoming-dynamic-v1';
 
 // Static assets to cache on install
 const STATIC_ASSETS = [

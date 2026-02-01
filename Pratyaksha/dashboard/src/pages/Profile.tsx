@@ -17,6 +17,7 @@ import {
   PROFESSION_OPTIONS,
   type BadgeId
 } from "@/lib/onboardingStorage"
+import { DemoBanner } from "../components/layout/DemoBanner"
 
 export function Profile() {
   const { data: entries = [] } = useEntries()
@@ -57,6 +58,8 @@ export function Profile() {
 
   return (
     <div className="min-h-screen dashboard-glass-bg">
+      {/* Demo Mode Banner */}
+      <DemoBanner compact />
 
       <div className="container mx-auto px-4 py-8 md:px-8 max-w-4xl">
         {/* Account Section */}

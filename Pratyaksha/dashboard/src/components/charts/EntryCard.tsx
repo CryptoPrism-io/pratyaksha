@@ -26,8 +26,8 @@ const ENERGY_BADGE = {
   "High": { color: "bg-emerald-500/20 text-emerald-600 border-emerald-500/30", icon: BatteryFull },
   "Elevated": { color: "bg-blue-500/20 text-blue-600 border-blue-500/30", icon: BatteryFull },
   "Scattered": { color: "bg-purple-500/20 text-purple-600 border-purple-500/30", icon: BatteryWarning },
-  "Drained": { color: "bg-gray-500/20 text-gray-600 border-gray-500/30", icon: BatteryLow },
-  "Flat": { color: "bg-slate-500/20 text-slate-600 border-slate-500/30", icon: Battery },
+  "Drained": { color: "bg-gray-500/20 text-gray-700 dark:text-gray-400 border-gray-500/30", icon: BatteryLow },
+  "Flat": { color: "bg-slate-500/20 text-slate-700 dark:text-slate-400 border-slate-500/30", icon: Battery },
   "Restorative": { color: "bg-teal-500/20 text-teal-600 border-teal-500/30", icon: BatteryMedium },
 } as const
 

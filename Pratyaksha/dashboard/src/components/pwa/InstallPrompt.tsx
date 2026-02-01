@@ -59,7 +59,7 @@ export function InstallPrompt() {
         {/* Content */}
         <div className="text-center">
           <h2 className="mb-2 text-xl font-semibold text-white">
-            Add Pratyaksha to Home Screen
+            Add Becoming to Home Screen
           </h2>
           <p className="mb-6 text-sm text-slate-300">
             Install the app for quick access, offline support, and a better experience.

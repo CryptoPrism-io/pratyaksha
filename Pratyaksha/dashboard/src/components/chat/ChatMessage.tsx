@@ -73,7 +73,7 @@ export function ChatMessage({ message, isLatest = false }: ChatMessageProps) {
             "text-sm font-semibold",
             isUser ? "text-primary" : "text-violet-600 dark:text-violet-400"
           )}>
-            {isUser ? "You" : "Pratyaksha AI"}
+            {isUser ? "You" : "Becoming AI"}
           </span>
           {!isUser && (
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-900/30 text-[10px] font-medium text-violet-600 dark:text-violet-400">

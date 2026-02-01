@@ -103,8 +103,8 @@ export function ProblemOverlay({ isVisible, onNext, transitionOpacity, isPreload
               speed={18}
               highlights={[
                 { words: ['connections'], color: '#f87171', fontClass: 'font-space' },
-                { words: ['hidden'], color: '#fbbf24', fontClass: 'font-playfair', italic: true },
-                { words: ['noise'], color: '#f97316', fontClass: 'font-syne', uppercase: true },
+                { words: ['hidden'], color: '#fbbf24', fontClass: 'font-space', italic: true },
+                { words: ['noise'], color: '#f97316', fontClass: 'font-space', uppercase: true },
               ]}
             />
           </p>

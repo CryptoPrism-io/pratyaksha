@@ -300,7 +300,7 @@ export function LogEntryForm({ onSuccess }: LogEntryFormProps) {
           // Trigger confetti for first entry or milestones
           if (isFirstEntry) {
             triggerConfetti()
-            toast.success("Welcome to Pratyaksha!", {
+            toast.success("Welcome to Becoming!", {
               description: "Your first entry has been logged. Your journey begins now!",
               duration: 5000,
             })

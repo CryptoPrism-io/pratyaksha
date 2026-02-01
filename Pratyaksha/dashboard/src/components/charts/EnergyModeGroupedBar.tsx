@@ -33,10 +33,11 @@ const ENERGY_GROUPS = {
   "High": ["Elevated", "High"],
 }
 
+// Energy colors - Teal, Rose, Amber brand palette
 const ENERGY_COLORS = {
-  "Low": "hsl(0, 72%, 51%)",      // Red
-  "Medium": "hsl(45, 93%, 47%)",   // Yellow/Amber
-  "High": "hsl(142, 76%, 36%)",    // Green
+  "Low": "hsl(347, 77%, 64%)",     // Rose-400 (low energy)
+  "Medium": "hsl(38, 92%, 50%)",   // Amber-500 (medium)
+  "High": "hsl(166, 76%, 47%)",    // Teal-500 (high energy)
 }
 
 // Custom tooltip component

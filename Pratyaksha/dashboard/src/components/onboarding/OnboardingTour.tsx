@@ -2,6 +2,7 @@ import { useEffect, useCallback } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { driver, type DriveStep, type Driver } from "driver.js"
 import "driver.js/dist/driver.css"
+import { hasCompletedFirstTimeOnboarding, loadOnboardingProfile } from "@/lib/onboardingStorage"
 
 const STORAGE_KEY = "pratyaksha-onboarding-completed"
 const TOUR_PHASE_KEY = "pratyaksha-tour-phase"
@@ -10,9 +11,9 @@ const TOUR_PHASE_KEY = "pratyaksha-tour-phase"
 const welcomeSteps: DriveStep[] = [
   {
     popover: {
-      title: "Welcome to Pratyaksha",
+      title: "Welcome to Becoming",
       description:
-        "Pratyaksha is your personal cognitive journaling companion. It helps you understand your thoughts, emotions, and mental patterns through AI-powered analysis.",
+        "Becoming is your personal cognitive journaling companion. It helps you understand your thoughts, emotions, and mental patterns through AI-powered analysis.",
       side: "over",
       align: "center",
     },
@@ -334,6 +335,23 @@ export function OnboardingTour({ forceShow, onComplete }: OnboardingTourProps) {
     const hasCompleted = localStorage.getItem(STORAGE_KEY) === "true"
     const tourPhase = localStorage.getItem(TOUR_PHASE_KEY)
 
+    // Check if first-time onboarding should run first
+    const firstTimeOnboardingCompleted = hasCompletedFirstTimeOnboarding()
+    const onboardingProfile = loadOnboardingProfile()
+
+    // If first-time onboarding hasn't been completed, don't start the tour yet
+    // The user will go through first-time onboarding first
+    if (!firstTimeOnboardingCompleted && !forceShow) {
+      return
+    }
+
+    // If user completed first-time onboarding but opted out of feature tour, skip
+    if (firstTimeOnboardingCompleted && !onboardingProfile.showFeatureTour && !forceShow) {
+      // Mark tour as completed so we don't check again
+      localStorage.setItem(STORAGE_KEY, "true")
+      return
+    }
+
     // Phase 3: Continue on Dashboard page
     if (tourPhase === "dashboard" && location.pathname === "/dashboard") {
       const timer = setTimeout(() => {
@@ -350,7 +368,7 @@ export function OnboardingTour({ forceShow, onComplete }: OnboardingTourProps) {
       return () => clearTimeout(timer)
     }
 
-    // Phase 1: Start welcome tour on Logs page (for new users)
+    // Phase 1: Start welcome tour on Logs page (for new users who completed first-time onboarding)
     if ((forceShow || !hasCompleted) && location.pathname === "/logs") {
       // Clear any stale phase
       localStorage.removeItem(TOUR_PHASE_KEY)

@@ -1,6 +1,8 @@
 import { useState } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import { Brain, LayoutDashboard, PlusCircle, GitCompareArrows, MessageSquare, User, MoreVertical, Download, BookOpen, FlaskConical } from "lucide-react"
+import { LayoutDashboard, PlusCircle, GitCompareArrows, MessageSquare, User, MoreVertical, Download, BookOpen, FlaskConical } from "lucide-react"
+import { MothLogo } from "../brand/MothLogo"
+import { BrandWordmark } from "../brand/BrandWordmark"
 import { cn } from "../../lib/utils"
 import { ThemeToggle } from "../theme-toggle"
 import { resetOnboardingTour } from "../onboarding/OnboardingTour"
@@ -56,11 +58,11 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between px-2 sm:px-4 md:px-8">
-        {/* Logo - Links to marketing website */}
-        <a href="https://pratyaksha-963362833537.asia-south1.run.app" className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-          <Brain className="h-7 w-7 sm:h-8 sm:w-8 text-primary" />
-          <span className="text-lg sm:text-xl font-semibold tracking-tight">Pratyaksha</span>
-        </a>
+        {/* Logo - Links to landing page */}
+        <Link to="/" className="flex items-center gap-2 sm:gap-3 flex-shrink-0 group">
+          <MothLogo size="md" animated />
+          <BrandWordmark size="md" variant="default" animated />
+        </Link>
 
         {/* Navigation */}
         <nav className="flex items-center gap-1 sm:gap-4 md:gap-6">

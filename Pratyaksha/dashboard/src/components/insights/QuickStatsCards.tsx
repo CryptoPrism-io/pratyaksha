@@ -74,9 +74,13 @@ function StatCard({
           <div className={cn("flex h-10 w-10 items-center justify-center rounded-lg", iconBgColor)}>
             <Icon className={cn("h-5 w-5", iconColor)} />
           </div>
-          <div>
+          <div className="min-w-0 flex-1">
             <p className="text-xs text-muted-foreground font-medium">{title}</p>
-            <p className="text-2xl font-bold tracking-tight">{value}</p>
+            <p className={cn(
+              "font-bold tracking-tight",
+              typeof value === 'number' && value >= 1000 ? "text-xl" :
+              typeof value === 'number' && value >= 100 ? "text-xl" : "text-2xl"
+            )}>{typeof value === 'number' ? value.toLocaleString() : value}</p>
             {subtitle && (
               <p className="text-xs text-muted-foreground">{subtitle}</p>
             )}
