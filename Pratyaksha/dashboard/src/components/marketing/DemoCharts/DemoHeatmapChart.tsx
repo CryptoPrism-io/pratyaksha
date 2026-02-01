@@ -1,6 +1,4 @@
 import { motion } from 'framer-motion'
-import { useTheme } from 'next-themes'
-import { useEffect, useState } from 'react'
 
 // Demo data - 7 weeks x 7 days activity heatmap
 const generateHeatmapData = () => {
@@ -27,11 +25,6 @@ interface DemoHeatmapChartProps {
 }
 
 export function DemoHeatmapChart({ animate = true }: DemoHeatmapChartProps) {
-  const { resolvedTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => setMounted(true), [])
-
   const cellSize = 12
 
   return (

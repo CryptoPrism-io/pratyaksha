@@ -33,7 +33,7 @@ import { DemoBanner } from "../components/layout/DemoBanner"
 
 export function Dashboard() {
   const navigate = useNavigate()
-  const { user } = useAuth()
+  useAuth() // For auth state
   const { checkDailyDashboardBonus } = useKarma()
   useDemoPersona()
   const { data: stats, isLoading } = useStats()

@@ -832,7 +832,7 @@ export function Landing() {
 
           {/* Additional features - smaller cards */}
           <div className="mt-8 mx-auto max-w-4xl grid gap-4 md:grid-cols-3">
-            {additionalFeatures.map((feature, index) => (
+            {additionalFeatures.map((feature) => (
               <div
                 key={feature.title}
                 className="group glass-feature-card p-5 flex items-start gap-4"

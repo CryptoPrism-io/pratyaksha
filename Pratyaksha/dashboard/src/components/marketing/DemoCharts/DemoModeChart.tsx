@@ -1,6 +1,4 @@
 import { motion } from 'framer-motion'
-import { useTheme } from 'next-themes'
-import { useEffect, useState } from 'react'
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
 
 // Demo data - realistic cognitive modes
@@ -27,11 +25,6 @@ interface DemoModeChartProps {
 }
 
 export function DemoModeChart({ animate = true }: DemoModeChartProps) {
-  const { resolvedTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => setMounted(true), [])
-
   return (
     <motion.div
       initial={animate ? { opacity: 0, scale: 0.9 } : false}
