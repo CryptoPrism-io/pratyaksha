@@ -129,7 +129,7 @@ function FreeFloatingMoth({ id, variant, startX, startY, targetX, targetY, onArr
 
   return (
     <div
-      className="fixed pointer-events-none z-[1] transition-transform"
+      className="absolute pointer-events-none transition-transform"
       style={{
         left: position.x - 8,
         top: position.y - 5 + hoverOffset,
@@ -762,18 +762,24 @@ export function HeroIntro() {
       className="relative min-h-screen flex items-center justify-center overflow-hidden"
     >
       {/* Baby moths - fly to random words and sit on them */}
-      {spawnedMoths.map((moth) => (
-        <FreeFloatingMoth
-          key={moth.id}
-          id={moth.id}
-          variant={moth.variant}
-          startX={moth.x}
-          startY={moth.y}
-          targetX={moth.targetX}
-          targetY={moth.targetY}
-          onArrived={handleMothArrived}
-        />
-      ))}
+      {/* Stays visible throughout page at subtle opacity */}
+      <div
+        className="fixed inset-0 z-[2] pointer-events-none transition-opacity duration-300"
+        style={{ opacity: Math.max(0.15, 1 - (scrollY / 600)) }}
+      >
+        {spawnedMoths.map((moth) => (
+          <FreeFloatingMoth
+            key={moth.id}
+            id={moth.id}
+            variant={moth.variant}
+            startX={moth.x}
+            startY={moth.y}
+            targetX={moth.targetX}
+            targetY={moth.targetY}
+            onArrived={handleMothArrived}
+          />
+        ))}
+      </div>
 
       {/* Background - FIXED to persist on scroll */}
       <div className="fixed inset-0 -z-10 bg-gradient-to-br from-teal-900/5 via-background to-rose-900/5 pointer-events-none" />
@@ -789,8 +795,15 @@ export function HeroIntro() {
         style={{ opacity: 0.10 }}
       />
 
-      {/* Scattered words - FIXED to stay visible on scroll, z-20 to be above section content */}
-      <div className="fixed inset-0 z-20 pointer-events-none">
+      {/* Scattered words - FIXED to stay visible on scroll, z-[1] to be BEHIND main content */}
+      {/* Fades to subtle opacity as user scrolls, but never fully disappears */}
+      <div
+        className="fixed inset-0 z-[1] pointer-events-none transition-opacity duration-300"
+        style={{
+          // Fade scattered words as user scrolls - settles at 0.15 opacity for ambient effect
+          opacity: Math.max(0.15, 1 - (scrollY / 600)),
+        }}
+      >
         {scatteredWords.map((item, index) => {
           const hasMothSitting = mothsOnWords.has(index)
           // Parallax offset - larger words move faster (feel closer)
@@ -827,7 +840,7 @@ export function HeroIntro() {
       </div>
 
       {/* PERSISTENT "Becoming" - in dark container to stand out */}
-      {/* z-30 keeps it above scattered words (z-20), pointer-events-none allows hover on words behind */}
+      {/* z-30 keeps it above scattered words (z-[1]), pointer-events-none allows hover on words behind */}
       <div className="relative z-30 flex flex-col items-center w-full pointer-events-none">
         {/* Dark container around Becoming - black bg with 0.11 opacity - FULL WIDTH edge-to-edge */}
         <div

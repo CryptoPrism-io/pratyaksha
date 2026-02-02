@@ -280,7 +280,7 @@ export function Landing() {
       {/* Sleek Navbar */}
       <nav className="fixed top-0 left-0 right-0 z-[9999] pointer-events-auto">
         <div className="mx-auto px-4 sm:px-6 py-3 sm:py-4">
-          <div className="flex items-center justify-between backdrop-blur-md bg-background/60 border border-white/10 rounded-full px-4 sm:px-6 py-2.5 sm:py-3 shadow-lg">
+          <div className="flex items-center justify-between backdrop-blur-md bg-background/30 border border-white/10 rounded-full px-4 sm:px-6 py-2.5 sm:py-3 shadow-lg">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 group">
               <Sparkles className="h-5 w-5 text-teal-500 group-hover:rotate-12 transition-transform" />
@@ -493,7 +493,7 @@ export function Landing() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-rose-500/5 rounded-full blur-3xl pointer-events-none" />
 
         <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.card-lift]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto [&_.glass-teal]:pointer-events-auto">
-          <div className="mx-auto max-w-4xl">
+          <div className="mx-auto max-w-4xl backdrop-blur-sm bg-background/30 rounded-3xl p-8 md:p-12 border border-white/5">
             {/* Opening hook */}
             <RevealOnScroll className="text-center mb-16">
               <h2 className="text-3xl font-bold tracking-tight md:text-5xl mb-6">
@@ -556,7 +556,7 @@ export function Landing() {
         <div className="absolute top-20 right-20 w-80 h-80 bg-teal-500/8 rounded-full blur-3xl pointer-events-none" />
 
         <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.card-lift]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto [&_.glass-teal]:pointer-events-auto [&_.hover-glow]:pointer-events-auto">
-          <div className="mx-auto max-w-4xl">
+          <div className="mx-auto max-w-4xl backdrop-blur-sm bg-background/30 rounded-3xl p-8 md:p-12 border border-white/5">
             <RevealOnScroll className="text-center mb-16">
               <div className="mb-4 inline-flex items-center gap-2 rounded-full glass-teal px-4 py-2 text-sm">
                 <Zap className="h-4 w-4 text-teal-500" />
@@ -607,16 +607,16 @@ export function Landing() {
         <div className="absolute bottom-10 right-1/4 w-64 h-64 bg-rose-500/8 rounded-full blur-3xl pointer-events-none" />
 
         <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.card-lift]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto [&_.card-shine]:pointer-events-auto">
-          <RevealOnScroll className="mx-auto max-w-2xl text-center mb-16">
-            <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-5xl">
-              <TextHighlight variant="teal">Four steps</TextHighlight> to becoming.
-            </h2>
-            <p className="text-lg text-muted-foreground">
-              From <TextHighlight variant="rose">drifting</TextHighlight> unconsciously to living <TextHighlight variant="teal">intentionally</TextHighlight>.
-            </p>
-          </RevealOnScroll>
+          <div className="mx-auto max-w-6xl backdrop-blur-sm bg-background/30 rounded-3xl p-8 md:p-12 border border-white/5">
+            <RevealOnScroll className="mx-auto max-w-2xl text-center mb-16">
+              <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-5xl">
+                <TextHighlight variant="teal">Four steps</TextHighlight> to becoming.
+              </h2>
+              <p className="text-lg text-muted-foreground">
+                From <TextHighlight variant="rose">drifting</TextHighlight> unconsciously to living <TextHighlight variant="teal">intentionally</TextHighlight>.
+              </p>
+            </RevealOnScroll>
 
-          <div className="mx-auto max-w-6xl">
             <div className="grid gap-6 md:grid-cols-4">
               {steps.map((step) => (
                 <div key={step.number} className="relative group">
@@ -663,7 +663,7 @@ export function Landing() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-violet-500/5 rounded-full blur-3xl pointer-events-none" />
 
         <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.card-lift]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto">
-          <div className="mx-auto max-w-4xl">
+          <div className="mx-auto max-w-4xl backdrop-blur-sm bg-background/30 rounded-3xl p-8 md:p-12 border border-white/5">
             {/* Section headline */}
             <RevealOnScroll className="text-center mb-16">
               <h2 className="text-3xl font-bold tracking-tight md:text-5xl mb-4">
@@ -732,7 +732,7 @@ export function Landing() {
         <div className="absolute top-1/3 right-0 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl pointer-events-none" />
 
         <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.card-lift]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto [&_.hover-glow]:pointer-events-auto">
-          <div className="mx-auto max-w-4xl">
+          <div className="mx-auto max-w-4xl backdrop-blur-sm bg-background/30 rounded-3xl p-8 md:p-12 border border-white/5">
             <div className="text-center mb-16">
               <h2 className="text-3xl font-bold tracking-tight md:text-5xl mb-4">
                 This is what <TextHighlight variant="teal">clarity</TextHighlight> feels like.
@@ -781,21 +781,22 @@ export function Landing() {
         <div className="absolute bottom-20 right-10 w-80 h-80 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto [&_.glass-teal]:pointer-events-auto">
-          <RevealOnScroll className="mx-auto max-w-2xl text-center mb-16">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full glass-teal px-4 py-2 text-sm">
-              <Sparkles className="h-4 w-4 text-teal-500" />
-              <span>See your patterns</span>
-            </div>
-            <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-5xl">
-              Your mind, <TextHighlight variant="teal">beautifully</TextHighlight> visualized.
-            </h2>
-            <p className="text-lg text-muted-foreground">
-              Hover over each card to preview the visualization.
-            </p>
-          </RevealOnScroll>
+          <div className="mx-auto max-w-6xl backdrop-blur-sm bg-background/30 rounded-3xl p-8 md:p-12 border border-white/5">
+            <RevealOnScroll className="mx-auto max-w-2xl text-center mb-16">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full glass-teal px-4 py-2 text-sm">
+                <Sparkles className="h-4 w-4 text-teal-500" />
+                <span>See your patterns</span>
+              </div>
+              <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-5xl">
+                Your mind, <TextHighlight variant="teal">beautifully</TextHighlight> visualized.
+              </h2>
+              <p className="text-lg text-muted-foreground">
+                Hover over each card to preview the visualization.
+              </p>
+            </RevealOnScroll>
 
-          {/* Glassmorphism feature cards with chart previews */}
-          <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-2 lg:grid-cols-3 hover-dim-siblings">
+            {/* Glassmorphism feature cards with chart previews */}
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 hover-dim-siblings">
             {productFeatures.map((feature, index) => (
               <div
                 key={feature.title}
@@ -828,10 +829,11 @@ export function Landing() {
                 )}
               </div>
             ))}
+            </div>
           </div>
 
           {/* Additional features - smaller cards */}
-          <div className="mt-8 mx-auto max-w-4xl grid gap-4 md:grid-cols-3">
+          <div className="mt-8 mx-auto max-w-4xl grid gap-4 md:grid-cols-3 backdrop-blur-sm bg-background/30 rounded-3xl p-6 border border-white/5">
             {additionalFeatures.map((feature) => (
               <div
                 key={feature.title}
@@ -852,7 +854,7 @@ export function Landing() {
           </div>
 
           {/* Dashboard Preview Teaser */}
-          <div className="mt-16 mx-auto max-w-4xl text-center">
+          <div className="mt-16 mx-auto max-w-4xl text-center backdrop-blur-sm bg-background/30 rounded-3xl p-8 border border-white/5">
             <div className="glass-teal p-8 rounded-2xl">
               <p className="text-foreground mb-6 text-lg">
                 10+ visualizations. All connected to your journal. See your transformation unfold.
@@ -881,20 +883,21 @@ export function Landing() {
         <div className="absolute bottom-10 right-20 w-72 h-72 bg-pink-500/8 rounded-full blur-3xl pointer-events-none" />
 
         <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto [&_.card-scale-glow]:pointer-events-auto [&_.glass-teal]:pointer-events-auto">
-          <div className="mx-auto max-w-2xl text-center mb-16">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full glass-teal px-4 py-2 text-sm">
-              <Compass className="h-4 w-4 text-teal-500" />
-              <span>Know yourself</span>
+          <div className="mx-auto max-w-4xl backdrop-blur-sm bg-background/30 rounded-3xl p-8 md:p-12 border border-white/5">
+            <div className="mx-auto max-w-2xl text-center mb-16">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full glass-teal px-4 py-2 text-sm">
+                <Compass className="h-4 w-4 text-teal-500" />
+                <span>Know yourself</span>
+              </div>
+              <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-5xl">
+                Go deeper than mood tracking.
+              </h2>
+              <p className="text-lg text-muted-foreground">
+                Define who you want to become. Let AI help you get there.
+              </p>
             </div>
-            <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-5xl">
-              Go deeper than mood tracking.
-            </h2>
-            <p className="text-lg text-muted-foreground">
-              Define who you want to become. Let AI help you get there.
-            </p>
-          </div>
 
-          <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-3 hover-dim-siblings">
+            <div className="grid gap-6 md:grid-cols-3 hover-dim-siblings">
             {discoveryFeatures.map((feature, index) => (
               <div
                 key={feature.title}
@@ -914,6 +917,7 @@ export function Landing() {
                 </p>
               </div>
             ))}
+            </div>
           </div>
         </div>
       </section>
@@ -928,7 +932,7 @@ export function Landing() {
 
         <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto [&_.card-lift]:pointer-events-auto [&_.glass-teal]:pointer-events-auto">
           {/* Mission Section */}
-          <div id="mission" className="mx-auto max-w-4xl mb-24">
+          <div id="mission" className="mx-auto max-w-4xl mb-24 backdrop-blur-sm bg-background/30 rounded-3xl p-8 md:p-12 border border-white/5">
             <RevealOnScroll className="text-center mb-12">
               <div className="mb-4 inline-flex items-center gap-2 rounded-full glass-teal px-4 py-2 text-sm">
                 <Target className="h-4 w-4 text-teal-500" />
@@ -965,7 +969,7 @@ export function Landing() {
           </div>
 
           {/* Team Section */}
-          <div id="team" className="mx-auto max-w-4xl mb-24">
+          <div id="team" className="mx-auto max-w-4xl mb-24 backdrop-blur-sm bg-background/30 rounded-3xl p-8 md:p-12 border border-white/5">
             <RevealOnScroll className="text-center mb-12">
               <h2 className="text-2xl font-bold tracking-tight md:text-4xl mb-4">
                 Built by people who <TextHighlight variant="rose">needed this</TextHighlight>.
@@ -990,7 +994,7 @@ export function Landing() {
           </div>
 
           {/* Contact Section */}
-          <div id="contact" className="mx-auto max-w-2xl">
+          <div id="contact" className="mx-auto max-w-2xl backdrop-blur-sm bg-background/30 rounded-3xl p-8 md:p-12 border border-white/5">
             <RevealOnScroll className="text-center">
               <h2 className="text-2xl font-bold tracking-tight md:text-3xl mb-4">
                 Get in touch
