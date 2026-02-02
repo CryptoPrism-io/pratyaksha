@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import { LayoutDashboard, PlusCircle, GitCompareArrows, MessageSquare, User, MoreVertical, Download, BookOpen, FlaskConical } from "lucide-react"
+import { LayoutDashboard, PlusCircle, GitCompareArrows, MessageSquare, User, MoreVertical, Download, BookOpen, FlaskConical, Palette } from "lucide-react"
 import { MothLogo } from "../brand/MothLogo"
 import { BrandWordmark } from "../brand/BrandWordmark"
 import { cn } from "../../lib/utils"
@@ -192,6 +192,20 @@ export function Header() {
                     >
                       <FlaskConical className="h-4 w-4" />
                       Research
+                    </Link>
+                    <div className="my-1 border-t" />
+
+                    {/* About Section */}
+                    <div className="px-3 py-1.5 text-xs font-medium text-muted-foreground">
+                      About
+                    </div>
+                    <Link
+                      to="/brand"
+                      className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-muted transition-colors"
+                      onClick={() => setShowMenu(false)}
+                    >
+                      <Palette className="h-4 w-4" />
+                      Brand Kit
                     </Link>
                   </div>
                 </>

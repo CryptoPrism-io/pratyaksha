@@ -4,12 +4,18 @@
   "description": "AI-powered cognitive journaling dashboard for self-awareness and emotional tracking",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f0f23",
-  "theme_color": "#6366f1",
+  "background_color": "#0a0f14",
+  "theme_color": "#14b8a6",
   "orientation": "portrait-primary",
   "scope": "/",
   "permissions": ["microphone"],
   "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
     {
       "src": "/icons/icon-72x72.png",
       "sizes": "72x72",
