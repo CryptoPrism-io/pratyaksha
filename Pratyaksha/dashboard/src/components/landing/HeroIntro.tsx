@@ -368,9 +368,12 @@ const sizeToPercent: Record<string, { w: number; h: number }> = {
   "text-[18px]": { w: 4.2, h: 1.6 },
 }
 
+// Device type for performance optimization
+type DeviceType = 'mobile' | 'tablet' | 'desktop'
+
 // Generate scattered word data - center-out reveal with Fibonacci sizing, no overlap
-// Mobile gets 50% fewer words for performance
-const generateScatteredWords = (isMobile: boolean = false) => {
+// Mobile: hidden, Tablet: 50 words, Desktop: 1000 words
+const generateScatteredWords = (deviceType: DeviceType = 'desktop') => {
   const words: Array<{
     id: number
     word: string
@@ -388,7 +391,8 @@ const generateScatteredWords = (isMobile: boolean = false) => {
 
   const centerX = 50
   const centerY = 50
-  const numWords = isMobile ? 200 : 1000 // 80% reduction for mobile
+  // Mobile: 0 (hidden), Tablet: 50, Desktop: 1000
+  const numWords = deviceType === 'mobile' ? 0 : deviceType === 'tablet' ? 50 : 1000
 
   // Track placed word bounding boxes
   const placedBoxes: Array<{ x: number; y: number; w: number; h: number }> = []
@@ -478,10 +482,14 @@ export function HeroIntro() {
   // Start directly in complete phase - no animation
   const [phase] = useState<"filling" | "transitioning" | "complete">("complete")
 
-  // Detect mobile for performance optimization (fewer words)
-  const isMobile = useMemo(() => {
-    if (typeof window === 'undefined') return false
-    return window.innerWidth < 768
+  // Detect device type for performance optimization
+  // Mobile: no animation, Tablet: reduced, Desktop: full
+  const deviceType = useMemo((): DeviceType => {
+    if (typeof window === 'undefined') return 'desktop'
+    const width = window.innerWidth
+    if (width < 768) return 'mobile'
+    if (width < 1024) return 'tablet'
+    return 'desktop'
   }, [])
 
   // Left-to-right reveal state
@@ -554,8 +562,8 @@ export function HeroIntro() {
   }, [])
 
   // Generate scattered words first (needed for moth targets)
-  // Mobile gets 60% fewer words for performance
-  const scatteredWords = useMemo(() => generateScatteredWords(isMobile), [isMobile])
+  // Mobile: hidden, Tablet: 50 words, Desktop: 1000 words
+  const scatteredWords = useMemo(() => generateScatteredWords(deviceType), [deviceType])
 
   // Check for collision between cursor and orbiting moth (only after animation)
   useEffect(() => {
@@ -802,48 +810,50 @@ export function HeroIntro() {
       />
 
       {/* Scattered words - FIXED to stay visible on scroll, z-[1] to be BEHIND main content */}
-      {/* Fades to subtle opacity as user scrolls, but never fully disappears */}
-      <div
-        className="fixed inset-0 z-[1] pointer-events-none transition-opacity duration-300"
-        style={{
-          // Fade scattered words as user scrolls - settles at 0.15 opacity for ambient effect
-          opacity: Math.max(0.15, 1 - (scrollY / 600)),
-        }}
-      >
-        {scatteredWords.map((item, index) => {
-          const hasMothSitting = mothsOnWords.has(index)
-          // Parallax offset - larger words move faster (feel closer)
-          const parallaxOffset = scrollY * item.parallaxFactor
+      {/* Hidden on mobile for performance, reduced on tablet */}
+      {deviceType !== 'mobile' && (
+        <div
+          className="fixed inset-0 z-[1] pointer-events-none transition-opacity duration-300"
+          style={{
+            // Fade scattered words as user scrolls - settles at 0.15 opacity for ambient effect
+            opacity: Math.max(0.15, 1 - (scrollY / 600)),
+          }}
+        >
+          {scatteredWords.map((item, index) => {
+            const hasMothSitting = mothsOnWords.has(index)
+            // Parallax offset - larger words move faster (feel closer)
+            const parallaxOffset = scrollY * item.parallaxFactor
 
-          return (
-            <div
-              key={item.id}
-              className={`absolute select-none ${item.size} ${item.font} ${item.color} ${
-                !isFlickering && !hasMothSitting ? "pointer-events-auto cursor-default scattered-word" : ""
-              }`}
-              style={{
-                left: `${item.x}%`,
-                top: `${item.y}%`,
-                transform: `rotate(${item.rotation}deg) translateX(-50%) translateY(calc(-50% - ${parallaxOffset}px))`,
-                willChange: 'transform',
-                // During reveal: smooth transition
-                ...(isFlickering && {
-                  opacity: getWordOpacity(index, item.x, item.y),
-                  transition: "opacity 0.12s cubic-bezier(0.4, 0, 0.2, 1)",
-                }),
-                // Moth sitting on word: high opacity
-                ...(!isFlickering && hasMothSitting && {
-                  opacity: 0.7,
-                  transition: "opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
-                  textShadow: "0 0 10px currentColor",
-                }),
-              }}
-            >
-              {item.word}
-            </div>
-          )
-        })}
-      </div>
+            return (
+              <div
+                key={item.id}
+                className={`absolute select-none ${item.size} ${item.font} ${item.color} ${
+                  !isFlickering && !hasMothSitting ? "pointer-events-auto cursor-default scattered-word" : ""
+                }`}
+                style={{
+                  left: `${item.x}%`,
+                  top: `${item.y}%`,
+                  transform: `rotate(${item.rotation}deg) translateX(-50%) translateY(calc(-50% - ${parallaxOffset}px))`,
+                  willChange: 'transform',
+                  // During reveal: smooth transition
+                  ...(isFlickering && {
+                    opacity: getWordOpacity(index, item.x, item.y),
+                    transition: "opacity 0.12s cubic-bezier(0.4, 0, 0.2, 1)",
+                  }),
+                  // Moth sitting on word: high opacity
+                  ...(!isFlickering && hasMothSitting && {
+                    opacity: 0.7,
+                    transition: "opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
+                    textShadow: "0 0 10px currentColor",
+                  }),
+                }}
+              >
+                {item.word}
+              </div>
+            )
+          })}
+        </div>
+      )}
 
       {/* PERSISTENT "Becoming" - in glassmorphism hero card */}
       {/* z-30 keeps it above scattered words (z-[1]), pointer-events-none allows hover on words behind */}
