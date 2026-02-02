@@ -1,5 +1,5 @@
 // Life Blueprint Guided - Deep reflection questionnaire
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Compass,
   ChevronRight,
@@ -52,6 +52,7 @@ const SECTION_ORDER: Section[] = [
 ];
 
 export function LifeBlueprintGuided({ className }: LifeBlueprintGuidedProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [blueprint, setBlueprint] = useState<LifeBlueprint>(() => loadLifeBlueprint());
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -59,6 +60,15 @@ export function LifeBlueprintGuided({ className }: LifeBlueprintGuidedProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const currentSection = SECTION_ORDER[currentSectionIndex];
+
+  // Scroll into view when expanded or section/question changes
+  useEffect(() => {
+    if (isExpanded && containerRef.current) {
+      setTimeout(() => {
+        containerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
+    }
+  }, [isExpanded, currentSectionIndex, currentQuestionIndex]);
 
   // Save blueprint changes
   useEffect(() => {
@@ -154,7 +164,7 @@ export function LifeBlueprintGuided({ className }: LifeBlueprintGuidedProps) {
     const answeredCount = blueprint.responses.length;
 
     return (
-      <div className={cn("rounded-xl glass-card overflow-hidden", className)}>
+      <div ref={containerRef} className={cn("rounded-xl glass-card overflow-hidden", className)}>
         <button
           onClick={() => setIsExpanded(true)}
           className="w-full p-6 text-left hover:bg-muted/30 transition-colors"
@@ -194,7 +204,7 @@ export function LifeBlueprintGuided({ className }: LifeBlueprintGuidedProps) {
   // Summary view
   if (currentSection.type === "summary") {
     return (
-      <div className={cn("rounded-xl glass-card p-6", className)}>
+      <div ref={containerRef} className={cn("rounded-xl glass-card p-6", className)}>
         <SummaryView
           blueprint={blueprint}
           onClose={() => setIsExpanded(false)}
@@ -206,7 +216,7 @@ export function LifeBlueprintGuided({ className }: LifeBlueprintGuidedProps) {
 
   // Main questionnaire view
   return (
-    <div className={cn("rounded-xl glass-card", className)}>
+    <div ref={containerRef} className={cn("rounded-xl glass-card", className)}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b">
         <div className="flex items-center gap-3">
