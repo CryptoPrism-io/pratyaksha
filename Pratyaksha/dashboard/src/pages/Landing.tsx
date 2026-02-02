@@ -108,7 +108,7 @@ const steps = [
   {
     number: "1",
     title: "Define",
-    description: "Who you want to become—and who you don't.",
+    description: "Set your Vision. And crucially, your Anti-Vision.",
     icon: Compass,
     color: "from-teal-500 to-cyan-500",
   },
@@ -139,30 +139,30 @@ const steps = [
 const comparison = [
   { feature: "Focus", generic: "Track mood", becoming: "Track who you're becoming" },
   { feature: "AI", generic: "1 generic pass", becoming: "9 specialized agents" },
-  { feature: "Goals", generic: "None", becoming: "Vision + Anti-Vision" },
+  { feature: "Goals", generic: "None", becoming: "Trajectory Tracking" },
   { feature: "Warnings", generic: "None", becoming: "Drift alerts" },
   { feature: "Visibility", generic: "Data sits there", becoming: "Dashboard shows patterns" },
 ]
 
-// Testimonials (success stories)
+// Testimonials (success stories) - specificity = trust
 const testimonials = [
   {
-    quote: "I finally saw who I was becoming—and it wasn't who I wanted to be. Becoming showed me the pattern before it was too late.",
+    quote: "I thought I was just tired. Becoming showed I was drifting toward burnout for six weeks. The pattern was obvious once I saw it.",
     author: "Priya",
     role: "Software Engineer",
-    highlight: "who I was becoming",
+    highlight: "drifting toward burnout",
   },
   {
-    quote: "Other apps track my mood. Becoming tracks whether I'm on track to become the person I actually want to be.",
+    quote: "Three months of entries. One dashboard view. I finally understood why I kept self-sabotaging my promotions.",
     author: "Marcus",
     role: "Entrepreneur",
-    highlight: "person I actually want to be",
+    highlight: "self-sabotaging",
   },
   {
-    quote: "The dashboard made it visual. The AI made it actionable. Now I can see my progress toward who I want to become.",
+    quote: "The contradiction chart showed Action vs Fear appearing in 73% of my work entries. That number changed everything.",
     author: "Sarah",
     role: "Product Manager",
-    highlight: "see my progress",
+    highlight: "73% of my work entries",
   },
 ]
 
@@ -178,7 +178,7 @@ const productFeatures: Array<{
   {
     icon: LayoutDashboard,
     title: "Emotional Timeline",
-    description: "See your emotional journey over time. Sentiment analysis shows highs, lows, and patterns.",
+    description: "See how your emotional balance shifts over weeks—not entries.",
     color: "from-teal-500 to-cyan-500",
     badge: "Beautiful",
     chart: DemoTimelineChart,
@@ -186,7 +186,7 @@ const productFeatures: Array<{
   {
     icon: Activity,
     title: "Energy Radar",
-    description: "Track your energy dimensions: Focus, Clarity, Drive, Calm, and Peace.",
+    description: "Track five dimensions: Focus, Clarity, Drive, Calm, Peace.",
     color: "from-violet-500 to-purple-500",
     badge: "Insightful",
     chart: DemoRadarChart,
@@ -194,7 +194,7 @@ const productFeatures: Array<{
   {
     icon: Calendar,
     title: "Activity Heatmap",
-    description: "GitHub-style consistency tracker. See your journaling patterns across weeks.",
+    description: "See your consistency patterns at a glance.",
     color: "from-emerald-500 to-green-500",
     badge: "Visual",
     chart: DemoHeatmapChart,
@@ -202,7 +202,7 @@ const productFeatures: Array<{
   {
     icon: BarChart3,
     title: "Mode Distribution",
-    description: "See the balance of your mental states: Reflective, Hopeful, Focused, Creative.",
+    description: "Know which mental states dominate your weeks.",
     color: "from-rose-500 to-pink-500",
     badge: "Clear",
     chart: DemoModeChart,
@@ -210,7 +210,7 @@ const productFeatures: Array<{
   {
     icon: GitCompare,
     title: "Contradiction Flow",
-    description: "Spot internal conflicts like Action vs Fear, Growth vs Comfort in your entries.",
+    description: "Spot internal conflicts: Action vs Fear, Growth vs Comfort.",
     color: "from-amber-500 to-orange-500",
     badge: "Unique",
     chart: DemoContradictionChart,
@@ -218,7 +218,7 @@ const productFeatures: Array<{
   {
     icon: TrendingUp,
     title: "Mood Trends",
-    description: "Watch your emotional balance shift over weeks. See your growth trajectory.",
+    description: "Watch your trajectory shift over time.",
     color: "from-blue-500 to-indigo-500",
     badge: "Deep",
     chart: DemoTrendChart,
@@ -230,21 +230,21 @@ const additionalFeatures = [
   {
     icon: Mic,
     title: "Voice Logging",
-    description: "Speak your thoughts. AI transcribes and analyzes in real-time.",
+    description: "Speak. We transcribe and analyze.",
     color: "from-rose-500 to-pink-500",
     badge: "Hands-free",
   },
   {
     icon: MessageCircle,
     title: "AI Chat",
-    description: "Conversational AI that knows your history, goals, and patterns.",
+    description: "Knows your history, goals, and patterns.",
     color: "from-teal-500 to-emerald-500",
     badge: "Context-aware",
   },
   {
     icon: Brain,
     title: "9-Agent Pipeline",
-    description: "Every entry processed by Intent, Emotion, Theme, and more agents.",
+    description: "Intent, Emotion, Theme, Contradiction, Drift.",
     color: "from-indigo-500 to-violet-500",
     badge: "Powerful",
   },
@@ -255,19 +255,19 @@ const discoveryFeatures = [
   {
     icon: Map,
     title: "Life Blueprint",
-    description: "Define your Vision, Anti-Vision, Levers, and Goals across time horizons.",
+    description: "Vision. Anti-Vision. Levers. Goals.",
     color: "from-violet-500 to-purple-500",
   },
   {
     icon: Brain,
-    title: "Soul Mapping",
-    description: "17 deep self-discovery topics across 3 depth levels.",
+    title: "Identity Architecture",
+    description: "17 topics. 3 depth levels. Know yourself.",
     color: "from-pink-500 to-rose-500",
   },
   {
     icon: AlertTriangle,
-    title: "Pattern Warnings",
-    description: "4 warning types alert you before you drift too far.",
+    title: "Drift Warnings",
+    description: "4 alert types. Before it's too late.",
     color: "from-amber-500 to-orange-500",
   },
 ]
@@ -494,13 +494,13 @@ export function Landing() {
 
         <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.card-lift]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto [&_.glass-teal]:pointer-events-auto">
           <div className="mx-auto max-w-4xl backdrop-blur-sm bg-background/30 rounded-3xl p-8 md:p-12 border border-white/5">
-            {/* Opening hook */}
+            {/* Opening hook - clear problem statement */}
             <RevealOnScroll className="text-center mb-16">
-              <h2 className="text-3xl font-bold tracking-tight md:text-5xl mb-6">
-                You're already <TextHighlight variant="rose">becoming</TextHighlight> someone.
+              <h2 className="text-3xl font-bold tracking-tight md:text-5xl heading-gradient mb-6">
+                Journaling without <TextHighlight variant="rose">visibility</TextHighlight> is just venting.
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                The question is: <span className="text-foreground font-medium">who?</span>
+                You write. You reflect. But <span className="text-foreground font-medium">nothing changes</span>—because you can't see the patterns.
               </p>
             </RevealOnScroll>
 
@@ -512,7 +512,7 @@ export function Landing() {
                 </div>
                 <h3 className="font-semibold text-lg mb-2">Writing without insight</h3>
                 <p className="text-muted-foreground text-sm">
-                  You journal, but do you actually see your patterns? Most entries disappear into the void.
+                  You journal, but do you actually see your patterns? Your insights are buried in text, never to be seen again.
                 </p>
               </div>
 
@@ -532,16 +532,20 @@ export function Landing() {
                 </div>
                 <h3 className="font-semibold text-lg mb-2">Patterns forming unseen</h3>
                 <p className="text-muted-foreground text-sm">
-                  By the time you notice, they're already habits. You're becoming someone—but who?
+                  By the time you notice, they're already habits. The trajectory was set months ago.
                 </p>
               </div>
             </div>
 
             {/* Empathy close - glass panel */}
             <div className="glass-teal p-6 rounded-2xl text-center">
-              <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-4">
                 <span className="text-foreground font-medium">We built Becoming because we lived this.</span> We journaled for years—and still felt stuck.
               </p>
+              <Link to="/research" className="cta-highlight text-foreground">
+                Read our research
+                <ChevronRight className="h-4 w-4" />
+              </Link>
             </div>
           </div>
         </div>
@@ -562,11 +566,11 @@ export function Landing() {
                 <Zap className="h-4 w-4 text-teal-500" />
                 <span>Not just another AI journal</span>
               </div>
-              <h2 className="text-3xl font-bold tracking-tight md:text-5xl mb-4">
+              <h2 className="text-3xl font-bold tracking-tight md:text-5xl heading-gradient mb-4">
                 This isn't ChatGPT with a <TextHighlight variant="gradient">journal skin</TextHighlight>.
               </h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Becoming operates with <span className="text-foreground font-semibold">10²⁴× more structured context</span> than vanilla AI.
+                Unlike chatbots that forget context, Becoming uses a <span className="text-foreground font-semibold">9-Agent Pipeline</span> to cross-reference every entry against your goals, fears, and history.
               </p>
             </RevealOnScroll>
 
@@ -588,10 +592,14 @@ export function Landing() {
 
             {/* Key insight - premium glass */}
             <div className="glass-feature-card p-6 text-center hover-glow">
-              <p className="text-lg">
+              <p className="text-lg mb-4">
                 <span className="font-semibold">The difference:</span> Generic AI gives you "take a deep breath."
                 Becoming says <span className="text-teal-600 dark:text-teal-400 font-medium">"I see you're drifting toward burnout—the thing you said you fear most."</span>
               </p>
+              <Link to="/signup" className="cta-highlight text-foreground">
+                Try it free
+                <ArrowRight className="h-4 w-4" />
+              </Link>
             </div>
           </div>
         </div>
@@ -666,7 +674,7 @@ export function Landing() {
           <div className="mx-auto max-w-4xl backdrop-blur-sm bg-background/30 rounded-3xl p-8 md:p-12 border border-white/5">
             {/* Section headline */}
             <RevealOnScroll className="text-center mb-16">
-              <h2 className="text-3xl font-bold tracking-tight md:text-5xl mb-4">
+              <h2 className="text-3xl font-bold tracking-tight md:text-5xl heading-gradient mb-4">
                 Meet your <TextHighlight variant="gradient">guide</TextHighlight>.
               </h2>
               <p className="text-lg text-muted-foreground">
@@ -708,7 +716,7 @@ export function Landing() {
                 </div>
                 <div className="glass-feature-card p-6 text-center card-lift">
                   <AnimatedStatCounter target={17} className="text-4xl font-bold text-pink-500 mb-1" />
-                  <div className="text-sm font-medium">Soul Topics</div>
+                  <div className="text-sm font-medium">Core Themes</div>
                   <div className="text-xs text-muted-foreground">Deep self-discovery</div>
                 </div>
                 <div className="glass-feature-card p-6 text-center card-lift">
@@ -734,7 +742,7 @@ export function Landing() {
         <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.card-lift]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto [&_.hover-glow]:pointer-events-auto">
           <div className="mx-auto max-w-4xl backdrop-blur-sm bg-background/30 rounded-3xl p-8 md:p-12 border border-white/5">
             <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold tracking-tight md:text-5xl mb-4">
+              <h2 className="text-3xl font-bold tracking-tight md:text-5xl heading-gradient mb-4">
                 This is what <TextHighlight variant="teal">clarity</TextHighlight> feels like.
               </h2>
               <p className="text-lg text-muted-foreground">
@@ -767,6 +775,14 @@ export function Landing() {
                 </div>
               ))}
             </div>
+
+            {/* CTA */}
+            <div className="text-center mt-10">
+              <Link to="/signup" className="cta-highlight cta-highlight-rose text-foreground">
+                Join them
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -788,7 +804,7 @@ export function Landing() {
                 <span>See your patterns</span>
               </div>
               <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-5xl">
-                Your mind, <TextHighlight variant="teal">beautifully</TextHighlight> visualized.
+                Turn your thoughts into <TextHighlight variant="teal">data</TextHighlight>.
               </h2>
               <p className="text-lg text-muted-foreground">
                 Hover over each card to preview the visualization.
@@ -918,6 +934,14 @@ export function Landing() {
               </div>
             ))}
             </div>
+
+            {/* CTA */}
+            <div className="text-center mt-10">
+              <Link to="/blog" className="cta-highlight text-foreground">
+                Read the science
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -938,7 +962,7 @@ export function Landing() {
                 <Target className="h-4 w-4 text-teal-500" />
                 <span>Our Mission</span>
               </div>
-              <h2 className="text-3xl font-bold tracking-tight md:text-5xl mb-6">
+              <h2 className="text-3xl font-bold tracking-tight md:text-5xl heading-gradient mb-6">
                 Help you become who you <TextHighlight variant="gradient">want to be</TextHighlight>.
               </h2>
             </RevealOnScroll>
@@ -966,6 +990,14 @@ export function Landing() {
                 <p className="text-sm text-muted-foreground">Stay on track toward who you want to become.</p>
               </div>
             </div>
+
+            {/* CTA */}
+            <div className="text-center mt-10">
+              <Link to="/signup" className="cta-highlight text-foreground">
+                Start your journey
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
           </div>
 
           {/* Team Section */}
@@ -989,7 +1021,11 @@ export function Landing() {
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
                 "We journaled for years and still felt stuck. We built Becoming to finally see our own patterns—and we're sharing it with you."
               </p>
-              <p className="mt-4 font-medium text-teal-600 dark:text-teal-400">— The Becoming Team</p>
+              <p className="mt-4 mb-6 font-medium text-teal-600 dark:text-teal-400">— The Becoming Team</p>
+              <Link to="/blog" className="cta-highlight cta-highlight-rose text-foreground">
+                Read our story
+                <ArrowRight className="h-4 w-4" />
+              </Link>
             </div>
           </div>
 
@@ -1099,7 +1135,7 @@ export function Landing() {
                 <li><Link to="/dashboard" className="hover:text-foreground transition-colors">Dashboard</Link></li>
                 <li><Link to="/logs" className="hover:text-foreground transition-colors">Journal</Link></li>
                 <li><Link to="/chat" className="hover:text-foreground transition-colors">AI Chat</Link></li>
-                <li><Link to="/profile" className="hover:text-foreground transition-colors">Life Blueprint</Link></li>
+                <li><Link to="/profile#life-blueprint" className="hover:text-foreground transition-colors">Life Blueprint</Link></li>
               </ul>
             </div>
 

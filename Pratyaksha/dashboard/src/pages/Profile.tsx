@@ -1,4 +1,5 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useLocation } from "react-router-dom"
 import { User, Settings, Bell, Shield, Download, Trash2, LogIn, LogOut, Compass, RotateCcw, UserCircle, MapPin, Briefcase, Brain, Target } from "lucide-react"
 import { useEntries } from "../hooks/useEntries"
 import { useStreak } from "../hooks/useStreak"
@@ -19,10 +20,26 @@ import {
 import { DemoBanner } from "../components/layout/DemoBanner"
 
 export function Profile() {
+  const location = useLocation()
   const { data: entries = [] } = useEntries()
   const { streak, entryDates } = useStreak(entries)
   const { user, loading, isConfigured, signIn, signOut } = useAuth()
   const [showOnboarding, setShowOnboarding] = useState(false)
+
+  // Scroll to hash element on page load
+  useEffect(() => {
+    if (location.hash) {
+      const id = location.hash.substring(1)
+      const element = document.getElementById(id)
+      if (element) {
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }, 100)
+      }
+    } else {
+      window.scrollTo(0, 0)
+    }
+  }, [location.hash])
 
   const onboardingProfile = loadOnboardingProfile()
   const hasCompletedOnboarding = hasCompletedFirstTimeOnboarding()
@@ -161,7 +178,9 @@ export function Profile() {
         </div>
 
         {/* Life Blueprint - Guided Reflection */}
-        <LifeBlueprintGuided className="mb-6" />
+        <div id="life-blueprint">
+          <LifeBlueprintGuided className="mb-6" />
+        </div>
 
         {/* Build Your Profile Section */}
         <div className="rounded-xl glass-card p-6 mb-6">

@@ -78,7 +78,40 @@
   background-clip: text;
 }
 
-/* Animated brand gradient - subtle */
+/* Heading gradient - white with subtle color hints */
+.heading-gradient {
+  background: linear-gradient(
+    135deg,
+    #1f2937 0%,
+    #374151 25%,
+    #115e59 50%,
+    #374151 75%,
+    #1f2937 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Dark mode: white with teal/rose/amber hints */
+.dark .heading-gradient {
+  background: linear-gradient(
+    135deg,
+    #ffffff 0%,
+    #f0fdfa 15%,
+    #ccfbf1 30%,
+    #ffffff 45%,
+    #ffe4e6 55%,
+    #fef3c7 70%,
+    #f0fdfa 85%,
+    #ffffff 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Animated brand gradient - subtle in light, vibrant in dark */
 .brand-gradient-animated {
   background: linear-gradient(
     90deg,
@@ -94,6 +127,23 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
   animation: brand-shimmer 10s ease-in-out infinite;
+}
+
+/* Dark mode: brighter, more saturated gradient */
+.dark .brand-gradient-animated {
+  background: linear-gradient(
+    90deg,
+    #2dd4bf 0%,
+    #14b8a6 20%,
+    #fb7185 50%,
+    #f43f5e 70%,
+    #14b8a6 90%,
+    #2dd4bf 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 @keyframes brand-shimmer {
@@ -1748,13 +1798,21 @@ h1, h2, h3, h4, h5, h6 {
     -1px -1px 0 rgba(255, 255, 255, 0.08);
 }
 
-/* Text Highlight - Marker pen effect */
+/* Text Highlight - Marker pen effect using ::before for proper z-index */
 .text-highlight {
   position: relative;
   display: inline;
   padding: 0.1em 0.3em;
   margin: 0 -0.1em;
+  isolation: isolate;
+}
+
+.text-highlight::before {
+  content: '';
+  position: absolute;
+  inset: 0;
   border-radius: 0.2em;
+  z-index: -1;
   background: linear-gradient(
     104deg,
     transparent 0.9%,
@@ -1764,11 +1822,9 @@ h1, h2, h3, h4, h5, h6 {
     transparent 96%,
     transparent 98%
   );
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
 }
 
-.text-highlight-rose {
+.text-highlight-rose::before {
   background: linear-gradient(
     104deg,
     transparent 0.9%,
@@ -1780,7 +1836,7 @@ h1, h2, h3, h4, h5, h6 {
   );
 }
 
-.text-highlight-amber {
+.text-highlight-amber::before {
   background: linear-gradient(
     104deg,
     transparent 0.9%,
@@ -1792,7 +1848,7 @@ h1, h2, h3, h4, h5, h6 {
   );
 }
 
-.text-highlight-gradient {
+.text-highlight-gradient::before {
   background: linear-gradient(
     104deg,
     transparent 0.9%,
@@ -1806,7 +1862,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Dark mode - slightly more visible */
-.dark .text-highlight {
+.dark .text-highlight::before {
   background: linear-gradient(
     104deg,
     transparent 0.9%,
@@ -1818,7 +1874,7 @@ h1, h2, h3, h4, h5, h6 {
   );
 }
 
-.dark .text-highlight-rose {
+.dark .text-highlight-rose::before {
   background: linear-gradient(
     104deg,
     transparent 0.9%,
@@ -1830,7 +1886,7 @@ h1, h2, h3, h4, h5, h6 {
   );
 }
 
-.dark .text-highlight-amber {
+.dark .text-highlight-amber::before {
   background: linear-gradient(
     104deg,
     transparent 0.9%,
@@ -1842,7 +1898,7 @@ h1, h2, h3, h4, h5, h6 {
   );
 }
 
-.dark .text-highlight-gradient {
+.dark .text-highlight-gradient::before {
   background: linear-gradient(
     104deg,
     transparent 0.9%,
@@ -1853,6 +1909,139 @@ h1, h2, h3, h4, h5, h6 {
     transparent 96%,
     transparent 98%
   );
+}
+
+/* CTA Link - Highlighted style like text highlights */
+.cta-highlight {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.2em 0.5em;
+  font-weight: 600;
+  color: inherit;
+  border-radius: 0.25em;
+  background: linear-gradient(
+    104deg,
+    transparent 0.9%,
+    rgba(20, 184, 166, 0.25) 2.4%,
+    rgba(20, 184, 166, 0.2) 5.8%,
+    rgba(20, 184, 166, 0.25) 93%,
+    transparent 96%,
+    transparent 98%
+  );
+  transition: all 0.2s ease;
+}
+
+.cta-highlight:hover {
+  background: linear-gradient(
+    104deg,
+    transparent 0.9%,
+    rgba(20, 184, 166, 0.4) 2.4%,
+    rgba(20, 184, 166, 0.35) 5.8%,
+    rgba(20, 184, 166, 0.4) 93%,
+    transparent 96%,
+    transparent 98%
+  );
+}
+
+.cta-highlight-rose {
+  background: linear-gradient(
+    104deg,
+    transparent 0.9%,
+    rgba(244, 63, 94, 0.25) 2.4%,
+    rgba(244, 63, 94, 0.2) 5.8%,
+    rgba(244, 63, 94, 0.25) 93%,
+    transparent 96%,
+    transparent 98%
+  );
+}
+
+.cta-highlight-rose:hover {
+  background: linear-gradient(
+    104deg,
+    transparent 0.9%,
+    rgba(244, 63, 94, 0.4) 2.4%,
+    rgba(244, 63, 94, 0.35) 5.8%,
+    rgba(244, 63, 94, 0.4) 93%,
+    transparent 96%,
+    transparent 98%
+  );
+}
+
+.dark .cta-highlight {
+  background: linear-gradient(
+    104deg,
+    transparent 0.9%,
+    rgba(20, 184, 166, 0.35) 2.4%,
+    rgba(20, 184, 166, 0.3) 5.8%,
+    rgba(20, 184, 166, 0.35) 93%,
+    transparent 96%,
+    transparent 98%
+  );
+}
+
+.dark .cta-highlight:hover {
+  background: linear-gradient(
+    104deg,
+    transparent 0.9%,
+    rgba(20, 184, 166, 0.5) 2.4%,
+    rgba(20, 184, 166, 0.45) 5.8%,
+    rgba(20, 184, 166, 0.5) 93%,
+    transparent 96%,
+    transparent 98%
+  );
+}
+
+.dark .cta-highlight-rose {
+  background: linear-gradient(
+    104deg,
+    transparent 0.9%,
+    rgba(244, 63, 94, 0.35) 2.4%,
+    rgba(244, 63, 94, 0.3) 5.8%,
+    rgba(244, 63, 94, 0.35) 93%,
+    transparent 96%,
+    transparent 98%
+  );
+}
+
+.dark .cta-highlight-rose:hover {
+  background: linear-gradient(
+    104deg,
+    transparent 0.9%,
+    rgba(244, 63, 94, 0.5) 2.4%,
+    rgba(244, 63, 94, 0.45) 5.8%,
+    rgba(244, 63, 94, 0.5) 93%,
+    transparent 96%,
+    transparent 98%
+  );
+}
+
+/* Mobile text size reduction - 50% smaller for landing */
+@media (max-width: 767px) {
+  .landing-text {
+    font-size: 0.5em;
+  }
+
+  /* Reduce landing page hero and section text */
+  .min-h-screen section h2,
+  section[id] h2 {
+    font-size: 1.25rem;
+  }
+
+  .min-h-screen section p,
+  section[id] p {
+    font-size: 0.8rem;
+  }
+
+  /* Hero tagline smaller on mobile */
+  .font-space.text-2xl {
+    font-size: 1rem;
+  }
+
+  .font-space.text-lg {
+    font-size: 0.85rem;
+  }
 }
 
 /* Vertical Text - Japanese-inspired accent */

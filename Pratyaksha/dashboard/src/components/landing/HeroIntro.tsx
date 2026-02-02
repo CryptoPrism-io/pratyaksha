@@ -369,7 +369,8 @@ const sizeToPercent: Record<string, { w: number; h: number }> = {
 }
 
 // Generate scattered word data - center-out reveal with Fibonacci sizing, no overlap
-const generateScatteredWords = () => {
+// Mobile gets 50% fewer words for performance
+const generateScatteredWords = (isMobile: boolean = false) => {
   const words: Array<{
     id: number
     word: string
@@ -387,7 +388,7 @@ const generateScatteredWords = () => {
 
   const centerX = 50
   const centerY = 50
-  const numWords = 1000
+  const numWords = isMobile ? 200 : 1000 // 80% reduction for mobile
 
   // Track placed word bounding boxes
   const placedBoxes: Array<{ x: number; y: number; w: number; h: number }> = []
@@ -476,7 +477,12 @@ const generateScatteredWords = () => {
 export function HeroIntro() {
   // Start directly in complete phase - no animation
   const [phase] = useState<"filling" | "transitioning" | "complete">("complete")
-  const [heroOpacity] = useState(1)
+
+  // Detect mobile for performance optimization (fewer words)
+  const isMobile = useMemo(() => {
+    if (typeof window === 'undefined') return false
+    return window.innerWidth < 768
+  }, [])
 
   // Left-to-right reveal state
   const [isFlickering, setIsFlickering] = useState(true)
@@ -548,7 +554,8 @@ export function HeroIntro() {
   }, [])
 
   // Generate scattered words first (needed for moth targets)
-  const scatteredWords = useMemo(() => generateScatteredWords(), [])
+  // Mobile gets 60% fewer words for performance
+  const scatteredWords = useMemo(() => generateScatteredWords(isMobile), [isMobile])
 
   // Check for collision between cursor and orbiting moth (only after animation)
   useEffect(() => {
@@ -597,7 +604,6 @@ export function HeroIntro() {
   // Outside-to-center reveal over 3 seconds with smooth easing
   const [revealProgress, setRevealProgress] = useState(0)
   const [becomingAlive, setBecomingAlive] = useState(false)
-  const [becomingOpacity] = useState(1) // Keep at 1 throughout
 
   useEffect(() => {
     if (!isFlickering) return
@@ -839,41 +845,21 @@ export function HeroIntro() {
         })}
       </div>
 
-      {/* PERSISTENT "Becoming" - in dark container to stand out */}
+      {/* PERSISTENT "Becoming" - in glassmorphism hero card */}
       {/* z-30 keeps it above scattered words (z-[1]), pointer-events-none allows hover on words behind */}
-      <div className="relative z-30 flex flex-col items-center w-full pointer-events-none">
-        {/* Dark container around Becoming - black bg with 0.11 opacity - FULL WIDTH edge-to-edge */}
-        <div
-          className="relative w-full py-10 backdrop-blur-sm border-y border-white/5 flex flex-col items-center"
-          style={{ backgroundColor: "rgba(0, 0, 0, 0.11)" }}
-        >
-          {/* Glow behind Becoming - syncs with typing */}
-          <div
-            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-20 transition-all duration-1000 ${
-              becomingAlive && becomingOpacity > 0.9 ? "animate-pulse-glow" : ""
-            }`}
-            style={{
-              opacity: becomingOpacity * 0.7,
-              filter: `blur(${60 + becomingOpacity * 20}px)`,
-              transform: `translate(-50%, -50%) scale(${0.9 + becomingOpacity * 0.2})`,
-            }}
-          >
-            <span className="font-space font-bold text-3xl sm:text-4xl md:text-5xl lg:text-7xl xl:text-8xl tracking-tight whitespace-nowrap brand-gradient-animated">
-              {typedText}
-            </span>
-          </div>
+      <div className="relative z-30 flex flex-col items-center w-full px-4 pointer-events-none">
+        <div className="relative w-full max-w-4xl backdrop-blur-sm bg-background/30 rounded-3xl p-8 md:p-12 border border-white/5 flex flex-col items-center">
+          {/* Atmospheric glow behind text - container glow, not text glow */}
+          <div className="absolute inset-x-0 top-8 h-32 blur-3xl opacity-30 bg-gradient-to-r from-teal-500/40 via-rose-500/20 to-teal-500/40 pointer-events-none" />
 
-          {/* The main Becoming text with typing effect - Darker Grotesque */}
-          {/* "B" shows during initial animation, then continues typing */}
+          {/* The main Becoming text - clean, premium, no glow */}
+          {/* Microscopic shadow for contrast lift. Let font weight + tracking + scale do the work */}
           <h1
             className={`font-space font-bold text-3xl sm:text-4xl md:text-5xl lg:text-7xl xl:text-8xl tracking-tight relative transition-transform duration-700 ${
               becomingAlive ? "lg:scale-105" : "scale-100"
             }`}
             style={{
-              opacity: becomingOpacity,
-              textShadow: becomingOpacity > 0.5
-                ? `0 0 ${40 * becomingOpacity}px rgba(20, 184, 166, ${0.4 * becomingOpacity}), 0 0 ${80 * becomingOpacity}px rgba(244, 63, 94, ${0.3 * becomingOpacity})`
-                : "none",
+              textShadow: "0 1px 2px rgba(0,0,0,0.35)",
             }}
           >
             <span className="brand-gradient-animated">
@@ -894,24 +880,16 @@ export function HeroIntro() {
             {/* Orbiting moth appears when typing is complete */}
             {becomingAlive && !showCursor && <OrbitingMoth onPositionUpdate={handleOrbitMothPosition} isFluttering={isCollisionFlutter} />}
           </h1>
-        </div>
 
-        {/* Hero content fades in */}
-        <div
-          className="flex flex-col items-center transition-all duration-700"
-          style={{
-            opacity: heroOpacity,
-            transform: `translateY(${(1 - heroOpacity) * 30}px)`,
-          }}
-        >
+          {/* Hero content - all in same glassmorphism card */}
           <div className="h-6 md:h-10" />
 
-          <p className="mb-3 text-2xl md:text-3xl lg:text-4xl text-center font-space font-medium text-foreground/90">
-            Who do you want to become?
-          </p>
+          <h2 className="mb-3 text-2xl md:text-3xl lg:text-4xl text-center font-space font-semibold heading-gradient">
+            Stop drifting. Start becoming.
+          </h2>
 
           <p className="mx-auto mb-8 max-w-3xl text-lg text-muted-foreground md:text-xl text-center px-4 leading-relaxed">
-            We're with you every step of the way—until you become who you're meant to be.
+            Most journals are just text storage. Becoming is an AI partner that tracks your trajectory, alerts you when you drift, and helps you become who you defined.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pointer-events-auto">

@@ -519,12 +519,20 @@ export function GuidedEntryForm({ onSuccess, initialPrompt }: GuidedEntryFormPro
 
   const isVoiceSupported = typeof MediaRecorder !== "undefined"
 
+  // Ref for scrolling to top of form
+  const formRef = useRef<HTMLDivElement>(null)
+
   // Start with a mode selection
   const handleSelectMode = (mode: EntryMode, isSoulMapping = false) => {
     setActiveMode(mode)
     setCurrentNudgeIndex(0)
     setText("")
     setActiveSoulMappingTopicId(isSoulMapping ? mode.id : null)
+
+    // Scroll to top of form after selection
+    setTimeout(() => {
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 50)
   }
 
   // Start recording immediately when choosing voice
@@ -642,7 +650,7 @@ export function GuidedEntryForm({ onSuccess, initialPrompt }: GuidedEntryFormPro
   // Mode Selection View (Initial State)
   if (!activeMode) {
     return (
-      <div className="space-y-4">
+      <div ref={formRef} className="space-y-4">
         {/* Quick Logging Section */}
         <div className="rounded-xl glass-card p-6">
           <div className="mb-6">
@@ -852,7 +860,7 @@ export function GuidedEntryForm({ onSuccess, initialPrompt }: GuidedEntryFormPro
   // Input Method Selection (After mode is selected)
   if (!inputMethod) {
     return (
-      <div className="rounded-xl glass-card p-6">
+      <div ref={formRef} className="rounded-xl glass-card p-6">
         {/* Header with back button */}
         <div className="flex items-center gap-3 mb-6">
           <button
@@ -918,7 +926,7 @@ export function GuidedEntryForm({ onSuccess, initialPrompt }: GuidedEntryFormPro
 
   // Active Recording/Writing View
   return (
-    <div className="rounded-xl glass-card p-6">
+    <div ref={formRef} className="rounded-xl glass-card p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
