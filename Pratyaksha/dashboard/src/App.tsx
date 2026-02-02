@@ -14,6 +14,7 @@ import { Signup } from "./pages/Signup"
 import { Blog } from "./pages/Blog"
 import { BlogPostPage } from "./pages/BlogPostPage"
 import { Research } from "./pages/Research"
+import { BrandKit } from "./pages/BrandKit"
 import { Toaster } from "./components/ui/sonner"
 import { ThemeProvider } from "./components/theme-provider"
 import { DateFilterProvider } from "./contexts/DateFilterContext"
@@ -68,6 +69,7 @@ function App() {
                   <Route path="/blog" element={<Blog />} />
                   <Route path="/blog/:slug" element={<BlogPostPage />} />
                   <Route path="/research" element={<Research />} />
+                  <Route path="/brand" element={<BrandKit />} />
                   <Route
                     path="/login"
                     element={
