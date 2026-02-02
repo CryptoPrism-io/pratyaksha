@@ -56,16 +56,16 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between px-2 sm:px-4 md:px-8">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 overflow-hidden">
+      <div className="container flex h-16 items-center justify-between px-2 sm:px-4 md:px-8 max-w-full overflow-hidden">
         {/* Logo - Links to landing page */}
-        <Link to="/" className="flex items-center gap-2 sm:gap-3 flex-shrink-0 group">
+        <Link to="/" className="flex items-center gap-2 sm:gap-3 flex-shrink-0 group min-h-[44px]">
           <MothLogo size="md" animated />
           <BrandWordmark size="md" variant="default" animated />
         </Link>
 
         {/* Navigation */}
-        <nav className="flex items-center gap-1 sm:gap-4 md:gap-6">
+        <nav className="flex items-center gap-1 sm:gap-2 md:gap-4 lg:gap-6 overflow-hidden">
           <Link
             to="/logs"
             className={cn(
@@ -106,7 +106,7 @@ export function Header() {
             <MessageSquare className="h-5 w-5" />
             <span className="hidden sm:inline">Chat</span>
           </Link>
-          <div className="ml-1 border-l pl-1 sm:ml-2 sm:pl-2 md:ml-4 md:pl-4 flex items-center gap-1 sm:gap-2">
+          <div className="ml-1 border-l pl-1 sm:ml-2 sm:pl-2 md:ml-3 md:pl-3 flex items-center gap-1 flex-shrink-0">
             <KarmaDisplay compact />
             <ThemeToggle />
             {user ? (

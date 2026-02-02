@@ -167,7 +167,10 @@ export function ChartCard({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className="hidden sm:inline-block text-muted-foreground hover:text-foreground transition-colors">
+                  <button
+                    className="hidden sm:inline-block text-muted-foreground hover:text-foreground transition-colors"
+                    aria-label="More information"
+                  >
                     <Info className="h-4 w-4" />
                   </button>
                 </TooltipTrigger>

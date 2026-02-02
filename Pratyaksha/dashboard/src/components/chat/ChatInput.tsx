@@ -82,6 +82,7 @@ export function ChatInput({ onSend, isLoading, placeholder = "Ask about your jou
         <button
           onClick={handleSubmit}
           disabled={!input.trim() || isLoading}
+          aria-label={isLoading ? "Sending message" : "Send message"}
           className={cn(
             "flex-shrink-0 h-9 w-9 rounded-xl flex items-center justify-center transition-all duration-300",
             input.trim() && !isLoading
