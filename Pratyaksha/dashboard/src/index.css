@@ -91,6 +91,9 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  /* Prevent descenders (g, y, p, q) from being clipped */
+  padding-bottom: 0.2em;
+  margin-bottom: -0.2em;
 }
 
 /* Dark mode: white with teal/rose/amber hints */
@@ -109,6 +112,9 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  /* Prevent descenders (g, y, p, q) from being clipped */
+  padding-bottom: 0.2em;
+  margin-bottom: -0.2em;
 }
 
 /* Animated brand gradient - subtle in light, vibrant in dark */
@@ -924,6 +930,11 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
+.dark .glass-light {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 /* Teal-tinted glass - Light mode */
 .glass-teal {
   background: linear-gradient(
@@ -968,6 +979,28 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid rgba(190, 18, 60, 0.25);
 }
 
+/* Violet-tinted glass */
+.glass-violet {
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.1) 0%,
+    rgba(167, 139, 250, 0.05) 100%
+  );
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+/* Violet-tinted glass - Dark mode */
+.dark .glass-violet {
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.12) 0%,
+    rgba(167, 139, 250, 0.06) 100%
+  );
+  border: 1px solid rgba(139, 92, 246, 0.25);
+}
+
 /* Premium feature card - true glass */
 /* Light mode: white glass */
 .glass-feature-card {
@@ -1010,6 +1043,7 @@ h1, h2, h3, h4, h5, h6 {
   mask-composite: exclude;
   opacity: 1;
   transition: opacity 0.4s ease;
+  pointer-events: none;
 }
 
 /* Light mode hover: white glass deepens */
@@ -1066,30 +1100,30 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* Light mode - more subtle orbs */
+/* Light mode - visible orbs */
 .floating-orb-teal {
-  background: radial-gradient(circle, rgba(13, 148, 136, 0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(13, 148, 136, 0.25) 0%, transparent 70%);
 }
 
 .floating-orb-rose {
-  background: radial-gradient(circle, rgba(190, 18, 60, 0.06) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(190, 18, 60, 0.20) 0%, transparent 70%);
 }
 
 .floating-orb-purple {
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.06) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.18) 0%, transparent 70%);
 }
 
 /* Dark mode - more visible orbs */
 .dark .floating-orb-teal {
-  background: radial-gradient(circle, rgba(13, 148, 136, 0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(13, 148, 136, 0.65) 0%, transparent 70%);
 }
 
 .dark .floating-orb-rose {
-  background: radial-gradient(circle, rgba(190, 18, 60, 0.12) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(190, 18, 60, 0.70) 0%, transparent 70%);
 }
 
 .dark .floating-orb-purple {
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.45) 0%, transparent 70%);
 }
 
 /* =====================================================
@@ -1814,6 +1848,8 @@ h1, h2, h3, h4, h5, h6 {
   padding: 0.1em 0.3em;
   margin: 0 -0.1em;
   isolation: isolate;
+  /* Override heading-gradient's transparent text fill so text is visible */
+  -webkit-text-fill-color: hsl(var(--foreground));
 }
 
 .text-highlight::before {

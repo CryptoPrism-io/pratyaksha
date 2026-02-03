@@ -10,11 +10,10 @@ interface OrbConfig {
 }
 
 const ORBS: OrbConfig[] = [
-  { size: 500, x: "5%", y: "10%", color: "teal", blur: 120, delay: 0 },
-  { size: 400, x: "75%", y: "50%", color: "rose", blur: 100, delay: 2 },
-  { size: 350, x: "55%", y: "5%", color: "purple", blur: 90, delay: 4 },
-  { size: 300, x: "15%", y: "70%", color: "rose", blur: 80, delay: 3 },
-  { size: 250, x: "85%", y: "20%", color: "teal", blur: 70, delay: 5 },
+  // Top-left: center at corner of screen
+  { size: 1000, x: "0%", y: "0%", color: "teal", blur: 60, delay: 0 },
+  // Bottom-right: center at corner of screen (larger to compensate for rose being less visible)
+  { size: 1200, x: "100%", y: "100%", color: "rose", blur: 50, delay: 2 },
 ]
 
 interface BackgroundOrbsProps {
@@ -54,6 +53,7 @@ export function BackgroundOrbs({
             height: orb.size,
             left: orb.x,
             top: orb.y,
+            transform: "translate(-50%, -50%)",
             filter: `blur(${orb.blur}px)`,
             animationDelay: `${orb.delay || 0}s`,
           }}
