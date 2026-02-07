@@ -50,14 +50,14 @@ export function DemoContradictionChart({ animate = true }: DemoContradictionChar
           <XAxis
             type="number"
             domain={[-100, 100]}
-            tick={{ fill: axisColor, fontSize: 8 }}
+            tick={{ fill: axisColor, fontSize: 11 }}
             axisLine={false}
             tickLine={false}
           />
           <YAxis
             type="category"
             dataKey="name"
-            tick={{ fill: textColor, fontSize: 9 }}
+            tick={{ fill: textColor, fontSize: 11 }}
             axisLine={false}
             tickLine={false}
             width={32}
@@ -89,7 +89,7 @@ export function DemoContradictionChart({ animate = true }: DemoContradictionChar
       </ResponsiveContainer>
 
       {/* Legend */}
-      <div className="flex justify-center gap-4 mt-1 text-[9px] text-muted-foreground">
+      <div className="flex justify-center gap-4 mt-1 text-[11px] text-muted-foreground">
         <span className="flex items-center gap-1">
           <span className="w-2 h-2 rounded-full bg-[#14b8a6]" />
           Approach

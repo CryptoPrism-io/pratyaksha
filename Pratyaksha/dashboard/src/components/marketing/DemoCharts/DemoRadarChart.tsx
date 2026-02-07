@@ -45,7 +45,7 @@ export function DemoRadarChart({ animate = true }: DemoRadarChartProps) {
           <PolarGrid stroke={gridColor} />
           <PolarAngleAxis
             dataKey="dimension"
-            tick={{ fill: textColor, fontSize: 9 }}
+            tick={{ fill: textColor, fontSize: 11 }}
           />
           <Radar
             name="Energy"

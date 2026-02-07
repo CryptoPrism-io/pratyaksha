@@ -93,23 +93,25 @@ export function MobileChartCarousel({ charts }: MobileChartCarouselProps) {
           aria-label={`Previous: ${prevChart.name}`}
         >
           <ChevronLeft className="h-4 w-4" />
-          <span className="text-[10px] truncate">{prevChart.name}</span>
+          <span className="text-xs truncate">{prevChart.name}</span>
         </button>
 
         {/* Dot indicators */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0">
           {charts.map((chart, i) => (
             <button
               key={chart.id}
               onClick={() => goTo(i)}
-              className={cn(
-                "w-1.5 h-1.5 rounded-full transition-colors",
+              className="p-2.5"
+              aria-label={`Go to ${chart.name}`}
+            >
+              <span className={cn(
+                "block w-1.5 h-1.5 rounded-full transition-colors",
                 i === currentIndex
                   ? "bg-primary"
                   : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
-              )}
-              aria-label={`Go to ${chart.name}`}
-            />
+              )} />
+            </button>
           ))}
         </div>
 
@@ -119,7 +121,7 @@ export function MobileChartCarousel({ charts }: MobileChartCarouselProps) {
           className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors min-w-[80px] justify-end"
           aria-label={`Next: ${nextChart.name}`}
         >
-          <span className="text-[10px] truncate">{nextChart.name}</span>
+          <span className="text-xs truncate">{nextChart.name}</span>
           <ChevronRight className="h-4 w-4" />
         </button>
       </div>

@@ -51,10 +51,10 @@ export function usePWAInstall() {
       setDeferredPrompt(e)
       setIsInstallable(true)
 
-      // Show the custom prompt after a short delay
+      // Show the custom prompt after user has had time to explore
       setTimeout(() => {
         setShowPrompt(true)
-      }, 3000) // Show after 3 seconds on the page
+      }, 30000) // Show after 30 seconds on the page
     }
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt)

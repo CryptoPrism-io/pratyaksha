@@ -115,21 +115,23 @@ export function StepNavbar({ currentStep, totalSteps, stepConfig, isLocked, onNa
                 {stepConfig.type === 'animation' ? '...' : JOURNEY_STEPS[currentTextStepIndex]?.label || ''}
               </motion.span>
             </AnimatePresence>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0">
               {JOURNEY_STEPS.map((_, idx) => (
                 <button
                   key={idx}
                   onClick={() => !isLocked && onNavigate(idx)}
                   disabled={isLocked}
-                  className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                  className="p-2.5"
+                  aria-label={`Go to ${JOURNEY_STEPS[idx].label}`}
+                >
+                  <span className={`block h-1.5 rounded-full transition-all duration-300 ${
                     currentTextStepIndex === idx
                       ? 'bg-white w-4'
                       : currentTextStepIndex > idx
-                        ? 'bg-white/50'
-                        : 'bg-white/20'
-                  }`}
-                  aria-label={`Go to ${JOURNEY_STEPS[idx].label}`}
-                />
+                        ? 'bg-white/50 w-1.5'
+                        : 'bg-white/20 w-1.5'
+                  }`} />
+                </button>
               ))}
             </div>
           </div>

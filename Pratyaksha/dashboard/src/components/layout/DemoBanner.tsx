@@ -44,7 +44,7 @@ export function DemoBanner({ showPersonaSelector = true, compact = false }: Demo
           <span className="text-muted-foreground">•</span>
           <button
             onClick={() => navigate("/login")}
-            className="text-primary hover:underline font-medium"
+            className="text-primary hover:underline font-medium min-h-[44px] flex items-center"
           >
             Sign in to start your journal
           </button>
@@ -54,15 +54,15 @@ export function DemoBanner({ showPersonaSelector = true, compact = false }: Demo
   }
 
   return (
-    <div className={`bg-gradient-to-r ${personaConfig.bgGradient} border-b border-${personaConfig.color}-500/20 px-4 py-2.5 text-center`}>
-      <div className="flex items-center justify-center gap-2 flex-wrap">
+    <div className={`bg-gradient-to-r ${personaConfig.bgGradient} border-b border-${personaConfig.color}-500/20 px-4 py-1 text-center`}>
+      <div className="flex items-center justify-center gap-2 flex-wrap min-h-[44px]">
         <span className={`text-${personaConfig.color}-500`}>
           {PERSONA_ICONS[persona]}
         </span>
         <span className="text-sm text-muted-foreground">Viewing demo journal of</span>
         {showPersonaSelector ? (
           <Select value={persona} onValueChange={(value) => changePersona(value as DemoPersona)}>
-            <SelectTrigger className="w-auto h-7 px-2 py-1 text-sm font-bold border-0 bg-transparent hover:bg-muted/50 focus:ring-0 gap-1">
+            <SelectTrigger className="w-auto h-9 px-2 py-1 text-sm font-bold border-0 bg-transparent hover:bg-muted/50 focus:ring-0 gap-1">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -84,7 +84,7 @@ export function DemoBanner({ showPersonaSelector = true, compact = false }: Demo
         <span className="text-muted-foreground">•</span>
         <button
           onClick={() => navigate("/login")}
-          className="text-sm text-primary hover:underline font-medium"
+          className="text-sm text-primary hover:underline font-medium min-h-[44px] flex items-center"
         >
           Sign in to start your journal
         </button>

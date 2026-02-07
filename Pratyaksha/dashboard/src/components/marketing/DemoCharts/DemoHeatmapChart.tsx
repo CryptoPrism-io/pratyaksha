@@ -37,7 +37,7 @@ export function DemoHeatmapChart({ animate = true }: DemoHeatmapChartProps) {
       {/* Day labels */}
       <div className="flex gap-[3px] mb-1 ml-4">
         {Array.from({ length: 6 }).map((_, w) => (
-          <div key={w} style={{ width: cellSize }} className="text-[8px] text-muted-foreground text-center">
+          <div key={w} style={{ width: cellSize }} className="text-[11px] text-muted-foreground text-center">
             W{w + 1}
           </div>
         ))}
@@ -51,7 +51,7 @@ export function DemoHeatmapChart({ animate = true }: DemoHeatmapChartProps) {
             <div
               key={i}
               style={{ height: cellSize }}
-              className="text-[8px] text-muted-foreground flex items-center"
+              className="text-[11px] text-muted-foreground flex items-center"
             >
               {day}
             </div>
@@ -88,7 +88,7 @@ export function DemoHeatmapChart({ animate = true }: DemoHeatmapChartProps) {
       </div>
 
       {/* Legend */}
-      <div className="flex items-center gap-1 mt-2 text-[8px] text-muted-foreground">
+      <div className="flex items-center gap-1 mt-2 text-[11px] text-muted-foreground">
         <span>Less</span>
         {[0.2, 0.4, 0.6, 0.8, 1].map((v, i) => (
           <div

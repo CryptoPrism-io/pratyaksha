@@ -59,13 +59,13 @@ export function DemoTrendChart({ animate = true }: DemoTrendChartProps) {
           <XAxis
             dataKey="week"
             stroke={axisColor}
-            fontSize={9}
+            fontSize={11}
             tickLine={false}
             axisLine={false}
           />
           <YAxis
             stroke={axisColor}
-            fontSize={8}
+            fontSize={11}
             tickLine={false}
             axisLine={false}
             tickFormatter={(v) => `${v}%`}
@@ -102,7 +102,7 @@ export function DemoTrendChart({ animate = true }: DemoTrendChartProps) {
       </ResponsiveContainer>
 
       {/* Legend */}
-      <div className="flex justify-center gap-3 mt-1 text-[9px] text-muted-foreground">
+      <div className="flex justify-center gap-3 mt-1 text-[11px] text-muted-foreground">
         <span className="flex items-center gap-1">
           <span className="w-2 h-2 rounded-full bg-[#22c55e]" />
           Positive

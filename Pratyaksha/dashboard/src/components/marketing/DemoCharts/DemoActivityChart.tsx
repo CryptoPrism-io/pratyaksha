@@ -29,7 +29,7 @@ export function DemoActivityChart({ animate = true }: DemoActivityChartProps) {
           <XAxis
             dataKey="day"
             stroke="rgba(255,255,255,0.3)"
-            fontSize={10}
+            fontSize={11}
             tickLine={false}
             axisLine={false}
           />
@@ -48,7 +48,7 @@ export function DemoActivityChart({ animate = true }: DemoActivityChartProps) {
 
       {/* Caption */}
       <div className="text-center mt-1">
-        <span className="text-[10px] text-white/40">Weekly journaling rhythm</span>
+        <span className="text-[11px] text-white/40">Weekly journaling rhythm</span>
       </div>
     </motion.div>
   )

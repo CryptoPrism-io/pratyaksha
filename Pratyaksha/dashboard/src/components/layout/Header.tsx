@@ -114,7 +114,7 @@ export function Header() {
             ) : (
               <Link
                 to="/login"
-                className="flex items-center gap-2 h-10 px-3 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm font-medium"
+                className="flex items-center gap-2 h-11 px-3 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm font-medium"
               >
                 <User className="h-4 w-4" />
                 <span className="hidden sm:inline">Sign In</span>
@@ -146,7 +146,7 @@ export function Header() {
                     </div>
                     <button
                       onClick={handleInstallClick}
-                      className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-muted transition-colors text-primary"
+                      className="flex w-full items-center gap-2 px-3 py-2.5 text-sm hover:bg-muted transition-colors min-h-[44px] text-primary"
                     >
                       <Download className="h-4 w-4" />
                       {isInstalled ? "Already Installed" : isInstallable ? "Install to Device" : "Add to Home Screen"}
@@ -159,14 +159,14 @@ export function Header() {
                     </div>
                     <button
                       onClick={handleRestartTourLogs}
-                      className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-muted transition-colors"
+                      className="flex w-full items-center gap-2 px-3 py-2.5 text-sm hover:bg-muted transition-colors min-h-[44px]"
                     >
                       <PlusCircle className="h-4 w-4" />
                       From Logs Page
                     </button>
                     <button
                       onClick={handleRestartTourDashboard}
-                      className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-muted transition-colors"
+                      className="flex w-full items-center gap-2 px-3 py-2.5 text-sm hover:bg-muted transition-colors min-h-[44px]"
                     >
                       <LayoutDashboard className="h-4 w-4" />
                       From Dashboard
@@ -179,7 +179,7 @@ export function Header() {
                     </div>
                     <Link
                       to="/blog"
-                      className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-muted transition-colors"
+                      className="flex w-full items-center gap-2 px-3 py-2.5 text-sm hover:bg-muted transition-colors min-h-[44px]"
                       onClick={() => setShowMenu(false)}
                     >
                       <BookOpen className="h-4 w-4" />
@@ -187,7 +187,7 @@ export function Header() {
                     </Link>
                     <Link
                       to="/research"
-                      className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-muted transition-colors"
+                      className="flex w-full items-center gap-2 px-3 py-2.5 text-sm hover:bg-muted transition-colors min-h-[44px]"
                       onClick={() => setShowMenu(false)}
                     >
                       <FlaskConical className="h-4 w-4" />
@@ -201,7 +201,7 @@ export function Header() {
                     </div>
                     <Link
                       to="/brand"
-                      className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-muted transition-colors"
+                      className="flex w-full items-center gap-2 px-3 py-2.5 text-sm hover:bg-muted transition-colors min-h-[44px]"
                       onClick={() => setShowMenu(false)}
                     >
                       <Palette className="h-4 w-4" />

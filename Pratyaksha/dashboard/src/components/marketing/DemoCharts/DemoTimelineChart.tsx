@@ -65,7 +65,7 @@ export function DemoTimelineChart({ animate = true }: DemoTimelineChartProps) {
           <XAxis
             dataKey="day"
             stroke={axisColor}
-            fontSize={10}
+            fontSize={11}
             tickLine={false}
             axisLine={false}
           />
@@ -73,7 +73,7 @@ export function DemoTimelineChart({ animate = true }: DemoTimelineChartProps) {
           <YAxis
             domain={[-1, 1]}
             stroke={axisColor}
-            fontSize={9}
+            fontSize={11}
             tickLine={false}
             axisLine={false}
             ticks={[1, 0, -1]}
@@ -103,7 +103,7 @@ export function DemoTimelineChart({ animate = true }: DemoTimelineChartProps) {
       </ResponsiveContainer>
 
       {/* Legend */}
-      <div className="flex justify-center gap-4 mt-1 text-[10px] text-muted-foreground">
+      <div className="flex justify-center gap-4 mt-1 text-[11px] text-muted-foreground">
         <span className="flex items-center gap-1">
           <span className="w-2 h-2 rounded-full bg-[#22c55e]" />
           Positive

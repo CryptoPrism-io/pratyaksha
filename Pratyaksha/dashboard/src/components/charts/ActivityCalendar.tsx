@@ -110,8 +110,8 @@ export function ActivityCalendar() {
           .full-width-calendar tr { width: 100% !important; display: flex !important; }
           .full-width-calendar th, .full-width-calendar td { flex: 1 !important; display: flex !important; justify-content: center !important; align-items: center !important; }
           .full-width-calendar th { padding: 0.5rem 0 !important; }
-          .full-width-calendar td { padding: 0.25rem !important; }
-          .full-width-calendar td button { width: 100% !important; aspect-ratio: 1 !important; max-width: 3rem !important; }
+          .full-width-calendar td { padding: 0.125rem !important; }
+          .full-width-calendar td button { width: 100% !important; aspect-ratio: 1 !important; max-width: 3rem !important; min-width: 2.75rem !important; min-height: 2.75rem !important; }
         `}</style>
         <Calendar
           mode="single"

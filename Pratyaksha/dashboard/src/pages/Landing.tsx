@@ -27,6 +27,7 @@ import {
   X,
 } from "lucide-react"
 import { cn } from "../lib/utils"
+import { MothLogo } from "../components/brand/MothLogo"
 import { HeroIntro } from "../components/landing/HeroIntro"
 import { BackgroundOrbs } from "../components/landing/BackgroundOrbs"
 import { DemoTimelineChart } from "../components/marketing/DemoCharts/DemoTimelineChart"
@@ -62,11 +63,12 @@ function AnimatedStatCounter({
           setHasAnimated(true)
         }
       },
-      { threshold: 0.5 }
+      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
     )
 
-    if (ref.current) observer.observe(ref.current)
-    return () => observer.disconnect()
+    const el = ref.current
+    if (el) observer.observe(el)
+    return () => { if (el) observer.unobserve(el) }
   }, [hasAnimated])
 
   useEffect(() => {
@@ -283,7 +285,7 @@ export function Landing() {
           <div className="flex items-center justify-between backdrop-blur-md bg-background/30 border border-white/10 rounded-full px-4 sm:px-6 py-2.5 sm:py-3 shadow-lg">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 group">
-              <Sparkles className="h-5 w-5 text-teal-500 group-hover:rotate-12 transition-transform" />
+              <MothLogo size="sm" animated />
               <span className="font-space font-medium text-lg tracking-tight">Becoming</span>
             </Link>
 
@@ -342,14 +344,14 @@ export function Landing() {
                     <Link to="/research" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
                       Overview
                     </Link>
-                    <Link to="/research#cognitive-patterns" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
-                      Cognitive Patterns
+                    <Link to="/research/science" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
+                      Science & Evidence
                     </Link>
-                    <Link to="/research#ai-pipeline" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
-                      AI Pipeline
+                    <Link to="/research/agents" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
+                      Agent Pipeline
                     </Link>
-                    <Link to="/research#methodology" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
-                      Methodology
+                    <Link to="/research/methodology" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
+                      CBT Methodology
                     </Link>
                   </div>
                 </div>
@@ -577,15 +579,15 @@ export function Landing() {
             {/* Comparison table - glass effect */}
             <div className="glass-feature-card overflow-hidden mb-8">
               <div className="grid grid-cols-3 bg-muted/30 backdrop-blur-sm">
-                <div className="p-4 font-medium text-sm text-muted-foreground">Feature</div>
-                <div className="p-4 font-medium text-sm text-muted-foreground text-center">Generic AI</div>
-                <div className="p-4 font-medium text-sm text-center glass-teal text-teal-600 dark:text-teal-400">Becoming</div>
+                <div className="p-2.5 sm:p-4 font-medium text-xs sm:text-sm text-muted-foreground">Feature</div>
+                <div className="p-2.5 sm:p-4 font-medium text-xs sm:text-sm text-muted-foreground text-center">Generic AI</div>
+                <div className="p-2.5 sm:p-4 font-medium text-xs sm:text-sm text-center glass-teal text-teal-600 dark:text-teal-400">Becoming</div>
               </div>
               {comparison.map((row, index) => (
                 <div key={row.feature} className={cn("grid grid-cols-3 transition-colors duration-200 hover:bg-muted/20", index % 2 === 0 ? "bg-transparent" : "bg-muted/10")}>
-                  <div className="p-4 text-sm font-medium">{row.feature}</div>
-                  <div className="p-4 text-sm text-muted-foreground text-center">{row.generic}</div>
-                  <div className="p-4 text-sm text-center font-medium bg-teal-500/5">{row.becoming}</div>
+                  <div className="p-2.5 sm:p-4 text-xs sm:text-sm font-medium">{row.feature}</div>
+                  <div className="p-2.5 sm:p-4 text-xs sm:text-sm text-muted-foreground text-center">{row.generic}</div>
+                  <div className="p-2.5 sm:p-4 text-xs sm:text-sm text-center font-medium bg-teal-500/5">{row.becoming}</div>
                 </div>
               ))}
             </div>
@@ -617,7 +619,7 @@ export function Landing() {
         <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.card-lift]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto [&_.card-shine]:pointer-events-auto">
           <div className="mx-auto max-w-6xl backdrop-blur-sm bg-background/30 rounded-3xl p-8 md:p-12 border border-white/5">
             <RevealOnScroll className="mx-auto max-w-2xl text-center mb-16">
-              <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-5xl">
+              <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-5xl heading-gradient">
                 <TextHighlight variant="teal">Four steps</TextHighlight> to becoming.
               </h2>
               <p className="text-lg text-muted-foreground">
@@ -803,7 +805,7 @@ export function Landing() {
                 <Sparkles className="h-4 w-4 text-teal-500" />
                 <span>See your patterns</span>
               </div>
-              <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-5xl">
+              <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-5xl heading-gradient">
                 Turn your thoughts into <TextHighlight variant="teal">data</TextHighlight>.
               </h2>
               <p className="text-lg text-muted-foreground">
@@ -905,7 +907,7 @@ export function Landing() {
                 <Compass className="h-4 w-4 text-teal-500" />
                 <span>Know yourself</span>
               </div>
-              <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-5xl">
+              <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-5xl heading-gradient">
                 Go deeper than mood tracking.
               </h2>
               <p className="text-lg text-muted-foreground">
@@ -1003,7 +1005,7 @@ export function Landing() {
           {/* Team Section */}
           <div id="team" className="mx-auto max-w-4xl mb-24 backdrop-blur-sm bg-background/30 rounded-3xl p-8 md:p-12 border border-white/5">
             <RevealOnScroll className="text-center mb-12">
-              <h2 className="text-2xl font-bold tracking-tight md:text-4xl mb-4">
+              <h2 className="text-2xl font-bold tracking-tight md:text-4xl mb-4 heading-gradient">
                 Built by people who <TextHighlight variant="rose">needed this</TextHighlight>.
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
@@ -1032,7 +1034,7 @@ export function Landing() {
           {/* Contact Section */}
           <div id="contact" className="mx-auto max-w-2xl backdrop-blur-sm bg-background/30 rounded-3xl p-8 md:p-12 border border-white/5">
             <RevealOnScroll className="text-center">
-              <h2 className="text-2xl font-bold tracking-tight md:text-3xl mb-4">
+              <h2 className="text-2xl font-bold tracking-tight md:text-3xl mb-4 heading-gradient">
                 Get in touch
               </h2>
               <p className="text-muted-foreground mb-8">
@@ -1087,7 +1089,7 @@ export function Landing() {
             <div className="absolute -top-20 -left-20 w-48 h-48 bg-teal-500/20 rounded-full blur-3xl floating-orb floating-orb-teal" />
             <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-rose-500/15 rounded-full blur-3xl floating-orb floating-orb-rose" />
 
-            <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-4xl relative z-10">
+            <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-4xl relative z-10 heading-gradient">
               Your patterns are already <TextHighlight variant="gradient">forming</TextHighlight>.
             </h2>
             <p className="mx-auto mb-2 max-w-xl text-xl text-muted-foreground relative z-10">
@@ -1117,7 +1119,7 @@ export function Landing() {
             {/* Brand */}
             <div className="col-span-2 md:col-span-1">
               <div className="flex items-center gap-2 mb-3">
-                <Sparkles className="h-6 w-6 text-teal-500" />
+                <MothLogo size="sm" />
                 <span className="font-semibold gradient-text">Becoming</span>
               </div>
               <p className="text-sm text-muted-foreground mb-2">
@@ -1131,30 +1133,30 @@ export function Landing() {
             {/* Product */}
             <div>
               <h4 className="font-semibold mb-3">Product</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/dashboard" className="hover:text-foreground transition-colors">Dashboard</Link></li>
-                <li><Link to="/logs" className="hover:text-foreground transition-colors">Journal</Link></li>
-                <li><Link to="/chat" className="hover:text-foreground transition-colors">AI Chat</Link></li>
-                <li><Link to="/profile#life-blueprint" className="hover:text-foreground transition-colors">Life Blueprint</Link></li>
+              <ul className="space-y-0 text-sm text-muted-foreground">
+                <li><Link to="/dashboard" className="hover:text-foreground transition-colors inline-block py-2 min-h-[44px]">Dashboard</Link></li>
+                <li><Link to="/logs" className="hover:text-foreground transition-colors inline-block py-2 min-h-[44px]">Journal</Link></li>
+                <li><Link to="/chat" className="hover:text-foreground transition-colors inline-block py-2 min-h-[44px]">AI Chat</Link></li>
+                <li><Link to="/profile#life-blueprint" className="hover:text-foreground transition-colors inline-block py-2 min-h-[44px]">Life Blueprint</Link></li>
               </ul>
             </div>
 
             {/* Resources */}
             <div>
               <h4 className="font-semibold mb-3">Resources</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
-                <li><Link to="/research" className="hover:text-foreground transition-colors">Research</Link></li>
-                <li><a href="#how-it-works" className="hover:text-foreground transition-colors">How It Works</a></li>
+              <ul className="space-y-0 text-sm text-muted-foreground">
+                <li><Link to="/blog" className="hover:text-foreground transition-colors inline-block py-2 min-h-[44px]">Blog</Link></li>
+                <li><Link to="/research" className="hover:text-foreground transition-colors inline-block py-2 min-h-[44px]">Research</Link></li>
+                <li><a href="#how-it-works" className="hover:text-foreground transition-colors inline-block py-2 min-h-[44px]">How It Works</a></li>
               </ul>
             </div>
 
             {/* Legal */}
             <div>
               <h4 className="font-semibold mb-3">Legal</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground transition-colors">Privacy</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Terms</a></li>
+              <ul className="space-y-0 text-sm text-muted-foreground">
+                <li><span className="inline-block py-2 min-h-[44px] cursor-default opacity-60" title="Coming soon">Privacy</span></li>
+                <li><span className="inline-block py-2 min-h-[44px] cursor-default opacity-60" title="Coming soon">Terms</span></li>
               </ul>
             </div>
           </div>
