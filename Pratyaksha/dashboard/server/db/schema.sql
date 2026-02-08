@@ -8,7 +8,7 @@
 
 -- Extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE EXTENSION IF NOT EXISTS "pgvector";
+CREATE EXTENSION IF NOT EXISTS "vector";
 CREATE EXTENSION IF NOT EXISTS "pg_trgm";   -- For fuzzy text search on themes/tags
 
 -- =============================================================================
@@ -467,8 +467,7 @@ CREATE TABLE pattern_warnings (
   created_at      TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_warnings_user_active ON pattern_warnings (user_id)
-  WHERE NOT dismissed OR dismiss_expires < NOW();
+CREATE INDEX idx_warnings_user_active ON pattern_warnings (user_id, dismissed);
 
 -- =============================================================================
 -- TABLE 12: offline_queue (replaces IndexedDB pratyaksha-offline)
@@ -507,7 +506,7 @@ CREATE TABLE api_usage (
 );
 
 CREATE INDEX idx_api_usage_user ON api_usage (user_id, created_at DESC);
-CREATE INDEX idx_api_usage_daily ON api_usage (user_id, DATE(created_at));
+CREATE INDEX idx_api_usage_created ON api_usage (created_at DESC);
 
 -- =============================================================================
 -- VIEWS (convenience queries)
