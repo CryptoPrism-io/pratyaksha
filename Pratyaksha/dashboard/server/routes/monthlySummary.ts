@@ -2,11 +2,10 @@
 import { Request, Response } from "express"
 import {
   fetchEntriesByDateRange,
-  findSummaryByMonth,
-  createMonthlySummaryEntry,
-  updateMonthlySummaryEntry,
-  AirtableRecord
-} from "../lib/airtable"
+  findSummaryByPeriod,
+  upsertSummary,
+  type EntryRecord,
+} from "../lib/db"
 import {
   getMonthDateRange,
   formatMonthRange,
@@ -105,37 +104,35 @@ export async function getMonthlySummary(req: Request, res: Response) {
     const regenerate = req.query.regenerate === "true"
 
     // Check for cached summary
-    const existingCached = await findSummaryByMonth(monthId)
+    const existingCached = await findSummaryByPeriod("monthly", monthId)
 
     // Return cached if not regenerating and cache exists
     if (!regenerate && existingCached) {
-      // Parse cached summary
-      const cachedEntryCount = existingCached.fields["Entry Length (Words)"] || 0
-      const cachedSentiment = (existingCached.fields["Entry Sentiment (AI)"] as Sentiment) || "Neutral"
+      const c = existingCached.data
       const response: MonthlySummaryResponse = {
         success: true,
         summary: {
           monthId,
           monthStart: formatDateISO(start),
           monthEnd: formatDateISO(end),
-          entryCount: cachedEntryCount,
-          activeDays: 0, // Not stored in simple cache
-          activeWeeks: 0, // Not stored in simple cache
-          narrative: existingCached.fields["Summary (AI)"] || null,
-          moodTrend: null, // Not stored in simple cache
-          dominantMode: existingCached.fields["Inferred Mode"] || null,
-          dominantEnergy: null,
-          dominantSentiment: cachedSentiment,
-          topThemes: existingCached.fields["Entry Theme Tags (AI)"]?.split(",").map(t => t.trim()) || [],
-          topContradiction: null,
+          entryCount: c.entryCount || 0,
+          activeDays: 0,
+          activeWeeks: 0,
+          narrative: c.narrative || null,
+          moodTrend: c.moodTrend as any || null,
+          dominantMode: c.dominantMode || null,
+          dominantEnergy: c.dominantEnergy || null,
+          dominantSentiment: (c.dominantSentiment as Sentiment) || "Neutral",
+          topThemes: c.topThemes || [],
+          topContradiction: c.topContradiction || null,
           monthlyInsight: null,
-          monthHighlight: existingCached.fields.Snapshot || null,
-          recommendations: existingCached.fields["Actionable Insights (AI)"]?.split("\n\n") || [],
-          nextMonthFocus: existingCached.fields["Next Action"] || null,
-          positiveRatio: 0,
+          monthHighlight: null,
+          recommendations: c.recommendations || [],
+          nextMonthFocus: c.nextWeekFocus || null,
+          positiveRatio: c.positiveRatio || 0,
           avgEntriesPerWeek: 0,
-          sentimentBreakdown: { positive: 0, negative: 0, neutral: 0 },
-          generatedAt: existingCached.fields.Timestamp || null,
+          sentimentBreakdown: (c.sentimentBreakdown as any) || { positive: 0, negative: 0, neutral: 0 },
+          generatedAt: c.generatedAt?.toISOString() || null,
           cached: true,
           airtableRecordId: existingCached.id,
         },
@@ -193,37 +190,28 @@ export async function getMonthlySummary(req: Request, res: Response) {
     const { output, stats } = await generateMonthlySummary(monthEntries, monthId, monthRange)
     const { dominantMode, dominantEnergy, topThemes, topContradiction } = getDominantValues(stats)
 
-    // Cache the summary in Airtable (update existing or create new)
-    let airtableRecordId: string | undefined
-    const summaryData = {
-      narrative: output.narrative,
-      recommendations: output.recommendations,
-      monthlyInsight: output.monthlyInsight,
-      monthHighlight: output.monthHighlight,
-      nextMonthFocus: output.nextMonthFocus,
-      topThemes,
-      dominantMode,
-      moodTrend: output.moodTrend,
-      entryCount: stats.entryCount,
-      activeDays: stats.activeDays,
-      activeWeeks: stats.activeWeeks,
-    }
-
+    // Cache the summary in PostgreSQL (upsert)
+    let summaryRecordId: string | undefined
     try {
-      if (existingCached) {
-        // Update existing record instead of creating duplicate
-        const updated = await updateMonthlySummaryEntry(existingCached.id, monthId, monthRange, summaryData)
-        airtableRecordId = updated.id
-        console.log(`[Monthly Summary] Updated existing summary in Airtable: ${updated.id}`)
-      } else {
-        // Create new record
-        const created = await createMonthlySummaryEntry(monthId, monthRange, summaryData)
-        airtableRecordId = created.id
-        console.log(`[Monthly Summary] Created new summary in Airtable: ${created.id}`)
-      }
+      summaryRecordId = await upsertSummary({
+        type: "monthly",
+        periodStart: formatDateISO(start),
+        periodEnd: formatDateISO(end),
+        entryCount: stats.entryCount,
+        narrative: output.narrative,
+        recommendations: output.recommendations,
+        nextWeekFocus: output.nextMonthFocus,
+        topThemes,
+        dominantMode,
+        moodTrend: output.moodTrend,
+        monthHighlight: output.monthHighlight,
+        dominantEnergy,
+        positiveRatio: stats.positiveRatio,
+        sentimentBreakdown: stats.sentimentBreakdown,
+      })
+      console.log(`[Monthly Summary] Cached summary in PostgreSQL: ${summaryRecordId}`)
     } catch (cacheError) {
       console.error("[Monthly Summary] Failed to cache summary:", cacheError)
-      // Continue without caching - still return the summary
     }
 
     // Calculate dominant sentiment from breakdown
@@ -254,7 +242,7 @@ export async function getMonthlySummary(req: Request, res: Response) {
         sentimentBreakdown: stats.sentimentBreakdown,
         generatedAt: new Date().toISOString(),
         cached: false,
-        airtableRecordId,
+        airtableRecordId: summaryRecordId,
       },
     }
 

@@ -2,11 +2,10 @@
 import { Request, Response } from "express"
 import {
   fetchEntriesByDateRange,
-  findSummaryByWeek,
-  createSummaryEntry,
-  updateSummaryEntry,
-  AirtableRecord
-} from "../lib/airtable"
+  findSummaryByPeriod,
+  upsertSummary,
+  type EntryRecord,
+} from "../lib/db"
 import {
   getWeekDateRange,
   formatWeekRange,
@@ -75,35 +74,32 @@ export async function getWeeklySummary(req: Request, res: Response) {
     const regenerate = req.query.regenerate === "true"
 
     // Check for cached summary
-    const existingCached = await findSummaryByWeek(weekId)
+    const existingCached = await findSummaryByPeriod("weekly", weekId)
 
     // Return cached if not regenerating and cache exists
     if (!regenerate && existingCached) {
-      // Parse cached summary - entryCount stored in Entry Length (Words) field
-      const cachedEntryCount = existingCached.fields["Entry Length (Words)"] || 0
-      // Get cached sentiment or default to Neutral
-      const cachedSentiment = (existingCached.fields["Entry Sentiment (AI)"] as Sentiment) || "Neutral"
+      const c = existingCached.data
       const response: WeeklySummaryResponse = {
         success: true,
         summary: {
           weekId,
           weekStart: formatDateISO(start),
           weekEnd: formatDateISO(end),
-          entryCount: cachedEntryCount,
-          narrative: existingCached.fields["Summary (AI)"] || null,
-          moodTrend: null, // Not stored in simple cache
-          dominantMode: existingCached.fields["Inferred Mode"] || null,
-          dominantEnergy: null,
-          dominantSentiment: cachedSentiment,
-          topThemes: existingCached.fields["Entry Theme Tags (AI)"]?.split(",").map(t => t.trim()) || [],
-          topContradiction: null,
-          weeklyInsight: null,
-          recommendations: existingCached.fields["Actionable Insights (AI)"]?.split("\n\n") || [],
-          nextWeekFocus: existingCached.fields["Next Action"] || null,
-          positiveRatio: 0,
-          avgEntriesPerDay: 0,
-          sentimentBreakdown: { positive: 0, negative: 0, neutral: 0 }, // Not stored in simple cache
-          generatedAt: existingCached.fields.Timestamp || null,
+          entryCount: c.entryCount || 0,
+          narrative: c.narrative || null,
+          moodTrend: c.moodTrend as any || null,
+          dominantMode: c.dominantMode || null,
+          dominantEnergy: c.dominantEnergy || null,
+          dominantSentiment: (c.dominantSentiment as Sentiment) || "Neutral",
+          topThemes: c.topThemes || [],
+          topContradiction: c.topContradiction || null,
+          weeklyInsight: c.weeklyInsight || null,
+          recommendations: c.recommendations || [],
+          nextWeekFocus: c.nextWeekFocus || null,
+          positiveRatio: c.positiveRatio || 0,
+          avgEntriesPerDay: c.avgEntriesPerDay || 0,
+          sentimentBreakdown: (c.sentimentBreakdown as any) || { positive: 0, negative: 0, neutral: 0 },
+          generatedAt: c.generatedAt?.toISOString() || null,
           cached: true,
           airtableRecordId: existingCached.id,
         },
@@ -158,34 +154,29 @@ export async function getWeeklySummary(req: Request, res: Response) {
     const { output, stats } = await generateWeeklySummary(weekEntries, weekId, weekRange)
     const { dominantMode, dominantEnergy, topThemes, topContradiction } = getDominantValues(stats)
 
-    // Cache the summary in Airtable (update existing or create new)
-    let airtableRecordId: string | undefined
-    const summaryData = {
-      narrative: output.narrative,
-      recommendations: output.recommendations,
-      weeklyInsight: output.weeklyInsight,
-      nextWeekFocus: output.nextWeekFocus,
-      topThemes,
-      dominantMode,
-      moodTrend: output.moodTrend,
-      entryCount: stats.entryCount,
-    }
-
+    // Cache the summary in PostgreSQL (upsert)
+    let summaryRecordId: string | undefined
     try {
-      if (existingCached) {
-        // Update existing record instead of creating duplicate
-        const updated = await updateSummaryEntry(existingCached.id, weekId, weekRange, summaryData)
-        airtableRecordId = updated.id
-        console.log(`[Weekly Summary] Updated existing summary in Airtable: ${updated.id}`)
-      } else {
-        // Create new record
-        const created = await createSummaryEntry(weekId, weekRange, summaryData)
-        airtableRecordId = created.id
-        console.log(`[Weekly Summary] Created new summary in Airtable: ${created.id}`)
-      }
+      summaryRecordId = await upsertSummary({
+        type: "weekly",
+        periodStart: formatDateISO(start),
+        periodEnd: formatDateISO(end),
+        entryCount: stats.entryCount,
+        narrative: output.narrative,
+        recommendations: output.recommendations,
+        nextWeekFocus: output.nextWeekFocus,
+        topThemes,
+        dominantMode,
+        moodTrend: output.moodTrend,
+        weeklyInsight: output.weeklyInsight,
+        dominantEnergy,
+        positiveRatio: stats.positiveRatio,
+        avgEntriesPerDay: stats.avgEntriesPerDay,
+        sentimentBreakdown: stats.sentimentBreakdown,
+      })
+      console.log(`[Weekly Summary] Cached summary in PostgreSQL: ${summaryRecordId}`)
     } catch (cacheError) {
       console.error("[Weekly Summary] Failed to cache summary:", cacheError)
-      // Continue without caching - still return the summary
     }
 
     // Calculate dominant sentiment from breakdown
@@ -213,7 +204,7 @@ export async function getWeeklySummary(req: Request, res: Response) {
         sentimentBreakdown: stats.sentimentBreakdown,
         generatedAt: new Date().toISOString(),
         cached: false,
-        airtableRecordId,
+        airtableRecordId: summaryRecordId,
       },
     }
 

@@ -1,7 +1,7 @@
 // Monthly Summary Agent - Generates insights from a month's journal entries
 import { callOpenRouter, MODELS } from "../lib/openrouter"
 import { MoodTrend, MOOD_TRENDS } from "../types"
-import { AirtableRecord } from "../lib/airtable"
+import { type EntryRecord } from "../lib/db"
 
 export interface MonthlyAgentOutput {
   narrative: string
@@ -52,7 +52,7 @@ interface EntrySnapshot {
   contradiction: string | null
 }
 
-function prepareEntrySnapshots(records: AirtableRecord[]): EntrySnapshot[] {
+function prepareEntrySnapshots(records: EntryRecord[]): EntrySnapshot[] {
   return records.map((record) => ({
     date: record.fields.Date || "",
     name: record.fields.Name || "Untitled",
@@ -73,7 +73,7 @@ function getWeekNumber(date: Date): number {
   return 1 + Math.round(((d.getTime() - week1.getTime()) / 86400000 - 3 + ((week1.getDay() + 6) % 7)) / 7)
 }
 
-function calculateStats(records: AirtableRecord[]): MonthlySummaryStats {
+function calculateStats(records: EntryRecord[]): MonthlySummaryStats {
   const entryCount = records.length
 
   // Mode distribution
@@ -153,7 +153,7 @@ function calculateStats(records: AirtableRecord[]): MonthlySummaryStats {
 }
 
 export async function generateMonthlySummary(
-  records: AirtableRecord[],
+  records: EntryRecord[],
   monthId: string,
   monthRange: string
 ): Promise<{ output: MonthlyAgentOutput; stats: MonthlySummaryStats }> {

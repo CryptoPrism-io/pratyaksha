@@ -1,7 +1,7 @@
 // Daily Summary Agent - Generates insights from a single day's journal entries
 import { callOpenRouter, MODELS } from "../lib/openrouter"
 import { DailyAgentOutput, MOOD_TRENDS, MoodTrend } from "../types"
-import { AirtableRecord } from "../lib/airtable"
+import { type EntryRecord } from "../lib/db"
 
 const SYSTEM_PROMPT = `You are an insightful daily journal analyst who synthesizes patterns from a day's journal entries to provide meaningful insights.
 
@@ -24,7 +24,7 @@ interface EntrySnapshot {
   themes: string[]
 }
 
-function prepareEntrySnapshots(records: AirtableRecord[]): EntrySnapshot[] {
+function prepareEntrySnapshots(records: EntryRecord[]): EntrySnapshot[] {
   return records.map((record) => ({
     time: record.fields.Timestamp
       ? new Date(record.fields.Timestamp).toLocaleTimeString("en-US", {
@@ -51,7 +51,7 @@ interface DailyStats {
   allThemes: string[]
 }
 
-function calculateDailyStats(records: AirtableRecord[]): DailyStats {
+function calculateDailyStats(records: EntryRecord[]): DailyStats {
   const entryCount = records.length
 
   // Mode distribution
@@ -105,7 +105,7 @@ function calculateDailyStats(records: AirtableRecord[]): DailyStats {
 }
 
 export async function generateDailySummary(
-  records: AirtableRecord[],
+  records: EntryRecord[],
   dateStr: string
 ): Promise<{ output: DailyAgentOutput; stats: DailyStats }> {
   const entries = prepareEntrySnapshots(records)

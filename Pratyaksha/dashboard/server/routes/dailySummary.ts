@@ -1,6 +1,6 @@
 // Daily Summary API Route
 import { Request, Response } from "express"
-import { fetchEntriesByDateRange } from "../lib/airtable"
+import { fetchEntriesByDateRange } from "../lib/db"
 import { generateDailySummary } from "../agents/dailyAgent"
 import { DailySummaryResponse } from "../types"
 

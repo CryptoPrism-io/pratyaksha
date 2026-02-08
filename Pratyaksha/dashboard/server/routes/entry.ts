@@ -5,7 +5,7 @@ import { analyzeEmotion } from "../agents/emotionAgent"
 import { extractThemes } from "../agents/themeAgent"
 import { generateInsights } from "../agents/insightAgent"
 import { analyzeForDecomposition } from "../agents/decompositionAgent"
-import { createAirtableEntry, updateAirtableEntry, AirtableEntryFields } from "../lib/airtable"
+import { createEntry as dbCreateEntry, updateEntry as dbUpdateEntry, type EntryRecord } from "../lib/db"
 import {
   ProcessEntryRequest,
   ProcessEntryResponse,
@@ -102,37 +102,33 @@ export async function processEntry(
       }
     }
 
-    // Combine all fields for the parent/main Airtable entry
-    const entryFields: AirtableEntryFields = {
-      Name: intent.name,
-      Type: finalType,
-      Date: dateStr,
-      Timestamp: timestampStr,
-      Text: trimmedText,
-      User_ID: userId,
-      "Inferred Mode": emotion.inferredMode,
-      "Inferred Energy": emotion.inferredEnergy,
-      "Energy Shape": emotion.energyShape,
-      Contradiction: themes.contradiction || undefined,
-      Snapshot: intent.snapshot,
-      Loops: themes.loops || undefined,
-      "Next Action": insights.nextAction,
-      "Meta Flag": "Web App",
-      "Is Summary?": false,
-      "Summary (AI)": insights.summaryAI,
-      "Actionable Insights (AI)": insights.actionableInsightsAI,
-      "Entry Sentiment (AI)": emotion.sentimentAI,
-      "Entry Theme Tags (AI)": themes.themeTagsAI.join(", "),
-      "Entry Length (Words)": wordCount,
-      // NOTE: Decomposition fields disabled until Airtable schema is updated
-      // "Entry Format": finalFormat,
-      // "Is Decomposed?": isDecomposed,
-      // "Decomposition Count": isDecomposed ? decomposition!.eventCount : undefined,
-      // "Overarching Theme": decomposition?.overarchingTheme || undefined,
-    }
-
-    console.log("[Entry] Pushing parent entry to Airtable...")
-    const parentRecord = await createAirtableEntry(entryFields)
+    // Build entry fields for PostgreSQL
+    console.log("[Entry] Pushing parent entry to PostgreSQL...")
+    const parentRecord = await dbCreateEntry({
+      userId: userId || "",
+      text: trimmedText,
+      name: intent.name,
+      type: finalType,
+      format: finalFormat,
+      date: dateStr,
+      snapshot: intent.snapshot,
+      inferredMode: emotion.inferredMode,
+      inferredEnergy: emotion.inferredEnergy,
+      energyShape: emotion.energyShape,
+      sentiment: emotion.sentimentAI,
+      contradiction: themes.contradiction || undefined,
+      themeTags: themes.themeTagsAI,
+      loops: themes.loops || undefined,
+      summaryAi: insights.summaryAI,
+      actionableInsightsAi: insights.actionableInsightsAI,
+      nextAction: insights.nextAction,
+      entryLengthWords: wordCount,
+      metaFlag: "Web App",
+      isSummary: false,
+      isDecomposed,
+      decompositionCount: isDecomposed ? decomposition!.eventCount : 0,
+      overarchingTheme: decomposition?.overarchingTheme || undefined,
+    })
 
     // If decomposition is needed, process and create child entries
     if (isDecomposed && decomposition) {
@@ -151,35 +147,31 @@ export async function processEntry(
 
           const childWordCount = event.text.split(/\s+/).filter(word => word.length > 0).length
 
-          const childFields: AirtableEntryFields = {
-            Name: childProcessing.intent.name,
-            Type: childProcessing.finalType,
-            Date: dateStr,
-            Timestamp: timestampStr,
-            Text: event.text,
-            User_ID: userId,
-            "Inferred Mode": childProcessing.emotion.inferredMode,
-            "Inferred Energy": childProcessing.emotion.inferredEnergy,
-            "Energy Shape": childProcessing.emotion.energyShape,
-            Contradiction: childProcessing.themes.contradiction || undefined,
-            Snapshot: childProcessing.intent.snapshot,
-            Loops: childProcessing.themes.loops || undefined,
-            "Next Action": childProcessing.insights.nextAction,
-            "Meta Flag": "Decomposed Entry",
-            "Is Summary?": false,
-            "Summary (AI)": childProcessing.insights.summaryAI,
-            "Actionable Insights (AI)": childProcessing.insights.actionableInsightsAI,
-            "Entry Sentiment (AI)": childProcessing.emotion.sentimentAI,
-            "Entry Theme Tags (AI)": childProcessing.themes.themeTagsAI.join(", "),
-            "Entry Length (Words)": childWordCount,
-            // NOTE: Child-specific fields disabled until Airtable schema is updated
-            // "Entry Format": "Daily Log",
-            // "Parent Entry ID": parentRecord.id,
-            // "Sequence Order": event.sequenceOrder,
-            // "Approximate Time": event.approximateTime || undefined,
-          }
-
-          const childRecord = await createAirtableEntry(childFields)
+          const childRecord = await dbCreateEntry({
+            userId: userId || "",
+            text: event.text,
+            name: childProcessing.intent.name,
+            type: childProcessing.finalType,
+            format: "Daily Log",
+            date: dateStr,
+            snapshot: childProcessing.intent.snapshot,
+            inferredMode: childProcessing.emotion.inferredMode,
+            inferredEnergy: childProcessing.emotion.inferredEnergy,
+            energyShape: childProcessing.emotion.energyShape,
+            sentiment: childProcessing.emotion.sentimentAI,
+            contradiction: childProcessing.themes.contradiction || undefined,
+            themeTags: childProcessing.themes.themeTagsAI,
+            loops: childProcessing.themes.loops || undefined,
+            summaryAi: childProcessing.insights.summaryAI,
+            actionableInsightsAi: childProcessing.insights.actionableInsightsAI,
+            nextAction: childProcessing.insights.nextAction,
+            entryLengthWords: childWordCount,
+            metaFlag: "Decomposed Entry",
+            isSummary: false,
+            parentEntryId: parentRecord.id,
+            sequenceOrder: event.sequenceOrder,
+            approximateTime: event.approximateTime || undefined,
+          })
 
           childEntries.push({
             id: childRecord.id,
@@ -264,27 +256,23 @@ export async function updateEntry(
     const wordCount = trimmedText.split(/\s+/).filter(word => word.length > 0).length
 
     // Update fields (preserve original Date/Timestamp)
-    const updateFields: Partial<AirtableEntryFields> = {
-      Name: intent.name,
-      Type: finalType,
-      Text: trimmedText,
-      "Inferred Mode": emotion.inferredMode,
-      "Inferred Energy": emotion.inferredEnergy,
-      "Energy Shape": emotion.energyShape,
-      Contradiction: themes.contradiction || undefined,
-      Snapshot: intent.snapshot,
-      Loops: themes.loops || undefined,
-      "Next Action": insights.nextAction,
-      "Summary (AI)": insights.summaryAI,
-      "Actionable Insights (AI)": insights.actionableInsightsAI,
-      "Entry Sentiment (AI)": emotion.sentimentAI,
-      "Entry Theme Tags (AI)": themes.themeTagsAI.join(", "),
-      "Entry Length (Words)": wordCount,
-      // NOTE: Decomposition fields disabled until Airtable schema is updated
-      // "Entry Format": finalFormat,
-    }
-
-    const record = await updateAirtableEntry(recordId, updateFields)
+    const record = await dbUpdateEntry(recordId, {
+      name: intent.name,
+      type: finalType,
+      text: trimmedText,
+      inferredMode: emotion.inferredMode,
+      inferredEnergy: emotion.inferredEnergy,
+      energyShape: emotion.energyShape,
+      contradiction: themes.contradiction || undefined,
+      snapshot: intent.snapshot,
+      loops: themes.loops || undefined,
+      nextAction: insights.nextAction,
+      summaryAi: insights.summaryAI,
+      actionableInsightsAi: insights.actionableInsightsAI,
+      sentiment: emotion.sentimentAI,
+      themeTags: themes.themeTagsAI,
+      entryLengthWords: wordCount,
+    })
     console.log(`[Entry] Successfully updated entry: ${record.id}`)
 
     return res.json({
@@ -317,7 +305,7 @@ export async function deleteEntry(
 
   try {
     console.log(`[Entry] Soft deleting entry ${recordId}...`)
-    const record = await updateAirtableEntry(recordId, { "Is Deleted?": true })
+    const record = await dbUpdateEntry(recordId, { isDeleted: true })
     console.log(`[Entry] Successfully soft deleted entry: ${record.id}`)
 
     return res.json({
@@ -355,7 +343,7 @@ export async function toggleBookmark(
 
   try {
     console.log(`[Entry] Setting bookmark=${bookmarked} for entry ${recordId}...`)
-    const record = await updateAirtableEntry(recordId, { "Is Bookmarked?": bookmarked })
+    const record = await dbUpdateEntry(recordId, { isBookmarked: bookmarked })
     console.log(`[Entry] Successfully updated bookmark for entry: ${record.id}`)
 
     return res.json({

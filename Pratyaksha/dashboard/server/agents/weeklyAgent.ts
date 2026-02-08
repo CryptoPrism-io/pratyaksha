@@ -1,7 +1,7 @@
 // Weekly Summary Agent - Generates insights from a week's journal entries
 import { callOpenRouter, MODELS } from "../lib/openrouter"
 import { WeeklyAgentOutput, WeeklySummaryStats, MOOD_TRENDS, MoodTrend } from "../types"
-import { AirtableRecord } from "../lib/airtable"
+import { type EntryRecord } from "../lib/db"
 
 const SYSTEM_PROMPT = `You are an insightful weekly journal analyst who synthesizes patterns across multiple journal entries to provide meaningful insights.
 
@@ -29,7 +29,7 @@ interface EntrySnapshot {
   contradiction: string | null
 }
 
-function prepareEntrySnapshots(records: AirtableRecord[]): EntrySnapshot[] {
+function prepareEntrySnapshots(records: EntryRecord[]): EntrySnapshot[] {
   return records.map((record) => ({
     date: record.fields.Date || "",
     name: record.fields.Name || "Untitled",
@@ -42,7 +42,7 @@ function prepareEntrySnapshots(records: AirtableRecord[]): EntrySnapshot[] {
   }))
 }
 
-function calculateStats(records: AirtableRecord[]): WeeklySummaryStats {
+function calculateStats(records: EntryRecord[]): WeeklySummaryStats {
   const entryCount = records.length
 
   // Mode distribution
@@ -108,7 +108,7 @@ function calculateStats(records: AirtableRecord[]): WeeklySummaryStats {
 }
 
 export async function generateWeeklySummary(
-  records: AirtableRecord[],
+  records: EntryRecord[],
   weekId: string,
   weekRange: string
 ): Promise<{ output: WeeklyAgentOutput; stats: WeeklySummaryStats }> {

@@ -2,14 +2,12 @@
 import { Request, Response } from "express"
 import admin from "firebase-admin"
 import {
-  findNotificationSettings,
-  createNotificationSettings,
-  updateNotificationSettings,
-  getAllEnabledNotificationUsers,
-  updateLastNotified,
-  parseNotificationRecord,
-  type NotificationSettingsData,
-} from "../lib/airtable"
+  findNotificationSettings as dbFindNotificationSettings,
+  upsertNotificationSettings,
+  getAllEnabledNotificationUsers as dbGetAllEnabledUsers,
+  updateLastNotified as dbUpdateLastNotified,
+  findUserByFirebaseUid,
+} from "../lib/db"
 import {
   isWithinQuietHours,
   shouldNotifyNow,
@@ -79,11 +77,9 @@ export async function registerToken(req: Request, res: Response) {
 
     console.log(`[Notifications] Registering token for user ${userId}`)
 
-    // Check if user already has notification settings
-    const existing = await findNotificationSettings(userId)
-
-    const settingsData: NotificationSettingsData = {
-      userId,
+    // Upsert notification settings
+    await upsertNotificationSettings({
+      firebaseUid: userId,
       fcmToken,
       enabled: preferences?.enabled ?? true,
       timezone: preferences?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -93,17 +89,8 @@ export async function registerToken(req: Request, res: Response) {
       quietHoursEnd: preferences?.quietHoursEnd || "07:00",
       streakAtRisk: preferences?.streakAtRisk ?? true,
       weeklySummary: preferences?.weeklySummary ?? false,
-    }
-
-    if (existing) {
-      // Update existing record
-      await updateNotificationSettings(existing.id, settingsData)
-      console.log(`[Notifications] Updated settings for user ${userId}`)
-    } else {
-      // Create new record
-      await createNotificationSettings(settingsData)
-      console.log(`[Notifications] Created settings for user ${userId}`)
-    }
+    })
+    console.log(`[Notifications] Upserted settings for user ${userId}`)
 
     res.json({ success: true })
   } catch (error) {
@@ -133,7 +120,7 @@ export async function updatePreferences(req: Request, res: Response) {
     console.log(`[Notifications] Updating preferences for user ${userId}`)
 
     // Find existing settings
-    const existing = await findNotificationSettings(userId)
+    const existing = await dbFindNotificationSettings(userId)
 
     if (!existing) {
       return res.status(404).json({
@@ -142,20 +129,21 @@ export async function updatePreferences(req: Request, res: Response) {
       })
     }
 
+    // Find user's FCM token
+    const user = await findUserByFirebaseUid(userId)
+
     // Update preferences
-    await updateNotificationSettings(existing.id, {
-      userId,
-      fcmToken: existing.fields["FCM Token"] || "",
-      enabled: preferences.enabled ?? existing.fields["Enabled"],
-      timezone: preferences.timezone ?? existing.fields["Timezone"] ?? "UTC",
-      frequency: preferences.frequency ?? existing.fields["Frequency"] ?? "2x_daily",
-      customTimes: preferences.customTimes ?? (existing.fields["Custom Times"]
-        ? existing.fields["Custom Times"].split(",").map((t: string) => t.trim())
-        : ["09:00", "20:00"]),
-      quietHoursStart: preferences.quietHoursStart ?? existing.fields["Quiet Hours Start"] ?? "22:00",
-      quietHoursEnd: preferences.quietHoursEnd ?? existing.fields["Quiet Hours End"] ?? "07:00",
-      streakAtRisk: preferences.streakAtRisk ?? existing.fields["Streak At Risk"],
-      weeklySummary: preferences.weeklySummary ?? existing.fields["Weekly Summary"],
+    await upsertNotificationSettings({
+      firebaseUid: userId,
+      fcmToken: user?.fcmToken || "",
+      enabled: preferences.enabled ?? existing.enabled,
+      timezone: preferences.timezone ?? existing.timezone ?? "UTC",
+      frequency: preferences.frequency ?? existing.frequency ?? "2x_daily",
+      customTimes: preferences.customTimes ?? existing.customTimes ?? ["09:00", "20:00"],
+      quietHoursStart: preferences.quietHoursStart ?? existing.quietHoursStart ?? "22:00",
+      quietHoursEnd: preferences.quietHoursEnd ?? existing.quietHoursEnd ?? "07:00",
+      streakAtRisk: preferences.streakAtRisk ?? existing.streakAtRisk,
+      weeklySummary: preferences.weeklySummary ?? existing.weeklySummary,
     })
 
     res.json({ success: true })
@@ -184,23 +172,24 @@ export async function sendNotification(req: Request, res: Response) {
     }
 
     // Get user's FCM token
-    const settings = await findNotificationSettings(userId)
+    const user = await findUserByFirebaseUid(userId)
 
-    if (!settings || !settings.fields["FCM Token"]) {
+    if (!user || !user.fcmToken) {
       return res.status(404).json({
         success: false,
         error: "User FCM token not found",
       })
     }
 
-    if (!settings.fields["Enabled"]) {
+    const settings = await dbFindNotificationSettings(userId)
+    if (settings && !settings.enabled) {
       return res.json({
         success: false,
         error: "User has notifications disabled",
       })
     }
 
-    const fcmToken = settings.fields["FCM Token"]
+    const fcmToken = user.fcmToken
 
     // Send via FCM
     const success = await sendFCMNotification(fcmToken, {
@@ -292,7 +281,7 @@ export async function getSettings(req: Request, res: Response) {
       })
     }
 
-    const settings = await findNotificationSettings(userId)
+    const settings = await dbFindNotificationSettings(userId)
 
     if (!settings) {
       return res.json({
@@ -301,20 +290,20 @@ export async function getSettings(req: Request, res: Response) {
       })
     }
 
+    const user = await findUserByFirebaseUid(userId)
+
     res.json({
       success: true,
       settings: {
-        enabled: settings.fields["Enabled"],
-        timezone: settings.fields["Timezone"] || "UTC",
-        frequency: settings.fields["Frequency"] || "2x_daily",
-        customTimes: settings.fields["Custom Times"]
-          ? settings.fields["Custom Times"].split(",").map((t: string) => t.trim())
-          : ["09:00", "20:00"],
-        quietHoursStart: settings.fields["Quiet Hours Start"] || "22:00",
-        quietHoursEnd: settings.fields["Quiet Hours End"] || "07:00",
-        streakAtRisk: settings.fields["Streak At Risk"],
-        weeklySummary: settings.fields["Weekly Summary"],
-        hasToken: !!settings.fields["FCM Token"],
+        enabled: settings.enabled,
+        timezone: settings.timezone || "UTC",
+        frequency: settings.frequency || "2x_daily",
+        customTimes: settings.customTimes || ["09:00", "20:00"],
+        quietHoursStart: settings.quietHoursStart || "22:00",
+        quietHoursEnd: settings.quietHoursEnd || "07:00",
+        streakAtRisk: settings.streakAtRisk,
+        weeklySummary: settings.weeklySummary,
+        hasToken: !!user?.fcmToken,
       },
     })
   } catch (error) {
@@ -377,19 +366,18 @@ export async function cronNotifications(req: Request, res: Response) {
     console.log("[Cron] Starting notification cron job...")
 
     // Get all users with notifications enabled
-    const records = await getAllEnabledNotificationUsers()
-    console.log(`[Cron] Found ${records.length} users with notifications enabled`)
+    const notifUsers = await dbGetAllEnabledUsers()
+    console.log(`[Cron] Found ${notifUsers.length} users with notifications enabled`)
 
     const results = {
-      total: records.length,
+      total: notifUsers.length,
       sent: 0,
       skipped: 0,
       errors: 0,
       details: [] as { userId: string; status: string; reason?: string }[],
     }
 
-    for (const record of records) {
-      const user = parseNotificationRecord(record)
+    for (const user of notifUsers) {
 
       // Skip if no FCM token
       if (!user.fcmToken) {
@@ -436,7 +424,7 @@ export async function cronNotifications(req: Request, res: Response) {
 
         if (success) {
           // Update lastNotified timestamp
-          await updateLastNotified(user.recordId)
+          await dbUpdateLastNotified(user.recordId)
           results.sent++
           results.details.push({ userId: user.userId, status: "sent" })
         } else {

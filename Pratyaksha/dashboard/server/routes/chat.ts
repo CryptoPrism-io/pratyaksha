@@ -7,11 +7,9 @@ import {
   hasPersonalContext
 } from "../lib/userContextBuilder"
 
+import { fetchAllEntries as dbFetchAllEntries, type EntryRecord } from "../lib/db"
+
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY
-const AIRTABLE_API_KEY = process.env.VITE_AIRTABLE_API_KEY || process.env.AIRTABLE_API_KEY
-const BASE_ID = process.env.VITE_AIRTABLE_BASE_ID || process.env.AIRTABLE_BASE_ID || "appMzFpUZLuZs9VGc"
-const TABLE_ID = process.env.VITE_AIRTABLE_TABLE_ID || process.env.AIRTABLE_TABLE_ID || "tblhKYssgHtjpmbni"
-const BASE_URL = `https://api.airtable.com/v0/${BASE_ID}/${TABLE_ID}`
 
 interface ChatRequest {
   message: string
@@ -23,57 +21,7 @@ interface ChatRequest {
   userContext?: UserContext
 }
 
-interface EntryRecord {
-  id: string
-  fields: {
-    Name?: string
-    Type?: string
-    Date?: string
-    Text?: string
-    "Inferred Mode"?: string
-    "Energy Shape"?: string
-    Contradiction?: string
-    Snapshot?: string
-    "Entry Sentiment (AI)"?: string
-    "Entry Theme Tags (AI)"?: string
-    "Is Deleted?"?: boolean
-    "Is Summary?"?: boolean
-  }
-}
-
-// Fetch all entries from Airtable (excluding deleted and summary entries)
-async function fetchAllEntries(): Promise<EntryRecord[]> {
-  if (!AIRTABLE_API_KEY) {
-    throw new Error("Airtable API key is not configured")
-  }
-
-  const formula = encodeURIComponent(
-    `AND(OR({Is Deleted?} = FALSE(), {Is Deleted?} = BLANK()), OR({Is Summary?} = FALSE(), {Is Summary?} = BLANK()))`
-  )
-
-  const allRecords: EntryRecord[] = []
-  let offset: string | undefined
-
-  do {
-    const url = `${BASE_URL}?filterByFormula=${formula}&sort[0][field]=Date&sort[0][direction]=desc${offset ? `&offset=${offset}` : ""}`
-
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${AIRTABLE_API_KEY}`,
-      },
-    })
-
-    if (!response.ok) {
-      throw new Error(`Airtable API error: ${response.status}`)
-    }
-
-    const data = await response.json()
-    allRecords.push(...(data.records || []))
-    offset = data.offset
-  } while (offset)
-
-  return allRecords
-}
+// fetchAllEntries is now imported from lib/db
 
 // Create a compressed context summary from entries
 function createContextSummary(entries: EntryRecord[]): string {
@@ -238,8 +186,8 @@ export async function chat(
   try {
     console.log("[Chat] Processing message...")
 
-    // Fetch all entries and create context
-    const entries = await fetchAllEntries()
+    // Fetch all entries from PostgreSQL and create context
+    const entries = await dbFetchAllEntries()
     const contextSummary = createContextSummary(entries)
 
     console.log(`[Chat] Loaded ${entries.length} entries for context`)
