@@ -24,6 +24,9 @@ export interface GamificationState {
   lastAutoGift: string | null;
   totalGiftsReceived: number;
 
+  // Streak milestone celebrations (cloud-synced)
+  celebratedMilestones: number[];
+
   // Timestamps
   createdAt: string;
   lastUpdatedAt: string;
@@ -129,6 +132,7 @@ export const DEFAULT_GAMIFICATION_STATE: GamificationState = {
   totalEntriesLogged: 0,
   lastAutoGift: null,
   totalGiftsReceived: 0,
+  celebratedMilestones: [],
   createdAt: new Date().toISOString(),
   lastUpdatedAt: new Date().toISOString(),
 };

@@ -1,4 +1,5 @@
-// Chart Explainer Hook - AI explanations with localStorage caching
+// Chart Explainer Hook - AI explanations with server-side caching
+// Server caches responses in prompt_cache table (PostgreSQL)
 import { useState, useCallback } from "react"
 
 export type ChartType =
@@ -22,18 +23,11 @@ interface UserContext {
   streakDays?: number
 }
 
-interface ExplainerCache {
-  explanation: string
-  timestamp: number
-  dataHash: string
-}
-
 interface UseChartExplainerOptions {
   chartType: ChartType
   chartData: Record<string, unknown>
   summary?: ChartDataSummary
   userContext?: UserContext
-  // Karma integration - optional callbacks for checking/spending Karma
   canAffordKarma?: () => boolean
   spendKarma?: () => boolean
 }
@@ -46,78 +40,6 @@ interface UseChartExplainerReturn {
   insufficientKarma: boolean
   fetchExplanation: () => Promise<void>
   clearCache: () => void
-}
-
-// Cache TTL: 1 hour
-const CACHE_TTL = 60 * 60 * 1000
-
-// Generate a simple hash from chart data for cache key
-function generateDataHash(data: Record<string, unknown>): string {
-  const str = JSON.stringify(data)
-  let hash = 0
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i)
-    hash = ((hash << 5) - hash) + char
-    hash = hash & hash // Convert to 32bit integer
-  }
-  return Math.abs(hash).toString(36)
-}
-
-// Get cache key for a chart type
-function getCacheKey(chartType: ChartType): string {
-  return `pratyaksha_explainer_${chartType}`
-}
-
-// Read from cache
-function readCache(chartType: ChartType, currentDataHash: string): string | null {
-  try {
-    const key = getCacheKey(chartType)
-    const cached = localStorage.getItem(key)
-    if (!cached) return null
-
-    const parsed: ExplainerCache = JSON.parse(cached)
-    const now = Date.now()
-
-    // Check if cache is expired
-    if (now - parsed.timestamp > CACHE_TTL) {
-      localStorage.removeItem(key)
-      return null
-    }
-
-    // Check if data has changed
-    if (parsed.dataHash !== currentDataHash) {
-      localStorage.removeItem(key)
-      return null
-    }
-
-    return parsed.explanation
-  } catch {
-    return null
-  }
-}
-
-// Write to cache
-function writeCache(chartType: ChartType, explanation: string, dataHash: string): void {
-  try {
-    const key = getCacheKey(chartType)
-    const cache: ExplainerCache = {
-      explanation,
-      timestamp: Date.now(),
-      dataHash
-    }
-    localStorage.setItem(key, JSON.stringify(cache))
-  } catch (e) {
-    console.warn("[ChartExplainer] Failed to write to cache:", e)
-  }
-}
-
-// Clear cache for a chart type
-function clearCacheForChart(chartType: ChartType): void {
-  try {
-    localStorage.removeItem(getCacheKey(chartType))
-  } catch {
-    // Ignore errors
-  }
 }
 
 export function useChartExplainer({
@@ -135,20 +57,7 @@ export function useChartExplainer({
   const [insufficientKarma, setInsufficientKarma] = useState(false)
 
   const fetchExplanation = useCallback(async () => {
-    // Generate hash from current data
-    const dataHash = generateDataHash(chartData)
-
-    // Check cache first - no Karma cost for cached results
-    const cachedExplanation = readCache(chartType, dataHash)
-    if (cachedExplanation) {
-      setExplanation(cachedExplanation)
-      setIsFromCache(true)
-      setError(null)
-      setInsufficientKarma(false)
-      return
-    }
-
-    // Check Karma if callback provided (not cached, so this will cost)
+    // Check Karma if callback provided
     if (canAffordKarma && !canAffordKarma()) {
       setInsufficientKarma(true)
       setError("Insufficient Karma")
@@ -160,7 +69,6 @@ export function useChartExplainer({
       spendKarma()
     }
 
-    // Fetch from API
     setIsLoading(true)
     setError(null)
     setIsFromCache(false)
@@ -186,9 +94,9 @@ export function useChartExplainer({
         throw new Error(result.error || "Failed to get explanation")
       }
 
-      // Cache the result
-      writeCache(chartType, result.explanation, dataHash)
       setExplanation(result.explanation)
+      // Server uses prompt_cache — if tokens were 0, it was a cache hit
+      setIsFromCache(result.tokensUsed === 0)
 
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : "Failed to get explanation"
@@ -200,10 +108,9 @@ export function useChartExplainer({
   }, [chartType, chartData, summary, userContext])
 
   const clearCache = useCallback(() => {
-    clearCacheForChart(chartType)
     setExplanation(null)
     setIsFromCache(false)
-  }, [chartType])
+  }, [])
 
   return {
     explanation,
@@ -216,16 +123,8 @@ export function useChartExplainer({
   }
 }
 
-// Utility to clear all explainer caches
+// Utility to clear all explainer caches (now a no-op since server handles caching)
 export function clearAllExplainerCaches(): void {
-  const chartTypes: ChartType[] = [
-    "energyRadar",
-    "modeDistribution",
-    "emotionalTimeline",
-    "contradictionFlow",
-    "themeCloud",
-    "activityCalendar",
-    "dailyRhythm"
-  ]
-  chartTypes.forEach(type => clearCacheForChart(type))
+  // Server-side cache is managed via /api/cache/clean endpoint
+  // Client-side clearing is no longer needed
 }

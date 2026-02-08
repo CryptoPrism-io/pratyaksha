@@ -35,21 +35,30 @@ function isMilestone(streak: number): boolean {
   return MILESTONE_VALUES.includes(streak)
 }
 
-// Check if we've already celebrated this milestone
+// Check if we've already celebrated this milestone (uses gamification storage)
 function hasAlreadyCelebrated(streak: number): boolean {
-  const celebrated = localStorage.getItem("pratyaksha_celebrated_milestones")
-  if (!celebrated) return false
-  const milestones = JSON.parse(celebrated) as number[]
-  return milestones.includes(streak)
+  try {
+    const state = JSON.parse(localStorage.getItem("pratyaksha-gamification") || "{}")
+    return (state.celebratedMilestones || []).includes(streak)
+  } catch {
+    return false
+  }
 }
 
-// Mark milestone as celebrated
+// Mark milestone as celebrated (updates gamification storage for cloud sync)
 function markCelebrated(streak: number): void {
-  const celebrated = localStorage.getItem("pratyaksha_celebrated_milestones")
-  const milestones = celebrated ? (JSON.parse(celebrated) as number[]) : []
-  if (!milestones.includes(streak)) {
-    milestones.push(streak)
-    localStorage.setItem("pratyaksha_celebrated_milestones", JSON.stringify(milestones))
+  try {
+    const raw = localStorage.getItem("pratyaksha-gamification")
+    const state = raw ? JSON.parse(raw) : {}
+    const milestones = state.celebratedMilestones || []
+    if (!milestones.includes(streak)) {
+      milestones.push(streak)
+      state.celebratedMilestones = milestones
+      state.lastUpdatedAt = new Date().toISOString()
+      localStorage.setItem("pratyaksha-gamification", JSON.stringify(state))
+    }
+  } catch {
+    // Fallback: silently ignore
   }
 }
 
