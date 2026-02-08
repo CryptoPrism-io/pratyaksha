@@ -1,21 +1,10 @@
-// OpenRouter API Client
-// https://openrouter.ai/docs
-
-export interface OpenRouterResponse {
-  id: string
-  choices: Array<{
-    message: {
-      content: string
-      role: string
-    }
-    finish_reason: string
-  }>
-  usage: {
-    prompt_tokens: number
-    completion_tokens: number
-    total_tokens: number
-  }
-}
+// =============================================================================
+// BECOMING — LangChain AI Client (replaces raw OpenRouter fetch)
+// Uses ChatOpenAI pointed at OpenRouter's endpoint for model routing
+// =============================================================================
+import { ChatOpenAI } from "@langchain/openai"
+import { HumanMessage, SystemMessage, AIMessage, BaseMessage } from "@langchain/core/messages"
+// ── Re-exports for backward compat ──────────────────────────────────────────
 
 export interface AgentResponse<T> {
   data: T
@@ -23,71 +12,141 @@ export interface AgentResponse<T> {
   model: string
 }
 
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY
-
-// Model options - using GPT models for better performance
-export const MODELS = {
-  CHEAP: "openai/gpt-4o-mini", // Fast, cheap, good for simple classification
-  BALANCED: "openai/gpt-4o", // Best balance of speed and quality
-  QUALITY: "openai/gpt-4o", // Same as balanced, GPT-4o is excellent
-} as const
-
 export interface CallOptions {
   maxTokens?: number
   temperature?: number
 }
 
+// Model aliases — OpenRouter model IDs
+export const MODELS = {
+  CHEAP: "openai/gpt-4o-mini",
+  BALANCED: "openai/gpt-4o",
+  QUALITY: "openai/gpt-4o",
+} as const
+
+// ── LangChain model factory ─────────────────────────────────────────────────
+
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY
+
+/** Create a ChatOpenAI instance routed through OpenRouter */
+export function getModel(
+  modelName: string = MODELS.CHEAP,
+  opts?: { maxTokens?: number; temperature?: number }
+): ChatOpenAI {
+  if (!OPENROUTER_API_KEY) {
+    throw new Error("OPENROUTER_API_KEY is not set")
+  }
+
+  return new ChatOpenAI({
+    modelName,
+    temperature: opts?.temperature ?? 0.3,
+    maxTokens: opts?.maxTokens ?? 500,
+    configuration: {
+      baseURL: "https://openrouter.ai/api/v1",
+      defaultHeaders: {
+        "HTTP-Referer": "https://pratyaksha.app",
+        "X-Title": "Pratyaksha Cognitive Journal",
+      },
+    },
+    apiKey: OPENROUTER_API_KEY,
+  })
+}
+
+// ── callOpenRouter — drop-in replacement using LangChain ────────────────────
+
+/**
+ * Call an LLM via LangChain + OpenRouter and parse JSON response.
+ * Same signature as the old raw-fetch version so all agents keep working.
+ */
 export async function callOpenRouter<T>(
   prompt: string,
   model: string = MODELS.CHEAP,
   systemPrompt?: string,
   options?: CallOptions
 ): Promise<AgentResponse<T>> {
-  if (!OPENROUTER_API_KEY) {
-    throw new Error("OPENROUTER_API_KEY is not set")
-  }
-
-  const messages = [
-    ...(systemPrompt ? [{ role: "system", content: systemPrompt }] : []),
-    { role: "user", content: prompt },
-  ]
-
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-      "Content-Type": "application/json",
-      "HTTP-Referer": "https://pratyaksha.app",
-      "X-Title": "Pratyaksha Cognitive Journal",
+  const llm = new ChatOpenAI({
+    modelName: model,
+    temperature: options?.temperature ?? 0.3,
+    maxTokens: options?.maxTokens ?? 500,
+    configuration: {
+      baseURL: "https://openrouter.ai/api/v1",
+      defaultHeaders: {
+        "HTTP-Referer": "https://pratyaksha.app",
+        "X-Title": "Pratyaksha Cognitive Journal",
+      },
     },
-    body: JSON.stringify({
-      model,
-      messages,
-      response_format: { type: "json_object" },
-      temperature: options?.temperature ?? 0.3, // Lower for more consistent outputs
-      max_tokens: options?.maxTokens ?? 500,
-    }),
+    apiKey: OPENROUTER_API_KEY!,
+    modelKwargs: { response_format: { type: "json_object" } },
   })
 
-  if (!response.ok) {
-    const error = await response.text()
-    throw new Error(`OpenRouter API error: ${response.status} - ${error}`)
+  const messages: BaseMessage[] = []
+  if (systemPrompt) {
+    messages.push(new SystemMessage(systemPrompt))
+  }
+  messages.push(new HumanMessage(prompt))
+
+  const result = await llm.invoke(messages)
+
+  const content = typeof result.content === "string"
+    ? result.content
+    : JSON.stringify(result.content)
+
+  if (!content) {
+    throw new Error("No response from LLM")
   }
 
-  const result: OpenRouterResponse = await response.json()
-
-  if (!result.choices?.[0]?.message?.content) {
-    throw new Error("No response from OpenRouter")
-  }
+  // Parse usage metadata
+  const usage = result.usage_metadata
+  const tokens = (usage?.input_tokens ?? 0) + (usage?.output_tokens ?? 0)
 
   try {
-    const data = JSON.parse(result.choices[0].message.content) as T
-    return {
-      data,
-      tokens: result.usage?.total_tokens || 0,
-      model,
-    }
-  } catch (e) {
-    throw new Error(`Failed to parse JSON response: ${result.choices[0].message.content}`)
+    const data = JSON.parse(content) as T
+    return { data, tokens, model }
+  } catch {
+    throw new Error(`Failed to parse JSON response: ${content}`)
   }
+}
+
+// ── callChat — text (non-JSON) responses for chat / explanations ────────────
+
+export interface ChatMessage {
+  role: "system" | "user" | "assistant"
+  content: string
+}
+
+/**
+ * Call an LLM for plain-text (non-JSON) responses.
+ * Used by chat route and any future conversational features.
+ */
+export async function callChat(
+  messages: ChatMessage[],
+  model: string = MODELS.CHEAP,
+  options?: CallOptions
+): Promise<{ text: string; tokens: number }> {
+  const llm = getModel(model, {
+    maxTokens: options?.maxTokens ?? 800,
+    temperature: options?.temperature ?? 0.7,
+  })
+
+  const langchainMessages: BaseMessage[] = messages.map((m) => {
+    switch (m.role) {
+      case "system":
+        return new SystemMessage(m.content)
+      case "user":
+        return new HumanMessage(m.content)
+      case "assistant":
+        return new AIMessage(m.content)
+    }
+  })
+
+  const result = await llm.invoke(langchainMessages)
+
+  const text = typeof result.content === "string"
+    ? result.content
+    : JSON.stringify(result.content)
+
+  const usage = result.usage_metadata
+  const tokens = (usage?.input_tokens ?? 0) + (usage?.output_tokens ?? 0)
+
+  return { text, tokens }
 }

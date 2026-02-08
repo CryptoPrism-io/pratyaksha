@@ -1,6 +1,6 @@
 // AI Chat Route - Full historical context chat with personalization
 import { Request, Response } from "express"
-import { MODELS } from "../lib/openrouter"
+import { MODELS, callChat, type ChatMessage } from "../lib/openrouter"
 import {
   UserContext,
   buildUserContextPrompt,
@@ -8,8 +8,6 @@ import {
 } from "../lib/userContextBuilder"
 
 import { fetchAllEntries as dbFetchAllEntries, type EntryRecord } from "../lib/db"
-
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY
 
 interface ChatRequest {
   message: string
@@ -176,13 +174,6 @@ export async function chat(
     })
   }
 
-  if (!OPENROUTER_API_KEY) {
-    return res.status(503).json({
-      success: false,
-      error: "AI service not configured",
-    })
-  }
-
   try {
     console.log("[Chat] Processing message...")
 
@@ -200,55 +191,32 @@ export async function chat(
     }
 
     // Build messages array with optional personalization
-    const messages = [
+    const chatMessages: ChatMessage[] = [
       { role: "system", content: SYSTEM_PROMPT_BASE },
       // Inject personal context if available (before journal data)
-      ...(personalContextSection ? [{ role: "system", content: personalContextSection }] : []),
+      ...(personalContextSection ? [{ role: "system" as const, content: personalContextSection }] : []),
       { role: "system", content: `Here is the user's journal data:\n\n${contextSummary}` },
       // Include recent history (last 10 exchanges)
       ...history.slice(-10).map(h => ({
-        role: h.role,
+        role: h.role as "user" | "assistant",
         content: h.content,
       })),
       { role: "user", content: message },
     ]
 
-    // Call OpenRouter (without JSON response format for natural text)
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://pratyaksha.app",
-        "X-Title": "Pratyaksha AI Chat",
-      },
-      body: JSON.stringify({
-        model: MODELS.CHEAP, // gpt-4o-mini for cost efficiency
-        messages,
-        temperature: 0.7,
-        max_tokens: 800,
-      }),
-    })
+    // Call LangChain chat (plain text, not JSON)
+    const { text: aiResponse, tokens } = await callChat(
+      chatMessages,
+      MODELS.CHEAP,
+      { maxTokens: 800, temperature: 0.7 }
+    )
 
-    if (!response.ok) {
-      const error = await response.text()
-      console.error("[Chat] OpenRouter error:", error)
-      throw new Error(`AI request failed: ${response.status}`)
-    }
-
-    const result = await response.json()
-    const aiResponse = result.choices?.[0]?.message?.content
-
-    if (!aiResponse) {
-      throw new Error("No response from AI")
-    }
-
-    console.log(`[Chat] Response generated (${result.usage?.total_tokens || 0} tokens)`)
+    console.log(`[Chat] Response generated (${tokens} tokens)`)
 
     return res.json({
       success: true,
       response: aiResponse,
-      tokensUsed: result.usage?.total_tokens || 0,
+      tokensUsed: tokens,
     })
 
   } catch (error) {
