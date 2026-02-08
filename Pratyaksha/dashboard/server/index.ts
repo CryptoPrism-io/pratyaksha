@@ -21,6 +21,8 @@ import {
   listPrompts,
   previewPrompt
 } from "./routes/imageGen"
+import { embedAllMissing } from "./lib/embeddings"
+import { cleanExpiredCache } from "./lib/cache"
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -84,6 +86,24 @@ app.get("/api/image/prompt/:category/:id", previewPrompt)
 
 // Cron routes (called by Cloud Scheduler)
 app.post("/api/cron/notifications", cronNotifications)
+
+// Embedding & Cache management (internal/admin)
+app.post("/api/embeddings/index-all", async (_req, res) => {
+  try {
+    const stats = await embedAllMissing()
+    res.json({ success: true, ...stats })
+  } catch (error) {
+    res.status(500).json({ success: false, error: String(error) })
+  }
+})
+app.post("/api/cache/clean", async (_req, res) => {
+  try {
+    await cleanExpiredCache()
+    res.json({ success: true })
+  } catch (error) {
+    res.status(500).json({ success: false, error: String(error) })
+  }
+})
 
 // Serve static files in production
 // __dirname is available in CommonJS modules

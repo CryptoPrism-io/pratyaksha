@@ -6,6 +6,7 @@ import { extractThemes } from "../agents/themeAgent"
 import { generateInsights } from "../agents/insightAgent"
 import { analyzeForDecomposition } from "../agents/decompositionAgent"
 import { createEntry as dbCreateEntry, updateEntry as dbUpdateEntry, type EntryRecord } from "../lib/db"
+import { embedEntry } from "../lib/embeddings"
 import {
   ProcessEntryRequest,
   ProcessEntryResponse,
@@ -130,6 +131,9 @@ export async function processEntry(
       overarchingTheme: decomposition?.overarchingTheme || undefined,
     })
 
+    // Generate embedding for RAG (non-blocking)
+    embedEntry(parentRecord.id, userId || "", trimmedText).catch(() => {})
+
     // If decomposition is needed, process and create child entries
     if (isDecomposed && decomposition) {
       console.log("[Entry] Processing child entries...")
@@ -172,6 +176,9 @@ export async function processEntry(
             sequenceOrder: event.sequenceOrder,
             approximateTime: event.approximateTime || undefined,
           })
+
+          // Generate embedding for child entry (non-blocking)
+          embedEntry(childRecord.id, userId || "", event.text).catch(() => {})
 
           childEntries.push({
             id: childRecord.id,

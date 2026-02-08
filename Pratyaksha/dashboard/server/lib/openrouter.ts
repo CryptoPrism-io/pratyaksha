@@ -4,6 +4,8 @@
 // =============================================================================
 import { ChatOpenAI } from "@langchain/openai"
 import { HumanMessage, SystemMessage, AIMessage, BaseMessage } from "@langchain/core/messages"
+import { getCachedResponse, setCachedResponse } from "./cache"
+
 // ── Re-exports for backward compat ──────────────────────────────────────────
 
 export interface AgentResponse<T> {
@@ -15,6 +17,10 @@ export interface AgentResponse<T> {
 export interface CallOptions {
   maxTokens?: number
   temperature?: number
+  /** Enable PostgreSQL response cache (default: false) */
+  cache?: boolean
+  /** Cache TTL in milliseconds (default: 24h for agents, 1h for chat) */
+  cacheTtlMs?: number
 }
 
 // Model aliases — OpenRouter model IDs
@@ -64,6 +70,14 @@ export async function callOpenRouter<T>(
   systemPrompt?: string,
   options?: CallOptions
 ): Promise<AgentResponse<T>> {
+  // Check cache first if enabled
+  if (options?.cache) {
+    const cached = await getCachedResponse<T>(systemPrompt, prompt, model)
+    if (cached) {
+      return { data: cached.data, tokens: cached.tokens, model }
+    }
+  }
+
   const llm = new ChatOpenAI({
     modelName: model,
     temperature: options?.temperature ?? 0.3,
@@ -101,6 +115,12 @@ export async function callOpenRouter<T>(
 
   try {
     const data = JSON.parse(content) as T
+
+    // Store in cache if enabled
+    if (options?.cache) {
+      await setCachedResponse(systemPrompt, prompt, model, data, tokens, options.cacheTtlMs)
+    }
+
     return { data, tokens, model }
   } catch {
     throw new Error(`Failed to parse JSON response: ${content}`)

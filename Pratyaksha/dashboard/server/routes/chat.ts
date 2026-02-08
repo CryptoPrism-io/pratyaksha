@@ -1,4 +1,4 @@
-// AI Chat Route - Full historical context chat with personalization
+// AI Chat Route - Full historical context chat with personalization + RAG
 import { Request, Response } from "express"
 import { MODELS, callChat, type ChatMessage } from "../lib/openrouter"
 import {
@@ -6,6 +6,7 @@ import {
   buildUserContextPrompt,
   hasPersonalContext
 } from "../lib/userContextBuilder"
+import { findSimilarEntries, buildRAGContext } from "../lib/embeddings"
 
 import { fetchAllEntries as dbFetchAllEntries, type EntryRecord } from "../lib/db"
 
@@ -190,12 +191,25 @@ export async function chat(
       console.log("[Chat] User context included for personalization")
     }
 
-    // Build messages array with optional personalization
+    // RAG: Find semantically similar entries to the user's message
+    let ragContext = ""
+    try {
+      const similarEntries = await findSimilarEntries(message, 5)
+      if (similarEntries.length > 0) {
+        ragContext = buildRAGContext(similarEntries)
+        console.log(`[Chat] RAG: Found ${similarEntries.length} similar entries`)
+      }
+    } catch (ragError) {
+      // RAG is best-effort — don't block chat if embeddings aren't available
+      console.log("[Chat] RAG unavailable (embeddings may not be indexed yet)")
+    }
+
+    // Build messages array with optional personalization + RAG
     const chatMessages: ChatMessage[] = [
       { role: "system", content: SYSTEM_PROMPT_BASE },
       // Inject personal context if available (before journal data)
       ...(personalContextSection ? [{ role: "system" as const, content: personalContextSection }] : []),
-      { role: "system", content: `Here is the user's journal data:\n\n${contextSummary}` },
+      { role: "system", content: `Here is the user's journal data:\n\n${contextSummary}${ragContext}` },
       // Include recent history (last 10 exchanges)
       ...history.slice(-10).map(h => ({
         role: h.role as "user" | "assistant",

@@ -94,14 +94,16 @@ export async function explainChart(
       })
     }
 
-    // Call OpenRouter with the chart-specific prompts
+    // Call OpenRouter with the chart-specific prompts (cached for 1 hour)
     const response = await callOpenRouter<ExplainerOutput>(
       userPrompt,
-      MODELS.CHEAP, // gpt-4o-mini for cost efficiency
+      MODELS.CHEAP,
       promptConfig.systemPrompt,
       {
         maxTokens: 600,
-        temperature: 0.7 // Slightly more creative for explanations
+        temperature: 0.7,
+        cache: true,
+        cacheTtlMs: 60 * 60 * 1000, // 1 hour
       }
     )
 
