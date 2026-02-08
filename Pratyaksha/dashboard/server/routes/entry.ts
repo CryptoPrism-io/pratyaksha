@@ -5,8 +5,12 @@ import { analyzeEmotion } from "../agents/emotionAgent"
 import { extractThemes } from "../agents/themeAgent"
 import { generateInsights } from "../agents/insightAgent"
 import { analyzeForDecomposition } from "../agents/decompositionAgent"
-import { createEntry as dbCreateEntry, updateEntry as dbUpdateEntry, type EntryRecord } from "../lib/db"
+import { createEntry as dbCreateEntry, updateEntry as dbUpdateEntry, getUserProfile, type EntryRecord } from "../lib/db"
 import { embedEntry } from "../lib/embeddings"
+import {
+  type UserContext,
+  createEmptyUserContext,
+} from "../lib/userContextBuilder"
 import {
   ProcessEntryRequest,
   ProcessEntryResponse,
@@ -19,17 +23,94 @@ import {
 } from "../types"
 
 /**
+ * Build a UserContext from a user profile fetched from the database.
+ * Returns undefined if no profile exists (agents fall back to generic behavior).
+ */
+async function buildUserContextFromProfile(userId?: string): Promise<UserContext | undefined> {
+  if (!userId) return undefined;
+
+  try {
+    const profile = await getUserProfile(userId);
+    if (!profile) return undefined;
+
+    const ctx: UserContext = createEmptyUserContext();
+
+    // Profile basics
+    ctx.profile.displayName = profile.displayName || "";
+    ctx.profile.ageRange = profile.personalization?.ageRange || null;
+    ctx.profile.profession = profile.personalization?.profession || null;
+    ctx.profile.stressLevel = profile.personalization?.stressLevel || null;
+    ctx.profile.emotionalOpenness = profile.personalization?.emotionalOpenness || null;
+    ctx.profile.personalGoal = profile.personalization?.personalGoal || null;
+    ctx.profile.selectedMemoryTopics = profile.personalization?.selectedMemoryTopics || [];
+
+    // Life blueprint
+    if (profile.lifeBlueprint) {
+      ctx.blueprint.vision = (profile.lifeBlueprint.vision || []).map(v => ({
+        text: v.text,
+        category: v.category || "other",
+      }));
+      ctx.blueprint.antiVision = (profile.lifeBlueprint.antiVision || []).map(v => ({
+        text: v.text,
+        category: v.category || "other",
+      }));
+      ctx.blueprint.levers = (profile.lifeBlueprint.levers || []).map(l => ({
+        name: l.name,
+        description: l.description || "",
+        pushesToward: l.pushesToward || "vision",
+      }));
+      ctx.blueprint.completedSections = profile.lifeBlueprint.completedSections || [];
+
+      // Time horizon goals
+      const thGoals = profile.lifeBlueprint.timeHorizonGoals || [];
+      for (const g of thGoals) {
+        if (g.completed) continue;
+        const horizon = g.horizon as keyof typeof ctx.blueprint.timeHorizonGoals;
+        if (horizon && ctx.blueprint.timeHorizonGoals[horizon]) {
+          ctx.blueprint.timeHorizonGoals[horizon].push(g.text);
+        }
+      }
+
+      // Key reflections
+      const responses = profile.lifeBlueprint.responses || [];
+      for (const r of responses) {
+        ctx.blueprint.keyReflections[r.questionId] = r.answer;
+      }
+    }
+
+    // Gamification stats (for completeness, though agents skip these)
+    if (profile.gamification) {
+      ctx.stats.totalEntries = (profile.gamification as any).totalEntriesLogged || 0;
+      ctx.stats.streakDays = (profile.gamification as any).streakDays || 0;
+      ctx.stats.karmaPoints = (profile.gamification as any).karma || 0;
+    }
+
+    // Soul mapping
+    if (profile.gamification && (profile.gamification as any).completedSoulMappingTopics) {
+      ctx.soulMapping.completedTopics = (profile.gamification as any).completedSoulMappingTopics || [];
+      ctx.soulMapping.totalCompleted = ctx.soulMapping.completedTopics.length;
+    }
+
+    return ctx;
+  } catch (err) {
+    console.warn("[Entry] Failed to build user context, proceeding without personalization:", err);
+    return undefined;
+  }
+}
+
+/**
  * Process a single piece of text through the 4-agent pipeline
  * Returns the processing result and fields for Airtable
  */
 async function processTextThroughPipeline(
   text: string,
   userProvidedType?: EntryType,
-  userProvidedFormat?: EntryFormat
+  userProvidedFormat?: EntryFormat,
+  userContext?: UserContext
 ) {
-  // Step 1: Intent Classification
+  // Step 1: Intent Classification (light personalization)
   console.log("[Agent 1] Classifying intent...")
-  const intent = await classifyIntent(text)
+  const intent = await classifyIntent(text, userContext)
 
   // Use user-provided type/format if valid, otherwise use AI-classified
   const finalType: EntryType =
@@ -42,17 +123,17 @@ async function processTextThroughPipeline(
       ? userProvidedFormat
       : intent.format
 
-  // Step 2: Emotional Analysis
+  // Step 2: Emotional Analysis (calibrated to user baselines)
   console.log("[Agent 2] Analyzing emotion...")
-  const emotion = await analyzeEmotion(text, finalType)
+  const emotion = await analyzeEmotion(text, finalType, userContext)
 
-  // Step 3: Theme Extraction
+  // Step 3: Theme Extraction (goal-aware pattern detection)
   console.log("[Agent 3] Extracting themes...")
-  const themes = await extractThemes(text, finalType, emotion.inferredMode)
+  const themes = await extractThemes(text, finalType, emotion.inferredMode, userContext)
 
-  // Step 4: Insight Generation
+  // Step 4: Insight Generation (fully personalized)
   console.log("[Agent 4] Generating insights...")
-  const insights = await generateInsights(text, { intent, emotion, themes })
+  const insights = await generateInsights(text, { intent, emotion, themes }, userContext)
 
   return { intent, emotion, themes, insights, finalType, finalFormat }
 }
@@ -74,11 +155,17 @@ export async function processEntry(
   let totalTokens = 0
 
   try {
+    // Build user context for personalized pipeline (graceful fallback if unavailable)
+    const userContext = await buildUserContextFromProfile(userId)
+    if (userContext) {
+      console.log("[Entry] User context loaded — pipeline will be personalized")
+    }
+
     console.log("[Entry] Starting processing pipeline...")
 
     // Process the main entry through the pipeline
     const { intent, emotion, themes, insights, finalType, finalFormat } =
-      await processTextThroughPipeline(trimmedText, userProvidedType, userProvidedFormat)
+      await processTextThroughPipeline(trimmedText, userProvidedType, userProvidedFormat, userContext)
 
     // Create timestamp
     const now = new Date()
@@ -142,11 +229,12 @@ export async function processEntry(
         try {
           console.log(`[Child Entry ${event.sequenceOrder}] Processing: "${event.text.substring(0, 50)}..."`)
 
-          // Process each child event through the full pipeline
+          // Process each child event through the full pipeline (with same user context)
           const childProcessing = await processTextThroughPipeline(
             event.text,
             event.suggestedType,
-            "Daily Log" // Child entries are always Daily Log format
+            "Daily Log", // Child entries are always Daily Log format
+            userContext
           )
 
           const childWordCount = event.text.split(/\s+/).filter(word => word.length > 0).length

@@ -1,6 +1,7 @@
 // Intent Agent - Step 1: Classify intent, type, format, name, and snapshot
 import { callOpenRouter, MODELS } from "../lib/openrouter"
 import { IntentAgentOutput, ENTRY_TYPES, ENTRY_FORMATS, EntryType, EntryFormat } from "../types"
+import { type UserContext } from "../lib/userContextBuilder"
 
 const SYSTEM_PROMPT = `You are an expert journal entry classifier. Your job is to analyze journal entries and classify them accurately.
 
@@ -29,9 +30,20 @@ Indicators of consolidated entries:
 - List-like structure of separate events
 - Clear narrative breaks between unrelated moments`
 
-export async function classifyIntent(text: string): Promise<IntentAgentOutput> {
-  const prompt = `Analyze this journal entry and classify it.
+export async function classifyIntent(text: string, userContext?: UserContext): Promise<IntentAgentOutput> {
+  // Light personalization: profession + goal help generate relevant names/snapshots
+  let contextHint = "";
+  if (userContext) {
+    const parts: string[] = [];
+    if (userContext.profile.profession) parts.push(`The writer's profession: ${userContext.profile.profession}.`);
+    if (userContext.profile.personalGoal) parts.push(`Their primary goal: ${userContext.profile.personalGoal}.`);
+    if (parts.length > 0) {
+      contextHint = `\nWriter context (use this to create a more relevant name and snapshot):\n${parts.join(" ")}\n`;
+    }
+  }
 
+  const prompt = `Analyze this journal entry and classify it.
+${contextHint}
 Entry:
 """
 ${text}

@@ -85,32 +85,30 @@ export async function upsertUser(data: {
   const p = data.personalization || {}
 
   if (existing) {
-    // Update existing user
-    const updates: Partial<typeof schema.users.$inferInsert> = {
+    // Update existing user - set all fields explicitly (Drizzle requires this for proper param binding)
+    await db.update(schema.users).set({
+      email: data.email !== undefined ? data.email : existing.email,
+      displayName: data.displayName !== undefined ? data.displayName : existing.displayName,
+      ageRange: p.ageRange !== undefined ? p.ageRange : existing.ageRange,
+      sex: p.sex !== undefined ? p.sex : existing.sex,
+      location: p.location !== undefined ? p.location : existing.location,
+      profession: p.profession !== undefined ? p.profession : existing.profession,
+      stressLevel: p.stressLevel !== undefined ? p.stressLevel : existing.stressLevel,
+      emotionalOpenness: p.emotionalOpenness !== undefined ? p.emotionalOpenness : existing.emotionalOpenness,
+      reflectionFrequency: p.reflectionFrequency !== undefined ? p.reflectionFrequency : existing.reflectionFrequency,
+      lifeSatisfaction: p.lifeSatisfaction !== undefined ? p.lifeSatisfaction : existing.lifeSatisfaction,
+      personalGoal: p.personalGoal !== undefined ? p.personalGoal : existing.personalGoal,
+      selectedMemoryTopics: p.selectedMemoryTopics !== undefined ? p.selectedMemoryTopics : existing.selectedMemoryTopics,
+      seedMemory: p.seedMemory !== undefined ? p.seedMemory : existing.seedMemory,
+      defaultEntryMode: p.defaultEntryMode !== undefined ? p.defaultEntryMode : existing.defaultEntryMode,
+      showFeatureTour: p.showFeatureTour !== undefined ? p.showFeatureTour : existing.showFeatureTour,
+      onboardingCompleted: data.onboardingCompleted !== undefined ? data.onboardingCompleted : existing.onboardingCompleted,
+      dailyReminderEnabled: data.dailyReminderEnabled !== undefined ? data.dailyReminderEnabled : existing.dailyReminderEnabled,
+      reminderTime: data.reminderTime !== undefined ? data.reminderTime : existing.reminderTime,
+      badges: data.badges !== undefined ? data.badges : existing.badges,
+      fcmToken: data.fcmToken !== undefined ? data.fcmToken : existing.fcmToken,
       lastActive: new Date(),
-    }
-    if (data.email !== undefined) updates.email = data.email
-    if (data.displayName !== undefined) updates.displayName = data.displayName
-    if (p.ageRange !== undefined) updates.ageRange = p.ageRange
-    if (p.sex !== undefined) updates.sex = p.sex
-    if (p.location !== undefined) updates.location = p.location
-    if (p.profession !== undefined) updates.profession = p.profession
-    if (p.stressLevel !== undefined) updates.stressLevel = p.stressLevel as any
-    if (p.emotionalOpenness !== undefined) updates.emotionalOpenness = p.emotionalOpenness as any
-    if (p.reflectionFrequency !== undefined) updates.reflectionFrequency = p.reflectionFrequency as any
-    if (p.lifeSatisfaction !== undefined) updates.lifeSatisfaction = p.lifeSatisfaction as any
-    if (p.personalGoal !== undefined) updates.personalGoal = p.personalGoal
-    if (p.selectedMemoryTopics !== undefined) updates.selectedMemoryTopics = p.selectedMemoryTopics
-    if (p.seedMemory !== undefined) updates.seedMemory = p.seedMemory
-    if (p.defaultEntryMode !== undefined) updates.defaultEntryMode = p.defaultEntryMode
-    if (p.showFeatureTour !== undefined) updates.showFeatureTour = p.showFeatureTour
-    if (data.onboardingCompleted !== undefined) updates.onboardingCompleted = data.onboardingCompleted
-    if (data.dailyReminderEnabled !== undefined) updates.dailyReminderEnabled = data.dailyReminderEnabled
-    if (data.reminderTime !== undefined) updates.reminderTime = data.reminderTime
-    if (data.badges !== undefined) updates.badges = data.badges
-    if (data.fcmToken !== undefined) updates.fcmToken = data.fcmToken
-
-    await db.update(schema.users).set(updates).where(eq(schema.users.id, existing.id))
+    }).where(eq(schema.users.id, existing.id))
 
     // Update gamification if provided
     if (data.gamification) {
@@ -151,10 +149,10 @@ export async function upsertUser(data: {
         sex: p.sex || null,
         location: p.location || null,
         profession: p.profession || null,
-        stressLevel: p.stressLevel as any,
-        emotionalOpenness: p.emotionalOpenness as any,
-        reflectionFrequency: p.reflectionFrequency as any,
-        lifeSatisfaction: p.lifeSatisfaction as any,
+        stressLevel: p.stressLevel ?? null,
+        emotionalOpenness: p.emotionalOpenness ?? null,
+        reflectionFrequency: p.reflectionFrequency ?? null,
+        lifeSatisfaction: p.lifeSatisfaction ?? null,
         personalGoal: p.personalGoal || null,
         selectedMemoryTopics: p.selectedMemoryTopics || [],
         seedMemory: p.seedMemory || null,

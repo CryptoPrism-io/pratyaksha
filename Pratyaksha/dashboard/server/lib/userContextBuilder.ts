@@ -265,6 +265,45 @@ function getOpennessDescription(level: number): string {
 }
 
 /**
+ * Build a compact context block for JSON-response agents (intent, emotion, theme, insight).
+ * Shorter than buildUserContextPrompt() — skips gamification, streak, karma.
+ * Returns empty string if no meaningful context exists.
+ */
+export function buildAgentContextBlock(context: UserContext): string {
+  if (!hasPersonalContext(context)) return "";
+
+  const lines: string[] = [];
+  lines.push("--- USER CONTEXT ---");
+
+  if (context.profile.profession) lines.push(`Profession: ${context.profile.profession}`);
+  if (context.profile.ageRange) lines.push(`Age range: ${context.profile.ageRange}`);
+  if (context.profile.stressLevel) {
+    lines.push(`Baseline stress: ${context.profile.stressLevel}/5 (${getStressDescription(context.profile.stressLevel)})`);
+  }
+  if (context.profile.emotionalOpenness) {
+    lines.push(`Emotional openness: ${context.profile.emotionalOpenness}/5 (${getOpennessDescription(context.profile.emotionalOpenness)})`);
+  }
+  if (context.profile.personalGoal) lines.push(`Primary goal: ${context.profile.personalGoal}`);
+
+  if (context.blueprint.vision.length > 0) {
+    const top = context.blueprint.vision.slice(0, 3).map(v => v.text).join("; ");
+    lines.push(`Vision: ${top}`);
+  }
+  if (context.blueprint.antiVision.length > 0) {
+    const top = context.blueprint.antiVision.slice(0, 3).map(v => v.text).join("; ");
+    lines.push(`Anti-vision (wants to avoid): ${top}`);
+  }
+
+  const goals = context.blueprint.timeHorizonGoals;
+  if (goals.sixMonths.length > 0) {
+    lines.push(`6-month goals: ${goals.sixMonths.slice(0, 3).join("; ")}`);
+  }
+
+  lines.push("--- END USER CONTEXT ---");
+  return lines.join("\n");
+}
+
+/**
  * Check if context has meaningful data to include
  */
 export function hasPersonalContext(context: UserContext): boolean {

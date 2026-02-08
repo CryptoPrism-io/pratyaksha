@@ -12,6 +12,7 @@ import {
   Sentiment,
   EntryType,
 } from "../types"
+import { type UserContext } from "../lib/userContextBuilder"
 
 const SYSTEM_PROMPT = `You are an expert at analyzing emotional and psychological states in journal entries.
 
@@ -37,8 +38,27 @@ Guidelines:
 
 export async function analyzeEmotion(
   text: string,
-  type: EntryType
+  type: EntryType,
+  userContext?: UserContext
 ): Promise<EmotionAgentOutput> {
+  // Build calibrated system prompt with user baselines
+  let calibratedSystemPrompt = SYSTEM_PROMPT;
+  if (userContext) {
+    const calibrations: string[] = [];
+    if (userContext.profile.profession) {
+      calibrations.push(`The writer's profession is: ${userContext.profile.profession}.`);
+    }
+    if (userContext.profile.stressLevel) {
+      calibrations.push(`Baseline stress level: ${userContext.profile.stressLevel}/5. Calibrate emotional intensity relative to this — a high-baseline person expressing "overwhelm" may indicate chronic strain, not acute crisis.`);
+    }
+    if (userContext.profile.emotionalOpenness) {
+      calibrations.push(`Emotional openness: ${userContext.profile.emotionalOpenness}/5. ${userContext.profile.emotionalOpenness >= 4 ? "This person tends to express emotions openly — take their language at face value." : userContext.profile.emotionalOpenness <= 2 ? "This person is emotionally reserved — subtle language may mask deeper feelings." : "Moderate expressiveness."}`);
+    }
+    if (calibrations.length > 0) {
+      calibratedSystemPrompt += `\n\nWriter Calibration Context:\n${calibrations.join("\n")}`;
+    }
+  }
+
   const prompt = `Analyze the emotional and psychological state in this ${type} journal entry.
 
 Entry:
@@ -57,7 +77,7 @@ Respond with JSON:
   const response = await callOpenRouter<EmotionAgentOutput>(
     prompt,
     MODELS.CHEAP,
-    SYSTEM_PROMPT
+    calibratedSystemPrompt
   )
 
   // Validate and provide fallbacks

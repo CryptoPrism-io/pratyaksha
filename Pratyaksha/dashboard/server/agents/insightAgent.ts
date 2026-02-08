@@ -6,6 +6,7 @@ import {
   EmotionAgentOutput,
   ThemeAgentOutput,
 } from "../types"
+import { type UserContext, buildAgentContextBlock } from "../lib/userContextBuilder"
 
 const SYSTEM_PROMPT = `You are a thoughtful advisor who provides meaningful insights and actionable recommendations based on journal entries.
 
@@ -24,8 +25,37 @@ interface AgentContext {
 
 export async function generateInsights(
   text: string,
-  context: AgentContext
+  context: AgentContext,
+  userContext?: UserContext
 ): Promise<InsightAgentOutput> {
+  // Build personalized system prompt for the insight agent
+  let personalizedSystemPrompt = SYSTEM_PROMPT;
+  if (userContext) {
+    const contextBlock = buildAgentContextBlock(userContext);
+    if (contextBlock) {
+      // Add response calibration rules
+      const calibrationRules: string[] = [];
+      if (userContext.profile.stressLevel && userContext.profile.stressLevel >= 4) {
+        calibrationRules.push("- User reports high stress. Lead with validation, suggest gentle/manageable steps.");
+      } else if (userContext.profile.stressLevel && userContext.profile.stressLevel <= 2) {
+        calibrationRules.push("- User reports low stress. You can be more direct and challenge-oriented.");
+      }
+      if (userContext.profile.emotionalOpenness && userContext.profile.emotionalOpenness >= 4) {
+        calibrationRules.push("- User is emotionally open. Explore deeper feelings and patterns in your summary.");
+      } else if (userContext.profile.emotionalOpenness && userContext.profile.emotionalOpenness <= 2) {
+        calibrationRules.push("- User prefers emotional privacy. Keep insights practical and action-focused.");
+      }
+      if (userContext.profile.personalGoal) {
+        calibrationRules.push(`- Connect next-action to user's goal: "${userContext.profile.personalGoal}".`);
+      }
+
+      personalizedSystemPrompt += `\n\n${contextBlock}`;
+      if (calibrationRules.length > 0) {
+        personalizedSystemPrompt += `\n\nResponse Calibration:\n${calibrationRules.join("\n")}`;
+      }
+    }
+  }
+
   const prompt = `Based on this journal entry and analysis, generate thoughtful insights.
 
 Entry:
@@ -56,7 +86,7 @@ Respond with JSON:
   const response = await callOpenRouter<InsightAgentOutput>(
     prompt,
     MODELS.BALANCED,
-    SYSTEM_PROMPT
+    personalizedSystemPrompt
   )
 
   return {

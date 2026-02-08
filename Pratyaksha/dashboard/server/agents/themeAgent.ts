@@ -7,6 +7,7 @@ import {
   EntryType,
   InferredMode,
 } from "../types"
+import { type UserContext } from "../lib/userContextBuilder"
 
 const SYSTEM_PROMPT = `You are an expert at identifying themes and patterns in journal entries.
 
@@ -23,10 +24,31 @@ Guidelines:
 export async function extractThemes(
   text: string,
   type: EntryType,
-  mode: InferredMode
+  mode: InferredMode,
+  userContext?: UserContext
 ): Promise<ThemeAgentOutput> {
-  const prompt = `Extract themes and patterns from this ${type} journal entry. The writer appears to be in a ${mode} state.
+  // Build goal-aware context for pattern detection
+  let goalContext = "";
+  if (userContext) {
+    const parts: string[] = [];
+    if (userContext.profile.personalGoal) {
+      parts.push(`The writer's primary goal: ${userContext.profile.personalGoal}.`);
+    }
+    if (userContext.blueprint.vision.length > 0) {
+      const visions = userContext.blueprint.vision.slice(0, 3).map(v => v.text).join("; ");
+      parts.push(`Vision (what they want): ${visions}.`);
+    }
+    if (userContext.blueprint.antiVision.length > 0) {
+      const avoids = userContext.blueprint.antiVision.slice(0, 3).map(v => v.text).join("; ");
+      parts.push(`Anti-vision (what they want to avoid): ${avoids}.`);
+    }
+    if (parts.length > 0) {
+      goalContext = `\nWriter's direction:\n${parts.join("\n")}\nFlag themes that align with or oppose these stated goals.\n`;
+    }
+  }
 
+  const prompt = `Extract themes and patterns from this ${type} journal entry. The writer appears to be in a ${mode} state.
+${goalContext}
 Entry:
 """
 ${text}
