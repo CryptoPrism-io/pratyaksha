@@ -25,6 +25,7 @@ import { embedAllMissing } from "./lib/embeddings"
 import { cleanExpiredCache } from "./lib/cache"
 import testUsersRouter from "./routes/testUsers"
 import debugRouter from "./routes/debug"
+import embeddingsRouter from "./routes/embeddings"
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -92,18 +93,11 @@ app.use("/api/test-users", testUsersRouter)
 // Debug routes (dev only)
 app.use("/api/debug", debugRouter)
 
+// Embeddings routes (admin/dev)
+app.use("/api/embeddings", embeddingsRouter)
+
 // Cron routes (called by Cloud Scheduler)
 app.post("/api/cron/notifications", cronNotifications)
-
-// Embedding & Cache management (internal/admin)
-app.post("/api/embeddings/index-all", async (_req, res) => {
-  try {
-    const stats = await embedAllMissing()
-    res.json({ success: true, ...stats })
-  } catch (error) {
-    res.status(500).json({ success: false, error: String(error) })
-  }
-})
 app.post("/api/cache/clean", async (_req, res) => {
   try {
     await cleanExpiredCache()
