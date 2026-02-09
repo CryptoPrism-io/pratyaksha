@@ -47,128 +47,122 @@ router.post("/setup", async (req: Request, res: Response) => {
       await db.delete(schema.blueprintResponses).where(eq(schema.blueprintResponses.userId, user.id))
       await db.delete(schema.blueprintSections).where(eq(schema.blueprintSections.userId, user.id))
 
-      // Insert vision items (let DB generate IDs)
+      // Insert vision items (using raw SQL with ISO timestamps)
       if (lifeBlueprint.vision?.length > 0) {
-        await db.insert(schema.visionItems).values(
-          lifeBlueprint.vision.map((v: any) => ({
-            userId: user.id,
-            text: v.text,
-            category: v.category || "other",
-            isAnti: false,
-            createdAt: new Date(v.createdAt),
-          }))
-        )
+        for (const v of lifeBlueprint.vision) {
+          const timestamp = v.createdAt || new Date().toISOString()
+          await db.execute(sql`
+            INSERT INTO vision_items (user_id, text, category, is_anti, created_at)
+            VALUES (
+              ${user.id}::uuid,
+              ${v.text},
+              ${v.category || 'other'},
+              false,
+              ${timestamp}::timestamptz
+            )
+          `)
+        }
       }
 
-      // Insert anti-vision items (let DB generate IDs)
+      // Insert anti-vision items (using raw SQL with ISO timestamps)
       if (lifeBlueprint.antiVision?.length > 0) {
-        await db.insert(schema.visionItems).values(
-          lifeBlueprint.antiVision.map((v: any) => ({
-            userId: user.id,
-            text: v.text,
-            category: v.category || "other",
-            isAnti: true,
-            createdAt: new Date(v.createdAt),
-          }))
-        )
+        for (const v of lifeBlueprint.antiVision) {
+          const timestamp = v.createdAt || new Date().toISOString()
+          await db.execute(sql`
+            INSERT INTO vision_items (user_id, text, category, is_anti, created_at)
+            VALUES (
+              ${user.id}::uuid,
+              ${v.text},
+              ${v.category || 'other'},
+              true,
+              ${timestamp}::timestamptz
+            )
+          `)
+        }
       }
 
-      // Insert levers (let DB generate IDs)
+      // Insert levers (using raw SQL with ISO timestamps)
       if (lifeBlueprint.levers?.length > 0) {
-        await db.insert(schema.levers).values(
-          lifeBlueprint.levers.map((l: any) => ({
-            userId: user.id,
-            name: l.name,
-            description: l.description || "",
-            pushesToward: l.pushesToward || "vision",
-            createdAt: new Date(l.createdAt),
-          }))
-        )
+        for (const l of lifeBlueprint.levers) {
+          const timestamp = l.createdAt || new Date().toISOString()
+          await db.execute(sql`
+            INSERT INTO levers (user_id, name, description, pushes_toward, created_at)
+            VALUES (
+              ${user.id}::uuid,
+              ${l.name},
+              ${l.description || ''},
+              ${l.pushesToward || 'vision'},
+              ${timestamp}::timestamptz
+            )
+          `)
+        }
       }
 
-      // Insert time-horizon goals (let DB generate IDs, omit targetDate if not provided)
-      if (lifeBlueprint.timeHorizonGoals?.length > 0) {
-        await db.insert(schema.goals).values(
-          lifeBlueprint.timeHorizonGoals.map((g: any) => {
-            const goal: any = {
-              userId: user.id,
-              text: g.text,
-              category: g.category || "other",
-              timeHorizon: g.horizon,
-              isLongTerm: false,
-              completed: g.completed || false,
-              createdAt: new Date(g.createdAt),
-            }
-            if (g.targetDate) goal.targetDate = g.targetDate
-            if (g.completedAt) goal.completedAt = new Date(g.completedAt)
-            return goal
-          })
-        )
+      // Insert goals from generic 'goals' array (using raw SQL with ISO timestamps)
+      const allGoals = [
+        ...(lifeBlueprint.goals || []),
+        ...(lifeBlueprint.timeHorizonGoals || []),
+        ...(lifeBlueprint.shortTermGoals || []),
+      ];
+
+      if (allGoals.length > 0) {
+        for (const g of allGoals) {
+          const timestamp = g.createdAt || new Date().toISOString()
+          const timeHorizon = g.horizon || g.timeHorizon || null
+          await db.execute(sql`
+            INSERT INTO goals (user_id, text, category, time_horizon, created_at)
+            VALUES (
+              ${user.id}::uuid,
+              ${g.text},
+              ${g.category || 'other'},
+              ${timeHorizon},
+              ${timestamp}::timestamptz
+            )
+          `)
+        }
       }
 
-      // Insert short-term goals (if any)
-      if (lifeBlueprint.shortTermGoals?.length > 0) {
-        await db.insert(schema.goals).values(
-          lifeBlueprint.shortTermGoals.map((g: any) => {
-            const goal: any = {
-              userId: user.id,
-              text: g.text,
-              category: g.category || "other",
-              isLongTerm: false,
-              completed: g.completed || false,
-              createdAt: new Date(g.createdAt),
-            }
-            if (g.targetDate) goal.targetDate = g.targetDate
-            if (g.completedAt) goal.completedAt = new Date(g.completedAt)
-            return goal
-          })
-        )
-      }
-
-      // Insert long-term goals (if any)
+      // Insert long-term goals (using raw SQL with ISO timestamps)
       if (lifeBlueprint.longTermGoals?.length > 0) {
-        await db.insert(schema.goals).values(
-          lifeBlueprint.longTermGoals.map((g: any) => {
-            const goal: any = {
-              userId: user.id,
-              text: g.text,
-              category: g.category || "other",
-              isLongTerm: true,
-              completed: g.completed || false,
-              createdAt: new Date(g.createdAt),
-            }
-            if (g.targetDate) goal.targetDate = g.targetDate
-            if (g.completedAt) goal.completedAt = new Date(g.completedAt)
-            return goal
-          })
-        )
+        for (const g of lifeBlueprint.longTermGoals) {
+          const timestamp = g.createdAt || new Date().toISOString()
+          await db.execute(sql`
+            INSERT INTO goals (user_id, text, category, is_long_term, created_at)
+            VALUES (
+              ${user.id}::uuid,
+              ${g.text},
+              ${g.category || 'other'},
+              true,
+              ${timestamp}::timestamptz
+            )
+          `)
+        }
       }
 
-      // Insert blueprint responses
+      // Insert blueprint responses (using raw SQL with ISO timestamps)
       if (lifeBlueprint.responses?.length > 0) {
-        await db.insert(schema.blueprintResponses).values(
-          lifeBlueprint.responses.map((r: any) => {
-            const response: any = {
-              userId: user.id,
-              questionId: r.questionId,
-              answer: r.answer,
-              answeredAt: new Date(r.answeredAt),
-            }
-            if (r.updatedAt) response.updatedAt = new Date(r.updatedAt)
-            return response
-          })
-        )
+        for (const r of lifeBlueprint.responses) {
+          const timestamp = r.answeredAt || new Date().toISOString()
+          await db.execute(sql`
+            INSERT INTO blueprint_responses (user_id, question_id, answer, answered_at)
+            VALUES (
+              ${user.id}::uuid,
+              ${r.questionId},
+              ${r.answer},
+              ${timestamp}::timestamptz
+            )
+          `)
+        }
       }
 
-      // Insert completed sections (sectionName, not sectionId)
+      // Insert completed sections (using raw SQL)
       if (lifeBlueprint.completedSections?.length > 0) {
-        await db.insert(schema.blueprintSections).values(
-          lifeBlueprint.completedSections.map((sectionName: string) => ({
-            userId: user.id,
-            sectionName,  // Changed from sectionId
-            completedAt: new Date(),
-          }))
-        )
+        for (const sectionName of lifeBlueprint.completedSections) {
+          await db.execute(sql`
+            INSERT INTO blueprint_sections (user_id, section_name, completed_at)
+            VALUES (${user.id}::uuid, ${sectionName}, NOW())
+          `)
+        }
       }
     }
 

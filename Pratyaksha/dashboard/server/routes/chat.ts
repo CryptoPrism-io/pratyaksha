@@ -1,14 +1,20 @@
 // AI Chat Route - Full historical context chat with personalization + RAG
 import { Request, Response } from "express"
-import { MODELS, callChat, type ChatMessage } from "../lib/openrouter"
+import { MODELS, callChat, callOpenRouter, type ChatMessage } from "../lib/openrouter"
 import {
   UserContext,
   buildUserContextPrompt,
-  hasPersonalContext
+  hasPersonalContext,
+  createEmptyUserContext
 } from "../lib/userContextBuilder"
 import { findSimilarEntries, buildRAGContext } from "../lib/embeddings"
 
-import { fetchAllEntries as dbFetchAllEntries, type EntryRecord } from "../lib/db"
+import {
+  fetchAllEntries as dbFetchAllEntries,
+  getUserProfile,
+  findUserByFirebaseUid,
+  type EntryRecord
+} from "../lib/db"
 
 interface ChatRequest {
   message: string
@@ -18,6 +24,134 @@ interface ChatRequest {
   }>
   // NEW: Optional user context for personalization
   userContext?: UserContext
+}
+
+interface RelevantContext {
+  visionItems: string[]
+  antiVisionItems: string[]
+  levers: string[]
+  goals: string[]
+  keyThemes: string[]
+}
+
+// PASS 1: Extract relevant context from user profile based on their query
+async function extractRelevantContext(
+  query: string,
+  userContext: UserContext
+): Promise<RelevantContext> {
+  const extractionPrompt = `You are analyzing a user's question to determine which parts of their personal context are most relevant.
+
+USER'S QUESTION:
+"${query}"
+
+USER'S PERSONAL CONTEXT:
+
+Vision (what they want to move toward):
+${userContext.blueprint.vision.map(v => `- ${v.text}`).join('\n') || 'None'}
+
+Anti-Vision (what they want to avoid):
+${userContext.blueprint.antiVision.map(v => `- ${v.text}`).join('\n') || 'None'}
+
+Levers (actions that push toward their vision):
+${userContext.blueprint.levers.map(l => `- ${l.name}: ${l.description}`).join('\n') || 'None'}
+
+Goals:
+${userContext.profile.personalGoal ? `- Primary: ${userContext.profile.personalGoal}` : ''}
+${userContext.blueprint.timeHorizonGoals.sixMonths.length > 0 ? `- 6-month: ${userContext.blueprint.timeHorizonGoals.sixMonths.join('; ')}` : ''}
+
+TASK: Identify which context items are MOST relevant to answering their question.
+
+Respond with JSON:
+{
+  "visionItems": ["exact vision text if relevant", ...],
+  "antiVisionItems": ["exact anti-vision text if relevant", ...],
+  "levers": ["exact lever name if relevant", ...],
+  "goals": ["exact goal text if relevant", ...],
+  "keyThemes": ["key themes from their question: imposter syndrome, work-life balance, etc."]
+}`
+
+  try {
+    const response = await callOpenRouter<RelevantContext>(
+      extractionPrompt,
+      MODELS.CHEAP,
+      "You extract relevant personal context for personalized advice. Respond only with valid JSON."
+    )
+
+    return {
+      visionItems: response.data.visionItems || [],
+      antiVisionItems: response.data.antiVisionItems || [],
+      levers: response.data.levers || [],
+      goals: response.data.goals || [],
+      keyThemes: response.data.keyThemes || []
+    }
+  } catch (error) {
+    console.log("[Chat] Context extraction failed, using fallback", error)
+    // Fallback: include everything
+    return {
+      visionItems: userContext.blueprint.vision.map(v => v.text),
+      antiVisionItems: userContext.blueprint.antiVision.map(v => v.text),
+      levers: userContext.blueprint.levers.map(l => l.name),
+      goals: userContext.profile.personalGoal ? [userContext.profile.personalGoal] : [],
+      keyThemes: []
+    }
+  }
+}
+
+// Build explicit requirements for Pass 2
+function buildExplicitRequirements(context: RelevantContext, userContext?: UserContext): string {
+  const requirements: string[] = []
+
+  requirements.push("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+  requirements.push("🎯 CRITICAL PERSONALIZATION REQUIREMENTS")
+  requirements.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
+
+  if (context.keyThemes.length > 0) {
+    requirements.push(`📌 REQUIRED: Explicitly address these themes: ${context.keyThemes.join(', ')}`)
+  }
+
+  if (context.goals.length > 0) {
+    requirements.push(`\n🎯 REQUIRED: Reference at least ONE of these exact goals:`)
+    context.goals.forEach(g => requirements.push(`   - "${g}"`))
+  }
+
+  if (context.visionItems.length > 0) {
+    requirements.push(`\n✨ REQUIRED: Reference at least ONE of these vision items:`)
+    context.visionItems.forEach(v => requirements.push(`   - "${v}"`))
+  }
+
+  if (context.antiVisionItems.length > 0) {
+    requirements.push(`\n⚠️ REQUIRED: If relevant, warn about these anti-vision patterns:`)
+    context.antiVisionItems.forEach(av => requirements.push(`   - "${av}"`))
+  }
+
+  if (context.levers.length > 0) {
+    requirements.push(`\n🎚️ CRITICAL REQUIREMENT - LEVERS:`)
+    requirements.push(`You MUST suggest at least ONE of these SPECIFIC levers by name.`)
+    requirements.push(`Do NOT use generic advice - use the EXACT lever name and action:`)
+    context.levers.forEach(leverName => {
+      // Find full lever details from userContext if available
+      if (userContext) {
+        const lever = userContext.blueprint.levers.find(l => l.name === leverName)
+        if (lever) {
+          requirements.push(`   ✓ LEVER: "${lever.name}" → ACTION: ${lever.description}`)
+        } else {
+          requirements.push(`   ✓ ${leverName}`)
+        }
+      } else {
+        requirements.push(`   ✓ ${leverName}`)
+      }
+    })
+    requirements.push(`EXAMPLE: "Consider ${context.levers[0]}" or "Try ${context.levers[0]} this week"`)
+  }
+
+  requirements.push("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+  requirements.push("⚡ MANDATORY COMPLIANCE:")
+  requirements.push("   • Use EXACT terminology from above (copy-paste the quoted text)")
+  requirements.push("   • Reference items by their SPECIFIC names (not generic equivalents)")
+  requirements.push("   • If levers are listed, you MUST suggest at least one BY NAME")
+  requirements.push("   • Do NOT paraphrase - use the exact words the user wrote\n")
+
+  return requirements.join('\n')
 }
 
 // fetchAllEntries is now imported from lib/db
@@ -166,7 +300,7 @@ export async function chat(
   req: Request<object, object, ChatRequest>,
   res: Response
 ) {
-  const { message, history = [], userContext } = req.body
+  let { message, history = [], userContext } = req.body
 
   if (!message || typeof message !== "string") {
     return res.status(400).json({
@@ -178,17 +312,105 @@ export async function chat(
   try {
     console.log("[Chat] Processing message...")
 
+    // Load user context from database if not provided or empty
+    if (!userContext || Object.keys(userContext).length === 0) {
+      const firebaseUid = req.headers['x-firebase-uid'] as string
+      if (firebaseUid) {
+        console.log(`[Chat] Loading user context from database for ${firebaseUid}`)
+        try {
+          const user = await findUserByFirebaseUid(firebaseUid)
+          if (user) {
+            const profile = await getUserProfile(firebaseUid)
+            if (profile) {
+              // Build context exactly as debug route does
+              const ctx: UserContext = createEmptyUserContext()
+
+              // Profile basics
+              ctx.profile.displayName = profile.displayName || ""
+              ctx.profile.ageRange = profile.personalization?.ageRange || null
+              ctx.profile.profession = profile.personalization?.profession || null
+              ctx.profile.stressLevel = profile.personalization?.stressLevel || null
+              ctx.profile.emotionalOpenness = profile.personalization?.emotionalOpenness || null
+              ctx.profile.personalGoal = profile.personalization?.personalGoal || null
+              ctx.profile.selectedMemoryTopics = profile.personalization?.selectedMemoryTopics || []
+
+              // Life blueprint
+              if (profile.lifeBlueprint) {
+                ctx.blueprint.vision = (profile.lifeBlueprint.vision || []).map(v => ({
+                  text: v.text,
+                  category: v.category || "other",
+                }))
+                ctx.blueprint.antiVision = (profile.lifeBlueprint.antiVision || []).map(v => ({
+                  text: v.text,
+                  category: v.category || "other",
+                }))
+                ctx.blueprint.levers = (profile.lifeBlueprint.levers || []).map(l => ({
+                  name: l.name,
+                  description: l.description || "",
+                  pushesToward: l.pushesToward || "vision",
+                }))
+                ctx.blueprint.completedSections = profile.lifeBlueprint.completedSections || []
+
+                // Time horizon goals
+                const thGoals = profile.lifeBlueprint.timeHorizonGoals || []
+                for (const g of thGoals) {
+                  if (g.completed) continue
+                  const horizon = g.horizon as keyof typeof ctx.blueprint.timeHorizonGoals
+                  if (horizon && ctx.blueprint.timeHorizonGoals[horizon]) {
+                    ctx.blueprint.timeHorizonGoals[horizon].push(g.text)
+                  }
+                }
+
+                // Key reflections
+                const responses = profile.lifeBlueprint.responses || []
+                for (const r of responses) {
+                  ctx.blueprint.keyReflections[r.questionId] = r.answer
+                }
+              }
+
+              // Gamification stats
+              if (profile.gamification) {
+                ctx.stats.totalEntries = (profile.gamification as any).totalEntriesLogged || 0
+                ctx.stats.streakDays = (profile.gamification as any).streakDays || 0
+                ctx.stats.karmaPoints = (profile.gamification as any).karma || 0
+              }
+
+              // Soul mapping
+              if (profile.gamification && (profile.gamification as any).completedSoulMappingTopics) {
+                ctx.soulMapping.completedTopics = (profile.gamification as any).completedSoulMappingTopics || []
+                ctx.soulMapping.totalCompleted = ctx.soulMapping.completedTopics.length
+              }
+
+              userContext = ctx
+              console.log("[Chat] User context loaded from database")
+            }
+          }
+        } catch (err) {
+          console.log(`[Chat] Could not load user context: ${err}`)
+          // Continue without user context
+        }
+      }
+    }
+
     // Fetch all entries from PostgreSQL and create context
     const entries = await dbFetchAllEntries()
     const contextSummary = createContextSummary(entries)
 
     console.log(`[Chat] Loaded ${entries.length} entries for context`)
 
-    // Build personalized context if available
+    // Two-Pass Generation for Better Personalization
     let personalContextSection = ""
+    let explicitRequirements = ""
+
     if (userContext && hasPersonalContext(userContext)) {
+      // PASS 1: Extract relevant context based on user's query
+      const relevantContext = await extractRelevantContext(message, userContext)
+      console.log("[Chat] Pass 1: Extracted relevant context", relevantContext)
+
+      // PASS 2: Build explicit requirements for response generation
+      explicitRequirements = buildExplicitRequirements(relevantContext, userContext)
       personalContextSection = buildUserContextPrompt(userContext)
-      console.log("[Chat] User context included for personalization")
+      console.log("[Chat] Pass 2: Built explicit requirements for response generation")
     }
 
     // RAG: Find semantically similar entries to the user's message
@@ -204,12 +426,14 @@ export async function chat(
       console.log("[Chat] RAG unavailable (embeddings may not be indexed yet)")
     }
 
-    // Build messages array with optional personalization + RAG
+    // Build messages array with optional personalization + RAG + explicit requirements
     const chatMessages: ChatMessage[] = [
       { role: "system", content: SYSTEM_PROMPT_BASE },
       // Inject personal context if available (before journal data)
       ...(personalContextSection ? [{ role: "system" as const, content: personalContextSection }] : []),
       { role: "system", content: `Here is the user's journal data:\n\n${contextSummary}${ragContext}` },
+      // Inject explicit requirements from Pass 1
+      ...(explicitRequirements ? [{ role: "system" as const, content: explicitRequirements }] : []),
       // Include recent history (last 10 exchanges)
       ...history.slice(-10).map(h => ({
         role: h.role as "user" | "assistant",
