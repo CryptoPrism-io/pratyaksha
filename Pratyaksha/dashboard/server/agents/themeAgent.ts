@@ -27,23 +27,33 @@ export async function extractThemes(
   mode: InferredMode,
   userContext?: UserContext
 ): Promise<ThemeAgentOutput> {
-  // Build goal-aware context for pattern detection
+  // Build STRONG goal-aware context for pattern detection
   let goalContext = "";
   if (userContext) {
     const parts: string[] = [];
+
     if (userContext.profile.personalGoal) {
-      parts.push(`The writer's primary goal: ${userContext.profile.personalGoal}.`);
+      parts.push(`🎯 Writer's PRIMARY GOAL: ${userContext.profile.personalGoal}`);
     }
+
     if (userContext.blueprint.vision.length > 0) {
       const visions = userContext.blueprint.vision.slice(0, 3).map(v => v.text).join("; ");
-      parts.push(`Vision (what they want): ${visions}.`);
+      parts.push(`✨ VISION (what they're moving toward): ${visions}`);
     }
+
     if (userContext.blueprint.antiVision.length > 0) {
       const avoids = userContext.blueprint.antiVision.slice(0, 3).map(v => v.text).join("; ");
-      parts.push(`Anti-vision (what they want to avoid): ${avoids}.`);
+      parts.push(`⚠️ ANTI-VISION (what they want to AVOID): ${avoids}`);
     }
+
     if (parts.length > 0) {
-      goalContext = `\nWriter's direction:\n${parts.join("\n")}\nFlag themes that align with or oppose these stated goals.\n`;
+      goalContext = `\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+      goalContext += `WRITER'S DIRECTION & GOALS (USE THIS FOR THEME SELECTION):\n`;
+      goalContext += parts.join("\n");
+      goalContext += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+      goalContext += `\n🔍 REQUIRED: When selecting themes, PRIORITIZE themes that relate to their vision/anti-vision/goals.`;
+      goalContext += `\n⚠️ REQUIRED: If entry shows patterns that align with ANTI-VISION, include warning themes (e.g., "burnout", "overwork").`;
+      goalContext += `\n✅ REQUIRED: If entry shows progress toward VISION, include positive themes related to their goal.\n`;
     }
   }
 

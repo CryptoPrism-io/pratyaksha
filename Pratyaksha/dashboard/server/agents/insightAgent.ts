@@ -33,26 +33,58 @@ export async function generateInsights(
   if (userContext) {
     const contextBlock = buildAgentContextBlock(userContext);
     if (contextBlock) {
-      // Add response calibration rules
-      const calibrationRules: string[] = [];
+      // Add MANDATORY response requirements (not suggestions)
+      const requirements: string[] = [];
+
+      // STRESS CALIBRATION (mandatory)
       if (userContext.profile.stressLevel && userContext.profile.stressLevel >= 4) {
-        calibrationRules.push("- User reports high stress. Lead with validation, suggest gentle/manageable steps.");
+        requirements.push("🔴 REQUIRED: User reports HIGH STRESS (4-5/5). Your response MUST be extra gentle, validating, and suggest small manageable steps only. Avoid overwhelming advice.");
       } else if (userContext.profile.stressLevel && userContext.profile.stressLevel <= 2) {
-        calibrationRules.push("- User reports low stress. You can be more direct and challenge-oriented.");
+        requirements.push("🟢 User reports LOW STRESS (1-2/5). You can be more direct, challenging, and ambitious in your recommendations.");
       }
+
+      // EMOTIONAL TONE CALIBRATION (mandatory)
       if (userContext.profile.emotionalOpenness && userContext.profile.emotionalOpenness >= 4) {
-        calibrationRules.push("- User is emotionally open. Explore deeper feelings and patterns in your summary.");
+        requirements.push("💬 REQUIRED: User is EMOTIONALLY OPEN (4-5/5). Your summary MUST explore deeper feelings, patterns, and emotional undertones. Use emotional language.");
       } else if (userContext.profile.emotionalOpenness && userContext.profile.emotionalOpenness <= 2) {
-        calibrationRules.push("- User prefers emotional privacy. Keep insights practical and action-focused.");
+        requirements.push("🔧 REQUIRED: User prefers EMOTIONAL PRIVACY (1-2/5). Keep insights PRACTICAL and ACTION-FOCUSED. Minimize emotional language, focus on concrete steps.");
       }
+
+      // GOAL ALIGNMENT (mandatory if available)
       if (userContext.profile.personalGoal) {
-        calibrationRules.push(`- Connect next-action to user's goal: "${userContext.profile.personalGoal}".`);
+        requirements.push(`🎯 REQUIRED: User's primary goal is "${userContext.profile.personalGoal}". Your next-action MUST explicitly reference or align with this goal.`);
+      }
+
+      // VISION INTEGRATION (mandatory if available)
+      if (userContext.blueprint.vision.length > 0) {
+        const visionText = userContext.blueprint.vision.slice(0, 2).map(v => v.text).join("; ");
+        requirements.push(`✨ REQUIRED: User has defined VISION: "${visionText}". Your summary or insights MUST reference how this entry relates to their vision (moving toward it or away from it).`);
+      }
+
+      // ANTI-VISION WARNINGS (mandatory if available)
+      if (userContext.blueprint.antiVision.length > 0) {
+        const antiVisionText = userContext.blueprint.antiVision.slice(0, 2).map(v => v.text).join("; ");
+        requirements.push(`⚠️ REQUIRED: User wants to AVOID: "${antiVisionText}". If you detect patterns in this entry that align with their anti-vision, you MUST gently flag this with a warning like "This pattern seems to align with what you want to avoid: [anti-vision]".`);
+      }
+
+      // LEVER SUGGESTIONS (mandatory if available)
+      if (userContext.blueprint.levers.length > 0) {
+        const levers = userContext.blueprint.levers.map(l => `"${l.name}" (${l.description})`).join(", ");
+        requirements.push(`🎚️ REQUIRED: User has defined LEVERS (actions that push toward their vision): ${levers}. Your next-action or insights MUST explicitly suggest using one of these levers.`);
+      }
+
+      // 6-MONTH GOAL ALIGNMENT (mandatory if available)
+      const sixMonthGoals = userContext.blueprint.timeHorizonGoals.sixMonths;
+      if (sixMonthGoals.length > 0) {
+        requirements.push(`📅 REQUIRED: User's 6-month goal(s): "${sixMonthGoals.join("; ")}". Your insights MUST connect advice to this near-term goal when relevant.`);
       }
 
       personalizedSystemPrompt += `\n\n${contextBlock}`;
-      if (calibrationRules.length > 0) {
-        personalizedSystemPrompt += `\n\nResponse Calibration:\n${calibrationRules.join("\n")}`;
-      }
+      personalizedSystemPrompt += `\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+      personalizedSystemPrompt += `\n🎯 PERSONALIZATION REQUIREMENTS (YOU MUST FOLLOW THESE):\n`;
+      personalizedSystemPrompt += requirements.join("\n");
+      personalizedSystemPrompt += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+      personalizedSystemPrompt += `\n\n⚡ IMPORTANT: The requirements above are MANDATORY, not optional. If user has vision/levers/goals defined, you MUST reference them explicitly in your response.`;
     }
   }
 
