@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Screen 01: Landing Page</title>
+  
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  color: #000000;
+  background: #ffffff;
+  font-size: 11pt;
+}
+
+.page {
+  max-width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 20mm;
+  background: #ffffff;
+  page-break-after: always;
+}
+
+.page:last-child {
+  page-break-after: auto;
+}
+
+.header {
+  border-bottom: 3px solid #000;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  font-size: 18pt;
+  font-weight: bold;
+}
+
+.screen-number {
+  float: right;
+  font-size: 10pt;
+  color: #666;
+}
+
+/* Wireframe Container */
+.wireframe {
+  border: 3px solid #000;
+  padding: 15px;
+  margin: 20px 0;
+  min-height: 400px;
+  background: #fafafa;
+  position: relative;
+}
+
+/* UI Components */
+.ui-navbar {
+  border: 2px solid #000;
+  padding: 10px;
+  margin-bottom: 10px;
+  background: #fff;
+  font-weight: bold;
+}
+
+.ui-hero {
+  border: 2px solid #000;
+  padding: 40px 20px;
+  margin: 10px 0;
+  background: #fff;
+  text-align: center;
+  min-height: 150px;
+}
+
+.ui-section {
+  border: 2px solid #000;
+  padding: 15px;
+  margin: 10px 0;
+  background: #fff;
+}
+
+.ui-card {
+  border: 1px solid #000;
+  padding: 10px;
+  margin: 5px 0;
+  background: #fff;
+}
+
+.ui-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.ui-button {
+  border: 2px solid #000;
+  padding: 8px 15px;
+  margin: 5px;
+  background: #fff;
+  display: inline-block;
+  font-weight: bold;
+  text-align: center;
+}
+
+.ui-input {
+  border: 2px solid #000;
+  padding: 8px;
+  margin: 5px 0;
+  background: #fff;
+  width: 100%;
+}
+
+.ui-modal {
+  border: 3px solid #000;
+  padding: 20px;
+  margin: 20px auto;
+  background: #fff;
+  max-width: 400px;
+}
+
+.ui-sidebar {
+  border: 2px solid #000;
+  padding: 10px;
+  background: #fff;
+  min-height: 200px;
+}
+
+.ui-tabs {
+  border-bottom: 2px solid #000;
+  padding: 10px 0;
+  margin-bottom: 10px;
+}
+
+.ui-tab {
+  border: 2px solid #000;
+  border-bottom: none;
+  padding: 8px 15px;
+  margin-right: 5px;
+  display: inline-block;
+  background: #fff;
+}
+
+.ui-tab.active {
+  background: #000;
+  color: #fff;
+}
+
+/* Navigation Sections */
+.nav-section {
+  margin-top: 30px;
+  page-break-inside: avoid;
+}
+
+.nav-section h3 {
+  font-size: 13pt;
+  font-weight: bold;
+  margin-bottom: 10px;
+  border-left: 4px solid #000;
+  padding-left: 10px;
+}
+
+.nav-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0;
+}
+
+.nav-table th {
+  background: #000;
+  color: #fff;
+  font-weight: bold;
+  padding: 8px;
+  text-align: left;
+  border: 1px solid #000;
+}
+
+.nav-table td {
+  padding: 6px 8px;
+  border: 1px solid #000;
+  vertical-align: top;
+}
+
+.nav-table td:first-child {
+  font-weight: bold;
+  width: 30%;
+}
+
+.label {
+  font-size: 9pt;
+  color: #666;
+  font-style: italic;
+}
+
+.component-label {
+  font-size: 9pt;
+  color: #666;
+  margin-top: 5px;
+}
+
+.grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.footer {
+  margin-top: 20px;
+  padding-top: 10px;
+  border-top: 2px solid #000;
+  text-align: center;
+  font-size: 10pt;
+}
+
+@media print {
+  .page {
+    margin: 0;
+    padding: 15mm;
+  }
+
+  @page {
+    margin: 15mm;
+    size: A4;
+  }
+}
+</style>
+
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <span class="screen-number">Screen 01 of 12</span>
+      <h1>Landing Page (/)</h1>
+      <p class="label">Public marketing page - First touchpoint for new users</p>
+    </div>
+
+    <div class="wireframe">
+      <!-- Navbar -->
+      <div class="ui-navbar">
+        <strong>PRATYAKSHA</strong>
+        <div style="float: right;">
+          <span class="ui-button">Login</span>
+          <span class="ui-button">Sign Up</span>
+        </div>
+      </div>
+      <div class="component-label">Navigation: Logo + Login + Sign Up buttons</div>
+
+      <!-- Hero Section -->
+      <div class="ui-hero">
+        <h2>Your Mind's Mirror</h2>
+        <p>AI-powered journaling platform for emotional clarity</p>
+        <br>
+        <span class="ui-button">Get Started Free →</span>
+      </div>
+      <div class="component-label">Hero: Value proposition + CTA</div>
+
+      <!-- Feature Sections -->
+      <div class="ui-section">
+        <strong>4-Agent AI Pipeline</strong>
+        <p>Intent → Emotion → Theme → Insight analysis</p>
+      </div>
+      <div class="component-label">Feature 1: AI capabilities</div>
+
+      <div class="ui-section">
+        <strong>Personalized Insights</strong>
+        <p>Soul Mapping + Life Blueprint for tailored advice</p>
+      </div>
+      <div class="component-label">Feature 2: Personalization</div>
+
+      <div class="ui-section">
+        <strong>Pattern Recognition</strong>
+        <p>Identify emotional loops and behavioral themes</p>
+      </div>
+      <div class="component-label">Feature 3: Analytics</div>
+    </div>
+
+    <div class="nav-section">
+      <h3>🔽 Where can this screen be accessed from?</h3>
+      <table class="nav-table">
+        <tr>
+          <th>Source</th>
+          <th>Context</th>
+        </tr>
+        <tr>
+          <td>Direct URL</td>
+          <td>User types pratyaksha.app or clicks marketing link</td>
+        </tr>
+        <tr>
+          <td>Logout</td>
+          <td>User logs out from Dashboard → redirected to Landing</td>
+        </tr>
+        <tr>
+          <td>Browser default</td>
+          <td>New user, no auth session</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="nav-section">
+      <h3>🔼 Where all can user go from here?</h3>
+      <table class="nav-table">
+        <tr>
+          <th>Destination</th>
+          <th>Trigger</th>
+        </tr>
+        <tr>
+          <td>Sign Up (Screen 02)</td>
+          <td>Click "Sign Up" button or "Get Started Free" CTA</td>
+        </tr>
+        <tr>
+          <td>Login (Screen 03)</td>
+          <td>Click "Login" button</td>
+        </tr>
+        <tr>
+          <td>Research/Science</td>
+          <td>Click footer links (Science, Methodology, Agent Pipeline)</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="footer">
+      <p>Pratyaksha UI Flow Documentation • Screen 01 of 12</p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Screen 12: Complete Flow Map</title>
+  
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  color: #000000;
+  background: #ffffff;
+  font-size: 11pt;
+}
+
+.page {
+  max-width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 20mm;
+  background: #ffffff;
+  page-break-after: always;
+}
+
+.page:last-child {
+  page-break-after: auto;
+}
+
+.header {
+  border-bottom: 3px solid #000;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  font-size: 18pt;
+  font-weight: bold;
+}
+
+.screen-number {
+  float: right;
+  font-size: 10pt;
+  color: #666;
+}
+
+/* Wireframe Container */
+.wireframe {
+  border: 3px solid #000;
+  padding: 15px;
+  margin: 20px 0;
+  min-height: 400px;
+  background: #fafafa;
+  position: relative;
+}
+
+/* UI Components */
+.ui-navbar {
+  border: 2px solid #000;
+  padding: 10px;
+  margin-bottom: 10px;
+  background: #fff;
+  font-weight: bold;
+}
+
+.ui-hero {
+  border: 2px solid #000;
+  padding: 40px 20px;
+  margin: 10px 0;
+  background: #fff;
+  text-align: center;
+  min-height: 150px;
+}
+
+.ui-section {
+  border: 2px solid #000;
+  padding: 15px;
+  margin: 10px 0;
+  background: #fff;
+}
+
+.ui-card {
+  border: 1px solid #000;
+  padding: 10px;
+  margin: 5px 0;
+  background: #fff;
+}
+
+.ui-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.ui-button {
+  border: 2px solid #000;
+  padding: 8px 15px;
+  margin: 5px;
+  background: #fff;
+  display: inline-block;
+  font-weight: bold;
+  text-align: center;
+}
+
+.ui-input {
+  border: 2px solid #000;
+  padding: 8px;
+  margin: 5px 0;
+  background: #fff;
+  width: 100%;
+}
+
+.ui-modal {
+  border: 3px solid #000;
+  padding: 20px;
+  margin: 20px auto;
+  background: #fff;
+  max-width: 400px;
+}
+
+.ui-sidebar {
+  border: 2px solid #000;
+  padding: 10px;
+  background: #fff;
+  min-height: 200px;
+}
+
+.ui-tabs {
+  border-bottom: 2px solid #000;
+  padding: 10px 0;
+  margin-bottom: 10px;
+}
+
+.ui-tab {
+  border: 2px solid #000;
+  border-bottom: none;
+  padding: 8px 15px;
+  margin-right: 5px;
+  display: inline-block;
+  background: #fff;
+}
+
+.ui-tab.active {
+  background: #000;
+  color: #fff;
+}
+
+/* Navigation Sections */
+.nav-section {
+  margin-top: 30px;
+  page-break-inside: avoid;
+}
+
+.nav-section h3 {
+  font-size: 13pt;
+  font-weight: bold;
+  margin-bottom: 10px;
+  border-left: 4px solid #000;
+  padding-left: 10px;
+}
+
+.nav-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0;
+}
+
+.nav-table th {
+  background: #000;
+  color: #fff;
+  font-weight: bold;
+  padding: 8px;
+  text-align: left;
+  border: 1px solid #000;
+}
+
+.nav-table td {
+  padding: 6px 8px;
+  border: 1px solid #000;
+  vertical-align: top;
+}
+
+.nav-table td:first-child {
+  font-weight: bold;
+  width: 30%;
+}
+
+.label {
+  font-size: 9pt;
+  color: #666;
+  font-style: italic;
+}
+
+.component-label {
+  font-size: 9pt;
+  color: #666;
+  margin-top: 5px;
+}
+
+.grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.footer {
+  margin-top: 20px;
+  padding-top: 10px;
+  border-top: 2px solid #000;
+  text-align: center;
+  font-size: 10pt;
+}
+
+@media print {
+  .page {
+    margin: 0;
+    padding: 15mm;
+  }
+
+  @page {
+    margin: 15mm;
+    size: A4;
+  }
+}
+</style>
+
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <span class="screen-number">Screen 12 of 12</span>
+      <h1>Complete User Journey Flow Map</h1>
+      <p class="label">All screens and navigation paths</p>
+    </div>
+
+    <div style="font-size: 9pt; margin: 20px 0;">
+      <!-- Flow Diagram -->
+      <div style="border: 3px solid #000; padding: 20px; background: #fafafa;">
+
+        <!-- New User Flow -->
+        <div style="border: 2px solid #000; padding: 15px; margin-bottom: 20px; background: #fff;">
+          <strong style="font-size: 11pt;">NEW USER FLOW</strong>
+          <div style="margin-top: 10px;">
+            <div class="ui-button" style="display: inline-block; margin: 5px;">01. Landing</div>
+            <span style="font-size: 14pt;">→</span>
+            <div class="ui-button" style="display: inline-block; margin: 5px;">02. Sign Up</div>
+            <span style="font-size: 14pt;">→</span>
+            <div class="ui-button" style="display: inline-block; margin: 5px;">04. Onboarding Welcome</div>
+            <span style="font-size: 14pt;">→</span>
+            <div class="ui-button" style="display: inline-block; margin: 5px;">05. Soul Mapping</div>
+            <span style="font-size: 14pt;">→</span>
+            <div class="ui-button" style="display: inline-block; margin: 5px;">06. Dashboard</div>
+          </div>
+        </div>
+
+        <!-- Returning User Flow -->
+        <div style="border: 2px solid #000; padding: 15px; margin-bottom: 20px; background: #fff;">
+          <strong style="font-size: 11pt;">RETURNING USER FLOW</strong>
+          <div style="margin-top: 10px;">
+            <div class="ui-button" style="display: inline-block; margin: 5px;">01. Landing</div>
+            <span style="font-size: 14pt;">→</span>
+            <div class="ui-button" style="display: inline-block; margin: 5px;">03. Login</div>
+            <span style="font-size: 14pt;">→</span>
+            <div class="ui-button" style="display: inline-block; margin: 5px;">06. Dashboard</div>
+          </div>
+        </div>
+
+        <!-- Core App Loop -->
+        <div style="border: 2px solid #000; padding: 15px; margin-bottom: 20px; background: #fff;">
+          <strong style="font-size: 11pt;">CORE APP LOOP (Daily Usage)</strong>
+          <div style="margin-top: 10px; text-align: center;">
+            <div class="ui-button" style="margin: 5px;">06. Dashboard</div>
+            <div>↓</div>
+            <div class="ui-button" style="margin: 5px;">07. New Entry</div>
+            <div>↓</div>
+            <div class="ui-button" style="margin: 5px;">08. Entry Details</div>
+            <div>↓</div>
+            <div class="ui-button" style="margin: 5px;">06. Dashboard</div>
+            <div style="margin-top: 10px; color: #666; font-size: 8pt;">(Repeat)</div>
+          </div>
+        </div>
+
+        <!-- Navigation Hub -->
+        <div style="border: 2px solid #000; padding: 15px; background: #fff;">
+          <strong style="font-size: 11pt;">NAVIGATION HUB (From Dashboard)</strong>
+          <div style="text-align: center; margin-top: 15px;">
+            <div class="ui-button" style="margin: 3px;">06. Dashboard</div>
+            <div style="margin: 10px 0;">
+              <span style="font-size: 12pt;">↙</span>
+              <span style="margin: 0 20px; font-size: 12pt;">↓</span>
+              <span style="font-size: 12pt;">↘</span>
+            </div>
+            <div class="ui-button" style="display: inline-block; margin: 5px;">09. Logs</div>
+            <div class="ui-button" style="display: inline-block; margin: 5px;">10. Chat</div>
+            <div class="ui-button" style="display: inline-block; margin: 5px;">11. Profile</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Screen Summary Table -->
+    <div style="margin-top: 20px;">
+      <table class="nav-table" style="font-size: 9pt;">
+        <tr>
+          <th style="width: 10%;">#</th>
+          <th style="width: 25%;">Screen</th>
+          <th style="width: 30%;">Primary Purpose</th>
+          <th style="width: 35%;">Key Actions</th>
+        </tr>
+        <tr>
+          <td>01</td>
+          <td>Landing</td>
+          <td>Marketing & acquisition</td>
+          <td>Sign Up, Login</td>
+        </tr>
+        <tr>
+          <td>02</td>
+          <td>Sign Up</td>
+          <td>New user registration</td>
+          <td>Create account → Onboarding</td>
+        </tr>
+        <tr>
+          <td>03</td>
+          <td>Login</td>
+          <td>Authentication</td>
+          <td>Auth → Dashboard or Onboarding</td>
+        </tr>
+        <tr>
+          <td>04</td>
+          <td>Onboarding Welcome</td>
+          <td>Collect basic profile</td>
+          <td>Name, profession, stress, openness</td>
+        </tr>
+        <tr>
+          <td>05</td>
+          <td>Soul Mapping</td>
+          <td>Deep self-reflection</td>
+          <td>5 optional exercises (childhood, fear, etc.)</td>
+        </tr>
+        <tr>
+          <td>06</td>
+          <td>Dashboard</td>
+          <td>Main hub & analytics</td>
+          <td>View insights, charts, recent entries</td>
+        </tr>
+        <tr>
+          <td>07</td>
+          <td>New Entry</td>
+          <td>Create journal entry</td>
+          <td>Text/voice input → AI processing</td>
+        </tr>
+        <tr>
+          <td>08</td>
+          <td>Entry Details</td>
+          <td>View full AI analysis</td>
+          <td>Read insights, summary, next action</td>
+        </tr>
+        <tr>
+          <td>09</td>
+          <td>Logs</td>
+          <td>Browse all entries</td>
+          <td>Filter, search, paginate history</td>
+        </tr>
+        <tr>
+          <td>10</td>
+          <td>Chat</td>
+          <td>Ask questions about journal</td>
+          <td>RAG-powered Q&A with context</td>
+        </tr>
+        <tr>
+          <td>11</td>
+          <td>Profile Settings</td>
+          <td>Manage account & preferences</td>
+          <td>Edit profile, complete exercises, logout</td>
+        </tr>
+        <tr>
+          <td>12</td>
+          <td>Flow Map (This page)</td>
+          <td>Documentation reference</td>
+          <td>—</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="footer" style="margin-top: 30px;">
+      <p>Pratyaksha UI Flow Documentation • Screen 12 of 12 • Complete</p>
+    </div>
+  </div>
+</body>
+</html>

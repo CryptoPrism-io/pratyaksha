@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Screen 09: Logs</title>
+  
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  color: #000000;
+  background: #ffffff;
+  font-size: 11pt;
+}
+
+.page {
+  max-width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 20mm;
+  background: #ffffff;
+  page-break-after: always;
+}
+
+.page:last-child {
+  page-break-after: auto;
+}
+
+.header {
+  border-bottom: 3px solid #000;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  font-size: 18pt;
+  font-weight: bold;
+}
+
+.screen-number {
+  float: right;
+  font-size: 10pt;
+  color: #666;
+}
+
+/* Wireframe Container */
+.wireframe {
+  border: 3px solid #000;
+  padding: 15px;
+  margin: 20px 0;
+  min-height: 400px;
+  background: #fafafa;
+  position: relative;
+}
+
+/* UI Components */
+.ui-navbar {
+  border: 2px solid #000;
+  padding: 10px;
+  margin-bottom: 10px;
+  background: #fff;
+  font-weight: bold;
+}
+
+.ui-hero {
+  border: 2px solid #000;
+  padding: 40px 20px;
+  margin: 10px 0;
+  background: #fff;
+  text-align: center;
+  min-height: 150px;
+}
+
+.ui-section {
+  border: 2px solid #000;
+  padding: 15px;
+  margin: 10px 0;
+  background: #fff;
+}
+
+.ui-card {
+  border: 1px solid #000;
+  padding: 10px;
+  margin: 5px 0;
+  background: #fff;
+}
+
+.ui-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.ui-button {
+  border: 2px solid #000;
+  padding: 8px 15px;
+  margin: 5px;
+  background: #fff;
+  display: inline-block;
+  font-weight: bold;
+  text-align: center;
+}
+
+.ui-input {
+  border: 2px solid #000;
+  padding: 8px;
+  margin: 5px 0;
+  background: #fff;
+  width: 100%;
+}
+
+.ui-modal {
+  border: 3px solid #000;
+  padding: 20px;
+  margin: 20px auto;
+  background: #fff;
+  max-width: 400px;
+}
+
+.ui-sidebar {
+  border: 2px solid #000;
+  padding: 10px;
+  background: #fff;
+  min-height: 200px;
+}
+
+.ui-tabs {
+  border-bottom: 2px solid #000;
+  padding: 10px 0;
+  margin-bottom: 10px;
+}
+
+.ui-tab {
+  border: 2px solid #000;
+  border-bottom: none;
+  padding: 8px 15px;
+  margin-right: 5px;
+  display: inline-block;
+  background: #fff;
+}
+
+.ui-tab.active {
+  background: #000;
+  color: #fff;
+}
+
+/* Navigation Sections */
+.nav-section {
+  margin-top: 30px;
+  page-break-inside: avoid;
+}
+
+.nav-section h3 {
+  font-size: 13pt;
+  font-weight: bold;
+  margin-bottom: 10px;
+  border-left: 4px solid #000;
+  padding-left: 10px;
+}
+
+.nav-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0;
+}
+
+.nav-table th {
+  background: #000;
+  color: #fff;
+  font-weight: bold;
+  padding: 8px;
+  text-align: left;
+  border: 1px solid #000;
+}
+
+.nav-table td {
+  padding: 6px 8px;
+  border: 1px solid #000;
+  vertical-align: top;
+}
+
+.nav-table td:first-child {
+  font-weight: bold;
+  width: 30%;
+}
+
+.label {
+  font-size: 9pt;
+  color: #666;
+  font-style: italic;
+}
+
+.component-label {
+  font-size: 9pt;
+  color: #666;
+  margin-top: 5px;
+}
+
+.grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.footer {
+  margin-top: 20px;
+  padding-top: 10px;
+  border-top: 2px solid #000;
+  text-align: center;
+  font-size: 10pt;
+}
+
+@media print {
+  .page {
+    margin: 0;
+    padding: 15mm;
+  }
+
+  @page {
+    margin: 15mm;
+    size: A4;
+  }
+}
+</style>
+
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <span class="screen-number">Screen 09 of 12</span>
+      <h1>Logs (/logs)</h1>
+      <p class="label">Complete entry history in table format</p>
+    </div>
+
+    <div class="wireframe">
+      <!-- Top Navigation -->
+      <div class="ui-navbar">
+        <strong>PRATYAKSHA</strong>
+        <div style="float: right;">
+          <span class="ui-button">+ New Entry</span>
+          <span class="ui-button">Chat</span>
+          <span class="ui-button">Dashboard</span>
+          <span class="ui-button">Profile ▾</span>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="ui-section">
+        <strong>Filters</strong>
+        <div style="margin-top: 10px;">
+          <span class="ui-button">All Types ▾</span>
+          <span class="ui-button">All Modes ▾</span>
+          <span class="ui-button">Date Range ▾</span>
+          <span class="ui-button">Clear Filters</span>
+        </div>
+      </div>
+      <div class="component-label">Filters: Entry type, mode, date range</div>
+
+      <!-- Logs Table -->
+      <div class="ui-section">
+        <table class="nav-table">
+          <tr>
+            <th>Date</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Mode</th>
+            <th>Energy</th>
+            <th>Sentiment</th>
+          </tr>
+          <tr>
+            <td>Feb 9</td>
+            <td>Excited about new project</td>
+            <td>Reflection</td>
+            <td>Hopeful</td>
+            <td>4/5</td>
+            <td>😊 Positive</td>
+          </tr>
+          <tr>
+            <td>Feb 8</td>
+            <td>Feeling overwhelmed</td>
+            <td>Emotional</td>
+            <td>Anxious</td>
+            <td>2/5</td>
+            <td>😟 Negative</td>
+          </tr>
+          <tr>
+            <td>Feb 7</td>
+            <td>Crypto exit decision</td>
+            <td>Decision</td>
+            <td>Resolved</td>
+            <td>3/5</td>
+            <td>😐 Neutral</td>
+          </tr>
+        </table>
+      </div>
+      <div class="component-label">Table: All entries with key metadata, sorted by date (newest first)</div>
+
+      <!-- Pagination -->
+      <div style="text-align: center; margin-top: 15px;">
+        <span class="ui-button">← Previous</span>
+        <span style="margin: 0 10px;">Page 1 of 7</span>
+        <span class="ui-button">Next →</span>
+      </div>
+      <div class="component-label">Pagination: 30 entries per page</div>
+    </div>
+
+    <div class="nav-section">
+      <h3>🔽 Where can this screen be accessed from?</h3>
+      <table class="nav-table">
+        <tr>
+          <th>Source</th>
+          <th>Context</th>
+        </tr>
+        <tr>
+          <td>Dashboard (Screen 06)</td>
+          <td>Click "Logs" in navbar</td>
+        </tr>
+        <tr>
+          <td>Chat (Screen 10)</td>
+          <td>Click "Logs" in navbar</td>
+        </tr>
+        <tr>
+          <td>Entry Details (Screen 08)</td>
+          <td>Click "Logs" in navbar (if present)</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="nav-section">
+      <h3>🔼 Where all can user go from here?</h3>
+      <table class="nav-table">
+        <tr>
+          <th>Destination</th>
+          <th>Trigger</th>
+        </tr>
+        <tr>
+          <td>Entry Details (Screen 08)</td>
+          <td>Click any row in the table → Open full analysis for that entry</td>
+        </tr>
+        <tr>
+          <td>New Entry (Screen 07)</td>
+          <td>Click "+ New Entry" button in navbar</td>
+        </tr>
+        <tr>
+          <td>Dashboard (Screen 06)</td>
+          <td>Click "Dashboard" in navbar</td>
+        </tr>
+        <tr>
+          <td>Chat (Screen 10)</td>
+          <td>Click "Chat" in navbar</td>
+        </tr>
+        <tr>
+          <td>Profile Settings (Screen 11)</td>
+          <td>Click "Profile ▾" dropdown</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="footer">
+      <p>Pratyaksha UI Flow Documentation • Screen 09 of 12</p>
+    </div>
+  </div>
+</body>
+</html>

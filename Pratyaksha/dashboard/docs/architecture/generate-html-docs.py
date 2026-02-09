@@ -1,0 +1,880 @@
+#!/usr/bin/env python3
+"""
+Pratyaksha Architecture Documentation Generator (HTML)
+Creates multi-page HTML documentation with print support (B&W)
+"""
+
+import os
+
+OUTPUT_DIR = "html-docs"
+
+CSS_STYLES = '''
+<style>
+/* Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  line-height: 1.6;
+  color: #ffffff;
+  background: #0A0A0B;
+}
+
+.page {
+  max-width: 210mm;  /* A4 width */
+  min-height: 297mm; /* A4 height */
+  margin: 20px auto;
+  padding: 40px;
+  background: #1A1A1D;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+/* Header */
+.header {
+  border-bottom: 3px solid #F59E0B;
+  padding-bottom: 20px;
+  margin-bottom: 30px;
+}
+
+.header h1 {
+  font-size: 2.5em;
+  color: #F59E0B;
+  margin-bottom: 10px;
+}
+
+.header .subtitle {
+  font-size: 1.2em;
+  color: #999;
+}
+
+.page-number {
+  float: right;
+  color: #666;
+  font-size: 0.9em;
+}
+
+/* Sections */
+.section {
+  margin: 30px 0;
+}
+
+.section-title {
+  font-size: 1.8em;
+  color: #F59E0B;
+  margin-bottom: 15px;
+  border-left: 4px solid #F59E0B;
+  padding-left: 15px;
+}
+
+.subsection-title {
+  font-size: 1.3em;
+  color: #06B6D4;
+  margin: 20px 0 10px 0;
+}
+
+/* Cards */
+.card {
+  background: #252528;
+  border: 2px solid #333;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 15px 0;
+}
+
+.card-header {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #06B6D4;
+  margin-bottom: 10px;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin: 20px 0;
+}
+
+/* Lists */
+ul, ol {
+  margin-left: 25px;
+  margin-top: 10px;
+}
+
+li {
+  margin: 8px 0;
+  color: #ffffff;
+}
+
+/* Code blocks */
+.code {
+  background: #0A0A0B;
+  border-left: 3px solid #F59E0B;
+  padding: 15px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+  margin: 15px 0;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+
+th {
+  background: #252528;
+  color: #F59E0B;
+  padding: 12px;
+  text-align: left;
+  border: 1px solid #333;
+}
+
+td {
+  padding: 10px 12px;
+  border: 1px solid #333;
+}
+
+tr:nth-child(even) {
+  background: #1F1F22;
+}
+
+/* Flow Diagrams */
+.flow-box {
+  background: #252528;
+  border: 2px solid #F59E0B;
+  border-radius: 8px;
+  padding: 15px;
+  margin: 10px;
+  text-align: center;
+  display: inline-block;
+  min-width: 200px;
+}
+
+.flow-arrow {
+  display: inline-block;
+  margin: 0 10px;
+  color: #06B6D4;
+  font-size: 1.5em;
+}
+
+.flow-container {
+  text-align: center;
+  margin: 30px 0;
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  font-weight: bold;
+  margin: 0 5px;
+}
+
+.badge-primary { background: #F59E0B; color: #000; }
+.badge-secondary { background: #06B6D4; color: #000; }
+.badge-success { background: #10B981; color: #000; }
+.badge-warning { background: #F59E0B; color: #000; }
+.badge-danger { background: #EF4444; color: #fff; }
+
+/* Highlights */
+.highlight {
+  background: #F59E0B20;
+  border-left: 4px solid #F59E0B;
+  padding: 15px;
+  margin: 15px 0;
+  border-radius: 4px;
+}
+
+.highlight-title {
+  font-weight: bold;
+  color: #F59E0B;
+  margin-bottom: 10px;
+}
+
+/* Footer */
+.footer {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 2px solid #333;
+  text-align: center;
+  color: #666;
+  font-size: 0.9em;
+}
+
+/* Print Styles - Black & White */
+@media print {
+  body {
+    color: #000;
+    background: #fff;
+  }
+
+  .page {
+    max-width: 100%;
+    margin: 0;
+    padding: 20mm;
+    box-shadow: none;
+    background: #fff;
+    page-break-after: always;
+  }
+
+  .header h1,
+  .section-title,
+  .subsection-title,
+  .card-header {
+    color: #000;
+  }
+
+  .header {
+    border-bottom-color: #000;
+  }
+
+  .section-title {
+    border-left-color: #000;
+  }
+
+  .card {
+    background: #fff;
+    border-color: #000;
+  }
+
+  .code {
+    background: #f5f5f5;
+    border-left-color: #000;
+  }
+
+  .flow-box {
+    border-color: #000;
+    background: #fff;
+  }
+
+  th {
+    background: #f5f5f5;
+    color: #000;
+  }
+
+  td, th {
+    border-color: #000;
+  }
+
+  tr:nth-child(even) {
+    background: #f9f9f9;
+  }
+
+  .badge {
+    background: #eee !important;
+    color: #000 !important;
+    border: 1px solid #000;
+  }
+
+  .highlight {
+    background: #f5f5f5;
+    border-left-color: #000;
+  }
+
+  .highlight-title {
+    color: #000;
+  }
+
+  /* Hide page numbers in browser, let browser add them */
+  .page-number {
+    display: none;
+  }
+}
+
+/* Navigation */
+.nav {
+  margin: 20px 0;
+  padding: 15px;
+  background: #252528;
+  border-radius: 8px;
+}
+
+.nav a {
+  color: #06B6D4;
+  text-decoration: none;
+  margin-right: 20px;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: background 0.3s;
+}
+
+.nav a:hover {
+  background: #333;
+}
+
+@media print {
+  .nav {
+    display: none;
+  }
+}
+</style>
+'''
+
+def create_cover_page():
+    """Generate cover page"""
+    return f'''<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pratyaksha - Architecture Documentation</title>
+  {CSS_STYLES}
+</head>
+<body>
+  <div class="page">
+    <div class="header" style="text-align: center; border: none;">
+      <h1 style="font-size: 3.5em; margin-bottom: 10px;">PRATYAKSHA</h1>
+      <p class="subtitle" style="font-size: 1.5em;">Cognitive Journaling Platform</p>
+      <p style="color: #999; margin-top: 10px;">Technical Documentation v1.0</p>
+      <p style="color: #666; margin-top: 5px;">February 2026</p>
+    </div>
+
+    <div class="section" style="margin-top: 50px;">
+      <h2 class="section-title">Product Overview</h2>
+      <p>
+        AI-powered journaling platform that analyzes emotional patterns, provides personalized insights,
+        and helps users understand their cognitive and emotional landscape through data-driven reflection.
+      </p>
+
+      <div class="card-grid" style="margin-top: 30px;">
+        <div class="card">
+          <div class="card-header">🤖 4-Agent AI Pipeline</div>
+          <ul>
+            <li>Intent Agent - Entry classification</li>
+            <li>Emotion Agent - Mood analysis</li>
+            <li>Theme Agent - Pattern recognition</li>
+            <li>Insight Agent - Actionable insights</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-header">🔍 RAG-Powered Chat</div>
+          <ul>
+            <li>Semantic search with pgvector</li>
+            <li>Two-pass generation</li>
+            <li>Context-aware responses</li>
+            <li>Vision & lever alignment</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-header">📊 Deep Personalization</div>
+          <ul>
+            <li>Soul Mapping (5 topics)</li>
+            <li>Life Blueprint (vision/goals)</li>
+            <li>Emotional pattern tracking</li>
+            <li>Gamification system</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-header">💾 PostgreSQL + pgvector</div>
+          <ul>
+            <li>13 tables with relationships</li>
+            <li>Vector embeddings (1536d)</li>
+            <li>Drizzle ORM</li>
+            <li>Cloud SQL hosting</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Tech Stack</h2>
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-header">Frontend</div>
+          <ul>
+            <li><strong>Framework:</strong> React + Vite</li>
+            <li><strong>State:</strong> TanStack Query</li>
+            <li><strong>Styling:</strong> Tailwind CSS + shadcn/ui</li>
+            <li><strong>Charts:</strong> Recharts</li>
+            <li><strong>Auth:</strong> Firebase</li>
+            <li><strong>Port:</strong> 5173</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-header">Backend</div>
+          <ul>
+            <li><strong>Framework:</strong> Express + TypeScript</li>
+            <li><strong>Database:</strong> PostgreSQL 16</li>
+            <li><strong>ORM:</strong> Drizzle ORM</li>
+            <li><strong>AI:</strong> LangChain + OpenRouter</li>
+            <li><strong>Speech:</strong> Groq Whisper</li>
+            <li><strong>Port:</strong> 3001</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">AI Models</div>
+        <table>
+          <tr>
+            <th>Model</th>
+            <th>Purpose</th>
+            <th>Provider</th>
+          </tr>
+          <tr>
+            <td>gpt-4o</td>
+            <td>High-quality analysis (Intent, Insight)</td>
+            <td>OpenRouter</td>
+          </tr>
+          <tr>
+            <td>gpt-4o-mini</td>
+            <td>Fast processing (Emotion, Theme)</td>
+            <td>OpenRouter</td>
+          </tr>
+          <tr>
+            <td>text-embedding-3-small</td>
+            <td>Vector embeddings (1536d)</td>
+            <td>OpenRouter</td>
+          </tr>
+          <tr>
+            <td>whisper-large-v3</td>
+            <td>Speech-to-text transcription</td>
+            <td>Groq</td>
+          </tr>
+          <tr>
+            <td>llama-3.3-70b</td>
+            <td>Text enhancement</td>
+            <td>Groq</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Documentation Index</h2>
+
+      <div class="card">
+        <div class="card-header">📚 Architecture (Pages 01-03)</div>
+        <ul>
+          <li><a href="01-system-architecture.html">Page 01</a> - System Architecture Overview</li>
+          <li><a href="02-ai-pipeline.html">Page 02</a> - 4-Agent AI Pipeline</li>
+          <li><a href="03-rag-pipeline.html">Page 03</a> - RAG Pipeline & Embedding Flow</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">💾 Database (Pages 04-06)</div>
+        <ul>
+          <li><a href="04-database-schema.html">Page 04</a> - Database Schema & Tables</li>
+          <li><a href="05-user-profile-schema.html">Page 05</a> - User Profile & Gamification</li>
+          <li><a href="06-entry-flow.html">Page 06</a> - Entry Processing & Storage Flow</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">🎨 Product (Pages 07-08)</div>
+        <ul>
+          <li><a href="07-user-journey.html">Page 07</a> - User Journey & Core Flows</li>
+          <li><a href="08-dashboard.html">Page 08</a> - Dashboard & Analytics</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="highlight">
+      <div class="highlight-title">📖 How to Use This Documentation</div>
+      <ul>
+        <li><strong>Screen Viewing:</strong> Dark theme optimized for reading</li>
+        <li><strong>Printing:</strong> Press Ctrl+P (Cmd+P on Mac) - automatically converts to B&W</li>
+        <li><strong>Navigation:</strong> Click links to jump between pages</li>
+        <li><strong>Search:</strong> Use browser search (Ctrl+F) to find specific terms</li>
+      </ul>
+    </div>
+
+    <div class="footer">
+      <p>Generated February 2026 • Pratyaksha Architecture Documentation v1.0</p>
+      <p style="margin-top: 10px;">Page 00 of 08</p>
+    </div>
+  </div>
+</body>
+</html>'''
+
+def create_system_architecture_page():
+    """Page 01 - System Architecture"""
+    return f'''<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>01 - System Architecture | Pratyaksha Documentation</title>
+  {CSS_STYLES}
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <span class="page-number">Page 01/08</span>
+      <h1>System Architecture Overview</h1>
+      <p class="subtitle">Complete system design from client to database</p>
+    </div>
+
+    <div class="nav">
+      <a href="00-cover.html">← Cover</a>
+      <a href="02-ai-pipeline.html">Next: AI Pipeline →</a>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Architecture Layers</h2>
+
+      <div class="highlight">
+        <div class="highlight-title">🏗️ Three-Tier Architecture</div>
+        <p>Pratyaksha follows a clean separation of concerns with distinct client, API, and data layers.</p>
+      </div>
+
+      <!-- Client Layer -->
+      <h3 class="subsection-title">1. CLIENT LAYER</h3>
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-header">React Frontend <span class="badge badge-primary">Port 5173</span></div>
+          <p style="margin-bottom: 15px;"><strong>Framework & Build:</strong></p>
+          <ul>
+            <li><code>Vite</code> - Fast HMR development server</li>
+            <li><code>React 18</code> - UI component library</li>
+            <li><code>TypeScript</code> - Type safety</li>
+          </ul>
+          <p style="margin: 15px 0;"><strong>State Management:</strong></p>
+          <ul>
+            <li><code>TanStack Query</code> - Server state</li>
+            <li>5-min stale time, 30-sec polling</li>
+            <li>Automatic background refetch</li>
+          </ul>
+          <p style="margin: 15px 0;"><strong>UI Components:</strong></p>
+          <ul>
+            <li><code>Tailwind CSS</code> - Utility-first styling</li>
+            <li><code>shadcn/ui</code> - Accessible components</li>
+            <li><code>Recharts</code> - Data visualizations</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-header">Firebase Authentication</div>
+          <p style="margin-bottom: 15px;"><strong>Features:</strong></p>
+          <ul>
+            <li>Email/password authentication</li>
+            <li>JWT token management</li>
+            <li>Session persistence</li>
+            <li>Secure user context</li>
+          </ul>
+          <p style="margin: 15px 0;"><strong>Flow:</strong></p>
+          <ol>
+            <li>User signs up/logs in</li>
+            <li>Firebase issues JWT token</li>
+            <li>Token sent in <code>X-Firebase-UID</code> header</li>
+            <li>Backend validates and extracts user</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- API Layer -->
+      <h3 class="subsection-title">2. API LAYER</h3>
+      <div class="card">
+        <div class="card-header">Express + TypeScript API <span class="badge badge-secondary">Port 3001</span></div>
+
+        <div style="margin-top: 20px;">
+          <p><strong>Core Routes:</strong></p>
+          <table style="margin-top: 10px;">
+            <tr>
+              <th style="width: 300px;">Endpoint</th>
+              <th>Purpose</th>
+              <th style="width: 120px;">Method</th>
+            </tr>
+            <tr>
+              <td><code>/api/process-entry</code></td>
+              <td>4-agent pipeline processing (Intent → Emotion → Theme → Insight)</td>
+              <td>POST</td>
+            </tr>
+            <tr>
+              <td><code>/api/chat</code></td>
+              <td>RAG-powered personalized chat with context awareness</td>
+              <td>POST</td>
+            </tr>
+            <tr>
+              <td><code>/api/user-profile</code></td>
+              <td>Soul Mapping & Life Blueprint data management</td>
+              <td>GET/POST</td>
+            </tr>
+            <tr>
+              <td><code>/api/embeddings</code></td>
+              <td>Vector generation, backfill, status</td>
+              <td>POST/GET</td>
+            </tr>
+            <tr>
+              <td><code>/api/entries</code></td>
+              <td>Entry CRUD operations (update, delete, bookmark)</td>
+              <td>GET/PATCH/DELETE</td>
+            </tr>
+            <tr>
+              <td><code>/api/speech</code></td>
+              <td>Groq Whisper speech-to-text transcription</td>
+              <td>POST</td>
+            </tr>
+            <tr>
+              <td><code>/api/explain</code></td>
+              <td>AI-powered chart explanation</td>
+              <td>POST</td>
+            </tr>
+            <tr>
+              <td><code>/api/test-users</code></td>
+              <td>Test user management (dev/admin)</td>
+              <td>GET/POST/DELETE</td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="margin-top: 30px;">
+          <p><strong>Middleware Stack:</strong></p>
+          <ul style="margin-top: 10px;">
+            <li><code>cors()</code> - Cross-origin resource sharing</li>
+            <li><code>express.json()</code> - JSON body parsing (10mb limit)</li>
+            <li>Firebase UID extraction from headers</li>
+            <li>Error handling with detailed logging</li>
+            <li>Request validation</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Data & AI Layer -->
+      <h3 class="subsection-title">3. DATA & AI LAYER</h3>
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-header">PostgreSQL + pgvector <span class="badge badge-success">Cloud SQL</span></div>
+          <p style="margin-bottom: 15px;"><strong>Database Configuration:</strong></p>
+          <ul>
+            <li><code>Host:</code> 34.55.195.199</li>
+            <li><code>Database:</code> becoming</li>
+            <li><code>User:</code> becoming_app</li>
+            <li><code>Connection:</code> social-data-pipeline-and-push:us-central1:dbcp</li>
+            <li><code>Extension:</code> pgvector v0.8.1</li>
+          </ul>
+
+          <p style="margin: 15px 0;"><strong>Schema (13 Tables):</strong></p>
+          <ul>
+            <li><code>users</code> - User accounts & profiles</li>
+            <li><code>gamification</code> - Karma, streaks, Soul Mapping</li>
+            <li><code>entries</code> - Journal entries with AI analysis</li>
+            <li><code>entry_embeddings</code> - 1536d vectors for RAG</li>
+            <li><code>vision_items</code> - Vision & anti-vision statements</li>
+            <li><code>goals</code> - Short/long-term goals</li>
+            <li><code>levers</code> - Daily action strategies</li>
+            <li><code>blueprint_sections</code> - Completed blueprint areas</li>
+            <li><code>blueprint_responses</code> - User answers</li>
+            <li><code>prompt_cache</code> - LLM response caching (1hr TTL)</li>
+            <li><code>explainer_cache</code> - Chart explanations</li>
+            <li><code>firebase_users</code> - Firebase sync</li>
+            <li><code>onboarding_progress</code> - User setup tracking</li>
+          </ul>
+
+          <p style="margin-top: 15px;"><strong>ORM:</strong> Drizzle ORM with <code>postgres</code> driver (porsager/postgres)</p>
+        </div>
+
+        <div class="card">
+          <div class="card-header">LangChain + OpenRouter <span class="badge badge-warning">AI</span></div>
+          <p style="margin-bottom: 15px;"><strong>AI Stack:</strong></p>
+          <ul>
+            <li><code>LangChain</code> - AI orchestration framework</li>
+            <li><code>OpenRouter</code> - Model routing & billing</li>
+            <li><code>ChatOpenAI</code> - Structured JSON output</li>
+            <li><code>OpenAIEmbeddings</code> - Vector generation</li>
+          </ul>
+
+          <p style="margin: 15px 0;"><strong>Models Used:</strong></p>
+          <table style="margin-top: 10px;">
+            <tr>
+              <th>Model</th>
+              <th>Use Case</th>
+            </tr>
+            <tr>
+              <td>gpt-4o</td>
+              <td>Intent Agent, Insight Agent</td>
+            </tr>
+            <tr>
+              <td>gpt-4o-mini</td>
+              <td>Emotion, Theme Agents</td>
+            </tr>
+            <tr>
+              <td>text-embedding-3-small</td>
+              <td>1536d embeddings</td>
+            </tr>
+          </table>
+
+          <p style="margin: 15px 0;"><strong>Features:</strong></p>
+          <ul>
+            <li>Response caching (1-hour TTL)</li>
+            <li>RAG semantic search</li>
+            <li>Two-pass generation</li>
+            <li>Structured JSON output</li>
+            <li>Error handling & retries</li>
+          </ul>
+
+          <p style="margin: 15px 0;"><strong>Groq SDK:</strong></p>
+          <ul>
+            <li>Whisper: Speech-to-text (99% accuracy)</li>
+            <li>llama-3.3-70b: Text enhancement</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Data Flow</h2>
+
+      <div class="flow-container">
+        <div class="flow-box">
+          <strong>User Input</strong><br/>
+          React Frontend<br/>
+          <span class="badge badge-primary">5173</span>
+        </div>
+
+        <span class="flow-arrow">→</span>
+
+        <div class="flow-box">
+          <strong>HTTP/REST</strong><br/>
+          TanStack Query<br/>
+          <span class="badge badge-secondary">Fetch</span>
+        </div>
+
+        <span class="flow-arrow">→</span>
+
+        <div class="flow-box">
+          <strong>API Server</strong><br/>
+          Express<br/>
+          <span class="badge badge-secondary">3001</span>
+        </div>
+
+        <span class="flow-arrow">↓</span>
+      </div>
+
+      <div class="flow-container">
+        <div class="flow-box">
+          <strong>AI Processing</strong><br/>
+          LangChain + OpenRouter<br/>
+          <span class="badge badge-warning">gpt-4o</span>
+        </div>
+
+        <span class="flow-arrow">+</span>
+
+        <div class="flow-box">
+          <strong>Database</strong><br/>
+          PostgreSQL + Drizzle<br/>
+          <span class="badge badge-success">becoming</span>
+        </div>
+
+        <span class="flow-arrow">→</span>
+
+        <div class="flow-box">
+          <strong>Vector Store</strong><br/>
+          pgvector<br/>
+          <span class="badge badge-success">1536d</span>
+        </div>
+      </div>
+
+      <div class="code" style="margin-top: 30px;">
+        <strong>Example Entry Processing Flow:</strong><br/><br/>
+        1. User writes journal entry in React app<br/>
+        2. TanStack Query POSTs to /api/process-entry<br/>
+        3. Express extracts Firebase UID from header<br/>
+        4. Intent Agent (gpt-4o) classifies entry type<br/>
+        5. Emotion Agent (gpt-4o-mini) analyzes mood<br/>
+        6. Theme Agent (gpt-4o-mini) extracts patterns<br/>
+        7. Insight Agent (gpt-4o) generates actionable advice<br/>
+        8. Drizzle ORM saves to PostgreSQL entries table<br/>
+        9. OpenAIEmbeddings generates 1536d vector<br/>
+        10. Vector stored in entry_embeddings with pgvector<br/>
+        11. Response returned to React app<br/>
+        12. TanStack Query caches result (5min stale time)
+      </div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Key Design Decisions</h2>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-header">Why PostgreSQL + pgvector?</div>
+          <ul>
+            <li><strong>Single database:</strong> No separate vector DB needed</li>
+            <li><strong>ACID guarantees:</strong> Data consistency</li>
+            <li><strong>Relational + Vector:</strong> Best of both worlds</li>
+            <li><strong>Drizzle ORM:</strong> Type-safe queries</li>
+            <li><strong>Cloud SQL:</strong> Managed, scalable</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-header">Why OpenRouter?</div>
+          <ul>
+            <li><strong>Unified billing:</strong> One API key for all models</li>
+            <li><strong>Model routing:</strong> Easy model switching</li>
+            <li><strong>Cost control:</strong> Cheaper than direct OpenAI</li>
+            <li><strong>Fallback support:</strong> If model unavailable</li>
+            <li><strong>LangChain compatible:</strong> Drop-in replacement</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-header">Why TanStack Query?</div>
+          <ul>
+            <li><strong>Server state:</strong> Automatic caching & refetch</li>
+            <li><strong>Optimistic updates:</strong> Instant UI feedback</li>
+            <li><strong>Background polling:</strong> Real-time feel (30s)</li>
+            <li><strong>Devtools:</strong> Debug state easily</li>
+            <li><strong>TypeScript first:</strong> Full type inference</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-header">Why 4-Agent Pipeline?</div>
+          <ul>
+            <li><strong>Separation of concerns:</strong> Each agent has one job</li>
+            <li><strong>Cost optimization:</strong> Use cheap models where possible</li>
+            <li><strong>Parallel processing:</strong> Agents can run concurrently</li>
+            <li><strong>Composability:</strong> Easy to add/remove agents</li>
+            <li><strong>Debugging:</strong> Clear failure points</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p><a href="00-cover.html">← Back to Cover</a> | <a href="02-ai-pipeline.html">Next: AI Pipeline →</a></p>
+      <p style="margin-top: 10px;">Page 01 of 08 • System Architecture Overview</p>
+    </div>
+  </div>
+</body>
+</html>'''
+
+def generate_all_pages():
+    """Generate all documentation pages"""
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+    pages = [
+        ('00-cover.html', create_cover_page()),
+        ('01-system-architecture.html', create_system_architecture_page()),
+    ]
+
+    for filename, content in pages:
+        filepath = f"{OUTPUT_DIR}/{filename}"
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write(content)
+        print(f"✓ Created {filepath}")
+
+    print(f"\n✅ Generated {len(pages)} pages in {OUTPUT_DIR}/")
+    print(f"\n📖 Open {OUTPUT_DIR}/00-cover.html in your browser")
+    print(f"🖨️  Press Ctrl+P (Cmd+P) to print in B&W")
+
+if __name__ == '__main__':
+    print("\n🎨 Pratyaksha Architecture Documentation Generator (HTML)")
+    print("=" * 70)
+    generate_all_pages()

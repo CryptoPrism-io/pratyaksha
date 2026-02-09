@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Screen 11: Profile Settings</title>
+  
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  color: #000000;
+  background: #ffffff;
+  font-size: 11pt;
+}
+
+.page {
+  max-width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 20mm;
+  background: #ffffff;
+  page-break-after: always;
+}
+
+.page:last-child {
+  page-break-after: auto;
+}
+
+.header {
+  border-bottom: 3px solid #000;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  font-size: 18pt;
+  font-weight: bold;
+}
+
+.screen-number {
+  float: right;
+  font-size: 10pt;
+  color: #666;
+}
+
+/* Wireframe Container */
+.wireframe {
+  border: 3px solid #000;
+  padding: 15px;
+  margin: 20px 0;
+  min-height: 400px;
+  background: #fafafa;
+  position: relative;
+}
+
+/* UI Components */
+.ui-navbar {
+  border: 2px solid #000;
+  padding: 10px;
+  margin-bottom: 10px;
+  background: #fff;
+  font-weight: bold;
+}
+
+.ui-hero {
+  border: 2px solid #000;
+  padding: 40px 20px;
+  margin: 10px 0;
+  background: #fff;
+  text-align: center;
+  min-height: 150px;
+}
+
+.ui-section {
+  border: 2px solid #000;
+  padding: 15px;
+  margin: 10px 0;
+  background: #fff;
+}
+
+.ui-card {
+  border: 1px solid #000;
+  padding: 10px;
+  margin: 5px 0;
+  background: #fff;
+}
+
+.ui-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.ui-button {
+  border: 2px solid #000;
+  padding: 8px 15px;
+  margin: 5px;
+  background: #fff;
+  display: inline-block;
+  font-weight: bold;
+  text-align: center;
+}
+
+.ui-input {
+  border: 2px solid #000;
+  padding: 8px;
+  margin: 5px 0;
+  background: #fff;
+  width: 100%;
+}
+
+.ui-modal {
+  border: 3px solid #000;
+  padding: 20px;
+  margin: 20px auto;
+  background: #fff;
+  max-width: 400px;
+}
+
+.ui-sidebar {
+  border: 2px solid #000;
+  padding: 10px;
+  background: #fff;
+  min-height: 200px;
+}
+
+.ui-tabs {
+  border-bottom: 2px solid #000;
+  padding: 10px 0;
+  margin-bottom: 10px;
+}
+
+.ui-tab {
+  border: 2px solid #000;
+  border-bottom: none;
+  padding: 8px 15px;
+  margin-right: 5px;
+  display: inline-block;
+  background: #fff;
+}
+
+.ui-tab.active {
+  background: #000;
+  color: #fff;
+}
+
+/* Navigation Sections */
+.nav-section {
+  margin-top: 30px;
+  page-break-inside: avoid;
+}
+
+.nav-section h3 {
+  font-size: 13pt;
+  font-weight: bold;
+  margin-bottom: 10px;
+  border-left: 4px solid #000;
+  padding-left: 10px;
+}
+
+.nav-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0;
+}
+
+.nav-table th {
+  background: #000;
+  color: #fff;
+  font-weight: bold;
+  padding: 8px;
+  text-align: left;
+  border: 1px solid #000;
+}
+
+.nav-table td {
+  padding: 6px 8px;
+  border: 1px solid #000;
+  vertical-align: top;
+}
+
+.nav-table td:first-child {
+  font-weight: bold;
+  width: 30%;
+}
+
+.label {
+  font-size: 9pt;
+  color: #666;
+  font-style: italic;
+}
+
+.component-label {
+  font-size: 9pt;
+  color: #666;
+  margin-top: 5px;
+}
+
+.grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.footer {
+  margin-top: 20px;
+  padding-top: 10px;
+  border-top: 2px solid #000;
+  text-align: center;
+  font-size: 10pt;
+}
+
+@media print {
+  .page {
+    margin: 0;
+    padding: 15mm;
+  }
+
+  @page {
+    margin: 15mm;
+    size: A4;
+  }
+}
+</style>
+
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <span class="screen-number">Screen 11 of 12</span>
+      <h1>Profile & Settings</h1>
+      <p class="label">User profile management and preferences</p>
+    </div>
+
+    <div class="wireframe">
+      <!-- Top Navigation -->
+      <div class="ui-navbar">
+        <strong>PRATYAKSHA</strong>
+        <div style="float: right;">
+          <span class="ui-button">← Back to Dashboard</span>
+        </div>
+      </div>
+
+      <!-- Profile Completion Banner -->
+      <div class="ui-section" style="background: #f0f0f0;">
+        <strong>Profile Completion: 45%</strong>
+        <div style="border: 2px solid #000; height: 15px; margin: 10px 0;">
+          <div style="background: #000; width: 45%; height: 100%;"></div>
+        </div>
+        <p style="font-size: 9pt;">Complete Soul Mapping and Life Blueprint for 90% personalization</p>
+        <span class="ui-button">Complete Profile →</span>
+      </div>
+      <div class="component-label">Progress: Personalization level indicator</div>
+
+      <!-- Settings Sections -->
+      <div class="ui-section">
+        <h3>Account Information</h3>
+        <div class="ui-input">Display Name: John Doe</div>
+        <div class="ui-input">Email: john@example.com</div>
+        <div class="ui-input">Profession: Product Manager</div>
+      </div>
+
+      <div class="ui-section">
+        <h3>Personalization Settings</h3>
+        <div class="ui-card">
+          <strong>Stress Level:</strong> 4/5 (High)
+          <div style="border: 2px solid #000; height: 10px; margin: 5px 0;">
+            <div style="background: #000; width: 80%; height: 100%;"></div>
+          </div>
+        </div>
+        <div class="ui-card">
+          <strong>Emotional Openness:</strong> 5/5 (Very Open)
+          <div style="border: 2px solid #000; height: 10px; margin: 5px 0;">
+            <div style="background: #000; width: 100%; height: 100%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ui-section">
+        <h3>Life Blueprint Summary</h3>
+        <div class="ui-card"><strong>Vision Items:</strong> 3 defined</div>
+        <div class="ui-card"><strong>Goals:</strong> 5 active</div>
+        <div class="ui-card"><strong>Levers:</strong> 2 strategies</div>
+        <span class="ui-button">Edit Blueprint →</span>
+      </div>
+
+      <div class="ui-section">
+        <h3>Danger Zone</h3>
+        <span class="ui-button">Logout</span>
+        <span class="ui-button">Delete Account</span>
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <h3>🔽 Where can this screen be accessed from?</h3>
+      <table class="nav-table">
+        <tr>
+          <th>Source</th>
+          <th>Context</th>
+        </tr>
+        <tr>
+          <td>Dashboard (Screen 06)</td>
+          <td>Click "Profile ▾" dropdown → Settings</td>
+        </tr>
+        <tr>
+          <td>Logs (Screen 09)</td>
+          <td>Click "Profile ▾" dropdown → Settings</td>
+        </tr>
+        <tr>
+          <td>Chat (Screen 10)</td>
+          <td>Click "Profile ▾" dropdown → Settings</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="nav-section">
+      <h3>🔼 Where all can user go from here?</h3>
+      <table class="nav-table">
+        <tr>
+          <th>Destination</th>
+          <th>Trigger</th>
+        </tr>
+        <tr>
+          <td>Dashboard (Screen 06)</td>
+          <td>Click "← Back to Dashboard" button</td>
+        </tr>
+        <tr>
+          <td>Onboarding (Screen 04-05)</td>
+          <td>Click "Complete Profile" → Re-enter onboarding flow for missing exercises</td>
+        </tr>
+        <tr>
+          <td>Life Blueprint Editor</td>
+          <td>Click "Edit Blueprint" → Modify Vision/Goals/Levers</td>
+        </tr>
+        <tr>
+          <td>Landing Page (Screen 01)</td>
+          <td>Click "Logout" → End session → Public landing page</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="footer">
+      <p>Pratyaksha UI Flow Documentation • Screen 11 of 12</p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Screen 02: Sign Up</title>
+  
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  color: #000000;
+  background: #ffffff;
+  font-size: 11pt;
+}
+
+.page {
+  max-width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 20mm;
+  background: #ffffff;
+  page-break-after: always;
+}
+
+.page:last-child {
+  page-break-after: auto;
+}
+
+.header {
+  border-bottom: 3px solid #000;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  font-size: 18pt;
+  font-weight: bold;
+}
+
+.screen-number {
+  float: right;
+  font-size: 10pt;
+  color: #666;
+}
+
+/* Wireframe Container */
+.wireframe {
+  border: 3px solid #000;
+  padding: 15px;
+  margin: 20px 0;
+  min-height: 400px;
+  background: #fafafa;
+  position: relative;
+}
+
+/* UI Components */
+.ui-navbar {
+  border: 2px solid #000;
+  padding: 10px;
+  margin-bottom: 10px;
+  background: #fff;
+  font-weight: bold;
+}
+
+.ui-hero {
+  border: 2px solid #000;
+  padding: 40px 20px;
+  margin: 10px 0;
+  background: #fff;
+  text-align: center;
+  min-height: 150px;
+}
+
+.ui-section {
+  border: 2px solid #000;
+  padding: 15px;
+  margin: 10px 0;
+  background: #fff;
+}
+
+.ui-card {
+  border: 1px solid #000;
+  padding: 10px;
+  margin: 5px 0;
+  background: #fff;
+}
+
+.ui-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.ui-button {
+  border: 2px solid #000;
+  padding: 8px 15px;
+  margin: 5px;
+  background: #fff;
+  display: inline-block;
+  font-weight: bold;
+  text-align: center;
+}
+
+.ui-input {
+  border: 2px solid #000;
+  padding: 8px;
+  margin: 5px 0;
+  background: #fff;
+  width: 100%;
+}
+
+.ui-modal {
+  border: 3px solid #000;
+  padding: 20px;
+  margin: 20px auto;
+  background: #fff;
+  max-width: 400px;
+}
+
+.ui-sidebar {
+  border: 2px solid #000;
+  padding: 10px;
+  background: #fff;
+  min-height: 200px;
+}
+
+.ui-tabs {
+  border-bottom: 2px solid #000;
+  padding: 10px 0;
+  margin-bottom: 10px;
+}
+
+.ui-tab {
+  border: 2px solid #000;
+  border-bottom: none;
+  padding: 8px 15px;
+  margin-right: 5px;
+  display: inline-block;
+  background: #fff;
+}
+
+.ui-tab.active {
+  background: #000;
+  color: #fff;
+}
+
+/* Navigation Sections */
+.nav-section {
+  margin-top: 30px;
+  page-break-inside: avoid;
+}
+
+.nav-section h3 {
+  font-size: 13pt;
+  font-weight: bold;
+  margin-bottom: 10px;
+  border-left: 4px solid #000;
+  padding-left: 10px;
+}
+
+.nav-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0;
+}
+
+.nav-table th {
+  background: #000;
+  color: #fff;
+  font-weight: bold;
+  padding: 8px;
+  text-align: left;
+  border: 1px solid #000;
+}
+
+.nav-table td {
+  padding: 6px 8px;
+  border: 1px solid #000;
+  vertical-align: top;
+}
+
+.nav-table td:first-child {
+  font-weight: bold;
+  width: 30%;
+}
+
+.label {
+  font-size: 9pt;
+  color: #666;
+  font-style: italic;
+}
+
+.component-label {
+  font-size: 9pt;
+  color: #666;
+  margin-top: 5px;
+}
+
+.grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.footer {
+  margin-top: 20px;
+  padding-top: 10px;
+  border-top: 2px solid #000;
+  text-align: center;
+  font-size: 10pt;
+}
+
+@media print {
+  .page {
+    margin: 0;
+    padding: 15mm;
+  }
+
+  @page {
+    margin: 15mm;
+    size: A4;
+  }
+}
+</style>
+
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <span class="screen-number">Screen 02 of 12</span>
+      <h1>Sign Up (/signup)</h1>
+      <p class="label">New user registration with Firebase Auth</p>
+    </div>
+
+    <div class="wireframe">
+      <!-- Navbar -->
+      <div class="ui-navbar">
+        <strong>PRATYAKSHA</strong>
+        <div style="float: right;">
+          <span class="ui-button">← Back to Home</span>
+        </div>
+      </div>
+
+      <!-- Sign Up Form -->
+      <div class="ui-modal">
+        <h2 style="margin-bottom: 15px;">Create Your Account</h2>
+
+        <div class="ui-input">Email address</div>
+        <div class="component-label">Input: Email</div>
+
+        <div class="ui-input">Password (min 6 characters)</div>
+        <div class="component-label">Input: Password</div>
+
+        <div class="ui-input">Confirm Password</div>
+        <div class="component-label">Input: Password confirmation</div>
+
+        <br>
+        <div class="ui-button" style="width: 100%;">Create Account</div>
+        <div class="component-label">Submit button</div>
+
+        <br><br>
+        <div style="text-align: center; border-top: 1px solid #000; padding-top: 10px; margin-top: 10px;">
+          <p>Already have an account? <strong>Login</strong></p>
+        </div>
+        <div class="component-label">Link to Login screen</div>
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <h3>🔽 Where can this screen be accessed from?</h3>
+      <table class="nav-table">
+        <tr>
+          <th>Source</th>
+          <th>Context</th>
+        </tr>
+        <tr>
+          <td>Landing Page (Screen 01)</td>
+          <td>Click "Sign Up" or "Get Started Free" button</td>
+        </tr>
+        <tr>
+          <td>Login Page (Screen 03)</td>
+          <td>Click "Don't have an account? Sign up" link</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="nav-section">
+      <h3>🔼 Where all can user go from here?</h3>
+      <table class="nav-table">
+        <tr>
+          <th>Destination</th>
+          <th>Trigger</th>
+        </tr>
+        <tr>
+          <td>Onboarding Welcome (Screen 04)</td>
+          <td>Successful account creation → Firebase auth → Onboarding flow starts</td>
+        </tr>
+        <tr>
+          <td>Login (Screen 03)</td>
+          <td>Click "Already have an account? Login" link</td>
+        </tr>
+        <tr>
+          <td>Landing Page (Screen 01)</td>
+          <td>Click "Back to Home" button</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="footer">
+      <p>Pratyaksha UI Flow Documentation • Screen 02 of 12</p>
+    </div>
+  </div>
+</body>
+</html>

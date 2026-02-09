@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Screen 08: Entry Details</title>
+  
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  color: #000000;
+  background: #ffffff;
+  font-size: 11pt;
+}
+
+.page {
+  max-width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 20mm;
+  background: #ffffff;
+  page-break-after: always;
+}
+
+.page:last-child {
+  page-break-after: auto;
+}
+
+.header {
+  border-bottom: 3px solid #000;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  font-size: 18pt;
+  font-weight: bold;
+}
+
+.screen-number {
+  float: right;
+  font-size: 10pt;
+  color: #666;
+}
+
+/* Wireframe Container */
+.wireframe {
+  border: 3px solid #000;
+  padding: 15px;
+  margin: 20px 0;
+  min-height: 400px;
+  background: #fafafa;
+  position: relative;
+}
+
+/* UI Components */
+.ui-navbar {
+  border: 2px solid #000;
+  padding: 10px;
+  margin-bottom: 10px;
+  background: #fff;
+  font-weight: bold;
+}
+
+.ui-hero {
+  border: 2px solid #000;
+  padding: 40px 20px;
+  margin: 10px 0;
+  background: #fff;
+  text-align: center;
+  min-height: 150px;
+}
+
+.ui-section {
+  border: 2px solid #000;
+  padding: 15px;
+  margin: 10px 0;
+  background: #fff;
+}
+
+.ui-card {
+  border: 1px solid #000;
+  padding: 10px;
+  margin: 5px 0;
+  background: #fff;
+}
+
+.ui-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.ui-button {
+  border: 2px solid #000;
+  padding: 8px 15px;
+  margin: 5px;
+  background: #fff;
+  display: inline-block;
+  font-weight: bold;
+  text-align: center;
+}
+
+.ui-input {
+  border: 2px solid #000;
+  padding: 8px;
+  margin: 5px 0;
+  background: #fff;
+  width: 100%;
+}
+
+.ui-modal {
+  border: 3px solid #000;
+  padding: 20px;
+  margin: 20px auto;
+  background: #fff;
+  max-width: 400px;
+}
+
+.ui-sidebar {
+  border: 2px solid #000;
+  padding: 10px;
+  background: #fff;
+  min-height: 200px;
+}
+
+.ui-tabs {
+  border-bottom: 2px solid #000;
+  padding: 10px 0;
+  margin-bottom: 10px;
+}
+
+.ui-tab {
+  border: 2px solid #000;
+  border-bottom: none;
+  padding: 8px 15px;
+  margin-right: 5px;
+  display: inline-block;
+  background: #fff;
+}
+
+.ui-tab.active {
+  background: #000;
+  color: #fff;
+}
+
+/* Navigation Sections */
+.nav-section {
+  margin-top: 30px;
+  page-break-inside: avoid;
+}
+
+.nav-section h3 {
+  font-size: 13pt;
+  font-weight: bold;
+  margin-bottom: 10px;
+  border-left: 4px solid #000;
+  padding-left: 10px;
+}
+
+.nav-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0;
+}
+
+.nav-table th {
+  background: #000;
+  color: #fff;
+  font-weight: bold;
+  padding: 8px;
+  text-align: left;
+  border: 1px solid #000;
+}
+
+.nav-table td {
+  padding: 6px 8px;
+  border: 1px solid #000;
+  vertical-align: top;
+}
+
+.nav-table td:first-child {
+  font-weight: bold;
+  width: 30%;
+}
+
+.label {
+  font-size: 9pt;
+  color: #666;
+  font-style: italic;
+}
+
+.component-label {
+  font-size: 9pt;
+  color: #666;
+  margin-top: 5px;
+}
+
+.grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.footer {
+  margin-top: 20px;
+  padding-top: 10px;
+  border-top: 2px solid #000;
+  text-align: center;
+  font-size: 10pt;
+}
+
+@media print {
+  .page {
+    margin: 0;
+    padding: 15mm;
+  }
+
+  @page {
+    margin: 15mm;
+    size: A4;
+  }
+}
+</style>
+
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <span class="screen-number">Screen 08 of 12</span>
+      <h1>Entry Details View</h1>
+      <p class="label">Full AI analysis results for single entry</p>
+    </div>
+
+    <div class="wireframe">
+      <!-- Navigation -->
+      <div class="ui-navbar">
+        <strong>← Back to Dashboard</strong>
+      </div>
+
+      <!-- Entry Header -->
+      <div class="ui-section">
+        <h2>Excited about new project</h2>
+        <p style="color: #666;">February 9, 2026 at 14:23</p>
+        <div style="margin-top: 10px;">
+          <span class="ui-button">Reflection</span>
+          <span class="ui-button">Hopeful</span>
+          <span class="ui-button">Energy: 4/5</span>
+          <span class="ui-button">Rising ↗</span>
+        </div>
+      </div>
+      <div class="component-label">Header: Name, date, type, mode, energy, shape</div>
+
+      <!-- Original Text -->
+      <div class="ui-section">
+        <strong>Your Entry</strong>
+        <p style="margin-top: 10px; line-height: 1.8;">
+          I'm really excited about this new Pratyaksha project. The AI pipeline is coming together nicely and I can see it helping people understand themselves better...
+        </p>
+      </div>
+      <div class="component-label">Original user input text</div>
+
+      <!-- AI Analysis Sections -->
+      <div class="ui-section">
+        <strong>Snapshot</strong>
+        <p style="margin-top: 10px;">
+          Reflecting on progress with Pratyaksha project, feeling energized by the potential impact. Hopeful about AI's role in self-understanding.
+        </p>
+      </div>
+
+      <div class="ui-section">
+        <strong>Summary</strong>
+        <p style="margin-top: 10px;">
+          You're experiencing genuine excitement about creating something meaningful. The project represents both technical challenge and purpose-driven work.
+        </p>
+      </div>
+
+      <div class="ui-section">
+        <strong>Actionable Insights</strong>
+        <ul style="margin-left: 20px; margin-top: 10px;">
+          <li>Channel this energy into concrete next steps</li>
+          <li>Document your vision to maintain momentum</li>
+          <li>Share progress with stakeholders</li>
+        </ul>
+      </div>
+
+      <div class="ui-section">
+        <strong>Next Action</strong>
+        <p style="margin-top: 10px; font-weight: bold;">
+          Write down the top 3 features you want to ship this month
+        </p>
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <h3>🔽 Where can this screen be accessed from?</h3>
+      <table class="nav-table">
+        <tr>
+          <th>Source</th>
+          <th>Context</th>
+        </tr>
+        <tr>
+          <td>Dashboard (Screen 06)</td>
+          <td>Click any entry card in "Recent Entries" section</td>
+        </tr>
+        <tr>
+          <td>Logs (Screen 09)</td>
+          <td>Click any row in the logs table</td>
+        </tr>
+        <tr>
+          <td>New Entry (Screen 07)</td>
+          <td>After saving → Click "View Analysis" button</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="nav-section">
+      <h3>🔼 Where all can user go from here?</h3>
+      <table class="nav-table">
+        <tr>
+          <th>Destination</th>
+          <th>Trigger</th>
+        </tr>
+        <tr>
+          <td>Dashboard (Screen 06)</td>
+          <td>Click "← Back to Dashboard" button</td>
+        </tr>
+        <tr>
+          <td>Logs (Screen 09)</td>
+          <td>Click "Logs" in navbar (if navbar present)</td>
+        </tr>
+        <tr>
+          <td>Chat (Screen 10)</td>
+          <td>Click "Chat" in navbar → Could ask follow-up about this entry</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="footer">
+      <p>Pratyaksha UI Flow Documentation • Screen 08 of 12</p>
+    </div>
+  </div>
+</body>
+</html>

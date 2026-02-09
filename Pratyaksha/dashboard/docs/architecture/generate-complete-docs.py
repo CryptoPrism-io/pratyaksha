@@ -1,0 +1,1237 @@
+#!/usr/bin/env python3
+"""
+Pratyaksha Complete Documentation - Print-Ready
+All 6 pages with proper page breaks
+"""
+
+import os
+
+OUTPUT_DIR = "docs-final"
+
+CSS_STYLES = '''
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  line-height: 1.5;
+  color: #000000;
+  background: #ffffff;
+  font-size: 11pt;
+}
+
+.page {
+  max-width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 20mm;
+  background: #ffffff;
+  page-break-after: always;
+}
+
+.page:last-child {
+  page-break-after: auto;
+}
+
+.header {
+  border-bottom: 3px solid #000;
+  padding-bottom: 12px;
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  font-size: 20pt;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.subtitle {
+  font-size: 11pt;
+  color: #333;
+}
+
+.page-number {
+  float: right;
+  font-size: 9pt;
+  color: #666;
+}
+
+.section {
+  margin: 18px 0;
+}
+
+.section-title {
+  font-size: 14pt;
+  font-weight: bold;
+  margin: 18px 0 10px 0;
+  border-left: 4px solid #000;
+  padding-left: 10px;
+}
+
+.subsection-title {
+  font-size: 12pt;
+  font-weight: bold;
+  margin: 12px 0 6px 0;
+}
+
+.card {
+  border: 2px solid #000;
+  padding: 12px;
+  margin: 12px 0;
+  page-break-inside: avoid;
+}
+
+.card-header {
+  font-size: 11pt;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+ul, ol {
+  margin-left: 18px;
+  margin-top: 6px;
+}
+
+li {
+  margin: 4px 0;
+  font-size: 10pt;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+  page-break-inside: avoid;
+  font-size: 10pt;
+}
+
+th {
+  background: #f0f0f0;
+  font-weight: bold;
+  padding: 6px;
+  text-align: left;
+  border: 1px solid #000;
+}
+
+td {
+  padding: 5px 6px;
+  border: 1px solid #000;
+}
+
+.code {
+  background: #f5f5f5;
+  border-left: 3px solid #000;
+  padding: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 8pt;
+  margin: 10px 0;
+  page-break-inside: avoid;
+  white-space: pre-wrap;
+}
+
+.highlight {
+  background: #f0f0f0;
+  border: 1px solid #000;
+  padding: 10px;
+  margin: 12px 0;
+  page-break-inside: avoid;
+}
+
+.highlight-title {
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border: 1px solid #000;
+  border-radius: 3px;
+  font-size: 8pt;
+  font-weight: bold;
+  margin: 0 3px;
+}
+
+.flow-container {
+  text-align: center;
+  margin: 15px 0;
+  page-break-inside: avoid;
+}
+
+.flow-box {
+  display: inline-block;
+  border: 2px solid #000;
+  padding: 8px 12px;
+  margin: 4px;
+  min-width: 120px;
+  vertical-align: middle;
+  font-size: 9pt;
+}
+
+.flow-arrow {
+  display: inline-block;
+  margin: 0 4px;
+  font-size: 12pt;
+  font-weight: bold;
+}
+
+.footer {
+  margin-top: 25px;
+  padding-top: 12px;
+  border-top: 2px solid #000;
+  text-align: center;
+  font-size: 9pt;
+}
+
+@media print {
+  .page {
+    margin: 0;
+    padding: 15mm;
+    page-break-after: always;
+  }
+
+  .page:last-child {
+    page-break-after: auto;
+  }
+
+  @page {
+    margin: 0;
+    size: A4;
+  }
+
+  body {
+    margin: 0;
+  }
+}
+</style>
+'''
+
+def create_page_00():
+    return f'''<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Pratyaksha Documentation</title>
+  {CSS_STYLES}
+</head>
+<body>
+  <div class="page">
+    <div class="header" style="text-align: center; border: none; margin-bottom: 35px;">
+      <h1 style="font-size: 28pt; margin-bottom: 12px;">PRATYAKSHA</h1>
+      <p style="font-size: 14pt; font-weight: bold;">Cognitive Journaling Platform</p>
+      <p style="font-size: 11pt; margin-top: 8px;">Technical Architecture Documentation v1.0</p>
+      <p style="font-size: 10pt; color: #666; margin-top: 6px;">February 2026</p>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Product Overview</h2>
+      <p>AI-powered journaling platform analyzing emotional patterns and providing personalized insights.</p>
+
+      <table style="margin-top: 12px;">
+        <tr>
+          <th style="width: 28%;">Component</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td><strong>4-Agent Pipeline</strong></td>
+          <td>Intent → Emotion → Theme → Insight sequential processing</td>
+        </tr>
+        <tr>
+          <td><strong>RAG Chat</strong></td>
+          <td>Semantic search with pgvector, two-pass generation</td>
+        </tr>
+        <tr>
+          <td><strong>Personalization</strong></td>
+          <td>Soul Mapping, Life Blueprint (vision/goals/levers)</td>
+        </tr>
+        <tr>
+          <td><strong>Database</strong></td>
+          <td>PostgreSQL 16 + pgvector, 13 tables</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Tech Stack</h2>
+
+      <table>
+        <tr>
+          <th style="width: 25%;">Layer</th>
+          <th>Technology</th>
+        </tr>
+        <tr>
+          <td><strong>Frontend</strong></td>
+          <td>React 18 + Vite (5173) • TanStack Query • Tailwind + shadcn/ui • Firebase Auth</td>
+        </tr>
+        <tr>
+          <td><strong>Backend</strong></td>
+          <td>Express + TypeScript (3001) • Drizzle ORM • LangChain + OpenRouter</td>
+        </tr>
+        <tr>
+          <td><strong>Database</strong></td>
+          <td>PostgreSQL 16 (Cloud SQL) • pgvector v0.8.1 • 13 tables</td>
+        </tr>
+        <tr>
+          <td><strong>AI Models</strong></td>
+          <td>gpt-4o, gpt-4o-mini • text-embedding-3-small (1536d) • Groq Whisper</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Documentation Index</h2>
+
+      <table>
+        <tr>
+          <th style="width: 12%;">Page</th>
+          <th>Content</th>
+        </tr>
+        <tr>
+          <td><strong>Page 01</strong></td>
+          <td>System Architecture - 3-tier design (Client, API, Data & AI)</td>
+        </tr>
+        <tr>
+          <td><strong>Page 02</strong></td>
+          <td>4-Agent AI Pipeline - Intent, Emotion, Theme, Insight agents</td>
+        </tr>
+        <tr>
+          <td><strong>Page 03</strong></td>
+          <td>RAG Pipeline - Embedding generation & semantic search with pgvector</td>
+        </tr>
+        <tr>
+          <td><strong>Page 04</strong></td>
+          <td>Database Schema - All 13 tables with relationships</td>
+        </tr>
+        <tr>
+          <td><strong>Page 05</strong></td>
+          <td>User Profile Schema - Soul Mapping & Life Blueprint structure</td>
+        </tr>
+        <tr>
+          <td><strong>Page 06</strong></td>
+          <td>Entry Processing Flow - Complete journey from input to storage</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="highlight">
+      <div class="highlight-title">Key Statistics (February 2026)</div>
+      <table style="margin-top: 8px;">
+        <tr>
+          <td style="width: 35%;"><strong>Total Users</strong></td>
+          <td>24 (6 Airtable + 18 test)</td>
+        </tr>
+        <tr>
+          <td><strong>Journal Entries</strong></td>
+          <td>323 entries processed</td>
+        </tr>
+        <tr>
+          <td><strong>Embeddings</strong></td>
+          <td>322/323 (99.7% coverage)</td>
+        </tr>
+        <tr>
+          <td><strong>Processing Time</strong></td>
+          <td>8-12 seconds per entry</td>
+        </tr>
+        <tr>
+          <td><strong>Cost per Entry</strong></td>
+          <td>$0.02-0.04</td>
+        </tr>
+        <tr>
+          <td><strong>Personalization</strong></td>
+          <td>90-100% with complete profile</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="footer">
+      <p><strong>Pratyaksha Technical Documentation</strong> • Version 1.0 • February 2026 • Page 00 of 06</p>
+    </div>
+  </div>
+
+  <!-- PAGE 01 -->
+  <div class="page">
+    <div class="header">
+      <span class="page-number">Page 01/06</span>
+      <h1>System Architecture</h1>
+      <p class="subtitle">Three-Tier Design: Client, API, Data & AI</p>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Architecture Overview</h2>
+
+      <div class="flow-container">
+        <div class="flow-box"><strong>React Frontend</strong><br/>Port 5173</div>
+        <span class="flow-arrow">↓</span>
+        <div class="flow-box"><strong>Express API</strong><br/>Port 3001</div>
+        <span class="flow-arrow">↓</span>
+        <div class="flow-box"><strong>PostgreSQL + AI</strong><br/>pgvector + LangChain</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="subsection-title">1. CLIENT LAYER</h3>
+
+      <table>
+        <tr>
+          <th style="width: 30%;">Component</th>
+          <th>Details</th>
+        </tr>
+        <tr>
+          <td><strong>React Frontend</strong></td>
+          <td>Vite dev server (5173) • React 18 • TypeScript</td>
+        </tr>
+        <tr>
+          <td><strong>State Management</strong></td>
+          <td>TanStack Query (5min stale time, 30sec polling)</td>
+        </tr>
+        <tr>
+          <td><strong>UI Components</strong></td>
+          <td>Tailwind CSS • shadcn/ui • Recharts</td>
+        </tr>
+        <tr>
+          <td><strong>Authentication</strong></td>
+          <td>Firebase Auth • JWT tokens • X-Firebase-UID header</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <h3 class="subsection-title">2. API LAYER</h3>
+
+      <div class="card">
+        <div class="card-header">Express + TypeScript API (Port 3001)</div>
+        <table>
+          <tr>
+            <th style="width: 40%;">Endpoint</th>
+            <th>Purpose</th>
+          </tr>
+          <tr>
+            <td><code>/api/process-entry</code></td>
+            <td>4-agent pipeline processing</td>
+          </tr>
+          <tr>
+            <td><code>/api/chat</code></td>
+            <td>RAG-powered personalized chat</td>
+          </tr>
+          <tr>
+            <td><code>/api/user-profile</code></td>
+            <td>Soul Mapping & Life Blueprint</td>
+          </tr>
+          <tr>
+            <td><code>/api/embeddings</code></td>
+            <td>Vector generation & RAG</td>
+          </tr>
+          <tr>
+            <td><code>/api/entries</code></td>
+            <td>Entry CRUD operations</td>
+          </tr>
+          <tr>
+            <td><code>/api/speech</code></td>
+            <td>Groq Whisper transcription</td>
+          </tr>
+          <tr>
+            <td><code>/api/explain</code></td>
+            <td>AI chart explanation</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="subsection-title">3. DATA & AI LAYER</h3>
+
+      <table>
+        <tr>
+          <th style="width: 35%;">Component</th>
+          <th>Configuration</th>
+        </tr>
+        <tr>
+          <td><strong>PostgreSQL</strong></td>
+          <td>Host: 34.55.195.199 • DB: becoming • User: becoming_app</td>
+        </tr>
+        <tr>
+          <td><strong>pgvector</strong></td>
+          <td>v0.8.1 • 1536-dimensional embeddings • Cosine similarity</td>
+        </tr>
+        <tr>
+          <td><strong>Drizzle ORM</strong></td>
+          <td>postgres driver (porsager/postgres) • Type-safe queries</td>
+        </tr>
+        <tr>
+          <td><strong>LangChain</strong></td>
+          <td>ChatOpenAI • OpenAIEmbeddings • OpenRouter routing</td>
+        </tr>
+        <tr>
+          <td><strong>AI Models</strong></td>
+          <td>gpt-4o (quality) • gpt-4o-mini (speed) • text-embedding-3-small</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Data Flow</h2>
+
+      <div class="code">User writes entry → React app → TanStack Query POST
+→ Express API extracts Firebase UID
+→ 4-Agent Pipeline (Intent → Emotion → Theme → Insight)
+→ Drizzle ORM saves to PostgreSQL
+→ OpenAI Embeddings generates 1536d vector
+→ pgvector stores embedding
+→ Response returned to React
+→ TanStack Query caches (5min stale time)</div>
+    </div>
+
+    <div class="footer">
+      <p>System Architecture • Page 01 of 06</p>
+    </div>
+  </div>
+
+  <!-- PAGE 02 -->
+  <div class="page">
+    <div class="header">
+      <span class="page-number">Page 02/06</span>
+      <h1>4-Agent AI Pipeline</h1>
+      <p class="subtitle">Intent → Emotion → Theme → Insight</p>
+    </div>
+
+    <div class="section">
+      <div class="flow-container">
+        <div class="flow-box"><strong>Agent 1</strong><br/>Intent<br/><span class="badge">gpt-4o</span></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box"><strong>Agent 2</strong><br/>Emotion<br/><span class="badge">mini</span></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box"><strong>Agent 3</strong><br/>Theme<br/><span class="badge">mini</span></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box"><strong>Agent 4</strong><br/>Insight<br/><span class="badge">gpt-4o</span></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="subsection-title">Agent 1: Intent Agent <span class="badge">gpt-4o</span></h3>
+      <div class="card">
+        <p><strong>Purpose:</strong> Classifies entry type and generates descriptive name</p>
+        <p style="margin-top: 8px;"><strong>Outputs:</strong></p>
+        <ul>
+          <li><code>entryName</code> - Descriptive title</li>
+          <li><code>type</code> - One of 15 entry types</li>
+          <li><code>snapshot</code> - 2-3 sentence summary</li>
+        </ul>
+        <p style="margin-top: 8px;"><strong>Entry Types (15):</strong> Emotional, Cognitive, Family, Work, Relationship, Health, Creativity, Social, Reflection, Decision, Avoidance, Growth, Stress, Communication, Routine</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="subsection-title">Agent 2: Emotion Agent <span class="badge">gpt-4o-mini</span></h3>
+      <div class="card">
+        <p><strong>Purpose:</strong> Analyzes emotional state and energy patterns</p>
+        <p style="margin-top: 8px;"><strong>Outputs:</strong></p>
+        <ul>
+          <li><code>inferredMode</code> - Primary emotion (15 modes)</li>
+          <li><code>energy</code> - Energy level (10 levels)</li>
+          <li><code>energyShape</code> - Energy pattern (12 shapes)</li>
+          <li><code>sentiment</code> - Positive/Negative/Neutral</li>
+        </ul>
+        <p style="margin-top: 8px;"><strong>Modes:</strong> Hopeful, Calm, Grounded, Compassionate, Curious, Reflective, Conflicted, Withdrawn, Overthinking, Numb, Anxious, Agitated, Disconnected, Self-critical, Defensive</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="subsection-title">Agent 3: Theme Agent <span class="badge">gpt-4o-mini</span></h3>
+      <div class="card">
+        <p><strong>Purpose:</strong> Identifies patterns, contradictions, behavioral loops</p>
+        <p style="margin-top: 8px;"><strong>Outputs:</strong></p>
+        <ul>
+          <li><code>themeTags</code> - Array of recurring themes</li>
+          <li><code>contradiction</code> - Internal conflict (12 types)</li>
+          <li><code>loop</code> - Behavioral pattern if detected</li>
+        </ul>
+        <p style="margin-top: 8px;"><strong>Contradictions:</strong> Connection vs. Avoidance, Hope vs. Hopelessness, Action vs. Fear, Growth vs. Comfort, Confidence vs. Doubt, etc.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="subsection-title">Agent 4: Insight Agent <span class="badge">gpt-4o</span></h3>
+      <div class="card">
+        <p><strong>Purpose:</strong> Generates personalized insights with user context</p>
+        <p style="margin-top: 8px;"><strong>Outputs:</strong></p>
+        <ul>
+          <li><code>summary</code> - High-level interpretation</li>
+          <li><code>actionableInsights</code> - 3-5 specific observations</li>
+          <li><code>nextAction</code> - One concrete step to take</li>
+        </ul>
+        <p style="margin-top: 8px;"><strong>Context Integration:</strong> Vision/Anti-Vision, Goals, Levers, Past Patterns, Stress Level, Emotional Openness</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Pipeline Performance</h2>
+      <table>
+        <tr>
+          <th>Metric</th>
+          <th>Value</th>
+        </tr>
+        <tr>
+          <td>Total Processing Time</td>
+          <td>8-12 seconds average</td>
+        </tr>
+        <tr>
+          <td>Cost per Entry</td>
+          <td>$0.02-0.04</td>
+        </tr>
+        <tr>
+          <td>Success Rate</td>
+          <td>99.5%</td>
+        </tr>
+        <tr>
+          <td>Personalization Quality</td>
+          <td>90-100% with full profile</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="footer">
+      <p>4-Agent AI Pipeline • Page 02 of 06</p>
+    </div>
+  </div>
+
+  <!-- PAGE 03 -->
+  <div class="page">
+    <div class="header">
+      <span class="page-number">Page 03/06</span>
+      <h1>RAG Pipeline</h1>
+      <p class="subtitle">Retrieval-Augmented Generation with pgvector</p>
+    </div>
+
+    <div class="section">
+      <div class="highlight">
+        <div class="highlight-title">What is RAG?</div>
+        <p>RAG enhances chat by finding semantically similar past entries and using them as context. The system references your actual experiences instead of giving generic advice.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Embedding Generation Flow</h2>
+
+      <div class="flow-container">
+        <div class="flow-box">New Entry<br/>Created</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box">Extract<br/>Text</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box">OpenAI<br/>Embeddings<br/><span class="badge">1536d</span></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box">pgvector<br/>Storage</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box">Ready for<br/>RAG</div>
+      </div>
+
+      <table style="margin-top: 15px;">
+        <tr>
+          <th style="width: 30%;">Property</th>
+          <th>Value</th>
+        </tr>
+        <tr>
+          <td>Model</td>
+          <td>text-embedding-3-small (OpenAI via OpenRouter)</td>
+        </tr>
+        <tr>
+          <td>Dimensions</td>
+          <td>1536 (fixed size vector)</td>
+        </tr>
+        <tr>
+          <td>Cost</td>
+          <td>~$0.0001 per entry</td>
+        </tr>
+        <tr>
+          <td>Speed</td>
+          <td>200-500ms per embedding</td>
+        </tr>
+        <tr>
+          <td>Storage</td>
+          <td>~6KB per vector in pgvector</td>
+        </tr>
+        <tr>
+          <td>Input</td>
+          <td>Entry text + name + snapshot combined</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Semantic Search Flow</h2>
+
+      <div class="flow-container">
+        <div class="flow-box">User<br/>Question</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box">Embed<br/>Query</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box">pgvector<br/>Search</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box">Similar<br/>Entries</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box">Build<br/>Context</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box">GPT<br/>Response</div>
+      </div>
+
+      <div class="code" style="margin-top: 15px;">SELECT entry_id, text, name, snapshot,
+  1 - (embedding <=> '[query_vector]'::vector) as similarity
+FROM entry_embeddings
+JOIN entries ON entries.id = entry_embeddings.entry_id
+WHERE user_id = $1 AND is_deleted = false
+ORDER BY embedding <=> '[query_vector]'::vector
+LIMIT 5;</div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Two-Pass Generation</h2>
+
+      <div class="card">
+        <div class="card-header">Pass 1: Extract Relevant Context</div>
+        <p>LLM identifies which parts of user's profile are most relevant to their question (vision, levers, past patterns).</p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Pass 2: Build Explicit Requirements</div>
+        <p>Inject CRITICAL requirements into prompt: "You MUST suggest lever X by name" - ensures personalization.</p>
+      </div>
+
+      <table style="margin-top: 12px;">
+        <tr>
+          <th>Metric</th>
+          <th>Value</th>
+        </tr>
+        <tr>
+          <td>Semantic Search Speed</td>
+          <td>50-100ms</td>
+        </tr>
+        <tr>
+          <td>Two-Pass Generation</td>
+          <td>4-6 seconds</td>
+        </tr>
+        <tr>
+          <td>Total RAG Latency</td>
+          <td>5-7 seconds</td>
+        </tr>
+        <tr>
+          <td>Coverage</td>
+          <td>99.7% (322/323 entries)</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="footer">
+      <p>RAG Pipeline • Page 03 of 06</p>
+    </div>
+  </div>
+
+  <!-- PAGE 04 -->
+  <div class="page">
+    <div class="header">
+      <span class="page-number">Page 04/06</span>
+      <h1>Database Schema</h1>
+      <p class="subtitle">13 Tables with Relationships</p>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Core Tables</h2>
+
+      <table>
+        <tr>
+          <th style="width: 25%;">Table</th>
+          <th>Purpose</th>
+          <th style="width: 30%;">Key Fields</th>
+        </tr>
+        <tr>
+          <td><strong>users</strong></td>
+          <td>User accounts & profiles</td>
+          <td>firebase_uid, display_name, email, profession</td>
+        </tr>
+        <tr>
+          <td><strong>gamification</strong></td>
+          <td>Karma, streaks, Soul Mapping</td>
+          <td>karma, streak_days, completed_topics</td>
+        </tr>
+        <tr>
+          <td><strong>entries</strong></td>
+          <td>Journal entries with AI analysis</td>
+          <td>text, type, mode, energy, themes, insights</td>
+        </tr>
+        <tr>
+          <td><strong>entry_embeddings</strong></td>
+          <td>1536d vectors for RAG</td>
+          <td>embedding vector(1536), entry_id</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Life Blueprint Tables</h2>
+
+      <table>
+        <tr>
+          <th style="width: 25%;">Table</th>
+          <th>Purpose</th>
+        </tr>
+        <tr>
+          <td><strong>vision_items</strong></td>
+          <td>Vision & anti-vision statements (category, is_anti)</td>
+        </tr>
+        <tr>
+          <td><strong>goals</strong></td>
+          <td>Short/long-term goals (time_horizon: 6months, 1year, 3years, 5years, 10years)</td>
+        </tr>
+        <tr>
+          <td><strong>levers</strong></td>
+          <td>Daily action strategies (name, description, pushes_toward)</td>
+        </tr>
+        <tr>
+          <td><strong>blueprint_sections</strong></td>
+          <td>Completed blueprint areas (section_name, completed_at)</td>
+        </tr>
+        <tr>
+          <td><strong>blueprint_responses</strong></td>
+          <td>User answers to blueprint questions (question_id, answer)</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Caching & Utility Tables</h2>
+
+      <table>
+        <tr>
+          <th style="width: 25%;">Table</th>
+          <th>Purpose</th>
+        </tr>
+        <tr>
+          <td><strong>prompt_cache</strong></td>
+          <td>LLM response caching (1-hour TTL, prompt_hash → cached_response)</td>
+        </tr>
+        <tr>
+          <td><strong>explainer_cache</strong></td>
+          <td>Chart explanation caching (metric + date range → explanation)</td>
+        </tr>
+        <tr>
+          <td><strong>firebase_users</strong></td>
+          <td>Firebase authentication sync</td>
+        </tr>
+        <tr>
+          <td><strong>onboarding_progress</strong></td>
+          <td>User setup tracking (step_name, completed)</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Key Relationships</h2>
+
+      <div class="code">users (1) ──< (N) entries
+users (1) ──< (N) entry_embeddings
+users (1) ──< (N) vision_items
+users (1) ──< (N) goals
+users (1) ──< (N) levers
+users (1) ─── (1) gamification
+
+entries (1) ─── (1) entry_embeddings
+  ON DELETE CASCADE everywhere</div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Enums & Types</h2>
+
+      <table>
+        <tr>
+          <th>Enum</th>
+          <th>Values</th>
+        </tr>
+        <tr>
+          <td><strong>entry_type</strong></td>
+          <td>Emotional, Cognitive, Family, Work, Relationship, Health, Creativity, Social, Reflection, Decision, Avoidance, Growth, Stress, Communication, Routine (15 total)</td>
+        </tr>
+        <tr>
+          <td><strong>inferred_mode</strong></td>
+          <td>Hopeful, Calm, Grounded, Compassionate, Curious, Reflective, Conflicted, Withdrawn, Overthinking, Numb, Anxious, Agitated, Disconnected, Self-critical, Defensive (15 total)</td>
+        </tr>
+        <tr>
+          <td><strong>time_horizon</strong></td>
+          <td>6months, 1year, 3years, 5years, 10years</td>
+        </tr>
+        <tr>
+          <td><strong>goal_category</strong></td>
+          <td>career, health, relationships, finance, personal-growth, lifestyle, contribution, other</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="footer">
+      <p>Database Schema • Page 04 of 06</p>
+    </div>
+  </div>
+
+  <!-- PAGE 05 -->
+  <div class="page">
+    <div class="header">
+      <span class="page-number">Page 05/06</span>
+      <h1>User Profile Schema</h1>
+      <p class="subtitle">Soul Mapping & Life Blueprint</p>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Users Table Structure</h2>
+
+      <table>
+        <tr>
+          <th style="width: 30%;">Field</th>
+          <th>Type</th>
+          <th>Purpose</th>
+        </tr>
+        <tr>
+          <td>id</td>
+          <td>UUID</td>
+          <td>Primary key</td>
+        </tr>
+        <tr>
+          <td>firebase_uid</td>
+          <td>TEXT</td>
+          <td>Firebase authentication ID (unique)</td>
+        </tr>
+        <tr>
+          <td>display_name</td>
+          <td>TEXT</td>
+          <td>User's name</td>
+        </tr>
+        <tr>
+          <td>email</td>
+          <td>TEXT</td>
+          <td>User's email</td>
+        </tr>
+        <tr>
+          <td>profession</td>
+          <td>TEXT</td>
+          <td>User's occupation</td>
+        </tr>
+        <tr>
+          <td>stress_level</td>
+          <td>SMALLINT</td>
+          <td>1-5 scale (used for tone calibration)</td>
+        </tr>
+        <tr>
+          <td>emotional_openness</td>
+          <td>SMALLINT</td>
+          <td>1-5 scale (used for communication style)</td>
+        </tr>
+        <tr>
+          <td>personal_goal</td>
+          <td>TEXT</td>
+          <td>High-level life goal</td>
+        </tr>
+        <tr>
+          <td>personalization</td>
+          <td>JSONB</td>
+          <td>Additional profile data</td>
+        </tr>
+        <tr>
+          <td>onboarding_completed</td>
+          <td>BOOLEAN</td>
+          <td>Setup completion flag</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Gamification Table</h2>
+
+      <table>
+        <tr>
+          <th style="width: 40%;">Field</th>
+          <th>Purpose</th>
+        </tr>
+        <tr>
+          <td>karma</td>
+          <td>Points earned (180-200 for active users)</td>
+        </tr>
+        <tr>
+          <td>streak_days</td>
+          <td>Consecutive journaling days</td>
+        </tr>
+        <tr>
+          <td>total_entries_logged</td>
+          <td>Lifetime entry count</td>
+        </tr>
+        <tr>
+          <td>completed_soul_mapping_topics</td>
+          <td>Array: ["interests", "fear-analysis", "values-clarification", "childhood-beliefs", "relationship-patterns"]</td>
+        </tr>
+        <tr>
+          <td>soul_mapping_tier</td>
+          <td>surface, deep, core (progression level)</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Life Blueprint Components</h2>
+
+      <div class="subsection-title">Vision Items</div>
+      <table>
+        <tr>
+          <td style="width: 25%;"><strong>text</strong></td>
+          <td>"Leading a confident team without burning out"</td>
+        </tr>
+        <tr>
+          <td><strong>category</strong></td>
+          <td>career, health, relationships, finance, personal-growth, lifestyle, contribution, other</td>
+        </tr>
+        <tr>
+          <td><strong>is_anti</strong></td>
+          <td>false = vision, true = anti-vision (what to avoid)</td>
+        </tr>
+      </table>
+
+      <div class="subsection-title" style="margin-top: 15px;">Goals</div>
+      <table>
+        <tr>
+          <td style="width: 25%;"><strong>text</strong></td>
+          <td>"Launch v2.0 with 85%+ user satisfaction"</td>
+        </tr>
+        <tr>
+          <td><strong>category</strong></td>
+          <td>career, health, relationships, finance, personal-growth, lifestyle, contribution, other</td>
+        </tr>
+        <tr>
+          <td><strong>time_horizon</strong></td>
+          <td>6months, 1year, 3years, 5years, 10years</td>
+        </tr>
+      </table>
+
+      <div class="subsection-title" style="margin-top: 15px;">Levers</div>
+      <table>
+        <tr>
+          <td style="width: 25%;"><strong>name</strong></td>
+          <td>"Morning run"</td>
+        </tr>
+        <tr>
+          <td><strong>description</strong></td>
+          <td>"30 minutes of running before work to discharge nervous energy"</td>
+        </tr>
+        <tr>
+          <td><strong>pushes_toward</strong></td>
+          <td>vision, anti-vision (direction it moves user)</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Personalization Levels</h2>
+
+      <table>
+        <tr>
+          <th style="width: 20%;">Level</th>
+          <th>Profile Completion</th>
+          <th>Personalization %</th>
+        </tr>
+        <tr>
+          <td><strong>Basic</strong></td>
+          <td>Onboarding only (profession, stress, openness)</td>
+          <td>20-25%</td>
+        </tr>
+        <tr>
+          <td><strong>Partial</strong></td>
+          <td>+ 1-2 Soul Mapping topics</td>
+          <td>40-50%</td>
+        </tr>
+        <tr>
+          <td><strong>Advanced</strong></td>
+          <td>+ Vision/Anti-Vision + Some goals</td>
+          <td>70-80%</td>
+        </tr>
+        <tr>
+          <td><strong>Complete</strong></td>
+          <td>Full Soul Mapping + Complete Blueprint + Levers</td>
+          <td>90-100%</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="footer">
+      <p>User Profile Schema • Page 05 of 06</p>
+    </div>
+  </div>
+
+  <!-- PAGE 06 -->
+  <div class="page">
+    <div class="header">
+      <span class="page-number">Page 06/06</span>
+      <h1>Entry Processing Flow</h1>
+      <p class="subtitle">Complete Journey from Input to Storage</p>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Step-by-Step Flow</h2>
+
+      <div class="card">
+        <div class="card-header">1. User Input (React Frontend)</div>
+        <ul>
+          <li>User writes journal entry in textarea</li>
+          <li>Optional: Voice input via Groq Whisper (speech-to-text)</li>
+          <li>Click "Save" button</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">2. API Request (TanStack Query)</div>
+        <ul>
+          <li>POST /api/process-entry</li>
+          <li>Headers: X-Firebase-UID (authentication)</li>
+          <li>Body: {{ text, date, timestamp }}</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">3. User Context Loading (Express API)</div>
+        <ul>
+          <li>Extract Firebase UID from header</li>
+          <li>Query user profile from PostgreSQL</li>
+          <li>Load: Vision, Anti-Vision, Goals, Levers, Soul Mapping data</li>
+          <li>Build UserContext object for AI agents</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">4. Agent 1: Intent Agent (gpt-4o)</div>
+        <ul>
+          <li>Input: Entry text</li>
+          <li>Output: entryName, type, snapshot</li>
+          <li>Time: 2-3 seconds</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">5. Agent 2: Emotion Agent (gpt-4o-mini)</div>
+        <ul>
+          <li>Input: Entry text + Agent 1 results</li>
+          <li>Output: inferredMode, energy, energyShape, sentiment</li>
+          <li>Time: 1-2 seconds</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">6. Agent 3: Theme Agent (gpt-4o-mini)</div>
+        <ul>
+          <li>Input: Entry text + Previous results</li>
+          <li>Output: themeTags, contradiction, loop</li>
+          <li>Time: 1-2 seconds</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">7. Agent 4: Insight Agent (gpt-4o)</div>
+        <ul>
+          <li>Input: All previous results + UserContext</li>
+          <li>Output: summary, actionableInsights, nextAction</li>
+          <li>Personalization: References vision, goals, levers, patterns</li>
+          <li>Time: 3-5 seconds</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">8. Database Storage (Drizzle ORM)</div>
+        <ul>
+          <li>INSERT INTO entries (all fields from 4 agents)</li>
+          <li>Returns entry.id</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">9. Embedding Generation (Async)</div>
+        <ul>
+          <li>Fire-and-forget: embedEntry(entry.id, userId, text)</li>
+          <li>OpenAI Embeddings generates 1536d vector</li>
+          <li>INSERT INTO entry_embeddings</li>
+          <li>Non-blocking: Happens in background</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">10. Response to Client</div>
+        <ul>
+          <li>Return complete entry object with all AI analysis</li>
+          <li>TanStack Query caches result (5min stale time)</li>
+          <li>React UI updates with new entry</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Timing Summary</h2>
+
+      <table>
+        <tr>
+          <th>Step</th>
+          <th>Time</th>
+        </tr>
+        <tr>
+          <td>Context Loading</td>
+          <td>50-100ms</td>
+        </tr>
+        <tr>
+          <td>Agent 1 (Intent)</td>
+          <td>2-3 seconds</td>
+        </tr>
+        <tr>
+          <td>Agent 2 (Emotion)</td>
+          <td>1-2 seconds</td>
+        </tr>
+        <tr>
+          <td>Agent 3 (Theme)</td>
+          <td>1-2 seconds</td>
+        </tr>
+        <tr>
+          <td>Agent 4 (Insight)</td>
+          <td>3-5 seconds</td>
+        </tr>
+        <tr>
+          <td>Database Save</td>
+          <td>20-50ms</td>
+        </tr>
+        <tr>
+          <td>Embedding (async)</td>
+          <td>200-500ms (background)</td>
+        </tr>
+        <tr>
+          <td><strong>Total (user-facing)</strong></td>
+          <td><strong>8-12 seconds</strong></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="footer">
+      <p>Entry Processing Flow • Page 06 of 06 • <strong>End of Documentation</strong></p>
+    </div>
+  </div>
+
+</body>
+</html>'''
+
+def generate():
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+    content = create_page_00()
+    filepath = f"{OUTPUT_DIR}/pratyaksha-architecture-complete.html"
+
+    with open(filepath, 'w', encoding='utf-8') as f:
+        f.write(content)
+
+    print(f"✓ Created complete documentation")
+    print(f"\n✅ All 6 pages generated in single file: {filepath}")
+    print(f"\n📄 Features:")
+    print(f"   • Black text on white background")
+    print(f"   • Proper page breaks for printing")
+    print(f"   • All 6 pages in one HTML file")
+    print(f"   • Ready to print (Ctrl+P / Cmd+P)")
+
+generate()
