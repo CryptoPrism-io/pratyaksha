@@ -12,13 +12,17 @@ import {
 } from "../lib/firebase"
 import { syncOnboardingFromServer } from "../lib/onboardingStorage"
 
+const TEST_USER_KEY = "pratyaksha-test-user"
+
 interface AuthContextValue {
   user: User | null
   loading: boolean
   isConfigured: boolean
+  isTestUser: boolean
   signIn: () => Promise<User | null>
   signInEmail: (email: string, password: string) => Promise<User | null>
   signUp: (email: string, password: string, displayName?: string) => Promise<User | null>
+  signInTestUser: (uid: string, displayName: string, email: string) => void
   forgotPassword: (email: string) => Promise<void>
   signOut: () => Promise<void>
 }
@@ -32,9 +36,24 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isTestUser, setIsTestUser] = useState(false)
   const isConfigured = isFirebaseConfigured()
 
   useEffect(() => {
+    // Restore test user from localStorage on mount
+    const stored = localStorage.getItem(TEST_USER_KEY)
+    if (stored) {
+      try {
+        const testUser = JSON.parse(stored)
+        setUser(testUser as User)
+        setIsTestUser(true)
+        setLoading(false)
+        return
+      } catch {
+        localStorage.removeItem(TEST_USER_KEY)
+      }
+    }
+
     if (!auth) {
       // No Firebase config - run in demo mode
       setLoading(false)
@@ -42,10 +61,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      // Don't override test user with Firebase auth state
+      const currentTestUser = localStorage.getItem(TEST_USER_KEY)
+      if (currentTestUser) return
+
       setUser(firebaseUser)
+      setIsTestUser(false)
 
       // Sync onboarding status from server when user logs in
-      // This ensures cross-device consistency
       if (firebaseUser) {
         await syncOnboardingFromServer(firebaseUser.uid)
       }
@@ -86,6 +109,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
+  const signInTestUser = (uid: string, displayName: string, email: string) => {
+    const syntheticUser = {
+      uid,
+      email,
+      displayName,
+      photoURL: null,
+      emailVerified: true,
+    } as unknown as User
+
+    localStorage.setItem(TEST_USER_KEY, JSON.stringify(syntheticUser))
+    setUser(syntheticUser)
+    setIsTestUser(true)
+  }
+
   const forgotPassword = async (email: string) => {
     try {
       await resetPassword(email)
@@ -97,6 +134,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const handleSignOut = async () => {
     try {
+      // Clear test user state
+      if (isTestUser) {
+        localStorage.removeItem(TEST_USER_KEY)
+        setIsTestUser(false)
+        setUser(null)
+        return
+      }
+
       await logOut()
       setUser(null)
     } catch (error) {
@@ -110,9 +155,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         user,
         loading,
         isConfigured,
+        isTestUser,
         signIn,
         signInEmail,
         signUp,
+        signInTestUser,
         forgotPassword,
         signOut: handleSignOut,
       }}

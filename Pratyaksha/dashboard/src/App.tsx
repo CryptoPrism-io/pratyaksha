@@ -13,7 +13,10 @@ import { Login } from "./pages/Login"
 import { Signup } from "./pages/Signup"
 import { Blog } from "./pages/Blog"
 import { BlogPostPage } from "./pages/BlogPostPage"
-import { Research } from "./pages/Research"
+import { ResearchIndex } from "./pages/research"
+import { SciencePage } from "./pages/research/SciencePage"
+import { AgentPipelinePage } from "./pages/research/AgentPipelinePage"
+import { MethodologyPage } from "./pages/research/MethodologyPage"
 import { BrandKit } from "./pages/BrandKit"
 import { Toaster } from "./components/ui/sonner"
 import { ThemeProvider } from "./components/theme-provider"
@@ -68,7 +71,10 @@ function App() {
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/blog" element={<Blog />} />
                   <Route path="/blog/:slug" element={<BlogPostPage />} />
-                  <Route path="/research" element={<Research />} />
+                  <Route path="/research" element={<ResearchIndex />} />
+                  <Route path="/research/science" element={<SciencePage />} />
+                  <Route path="/research/agents" element={<AgentPipelinePage />} />
+                  <Route path="/research/methodology" element={<MethodologyPage />} />
                   <Route path="/brand" element={<BrandKit />} />
                   <Route
                     path="/login"
@@ -78,14 +84,7 @@ function App() {
                       </PublicOnlyRoute>
                     }
                   />
-                  <Route
-                    path="/signup"
-                    element={
-                      <PublicOnlyRoute>
-                        <Signup />
-                      </PublicOnlyRoute>
-                    }
-                  />
+                  <Route path="/signup" element={<Signup />} />
                 </Routes>
               </AppLayout>
               <Toaster position="bottom-right" richColors closeButton />

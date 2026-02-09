@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select"
-import { Gamepad2, Sword, Search, Rocket } from "lucide-react"
+import { Gamepad2, Sword, Search, Rocket, FlaskConical } from "lucide-react"
 
 // Icon map for personas
 const PERSONA_ICONS: Record<DemoPersona, React.ReactNode> = {
@@ -27,8 +27,28 @@ interface DemoBannerProps {
 
 export function DemoBanner({ showPersonaSelector = true, compact = false }: DemoBannerProps) {
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, isTestUser } = useAuth()
   const { persona, personaConfig, changePersona, allPersonas } = useDemoPersona()
+
+  // Show test mode banner for test users
+  if (user && isTestUser) {
+    return (
+      <div className="bg-gradient-to-r from-yellow-500/10 to-amber-500/10 border-b border-yellow-500/30 px-4 py-1 text-center">
+        <div className="flex items-center justify-center gap-2 flex-wrap min-h-[44px]">
+          <FlaskConical className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+          <span className="text-sm font-semibold text-yellow-700 dark:text-yellow-300">TEST MODE</span>
+          <span className="text-sm text-muted-foreground">{user.displayName}</span>
+          <span className="text-muted-foreground">•</span>
+          <button
+            onClick={() => navigate("/signup?dev=1")}
+            className="text-sm text-primary hover:underline font-medium min-h-[44px] flex items-center"
+          >
+            Switch User
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   // Only show in demo mode (no user)
   if (user) return null
