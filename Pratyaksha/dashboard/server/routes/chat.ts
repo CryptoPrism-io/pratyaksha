@@ -397,7 +397,7 @@ export async function chat(
 
               userContext = ctx
               console.log("[Chat] User context loaded from database")
-
+            }
         } catch (err) {
           console.log(`[Chat] Could not load user context: ${err}`)
           // Continue without user context

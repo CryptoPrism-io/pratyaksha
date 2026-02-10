@@ -1,0 +1,22 @@
+{
+  "projects": {
+    "default": "social-data-pipeline-and-push"
+  },
+  "targets": {
+    "pratyaksha-3f089": {
+      "hosting": {
+        "becoming": [
+          "becoming"
+        ]
+      }
+    },
+    "social-data-pipeline-and-push": {
+      "hosting": {
+        "becoming": [
+          "ai-becoming"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
