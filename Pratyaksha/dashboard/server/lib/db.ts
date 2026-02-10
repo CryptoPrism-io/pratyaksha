@@ -135,6 +135,154 @@ export async function upsertUser(data: {
         })
     }
 
+    // Update Life Blueprint if provided
+    if (data.lifeBlueprint) {
+      const bp = data.lifeBlueprint
+
+      // Vision items (delete all existing, then insert new)
+      if (bp.vision !== undefined) {
+        await db.delete(schema.visionItems).where(and(eq(schema.visionItems.userId, existing.id), eq(schema.visionItems.isAnti, false)))
+        if (bp.vision.length > 0) {
+          await db.insert(schema.visionItems).values(
+            bp.vision.map(v => ({
+              id: v.id,
+              userId: existing.id,
+              text: v.text,
+              category: v.category as any,
+              isAnti: false,
+              createdAt: v.createdAt ? new Date(v.createdAt) : new Date(),
+            }))
+          )
+        }
+      }
+
+      // Anti-vision items
+      if (bp.antiVision !== undefined) {
+        await db.delete(schema.visionItems).where(and(eq(schema.visionItems.userId, existing.id), eq(schema.visionItems.isAnti, true)))
+        if (bp.antiVision.length > 0) {
+          await db.insert(schema.visionItems).values(
+            bp.antiVision.map(v => ({
+              id: v.id,
+              userId: existing.id,
+              text: v.text,
+              category: v.category as any,
+              isAnti: true,
+              createdAt: v.createdAt ? new Date(v.createdAt) : new Date(),
+            }))
+          )
+        }
+      }
+
+      // Levers
+      if (bp.levers !== undefined) {
+        await db.delete(schema.levers).where(eq(schema.levers.userId, existing.id))
+        if (bp.levers.length > 0) {
+          await db.insert(schema.levers).values(
+            bp.levers.map(l => ({
+              id: l.id,
+              userId: existing.id,
+              name: l.name,
+              description: l.description,
+              pushesToward: l.pushesToward,
+              createdAt: l.createdAt ? new Date(l.createdAt) : new Date(),
+            }))
+          )
+        }
+      }
+
+      // Goals (all types: shortTerm, longTerm, timeHorizon)
+      if (bp.shortTermGoals !== undefined || bp.longTermGoals !== undefined || bp.timeHorizonGoals !== undefined) {
+        // Delete all existing goals
+        await db.delete(schema.goals).where(eq(schema.goals.userId, existing.id))
+
+        const allGoals = []
+
+        // Short-term goals
+        if (bp.shortTermGoals && bp.shortTermGoals.length > 0) {
+          allGoals.push(...bp.shortTermGoals.map(g => ({
+            id: g.id,
+            userId: existing.id,
+            text: g.text,
+            category: g.category as any,
+            timeHorizon: null,
+            isLongTerm: false,
+            targetDate: g.targetDate || null,
+            completed: g.completed || false,
+            completedAt: g.completedAt ? new Date(g.completedAt) : null,
+            createdAt: g.createdAt ? new Date(g.createdAt) : new Date(),
+          })))
+        }
+
+        // Long-term goals
+        if (bp.longTermGoals && bp.longTermGoals.length > 0) {
+          allGoals.push(...bp.longTermGoals.map(g => ({
+            id: g.id,
+            userId: existing.id,
+            text: g.text,
+            category: g.category as any,
+            timeHorizon: null,
+            isLongTerm: true,
+            targetDate: g.targetDate || null,
+            completed: g.completed || false,
+            completedAt: g.completedAt ? new Date(g.completedAt) : null,
+            createdAt: g.createdAt ? new Date(g.createdAt) : new Date(),
+          })))
+        }
+
+        // Time horizon goals
+        if (bp.timeHorizonGoals && bp.timeHorizonGoals.length > 0) {
+          allGoals.push(...bp.timeHorizonGoals.map(g => ({
+            id: g.id,
+            userId: existing.id,
+            text: g.text,
+            category: g.category as any,
+            timeHorizon: g.horizon as any,
+            isLongTerm: false,
+            targetDate: null,
+            completed: g.completed || false,
+            completedAt: g.completedAt ? new Date(g.completedAt) : null,
+            createdAt: g.createdAt ? new Date(g.createdAt) : new Date(),
+          })))
+        }
+
+        if (allGoals.length > 0) {
+          await db.insert(schema.goals).values(allGoals)
+        }
+      }
+
+      // Soul Mapping responses (upsert - unique on userId + questionId)
+      if (bp.responses && bp.responses.length > 0) {
+        for (const r of bp.responses) {
+          await db.insert(schema.blueprintResponses).values({
+            userId: existing.id,
+            questionId: r.questionId,
+            answer: r.answer,
+            answeredAt: r.answeredAt ? new Date(r.answeredAt) : new Date(),
+            updatedAt: r.updatedAt ? new Date(r.updatedAt) : new Date(),
+          }).onConflictDoUpdate({
+            target: [schema.blueprintResponses.userId, schema.blueprintResponses.questionId],
+            set: {
+              answer: r.answer,
+              updatedAt: new Date(),
+            },
+          })
+        }
+      }
+
+      // Completed sections (upsert - unique on userId + sectionName)
+      if (bp.completedSections && bp.completedSections.length > 0) {
+        for (const section of bp.completedSections) {
+          await db.insert(schema.blueprintSections).values({
+            userId: existing.id,
+            sectionName: section,
+            completedAt: new Date(),
+          }).onConflictDoNothing({
+            target: [schema.blueprintSections.userId, schema.blueprintSections.sectionName],
+          })
+        }
+      }
+    }
+
     // Return updated user
     return (await findUserByFirebaseUid(data.firebaseUid))!
   } else {
@@ -177,6 +325,129 @@ export async function upsertUser(data: {
         totalEntriesLogged: g.totalEntriesLogged ?? 0,
         completedSoulMappingTopics: g.completedSoulMappingTopics || [],
       })
+    }
+
+    // Create Life Blueprint records if provided
+    if (data.lifeBlueprint) {
+      const bp = data.lifeBlueprint
+
+      // Vision items
+      if (bp.vision && bp.vision.length > 0) {
+        await db.insert(schema.visionItems).values(
+          bp.vision.map(v => ({
+            id: v.id,
+            userId: newUser.id,
+            text: v.text,
+            category: v.category as any,
+            isAnti: false,
+            createdAt: v.createdAt ? new Date(v.createdAt) : new Date(),
+          }))
+        )
+      }
+
+      // Anti-vision items
+      if (bp.antiVision && bp.antiVision.length > 0) {
+        await db.insert(schema.visionItems).values(
+          bp.antiVision.map(v => ({
+            id: v.id,
+            userId: newUser.id,
+            text: v.text,
+            category: v.category as any,
+            isAnti: true,
+            createdAt: v.createdAt ? new Date(v.createdAt) : new Date(),
+          }))
+        )
+      }
+
+      // Levers
+      if (bp.levers && bp.levers.length > 0) {
+        await db.insert(schema.levers).values(
+          bp.levers.map(l => ({
+            id: l.id,
+            userId: newUser.id,
+            name: l.name,
+            description: l.description,
+            pushesToward: l.pushesToward,
+            createdAt: l.createdAt ? new Date(l.createdAt) : new Date(),
+          }))
+        )
+      }
+
+      // Goals (all types)
+      const allGoals = []
+
+      if (bp.shortTermGoals && bp.shortTermGoals.length > 0) {
+        allGoals.push(...bp.shortTermGoals.map(g => ({
+          id: g.id,
+          userId: newUser.id,
+          text: g.text,
+          category: g.category as any,
+          timeHorizon: null,
+          isLongTerm: false,
+          targetDate: g.targetDate || null,
+          completed: g.completed || false,
+          completedAt: g.completedAt ? new Date(g.completedAt) : null,
+          createdAt: g.createdAt ? new Date(g.createdAt) : new Date(),
+        })))
+      }
+
+      if (bp.longTermGoals && bp.longTermGoals.length > 0) {
+        allGoals.push(...bp.longTermGoals.map(g => ({
+          id: g.id,
+          userId: newUser.id,
+          text: g.text,
+          category: g.category as any,
+          timeHorizon: null,
+          isLongTerm: true,
+          targetDate: g.targetDate || null,
+          completed: g.completed || false,
+          completedAt: g.completedAt ? new Date(g.completedAt) : null,
+          createdAt: g.createdAt ? new Date(g.createdAt) : new Date(),
+        })))
+      }
+
+      if (bp.timeHorizonGoals && bp.timeHorizonGoals.length > 0) {
+        allGoals.push(...bp.timeHorizonGoals.map(g => ({
+          id: g.id,
+          userId: newUser.id,
+          text: g.text,
+          category: g.category as any,
+          timeHorizon: g.horizon as any,
+          isLongTerm: false,
+          targetDate: null,
+          completed: g.completed || false,
+          completedAt: g.completedAt ? new Date(g.completedAt) : null,
+          createdAt: g.createdAt ? new Date(g.createdAt) : new Date(),
+        })))
+      }
+
+      if (allGoals.length > 0) {
+        await db.insert(schema.goals).values(allGoals)
+      }
+
+      // Soul Mapping responses
+      if (bp.responses && bp.responses.length > 0) {
+        await db.insert(schema.blueprintResponses).values(
+          bp.responses.map(r => ({
+            userId: newUser.id,
+            questionId: r.questionId,
+            answer: r.answer,
+            answeredAt: r.answeredAt ? new Date(r.answeredAt) : new Date(),
+            updatedAt: r.updatedAt ? new Date(r.updatedAt) : new Date(),
+          }))
+        )
+      }
+
+      // Completed sections
+      if (bp.completedSections && bp.completedSections.length > 0) {
+        await db.insert(schema.blueprintSections).values(
+          bp.completedSections.map(section => ({
+            userId: newUser.id,
+            sectionName: section,
+            completedAt: new Date(),
+          }))
+        )
+      }
     }
 
     return newUser

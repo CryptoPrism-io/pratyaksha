@@ -26,6 +26,7 @@ import { cleanExpiredCache } from "./lib/cache"
 import testUsersRouter from "./routes/testUsers"
 import debugRouter from "./routes/debug"
 import embeddingsRouter from "./routes/embeddings"
+import entriesRouter from "./routes/entries"
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -86,6 +87,9 @@ app.get("/api/image/achievement/:achievementId", getAchievementImage)
 app.post("/api/image/batch/onboarding", generateAllOnboarding)
 app.get("/api/image/prompts", listPrompts)
 app.get("/api/image/prompt/:category/:id", previewPrompt)
+
+// Entries routes
+app.use("/api/entries", entriesRouter)
 
 // Test user routes (admin/dev)
 app.use("/api/test-users", testUsersRouter)

@@ -229,6 +229,11 @@ function generateResponseGuidelines(context: UserContext): string {
     guidelines.push("- If you notice patterns that align with user's anti-vision (what they want to avoid), gently point this out.");
   }
 
+  // Levers (actionable strategies)
+  if (context.blueprint.levers.length > 0) {
+    guidelines.push("- User has defined specific levers (strategies that work for them). Suggest these levers when giving actionable advice.");
+  }
+
   // Default guidelines
   guidelines.push("- Reference specific goals or values when giving advice.");
   guidelines.push("- Acknowledge progress toward stated vision when you see it.");
@@ -292,6 +297,11 @@ export function buildAgentContextBlock(context: UserContext): string {
   if (context.blueprint.antiVision.length > 0) {
     const top = context.blueprint.antiVision.slice(0, 3).map(v => v.text).join("; ");
     lines.push(`Anti-vision (wants to avoid): ${top}`);
+  }
+
+  if (context.blueprint.levers.length > 0) {
+    const top = context.blueprint.levers.slice(0, 3).map(l => l.name).join("; ");
+    lines.push(`Key levers (strategies that work for them): ${top}`);
   }
 
   const goals = context.blueprint.timeHorizonGoals;

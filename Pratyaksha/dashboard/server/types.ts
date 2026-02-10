@@ -176,6 +176,8 @@ export interface ProcessEntryRequest {
   type?: EntryType
   format?: EntryFormat // NEW: User can specify format
   autoDecompose?: boolean // NEW: Whether to auto-decompose consolidated logs (default: true)
+  date?: string // Optional: Override entry date (format: YYYY-MM-DD)
+  timestamp?: string // Optional: Override entry timestamp (ISO 8601)
 }
 
 export interface ProcessEntryResponse {

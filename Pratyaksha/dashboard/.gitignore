@@ -32,3 +32,12 @@ dist-ssr
 
 # Test coverage
 coverage
+
+# Test/check scripts with hardcoded credentials (NEVER commit these)
+check-*.mjs
+setup-*.mjs
+add-*.mjs
+test-*.mjs
+analyze-*.mjs
+*-check.mjs
+*-analysis.mjs

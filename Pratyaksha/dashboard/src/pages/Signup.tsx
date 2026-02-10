@@ -44,8 +44,8 @@ const TEST_USERS: TestUserProfile[] = [
     email: "test-alice@pratyaksha.dev",
     profession: "Startup Founder",
     ageRange: "25-34",
-    stressLevel: 8,
-    emotionalOpenness: 7,
+    stressLevel: 4,
+    emotionalOpenness: 4,
     personalGoal: "Scale SaaS to $1M ARR",
     icon: <Briefcase className="h-5 w-5" />,
     color: "rose",
@@ -56,8 +56,8 @@ const TEST_USERS: TestUserProfile[] = [
     email: "test-bob@pratyaksha.dev",
     profession: "Clinical Psychologist",
     ageRange: "35-44",
-    stressLevel: 4,
-    emotionalOpenness: 9,
+    stressLevel: 2,
+    emotionalOpenness: 5,
     personalGoal: "Help 1000 people overcome anxiety",
     icon: <Brain className="h-5 w-5" />,
     color: "blue",
@@ -68,8 +68,8 @@ const TEST_USERS: TestUserProfile[] = [
     email: "test-carol@pratyaksha.dev",
     profession: "PhD Student (Neuro)",
     ageRange: "18-24",
-    stressLevel: 9,
-    emotionalOpenness: 6,
+    stressLevel: 5,
+    emotionalOpenness: 3,
     personalGoal: "Complete PhD without burnout",
     icon: <GraduationCap className="h-5 w-5" />,
     color: "purple",
@@ -80,8 +80,8 @@ const TEST_USERS: TestUserProfile[] = [
     email: "test-david@pratyaksha.dev",
     profession: "Retired Engineer",
     ageRange: "55-64",
-    stressLevel: 3,
-    emotionalOpenness: 5,
+    stressLevel: 2,
+    emotionalOpenness: 3,
     personalGoal: "Find meaning in retirement",
     icon: <TreePine className="h-5 w-5" />,
     color: "emerald",
@@ -298,8 +298,8 @@ export function Signup() {
               {/* Stats */}
               <div className="flex gap-3 text-xs text-muted-foreground">
                 <span>Age: {profile.ageRange}</span>
-                <span>Stress: {profile.stressLevel}/10</span>
-                <span>Openness: {profile.emotionalOpenness}/10</span>
+                <span>Stress: {profile.stressLevel}/5</span>
+                <span>Openness: {profile.emotionalOpenness}/5</span>
               </div>
 
               {/* Goal */}

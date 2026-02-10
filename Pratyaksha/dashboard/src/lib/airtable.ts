@@ -284,30 +284,29 @@ export async function fetchEntries(userId?: string, demoPersona?: string): Promi
     return getDemoData(persona)
   }
 
-  if (!API_KEY) {
-    console.warn("No Airtable API key found, using demo data")
-    const { getDemoData } = await import("./demoPersonas")
-    return getDemoData("mario")
-  }
-
-  // Build URL with user filter - only show entries for logged-in user
-  let url = `${BASE_URL}?sort[0][field]=Date&sort[0][direction]=desc`
-  const formula = encodeURIComponent(`{User_ID} = '${userId}'`)
-  url += `&filterByFormula=${formula}`
-
-  const response = await fetch(url, {
+  // Fetch from PostgreSQL API
+  const response = await fetch("/api/entries", {
     headers: {
-      Authorization: `Bearer ${API_KEY}`,
+      "X-Firebase-UID": userId,
       "Content-Type": "application/json",
     },
   })
 
   if (!response.ok) {
-    throw new Error(`Airtable API error: ${response.status}`)
+    console.error(`Failed to fetch entries: ${response.status}`)
+    // Fallback to demo data on error
+    const { getDemoData } = await import("./demoPersonas")
+    return getDemoData("mario")
   }
 
   const data = await response.json()
-  return data.records.map(transformRecord)
+  if (!data.success || !data.entries) {
+    console.error("Invalid response from /api/entries")
+    const { getDemoData } = await import("./demoPersonas")
+    return getDemoData("mario")
+  }
+
+  return data.entries.map(transformRecord)
 }
 
 // Weekly Summary Types

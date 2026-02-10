@@ -142,7 +142,15 @@ export async function processEntry(
   req: Request<object, object, ProcessEntryRequest & { userId?: string }>,
   res: Response<ProcessEntryResponse>
 ) {
-  const { text, type: userProvidedType, format: userProvidedFormat, autoDecompose = true, userId } = req.body
+  const {
+    text,
+    type: userProvidedType,
+    format: userProvidedFormat,
+    autoDecompose = true,
+    userId,
+    date: userProvidedDate,
+    timestamp: userProvidedTimestamp
+  } = req.body
 
   if (!text || typeof text !== "string" || text.trim().length === 0) {
     return res.status(400).json({
@@ -167,10 +175,10 @@ export async function processEntry(
     const { intent, emotion, themes, insights, finalType, finalFormat } =
       await processTextThroughPipeline(trimmedText, userProvidedType, userProvidedFormat, userContext)
 
-    // Create timestamp
+    // Use provided date/timestamp or default to now
     const now = new Date()
-    const dateStr = now.toISOString().split("T")[0]
-    const timestampStr = now.toISOString()
+    const dateStr = userProvidedDate || now.toISOString().split("T")[0]
+    const timestampStr = userProvidedTimestamp || now.toISOString()
 
     // Calculate word count
     const wordCount = trimmedText.split(/\s+/).filter(word => word.length > 0).length
