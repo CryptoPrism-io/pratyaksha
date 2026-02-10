@@ -1,9 +1,10 @@
-name: Deploy Becoming to Cloud Run
+name: Deploy Becoming (Cloud Run + Firebase Hosting)
 
 on:
   push:
     branches:
       - main
+      - feat/postgres-langchain-migration
     paths:
       - 'Pratyaksha/dashboard/**'
   workflow_dispatch:
@@ -13,10 +14,7 @@ env:
   REGION: asia-south1
 
 jobs:
-  # ============================================
-  # BECOMING DASHBOARD DEPLOYMENT (Main URL)
-  # ============================================
-  deploy-dashboard:
+  deploy:
     permissions:
       contents: read
       id-token: write
@@ -43,11 +41,42 @@ jobs:
         with:
           project_id: ${{ env.PROJECT_ID }}
 
-      - name: Deploy with Cloud Build
+      # ── Deploy Backend via Cloud Build ─────────
+      - name: Deploy to Cloud Run
         run: |
           gcloud builds submit --config=cloudbuild.yaml \
             --substitutions="_VITE_AIRTABLE_API_KEY=${{ secrets.VITE_AIRTABLE_API_KEY }},_VITE_AIRTABLE_BASE_ID=${{ secrets.VITE_AIRTABLE_BASE_ID }},_VITE_AIRTABLE_TABLE_ID=${{ secrets.VITE_AIRTABLE_TABLE_ID }},_VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }},_VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }},_VITE_FIREBASE_PROJECT_ID=${{ secrets.VITE_FIREBASE_PROJECT_ID }},_VITE_FIREBASE_STORAGE_BUCKET=${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }},_VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }},_VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }},_VITE_FIREBASE_VAPID_KEY=${{ secrets.VITE_FIREBASE_VAPID_KEY }},_OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }},_GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}" \
             --project ${{ env.PROJECT_ID }}
 
-      - name: Display URL
-        run: echo "Becoming deployed to https://pratyaksha-963362833537.asia-south1.run.app"
+      # ── Deploy Frontend to Firebase Hosting ────
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies and build frontend
+        env:
+          VITE_AIRTABLE_API_KEY: ${{ secrets.VITE_AIRTABLE_API_KEY }}
+          VITE_AIRTABLE_BASE_ID: ${{ secrets.VITE_AIRTABLE_BASE_ID }}
+          VITE_AIRTABLE_TABLE_ID: ${{ secrets.VITE_AIRTABLE_TABLE_ID }}
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+          VITE_FIREBASE_VAPID_KEY: ${{ secrets.VITE_FIREBASE_VAPID_KEY }}
+        run: |
+          npm ci
+          npm run build
+
+      - name: Deploy to Firebase Hosting
+        run: |
+          npx firebase-tools deploy --only hosting:becoming --project ${{ env.PROJECT_ID }}
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
+
+      - name: Display URLs
+        run: |
+          echo "Backend:  https://pratyaksha-963362833537.asia-south1.run.app"
+          echo "Frontend: https://ai-becoming.web.app"
