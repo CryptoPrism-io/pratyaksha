@@ -10,7 +10,7 @@ import {
 import { findSimilarEntries, buildRAGContext } from "../lib/embeddings"
 
 import {
-  fetchAllEntries as dbFetchAllEntries,
+  fetchAllEntriesForUser,
   getUserProfile,
   findUserByFirebaseUid,
   type EntryRecord
@@ -312,15 +312,29 @@ export async function chat(
   try {
     console.log("[Chat] Processing message...")
 
+    // Get firebaseUid for filtering user's data
+    const firebaseUid = req.headers['x-firebase-uid'] as string
+    if (!firebaseUid) {
+      return res.status(401).json({
+        success: false,
+        error: "Authentication required (x-firebase-uid header missing)",
+      })
+    }
+
+    // Get user object for userId
+    const user = await findUserByFirebaseUid(firebaseUid)
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: "User not found",
+      })
+    }
+
     // Load user context from database if not provided or empty
     if (!userContext || Object.keys(userContext).length === 0) {
-      const firebaseUid = req.headers['x-firebase-uid'] as string
-      if (firebaseUid) {
-        console.log(`[Chat] Loading user context from database for ${firebaseUid}`)
+      console.log(`[Chat] Loading user context from database for ${firebaseUid}`)
         try {
-          const user = await findUserByFirebaseUid(firebaseUid)
-          if (user) {
-            const profile = await getUserProfile(firebaseUid)
+          const profile = await getUserProfile(firebaseUid)
             if (profile) {
               // Build context exactly as debug route does
               const ctx: UserContext = createEmptyUserContext()
@@ -383,20 +397,18 @@ export async function chat(
 
               userContext = ctx
               console.log("[Chat] User context loaded from database")
-            }
-          }
+
         } catch (err) {
           console.log(`[Chat] Could not load user context: ${err}`)
           // Continue without user context
         }
-      }
     }
 
-    // Fetch all entries from PostgreSQL and create context
-    const entries = await dbFetchAllEntries()
+    // Fetch ONLY this user's entries from PostgreSQL (PRIVACY FIX)
+    const entries = await fetchAllEntriesForUser(firebaseUid)
     const contextSummary = createContextSummary(entries)
 
-    console.log(`[Chat] Loaded ${entries.length} entries for context`)
+    console.log(`[Chat] Loaded ${entries.length} entries for user ${firebaseUid}`)
 
     // Two-Pass Generation for Better Personalization
     let personalContextSection = ""
@@ -413,13 +425,13 @@ export async function chat(
       console.log("[Chat] Pass 2: Built explicit requirements for response generation")
     }
 
-    // RAG: Find semantically similar entries to the user's message
+    // RAG: Find semantically similar entries to the user's message (PRIVACY FIX: filter by userId)
     let ragContext = ""
     try {
-      const similarEntries = await findSimilarEntries(message, 5)
+      const similarEntries = await findSimilarEntries(message, 5, user.id)
       if (similarEntries.length > 0) {
         ragContext = buildRAGContext(similarEntries)
-        console.log(`[Chat] RAG: Found ${similarEntries.length} similar entries`)
+        console.log(`[Chat] RAG: Found ${similarEntries.length} similar entries for user ${user.id}`)
       }
     } catch (ragError) {
       // RAG is best-effort — don't block chat if embeddings aren't available
