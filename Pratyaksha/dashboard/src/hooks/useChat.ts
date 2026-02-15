@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo } from "react"
 import type { Message } from "../components/chat/ChatMessage"
+import { useAuth } from "../contexts/AuthContext"
 import { loadLifeBlueprint, getBlueprintForAI, hasBlueprintForAI } from "../lib/lifeBlueprintStorage"
 import { loadGamificationState, getCurrentUnlockLevel } from "../lib/gamificationStorage"
 import { loadOnboardingProfile } from "../lib/onboardingStorage"
@@ -96,6 +97,7 @@ interface UseChatOptions {
 }
 
 export function useChat(options: UseChatOptions = {}) {
+  const { user } = useAuth()
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
@@ -121,6 +123,7 @@ export function useChat(options: UseChatOptions = {}) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...(user?.uid ? { "x-firebase-uid": user.uid } : {}),
         },
         body: JSON.stringify({
           message: content,
