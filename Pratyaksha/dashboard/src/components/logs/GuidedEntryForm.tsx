@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react"
-import { Mic, MicOff, Send, Loader2, Brain, Sparkles, Sun, Moon, Heart, CloudRain, Target, Pencil, WifiOff, ChevronRight, X, User, Baby, Users, Smile, Flame, ChevronDown, Lock } from "lucide-react"
+import { Mic, MicOff, Send, Loader2, Brain, Sparkles, Sun, Moon, Heart, CloudRain, Target, Pencil, WifiOff, X, User, Baby, Users, Smile, Flame, ChevronDown, Lock } from "lucide-react"
 import { Button } from "../ui/button"
 import { useSpeechToText } from "../../hooks/useSpeechToText"
 import { useStreak, STREAK_MILESTONES } from "../../hooks/useStreak"
@@ -460,33 +460,49 @@ const PROCESSING_STEPS = [
 
 interface GuidedEntryFormProps {
   onSuccess?: () => void
-  initialPrompt?: string // Pre-filled prompt from SmartPromptCard
+  initialPrompt?: string // Pre-filled prompt from SmartPromptCard or DailyReflectionCard
+  initialSoulMappingTopicId?: string // Soul mapping topic to activate alongside the prompt
 }
 
-export function GuidedEntryForm({ onSuccess, initialPrompt }: GuidedEntryFormProps) {
+export function GuidedEntryForm({ onSuccess, initialPrompt, initialSoulMappingTopicId }: GuidedEntryFormProps) {
   const [activeMode, setActiveMode] = useState<EntryMode | null>(null)
-  const [inputMethod, setInputMethod] = useState<"voice" | "text" | null>(null)
   const [text, setText] = useState("")
-
-  // Handle initial prompt - auto-select free write mode with text input
-  const prevInitialPrompt = useRef<string | undefined>(undefined)
-  useEffect(() => {
-    if (initialPrompt && initialPrompt !== prevInitialPrompt.current) {
-      prevInitialPrompt.current = initialPrompt
-      // Find free write mode and auto-select it
-      const freeWriteMode = ENTRY_MODES.find(m => m.id === "free")
-      if (freeWriteMode) {
-        setActiveMode(freeWriteMode)
-        setInputMethod("text")
-        setText(initialPrompt + "\n\n")
-      }
-    }
-  }, [initialPrompt])
   const [isProcessing, setIsProcessing] = useState(false)
   const [processingStep, setProcessingStep] = useState(0)
   const [currentNudgeIndex, setCurrentNudgeIndex] = useState(0)
   const [showProfileSection, setShowProfileSection] = useState(false)
   const [activeSoulMappingTopicId, setActiveSoulMappingTopicId] = useState<string | null>(null)
+
+  // Ref for scrolling to top of form
+  const formRef = useRef<HTMLDivElement>(null)
+
+  // Handle initial prompt and optional soul mapping topic
+  const prevInitialPrompt = useRef<string | undefined>(undefined)
+  const prevSoulMappingTopic = useRef<string | undefined>(undefined)
+  useEffect(() => {
+    const soulTopicChanged = initialSoulMappingTopicId && initialSoulMappingTopicId !== prevSoulMappingTopic.current
+    const promptChanged = initialPrompt && initialPrompt !== prevInitialPrompt.current
+
+    if (soulTopicChanged) {
+      prevSoulMappingTopic.current = initialSoulMappingTopicId
+      prevInitialPrompt.current = initialPrompt
+      const topic = PROFILE_CATEGORIES.find(c => c.id === initialSoulMappingTopicId)
+      if (topic) {
+        setActiveMode({ id: topic.id, name: topic.name, icon: topic.icon, color: topic.color, bgColor: topic.bgColor, borderColor: topic.borderColor, nudges: topic.nudges, description: topic.description })
+        setCurrentNudgeIndex(0)
+        setText(initialPrompt ?? topic.nudges[0])
+        setActiveSoulMappingTopicId(initialSoulMappingTopicId)
+        setTimeout(() => formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50)
+      }
+    } else if (promptChanged) {
+      prevInitialPrompt.current = initialPrompt
+      const freeWriteMode = ENTRY_MODES.find(m => m.id === "free")
+      if (freeWriteMode) {
+        setActiveMode(freeWriteMode)
+        setText(initialPrompt + "\n\n")
+      }
+    }
+  }, [initialPrompt, initialSoulMappingTopicId])
 
   const { isOnline, submitEntry } = useOffline()
   const { data: entries = [] } = useEntries()
@@ -519,14 +535,11 @@ export function GuidedEntryForm({ onSuccess, initialPrompt }: GuidedEntryFormPro
 
   const isVoiceSupported = typeof MediaRecorder !== "undefined"
 
-  // Ref for scrolling to top of form
-  const formRef = useRef<HTMLDivElement>(null)
-
-  // Start with a mode selection
+  // Select a soul mapping topic — fills textarea with first nudge
   const handleSelectMode = (mode: EntryMode, isSoulMapping = false) => {
     setActiveMode(mode)
     setCurrentNudgeIndex(0)
-    setText("")
+    setText(mode.nudges[0])
     setActiveSoulMappingTopicId(isSoulMapping ? mode.id : null)
 
     // Scroll to top of form after selection
@@ -535,34 +548,33 @@ export function GuidedEntryForm({ onSuccess, initialPrompt }: GuidedEntryFormPro
     }, 50)
   }
 
-  // Start recording immediately when choosing voice
-  const handleStartVoice = () => {
-    setInputMethod("voice")
-    if (!isRecording) {
-      startRecording()
-    }
-  }
-
-  // Switch to text input
-  const handleStartText = () => {
-    setInputMethod("text")
-  }
-
-  // Reset to mode selection
-  const handleBack = () => {
-    if (isRecording) stopRecording()
-    if (inputMethod) {
-      setInputMethod(null)
-    } else {
+  // Select a quick mode nudge pill — asks if text exists
+  const handleSelectNudge = (mode: EntryMode) => {
+    // Toggle off if already selected
+    if (activeMode?.id === mode.id) {
       setActiveMode(null)
+      setActiveSoulMappingTopicId(null)
+      return
     }
-    setText("")
-  }
 
-  // Cycle through nudges
-  const handleNextNudge = () => {
-    if (activeMode) {
-      setCurrentNudgeIndex((prev) => (prev + 1) % activeMode.nudges.length)
+    if (text.trim()) {
+      toast.warning(`Replace text with "${mode.name}" prompt?`, {
+        action: {
+          label: "Replace",
+          onClick: () => {
+            setActiveMode(mode)
+            setCurrentNudgeIndex(0)
+            setText(mode.nudges[0])
+            setActiveSoulMappingTopicId(null)
+          },
+        },
+        duration: 5000,
+      })
+    } else {
+      setActiveMode(mode)
+      setCurrentNudgeIndex(0)
+      setText(mode.nudges[0])
+      setActiveSoulMappingTopicId(null)
     }
   }
 
@@ -625,10 +637,9 @@ export function GuidedEntryForm({ onSuccess, initialPrompt }: GuidedEntryFormPro
           }
         }
 
-        // Reset everything
+        // Reset
         setText("")
         setActiveMode(null)
-        setInputMethod(null)
         setCurrentNudgeIndex(0)
         setActiveSoulMappingTopicId(null)
         onSuccess?.()
@@ -647,388 +658,80 @@ export function GuidedEntryForm({ onSuccess, initialPrompt }: GuidedEntryFormPro
 
   // ==================== RENDER ====================
 
-  // Mode Selection View (Initial State)
-  if (!activeMode) {
-    return (
-      <div ref={formRef} className="space-y-4">
-        {/* Quick Logging Section */}
-        <div className="rounded-xl glass-card p-6">
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold">What would you like to log?</h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              Choose a type to get guided prompts, or free write
-            </p>
+  return (
+    <div ref={formRef} className="space-y-4">
+      {/* Main Entry Card */}
+      <div className="rounded-xl glass-card p-6">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            {activeMode ? (
+              <>
+                <span className={cn("flex [&_svg]:h-5 [&_svg]:w-5", activeMode.color)}>
+                  {activeMode.icon}
+                </span>
+                <span className="font-medium text-sm">{activeMode.name}</span>
+                <button
+                  onClick={() => { setActiveMode(null); setActiveSoulMappingTopicId(null) }}
+                  className="rounded p-0.5 hover:bg-muted transition-colors"
+                  aria-label="Clear selected mode"
+                >
+                  <X className="h-3.5 w-3.5 text-muted-foreground" />
+                </button>
+              </>
+            ) : (
+              <h2 className="text-base font-medium text-muted-foreground">What's on your mind?</h2>
+            )}
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {ENTRY_MODES.map((mode) => (
+          <div className="flex items-center gap-2">
+            {!isOnline && (
+              <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-amber-500/10 text-amber-600 text-xs font-medium">
+                <WifiOff className="h-3.5 w-3.5" />
+                Offline
+              </div>
+            )}
+            {isVoiceSupported && (
               <button
-                key={mode.id}
-                onClick={() => handleSelectMode(mode)}
+                onClick={() => isRecording ? stopRecording() : startRecording()}
+                disabled={isProcessing || isSpeechProcessing}
+                aria-label={isRecording ? "Stop recording" : "Start voice recording"}
                 className={cn(
-                  "group relative p-4 rounded-xl border-2 transition-all text-left",
-                  mode.borderColor,
-                  mode.bgColor,
-                  "hover:scale-[1.02] active:scale-[0.98]"
+                  "rounded-full p-2 transition-all",
+                  isRecording
+                    ? "bg-red-500 text-white animate-pulse"
+                    : isSpeechProcessing
+                    ? "bg-primary/20 text-primary"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
-                <div className={cn("mb-2", mode.color)}>{mode.icon}</div>
-                <h3 className="font-medium text-sm">{mode.name}</h3>
-                <p className="text-xs text-muted-foreground mt-0.5">{mode.description}</p>
-                <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                {isSpeechProcessing ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : isRecording ? (
+                  <MicOff className="h-4 w-4" />
+                ) : (
+                  <Mic className="h-4 w-4" />
+                )}
               </button>
-            ))}
+            )}
           </div>
         </div>
 
-        {/* Soul Mapping Section */}
-        <div className="rounded-xl glass-card overflow-hidden">
-          <button
-            onClick={() => setShowProfileSection(!showProfileSection)}
-            className="w-full p-4 flex items-center justify-between hover:bg-muted/50 transition-colors"
-          >
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-violet-500/20 to-pink-500/20">
-                <User className="h-5 w-5 text-violet-400" />
-              </div>
-              <div className="text-left">
-                <h2 className="text-lg font-semibold">Soul Mapping</h2>
-                <p className="text-sm text-muted-foreground">
-                  {PROFILE_CATEGORIES.length} deep self-discovery topics across 3 levels
-                </p>
-              </div>
-            </div>
-            <ChevronDown className={cn(
-              "h-5 w-5 text-muted-foreground transition-transform",
-              showProfileSection && "rotate-180"
-            )} />
-          </button>
-
-          {showProfileSection && (
-            <div className="p-6 pt-2 border-t border-border/50 space-y-6">
-              {/* Surface Level */}
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className={cn("px-2 py-0.5 rounded-full text-xs font-medium", TIER_INFO.surface.bgColor, TIER_INFO.surface.color)}>
-                    Level 1
-                  </div>
-                  <span className="font-medium text-sm">{TIER_INFO.surface.label}</span>
-                  <span className="text-xs text-muted-foreground">— {TIER_INFO.surface.description}</span>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {PROFILE_CATEGORIES.filter(c => c.tier === "surface").map((mode) => {
-                    const completed = isTopicCompleted(mode.id)
-                    return (
-                      <button
-                        key={mode.id}
-                        onClick={() => handleSelectMode(mode, true)}
-                        className={cn(
-                          "group relative p-3 rounded-xl border-2 transition-all text-left",
-                          completed ? "border-emerald-500/50 bg-emerald-500/10" : mode.borderColor,
-                          !completed && mode.bgColor,
-                          "hover:scale-[1.02] active:scale-[0.98]"
-                        )}
-                      >
-                        {completed && (
-                          <div className="absolute top-2 right-2 h-4 w-4 rounded-full bg-emerald-500 flex items-center justify-center">
-                            <span className="text-white text-[10px]">✓</span>
-                          </div>
-                        )}
-                        <div className={cn("mb-1.5", completed ? "text-emerald-500" : mode.color)}>{mode.icon}</div>
-                        <h3 className="font-medium text-sm">{mode.name}</h3>
-                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{mode.description}</p>
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-
-              {/* Deep Level */}
-              <div className="relative">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className={cn("px-2 py-0.5 rounded-full text-xs font-medium", TIER_INFO.deep.bgColor, TIER_INFO.deep.color)}>
-                    Level 2
-                  </div>
-                  <span className="font-medium text-sm">{TIER_INFO.deep.label}</span>
-                  <span className="text-xs text-muted-foreground">— {TIER_INFO.deep.description}</span>
-                  {!isTierUnlocked("deep") && (
-                    <span className="flex items-center gap-1 text-xs text-amber-500">
-                      <Lock className="h-3 w-3" />
-                      {UNLOCK_THRESHOLDS.DEEP} entries
-                    </span>
-                  )}
-                </div>
-                <div className={cn(
-                  "grid grid-cols-2 md:grid-cols-3 gap-3",
-                  !isTierUnlocked("deep") && "opacity-50 pointer-events-none"
-                )}>
-                  {PROFILE_CATEGORIES.filter(c => c.tier === "deep").map((mode) => {
-                    const completed = isTopicCompleted(mode.id)
-                    return (
-                      <button
-                        key={mode.id}
-                        onClick={() => handleSelectMode(mode, true)}
-                        disabled={!isTierUnlocked("deep")}
-                        className={cn(
-                          "group relative p-3 rounded-xl border-2 transition-all text-left",
-                          completed ? "border-emerald-500/50 bg-emerald-500/10" : mode.borderColor,
-                          !completed && mode.bgColor,
-                          isTierUnlocked("deep") && "hover:scale-[1.02] active:scale-[0.98]"
-                        )}
-                      >
-                        {completed && (
-                          <div className="absolute top-2 right-2 h-4 w-4 rounded-full bg-emerald-500 flex items-center justify-center">
-                            <span className="text-white text-[10px]">✓</span>
-                          </div>
-                        )}
-                        {!isTierUnlocked("deep") && (
-                          <div className="absolute top-2 right-2">
-                            <Lock className="h-3.5 w-3.5 text-muted-foreground" />
-                          </div>
-                        )}
-                        <div className={cn("mb-1.5", completed ? "text-emerald-500" : mode.color)}>{mode.icon}</div>
-                        <h3 className="font-medium text-sm">{mode.name}</h3>
-                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{mode.description}</p>
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-
-              {/* Core Level */}
-              <div className="relative">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className={cn("px-2 py-0.5 rounded-full text-xs font-medium", TIER_INFO.core.bgColor, TIER_INFO.core.color)}>
-                    Level 3
-                  </div>
-                  <span className="font-medium text-sm">{TIER_INFO.core.label}</span>
-                  <span className="text-xs text-muted-foreground">— {TIER_INFO.core.description}</span>
-                  {!isTierUnlocked("core") && (
-                    <span className="flex items-center gap-1 text-xs text-violet-500">
-                      <Lock className="h-3 w-3" />
-                      {UNLOCK_THRESHOLDS.CORE} entries
-                    </span>
-                  )}
-                </div>
-                <div className={cn(
-                  "grid grid-cols-2 md:grid-cols-3 gap-3",
-                  !isTierUnlocked("core") && "opacity-50 pointer-events-none"
-                )}>
-                  {PROFILE_CATEGORIES.filter(c => c.tier === "core").map((mode) => {
-                    const completed = isTopicCompleted(mode.id)
-                    return (
-                      <button
-                        key={mode.id}
-                        onClick={() => handleSelectMode(mode, true)}
-                        disabled={!isTierUnlocked("core")}
-                        className={cn(
-                          "group relative p-3 rounded-xl border-2 transition-all text-left",
-                          completed ? "border-emerald-500/50 bg-emerald-500/10" : mode.borderColor,
-                          !completed && mode.bgColor,
-                          isTierUnlocked("core") && "hover:scale-[1.02] active:scale-[0.98]"
-                        )}
-                      >
-                        {completed && (
-                          <div className="absolute top-2 right-2 h-4 w-4 rounded-full bg-emerald-500 flex items-center justify-center">
-                            <span className="text-white text-[10px]">✓</span>
-                          </div>
-                        )}
-                        {!isTierUnlocked("core") && (
-                          <div className="absolute top-2 right-2">
-                            <Lock className="h-3.5 w-3.5 text-muted-foreground" />
-                          </div>
-                        )}
-                        <div className={cn("mb-1.5", completed ? "text-emerald-500" : mode.color)}>{mode.icon}</div>
-                        <h3 className="font-medium text-sm">{mode.name}</h3>
-                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{mode.description}</p>
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-
-              <p className="text-xs text-muted-foreground text-center pt-2 border-t border-border/50">
-                Start with Surface level and progress deeper as you feel comfortable. Each entry builds your personal profile.
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-    )
-  }
-
-  // Input Method Selection (After mode is selected)
-  if (!inputMethod) {
-    return (
-      <div ref={formRef} className="rounded-xl glass-card p-6">
-        {/* Header with back button */}
-        <div className="flex items-center gap-3 mb-6">
-          <button
-            onClick={handleBack}
-            className="p-2 rounded-lg hover:bg-muted transition-colors"
-          >
-            <X className="h-4 w-4" />
-          </button>
-          <div className={cn("p-2 rounded-lg", activeMode.bgColor, activeMode.color)}>
-            {activeMode.icon}
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold">{activeMode.name}</h2>
-            <p className="text-sm text-muted-foreground">{activeMode.description}</p>
-          </div>
-        </div>
-
-        {/* Input method cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Voice Recording Card */}
-          {isVoiceSupported && (
-            <button
-              onClick={handleStartVoice}
-              className="group relative p-6 rounded-xl border-2 border-primary/30 hover:border-primary/60 bg-primary/5 transition-all text-left hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <div className="flex items-center gap-4">
-                <div className="p-4 rounded-full bg-primary/20 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                  <Mic className="h-8 w-8" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold">Speak Your Mind</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Tap to start recording. Prompts will guide you.
-                  </p>
-                </div>
-              </div>
-              <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-            </button>
-          )}
-
-          {/* Text Writing Card */}
-          <button
-            onClick={handleStartText}
-            className="group relative p-6 rounded-xl border-2 border-muted hover:border-muted-foreground/50 bg-muted/30 transition-all text-left hover:scale-[1.02] active:scale-[0.98]"
-          >
-            <div className="flex items-center gap-4">
-              <div className="p-4 rounded-full bg-muted text-muted-foreground group-hover:bg-foreground group-hover:text-background transition-colors">
-                <Pencil className="h-8 w-8" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold">Type It Out</h3>
-                <p className="text-sm text-muted-foreground">
-                  Write your thoughts with guided prompts.
-                </p>
-              </div>
-            </div>
-            <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  // Active Recording/Writing View
-  return (
-    <div ref={formRef} className="rounded-xl glass-card p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleBack}
-            className="p-2 rounded-lg hover:bg-muted transition-colors"
-            disabled={isProcessing}
-          >
-            <X className="h-4 w-4" />
-          </button>
-          <div className={cn("p-2 rounded-lg", activeMode.bgColor, activeMode.color)}>
-            {activeMode.icon}
-          </div>
-          <span className="font-medium">{activeMode.name}</span>
-        </div>
-        {!isOnline && (
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-amber-500/10 text-amber-600 text-xs font-medium">
-            <WifiOff className="h-3.5 w-3.5" />
-            Offline
+        {/* Recording status */}
+        {isRecording && (
+          <div className="mb-2 flex items-center gap-2 text-sm text-red-500">
+            <span className="inline-block h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+            Recording... {formatDuration(recordingDuration)}
           </div>
         )}
-      </div>
-
-      {/* Nudge/Prompt Display - Large and prominent */}
-      <div
-        onClick={handleNextNudge}
-        className={cn(
-          "mb-4 p-6 rounded-xl cursor-pointer transition-all",
-          activeMode.bgColor,
-          "hover:scale-[1.01] active:scale-[0.99]"
+        {isSpeechProcessing && (
+          <div className="mb-2 flex items-center gap-2 text-sm text-primary">
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            Transcribing...
+          </div>
         )}
-      >
-        <p className={cn("text-lg md:text-xl font-medium", activeMode.color)}>
-          {activeMode.nudges[currentNudgeIndex]}
-        </p>
-        <p className="text-xs text-muted-foreground mt-2">
-          Tap for next prompt • {currentNudgeIndex + 1} of {activeMode.nudges.length}
-        </p>
-      </div>
 
-      {/* Voice Recording UI */}
-      {inputMethod === "voice" && (
-        <div className="space-y-4">
-          {/* Recording indicator */}
-          <div className="flex items-center justify-center gap-4 py-8">
-            <button
-              onClick={() => (isRecording ? stopRecording() : startRecording())}
-              disabled={isProcessing || isSpeechProcessing}
-              className={cn(
-                "relative p-8 rounded-full transition-all",
-                isRecording
-                  ? "bg-red-500 text-white animate-pulse"
-                  : isSpeechProcessing
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-primary/20 text-primary hover:bg-primary/30"
-              )}
-            >
-              {isSpeechProcessing ? (
-                <Loader2 className="h-12 w-12 animate-spin" />
-              ) : isRecording ? (
-                <MicOff className="h-12 w-12" />
-              ) : (
-                <Mic className="h-12 w-12" />
-              )}
-              {/* Pulse rings when recording */}
-              {isRecording && (
-                <>
-                  <span className="absolute inset-0 rounded-full bg-red-500/50 animate-ping" />
-                  <span className="absolute inset-[-8px] rounded-full border-2 border-red-500/30 animate-pulse" />
-                </>
-              )}
-            </button>
-          </div>
-
-          {/* Recording status */}
-          <div className="text-center">
-            {isRecording && (
-              <p className="text-lg font-medium text-red-500">
-                Recording... {formatDuration(recordingDuration)}
-              </p>
-            )}
-            {isSpeechProcessing && (
-              <p className="text-lg font-medium text-primary">Transcribing...</p>
-            )}
-            {!isRecording && !isSpeechProcessing && (
-              <p className="text-muted-foreground">
-                {text ? "Tap mic to add more" : "Tap the mic to start"}
-              </p>
-            )}
-          </div>
-
-          {/* Transcribed text preview */}
-          {text && (
-            <div className="p-4 rounded-lg bg-muted/50 border max-h-40 overflow-y-auto">
-              <p className="text-sm whitespace-pre-wrap">{text}</p>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Text Input UI */}
-      {inputMethod === "text" && (
+        {/* Textarea */}
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -1038,65 +741,257 @@ export function GuidedEntryForm({ onSuccess, initialPrompt }: GuidedEntryFormPro
               handleSubmit()
             }
           }}
-          placeholder="Start writing... let the prompts guide you"
+          placeholder="Start writing..."
           className="min-h-[200px] w-full resize-none rounded-lg border bg-background p-4 text-base placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
           disabled={isProcessing}
           autoFocus
         />
-      )}
 
-      {/* Processing indicator */}
-      {isProcessing && (
-        <div className="mt-4 rounded-lg border bg-muted/30 p-4">
-          <div className="flex items-center gap-3">
-            {PROCESSING_STEPS[processingStep]?.icon === "brain" ? (
-              <Brain className="h-5 w-5 animate-pulse text-primary" />
-            ) : (
-              <Sparkles className="h-5 w-5 animate-pulse text-primary" />
-            )}
-            <div className="flex-1">
-              <p className="text-sm font-medium">
-                {PROCESSING_STEPS[processingStep]?.label || "Processing..."}
-              </p>
-              <div className="mt-2 flex gap-1">
-                {PROCESSING_STEPS.map((_, index) => (
-                  <div
-                    key={index}
-                    className={cn(
-                      "h-1 flex-1 rounded-full transition-colors",
-                      index <= processingStep ? "bg-primary" : "bg-muted"
-                    )}
-                  />
-                ))}
+        {/* Mode nudge pills */}
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <span className="text-xs text-muted-foreground shrink-0">Need a prompt?</span>
+          {ENTRY_MODES.map((mode) => (
+            <button
+              key={mode.id}
+              onClick={() => handleSelectNudge(mode)}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-all",
+                activeMode?.id === mode.id
+                  ? cn(mode.bgColor, mode.color, "border-current")
+                  : "border-border text-muted-foreground hover:border-muted-foreground/50 hover:text-foreground"
+              )}
+            >
+              <span className="flex [&_svg]:h-3 [&_svg]:w-3">{mode.icon}</span>
+              {mode.name.split(" ")[0]}
+            </button>
+          ))}
+        </div>
+
+        {/* Processing indicator */}
+        {isProcessing && (
+          <div className="mt-4 rounded-lg border bg-muted/30 p-4">
+            <div className="flex items-center gap-3">
+              {PROCESSING_STEPS[processingStep]?.icon === "brain" ? (
+                <Brain className="h-5 w-5 animate-pulse text-primary" />
+              ) : (
+                <Sparkles className="h-5 w-5 animate-pulse text-primary" />
+              )}
+              <div className="flex-1">
+                <p className="text-sm font-medium">
+                  {PROCESSING_STEPS[processingStep]?.label || "Processing..."}
+                </p>
+                <div className="mt-2 flex gap-1">
+                  {PROCESSING_STEPS.map((_, index) => (
+                    <div
+                      key={index}
+                      className={cn(
+                        "h-1 flex-1 rounded-full transition-colors",
+                        index <= processingStep ? "bg-primary" : "bg-muted"
+                      )}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
           </div>
+        )}
+
+        {/* Footer */}
+        <div className="mt-4 flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">
+            {wordCount} {wordCount === 1 ? "word" : "words"}
+          </span>
+          <Button
+            onClick={handleSubmit}
+            disabled={!text.trim() || isProcessing || isRecording}
+            className="min-w-[120px]"
+          >
+            {isProcessing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              <>
+                <Send className="mr-2 h-4 w-4" />
+                Log Entry
+              </>
+            )}
+          </Button>
         </div>
-      )}
+      </div>
 
-      {/* Footer */}
-      <div className="mt-4 flex items-center justify-between">
-        <span className="text-sm text-muted-foreground">
-          {wordCount} {wordCount === 1 ? "word" : "words"}
-        </span>
-
-        <Button
-          onClick={handleSubmit}
-          disabled={!text.trim() || isProcessing || isRecording}
-          className="min-w-[120px]"
+      {/* Soul Mapping Section */}
+      <div className="rounded-xl glass-card overflow-hidden">
+        <button
+          onClick={() => setShowProfileSection(!showProfileSection)}
+          className="w-full p-4 flex items-center justify-between hover:bg-muted/50 transition-colors"
         >
-          {isProcessing ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Processing...
-            </>
-          ) : (
-            <>
-              <Send className="mr-2 h-4 w-4" />
-              Log Entry
-            </>
-          )}
-        </Button>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-gradient-to-br from-violet-500/20 to-pink-500/20">
+              <User className="h-5 w-5 text-violet-400" />
+            </div>
+            <div className="text-left">
+              <h2 className="text-lg font-semibold">Soul Mapping</h2>
+              <p className="text-sm text-muted-foreground">
+                {PROFILE_CATEGORIES.length} deep self-discovery topics across 3 levels
+              </p>
+            </div>
+          </div>
+          <ChevronDown className={cn(
+            "h-5 w-5 text-muted-foreground transition-transform",
+            showProfileSection && "rotate-180"
+          )} />
+        </button>
+
+        {showProfileSection && (
+          <div className="p-6 pt-2 border-t border-border/50 space-y-6">
+            {/* Surface Level */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <div className={cn("px-2 py-0.5 rounded-full text-xs font-medium", TIER_INFO.surface.bgColor, TIER_INFO.surface.color)}>
+                  Level 1
+                </div>
+                <span className="font-medium text-sm">{TIER_INFO.surface.label}</span>
+                <span className="text-xs text-muted-foreground">— {TIER_INFO.surface.description}</span>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {PROFILE_CATEGORIES.filter(c => c.tier === "surface").map((mode) => {
+                  const completed = isTopicCompleted(mode.id)
+                  return (
+                    <button
+                      key={mode.id}
+                      onClick={() => handleSelectMode(mode, true)}
+                      className={cn(
+                        "group relative p-3 rounded-xl border-2 transition-all text-left",
+                        completed ? "border-emerald-500/50 bg-emerald-500/10" : mode.borderColor,
+                        !completed && mode.bgColor,
+                        "hover:scale-[1.02] active:scale-[0.98]"
+                      )}
+                    >
+                      {completed && (
+                        <div className="absolute top-2 right-2 h-4 w-4 rounded-full bg-emerald-500 flex items-center justify-center">
+                          <span className="text-white text-[10px]">✓</span>
+                        </div>
+                      )}
+                      <div className={cn("mb-1.5", completed ? "text-emerald-500" : mode.color)}>{mode.icon}</div>
+                      <h3 className="font-medium text-sm">{mode.name}</h3>
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{mode.description}</p>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Deep Level */}
+            <div className="relative">
+              <div className="flex items-center gap-2 mb-3">
+                <div className={cn("px-2 py-0.5 rounded-full text-xs font-medium", TIER_INFO.deep.bgColor, TIER_INFO.deep.color)}>
+                  Level 2
+                </div>
+                <span className="font-medium text-sm">{TIER_INFO.deep.label}</span>
+                <span className="text-xs text-muted-foreground">— {TIER_INFO.deep.description}</span>
+                {!isTierUnlocked("deep") && (
+                  <span className="flex items-center gap-1 text-xs text-amber-500">
+                    <Lock className="h-3 w-3" />
+                    {UNLOCK_THRESHOLDS.DEEP} entries
+                  </span>
+                )}
+              </div>
+              <div className={cn(
+                "grid grid-cols-2 md:grid-cols-3 gap-3",
+                !isTierUnlocked("deep") && "opacity-50 pointer-events-none"
+              )}>
+                {PROFILE_CATEGORIES.filter(c => c.tier === "deep").map((mode) => {
+                  const completed = isTopicCompleted(mode.id)
+                  return (
+                    <button
+                      key={mode.id}
+                      onClick={() => handleSelectMode(mode, true)}
+                      disabled={!isTierUnlocked("deep")}
+                      className={cn(
+                        "group relative p-3 rounded-xl border-2 transition-all text-left",
+                        completed ? "border-emerald-500/50 bg-emerald-500/10" : mode.borderColor,
+                        !completed && mode.bgColor,
+                        isTierUnlocked("deep") && "hover:scale-[1.02] active:scale-[0.98]"
+                      )}
+                    >
+                      {completed && (
+                        <div className="absolute top-2 right-2 h-4 w-4 rounded-full bg-emerald-500 flex items-center justify-center">
+                          <span className="text-white text-[10px]">✓</span>
+                        </div>
+                      )}
+                      {!isTierUnlocked("deep") && (
+                        <div className="absolute top-2 right-2">
+                          <Lock className="h-3.5 w-3.5 text-muted-foreground" />
+                        </div>
+                      )}
+                      <div className={cn("mb-1.5", completed ? "text-emerald-500" : mode.color)}>{mode.icon}</div>
+                      <h3 className="font-medium text-sm">{mode.name}</h3>
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{mode.description}</p>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Core Level */}
+            <div className="relative">
+              <div className="flex items-center gap-2 mb-3">
+                <div className={cn("px-2 py-0.5 rounded-full text-xs font-medium", TIER_INFO.core.bgColor, TIER_INFO.core.color)}>
+                  Level 3
+                </div>
+                <span className="font-medium text-sm">{TIER_INFO.core.label}</span>
+                <span className="text-xs text-muted-foreground">— {TIER_INFO.core.description}</span>
+                {!isTierUnlocked("core") && (
+                  <span className="flex items-center gap-1 text-xs text-violet-500">
+                    <Lock className="h-3 w-3" />
+                    {UNLOCK_THRESHOLDS.CORE} entries
+                  </span>
+                )}
+              </div>
+              <div className={cn(
+                "grid grid-cols-2 md:grid-cols-3 gap-3",
+                !isTierUnlocked("core") && "opacity-50 pointer-events-none"
+              )}>
+                {PROFILE_CATEGORIES.filter(c => c.tier === "core").map((mode) => {
+                  const completed = isTopicCompleted(mode.id)
+                  return (
+                    <button
+                      key={mode.id}
+                      onClick={() => handleSelectMode(mode, true)}
+                      disabled={!isTierUnlocked("core")}
+                      className={cn(
+                        "group relative p-3 rounded-xl border-2 transition-all text-left",
+                        completed ? "border-emerald-500/50 bg-emerald-500/10" : mode.borderColor,
+                        !completed && mode.bgColor,
+                        isTierUnlocked("core") && "hover:scale-[1.02] active:scale-[0.98]"
+                      )}
+                    >
+                      {completed && (
+                        <div className="absolute top-2 right-2 h-4 w-4 rounded-full bg-emerald-500 flex items-center justify-center">
+                          <span className="text-white text-[10px]">✓</span>
+                        </div>
+                      )}
+                      {!isTierUnlocked("core") && (
+                        <div className="absolute top-2 right-2">
+                          <Lock className="h-3.5 w-3.5 text-muted-foreground" />
+                        </div>
+                      )}
+                      <div className={cn("mb-1.5", completed ? "text-emerald-500" : mode.color)}>{mode.icon}</div>
+                      <h3 className="font-medium text-sm">{mode.name}</h3>
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{mode.description}</p>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            <p className="text-xs text-muted-foreground text-center pt-2 border-t border-border/50">
+              Start with Surface level and progress deeper as you feel comfortable. Each entry builds your personal profile.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )

@@ -66,8 +66,8 @@ export function ExportButton({ entries, filteredCount, className }: ExportButton
           disabled={!entries.length}
           aria-label="Export entries"
         >
-          <Download className="mr-2 h-4 w-4" />
-          Export
+          <Download className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">Export</span>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-72" align="end">

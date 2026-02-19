@@ -5,7 +5,7 @@ import MarketingHome from "./pages/MarketingHome"
 import { Landing } from "./pages/Landing"
 import { Dashboard } from "./pages/Dashboard"
 import { Logs } from "./pages/Logs"
-// Insights page removed - functionality merged into Compare
+import { Insights } from "./pages/Insights"
 import { Compare } from "./pages/Compare"
 import { Chat } from "./pages/Chat"
 import { Profile } from "./pages/Profile"
@@ -66,6 +66,7 @@ function App() {
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/logs" element={<Logs />} />
                   {/* Insights route removed - use Compare instead */}
+                  <Route path="/insights" element={<Insights />} />
                   <Route path="/compare" element={<Compare />} />
                   <Route path="/chat" element={<Chat />} />
                   <Route path="/profile" element={<Profile />} />

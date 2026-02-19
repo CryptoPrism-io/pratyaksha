@@ -18,7 +18,7 @@ export function Chat() {
   const [showFollowUp, setShowFollowUp] = useState(false)
   const [showKarmaDialog, setShowKarmaDialog] = useState(false)
 
-  const { canAfford, spendKarma } = useKarma()
+  const { canAfford, spendKarma, karma } = useKarma()
 
   const { messages, isLoading, error, sendMessage, clearMessages } = useChat({
     onError: (err) => {
@@ -91,8 +91,16 @@ export function Chat() {
             </p>
           </div>
         </div>
-        {messages.length > 0 && (
-          <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
+          {/* XP cost badge */}
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20">
+            <Sparkles className="h-3 w-3 text-amber-500 flex-shrink-0" />
+            <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
+              {karma} XP
+            </span>
+            <span className="text-xs text-muted-foreground hidden sm:inline">· 50/msg</span>
+          </div>
+          {messages.length > 0 && (
             <Button
               variant="ghost"
               size="sm"
@@ -102,8 +110,8 @@ export function Chat() {
               <RotateCcw className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">New Chat</span>
             </Button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Messages Area */}
@@ -169,6 +177,12 @@ export function Chat() {
             <div ref={messagesEndRef} />
           </>
         )}
+      </div>
+
+      {/* XP cost notice */}
+      <div className="flex items-center justify-center gap-1.5 py-1.5 border-t bg-amber-500/5 text-xs text-amber-600 dark:text-amber-400">
+        <Sparkles className="h-3 w-3" />
+        <span>Each message costs <strong>50 XP</strong> · You have <strong>{karma} XP</strong></span>
       </div>
 
       {/* Input */}

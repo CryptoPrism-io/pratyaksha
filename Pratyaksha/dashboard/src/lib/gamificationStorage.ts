@@ -45,7 +45,7 @@ export const KARMA_REWARDS = {
 
 // Karma spending costs
 export const KARMA_COSTS = {
-  AI_CHAT_MESSAGE: 5,          // Per message
+  AI_CHAT_MESSAGE: 50,         // Per message
   AI_CHART_EXPLAINER: 3,       // Free if cached
   REGENERATE_SUMMARY: 10,      // Weekly/Monthly
 } as const;

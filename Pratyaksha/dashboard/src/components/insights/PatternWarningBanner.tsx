@@ -198,10 +198,7 @@ export function PatternWarningBanner({ className }: PatternWarningBannerProps) {
                       {/* Entries involved */}
                       {warning.entriesInvolved.length > 0 && (
                         <button
-                          onClick={() => {
-                            // Navigate to logs with search for these entries
-                            navigate("/logs")
-                          }}
+                          onClick={() => navigate("/logs?view=entries")}
                           className="mt-2 inline-flex items-center gap-1 text-xs text-primary hover:underline"
                         >
                           View {warning.entriesInvolved.length} related entries

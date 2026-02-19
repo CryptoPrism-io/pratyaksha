@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import { LayoutDashboard, PlusCircle, GitCompareArrows, MessageSquare, User, MoreVertical, Download, BookOpen, FlaskConical, Palette } from "lucide-react"
+import { LayoutDashboard, PlusCircle, MessageSquare, User, MoreVertical, Download, BookOpen, FlaskConical, Palette } from "lucide-react"
 import { MothLogo } from "../brand/MothLogo"
 import { BrandWordmark } from "../brand/BrandWordmark"
 import { cn } from "../../lib/utils"
@@ -21,7 +21,6 @@ export function Header() {
 
   const isDashboard = location.pathname === "/dashboard"
   const isLogs = location.pathname === "/logs"
-  const isCompare = location.pathname === "/compare"
   const isChat = location.pathname === "/chat"
 
   const handleInstallClick = async () => {
@@ -56,20 +55,20 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 overflow-hidden">
-      <div className="container flex h-16 items-center justify-between px-2 sm:px-4 md:px-8 max-w-full overflow-hidden">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-16 items-center justify-between px-2 sm:px-4 md:px-8 max-w-full">
         {/* Logo - Links to landing page */}
         <Link to="/" className="flex items-center gap-2 sm:gap-3 flex-shrink-0 group min-h-[44px]">
           <MothLogo size="md" animated />
-          <BrandWordmark size="md" variant="default" animated />
+          <BrandWordmark size="md" variant="default" animated className="hidden sm:inline-flex" />
         </Link>
 
         {/* Navigation */}
-        <nav className="flex items-center gap-1 sm:gap-2 md:gap-4 lg:gap-6 overflow-hidden">
+        <nav className="flex items-center gap-0 sm:gap-2 md:gap-4 lg:gap-6 overflow-hidden">
           <Link
             to="/logs"
             className={cn(
-              "flex items-center justify-center gap-2 text-sm font-medium transition-colors hover:text-primary min-w-[44px] min-h-[44px] sm:min-w-0",
+              "flex items-center justify-center gap-2 text-sm font-medium transition-colors hover:text-primary w-10 h-10 sm:w-auto sm:min-h-[44px] sm:px-1",
               isLogs ? "text-primary" : "text-muted-foreground"
             )}
           >
@@ -79,7 +78,7 @@ export function Header() {
           <Link
             to="/dashboard"
             className={cn(
-              "flex items-center justify-center gap-2 text-sm font-medium transition-colors hover:text-primary min-w-[44px] min-h-[44px] sm:min-w-0",
+              "flex items-center justify-center gap-2 text-sm font-medium transition-colors hover:text-primary w-10 h-10 sm:w-auto sm:min-h-[44px] sm:px-1",
               isDashboard ? "text-primary" : "text-muted-foreground"
             )}
           >
@@ -87,34 +86,24 @@ export function Header() {
             <span className="hidden sm:inline">Dashboard</span>
           </Link>
           <Link
-            to="/compare"
-            className={cn(
-              "flex items-center justify-center gap-2 text-sm font-medium transition-colors hover:text-primary min-w-[44px] min-h-[44px] sm:min-w-0",
-              isCompare ? "text-primary" : "text-muted-foreground"
-            )}
-          >
-            <GitCompareArrows className="h-5 w-5" />
-            <span className="hidden sm:inline">Compare</span>
-          </Link>
-          <Link
             to="/chat"
             className={cn(
-              "flex items-center justify-center gap-2 text-sm font-medium transition-colors hover:text-primary min-w-[44px] min-h-[44px] sm:min-w-0",
+              "flex items-center justify-center gap-2 text-sm font-medium transition-colors hover:text-primary w-10 h-10 sm:w-auto sm:min-h-[44px] sm:px-1",
               isChat ? "text-primary" : "text-muted-foreground"
             )}
           >
             <MessageSquare className="h-5 w-5" />
             <span className="hidden sm:inline">Chat</span>
           </Link>
-          <div className="ml-1 border-l pl-1 sm:ml-2 sm:pl-2 md:ml-3 md:pl-3 flex items-center gap-1 flex-shrink-0">
-            <KarmaDisplay compact />
+          <div className="ml-1 border-l pl-1 sm:ml-2 sm:pl-2 md:ml-3 md:pl-3 flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
+            <span className="hidden sm:flex"><KarmaDisplay compact /></span>
             <ThemeToggle />
             {user ? (
               <UserMenu compact />
             ) : (
               <Link
                 to="/login"
-                className="flex items-center gap-2 h-11 px-3 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm font-medium"
+                className="flex items-center justify-center gap-2 w-10 h-10 sm:w-auto sm:h-11 sm:px-3 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm font-medium"
               >
                 <User className="h-4 w-4" />
                 <span className="hidden sm:inline">Sign In</span>

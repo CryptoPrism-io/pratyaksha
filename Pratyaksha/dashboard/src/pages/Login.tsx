@@ -15,7 +15,7 @@ export function Login() {
   const [isLoading, setIsLoading] = useState(false)
 
   // Get redirect path from location state or default to dashboard
-  const from = (location.state as { from?: string })?.from || "/dashboard"
+  const from = (location.state as { from?: string })?.from || "/logs"
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true)
@@ -42,7 +42,7 @@ export function Login() {
             Authentication is not available. The app is running in demo mode.
           </p>
           <Link
-            to="/dashboard"
+            to="/logs"
             className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors"
           >
             Continue to Demo
@@ -113,7 +113,7 @@ export function Login() {
         {/* Demo Link */}
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Just exploring?{" "}
-          <Link to="/dashboard" className="text-primary hover:underline">
+          <Link to="/logs" className="text-primary hover:underline">
             Continue as demo user
           </Link>
         </p>

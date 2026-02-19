@@ -50,7 +50,7 @@ export function MothCursor() {
     <>
       {/* Spotlight effect - lights up area around cursor */}
       <div
-        className="fixed pointer-events-none z-[10000]"
+        className="fixed pointer-events-none z-[1000000001]"
         style={{
           left: pos.x - spotlightSize / 2,
           top: pos.y - spotlightSize / 2,
@@ -63,7 +63,7 @@ export function MothCursor() {
       />
       {/* Secondary glow for extra contrast */}
       <div
-        className="fixed pointer-events-none z-[10000]"
+        className="fixed pointer-events-none z-[1000000001]"
         style={{
           left: pos.x - spotlightSize * 0.4,
           top: pos.y - spotlightSize * 0.4,
@@ -76,7 +76,7 @@ export function MothCursor() {
       />
       {/* Moth cursor */}
       <div
-        className="fixed pointer-events-none z-[10001]"
+        className="fixed pointer-events-none z-[1000000002]"
         style={{
           left: pos.x - width / 2,
           top: pos.y - height / 2,

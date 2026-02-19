@@ -67,9 +67,9 @@ export function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
     return <>{children}</>
   }
 
-  // If user is authenticated, redirect to dashboard
+  // If user is authenticated, redirect to logs (home)
   if (user) {
-    return <Navigate to="/dashboard" replace />
+    return <Navigate to="/logs" replace />
   }
 
   // User is not authenticated, show the page

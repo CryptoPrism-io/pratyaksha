@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react"
 import { createPortal } from "react-dom"
 import { useEntries, useDeleteEntry, useToggleBookmark } from "../../hooks/useEntries"
-import { ChevronDown, ChevronUp, Eye, X, AlertCircle, RefreshCw, Star, Pencil, Trash2 } from "lucide-react"
+import { Eye, X, AlertCircle, RefreshCw, Star, Pencil, Trash2 } from "lucide-react"
 import type { Entry } from "../../lib/airtable"
 import { EntryCards } from "./EntryCard"
 import { Skeleton } from "../ui/skeleton"
@@ -79,6 +79,41 @@ function getSentimentType(sentiment: string): keyof typeof SENTIMENT_BADGE {
   if (lower.includes("negative")) return "negative"
   if (lower.includes("mixed")) return "mixed"
   return "neutral"
+}
+
+function groupEntriesByDate(entries: Entry[]): { label: string; entries: Entry[] }[] {
+  const now = new Date()
+  const todayStr = now.toDateString()
+  const yesterday = new Date(now.getTime() - 86400000)
+  const yesterdayStr = yesterday.toDateString()
+  const weekAgo = new Date(now.getTime() - 7 * 86400000)
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+
+  const groups: { label: string; entries: Entry[] }[] = [
+    { label: "Today", entries: [] },
+    { label: "Yesterday", entries: [] },
+    { label: "This Week", entries: [] },
+    { label: "This Month", entries: [] },
+    { label: "Older", entries: [] },
+  ]
+
+  for (const entry of entries) {
+    const d = new Date(entry.date)
+    const dStr = d.toDateString()
+    if (dStr === todayStr) {
+      groups[0].entries.push(entry)
+    } else if (dStr === yesterdayStr) {
+      groups[1].entries.push(entry)
+    } else if (d >= weekAgo) {
+      groups[2].entries.push(entry)
+    } else if (d >= monthStart) {
+      groups[3].entries.push(entry)
+    } else {
+      groups[4].entries.push(entry)
+    }
+  }
+
+  return groups.filter(g => g.entries.length > 0)
 }
 
 interface EntryModalProps {
@@ -247,8 +282,6 @@ export function EntriesTable({ filters, selectedIndex: externalSelectedIndex, on
   const deleteEntryMutation = useDeleteEntry()
   const toggleBookmarkMutation = useToggleBookmark()
   
-  const [sortField, setSortField] = useState<"date" | "type" | "sentiment">("date")
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc")
   const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null)
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null)
   const [deletingEntry, setDeletingEntry] = useState<Entry | null>(null)
@@ -395,42 +428,12 @@ export function EntriesTable({ filters, selectedIndex: externalSelectedIndex, on
     )
   }
 
-  // Sort entries
-  const sortedEntries = [...filteredEntries].sort((a, b) => {
-    let comparison = 0
-    switch (sortField) {
-      case "date":
-        comparison = new Date(a.date).getTime() - new Date(b.date).getTime()
-        break
-      case "type":
-        comparison = (a.type || "").localeCompare(b.type || "")
-        break
-      case "sentiment":
-        comparison = (a.sentimentAI || "").localeCompare(b.sentimentAI || "")
-        break
-    }
-    return sortOrder === "asc" ? comparison : -comparison
-  })
+  // Sort entries by date descending (newest first)
+  const sortedEntries = [...filteredEntries].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  )
 
-  const toggleSort = (field: typeof sortField) => {
-    if (sortField === field) {
-      setSortOrder(sortOrder === "asc" ? "desc" : "asc")
-    } else {
-      setSortField(field)
-      setSortOrder("desc")
-    }
-  }
-
-  const SortIcon = ({ field }: { field: typeof sortField }) => {
-    if (sortField !== field) return null
-    return sortOrder === "asc" ? (
-      <ChevronUp className="h-4 w-4" />
-    ) : (
-      <ChevronDown className="h-4 w-4" />
-    )
-  }
-
-  // Show cards on mobile, table on desktop
+  // Show cards on mobile, grouped rows on desktop
   if (isMobile) {
     return (
       <>
@@ -470,149 +473,118 @@ export function EntriesTable({ filters, selectedIndex: externalSelectedIndex, on
     )
   }
 
+  // Desktop: date-grouped card rows
+  const groups = groupEntriesByDate(sortedEntries)
+
   return (
     <>
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b">
-              <th
-                className="cursor-pointer px-3 py-3 text-left font-medium text-muted-foreground hover:text-foreground"
-                onClick={() => toggleSort("date")}
-              >
-                <div className="flex items-center gap-1">
-                  Date <SortIcon field="date" />
-                </div>
-              </th>
-              <th
-                className="cursor-pointer px-3 py-3 text-left font-medium text-muted-foreground hover:text-foreground"
-                onClick={() => toggleSort("type")}
-              >
-                <div className="flex items-center gap-1">
-                  Type <SortIcon field="type" />
-                </div>
-              </th>
-              <th className="hidden px-3 py-3 text-left font-medium text-muted-foreground md:table-cell">
-                Mode
-              </th>
-              <th
-                className="cursor-pointer px-3 py-3 text-left font-medium text-muted-foreground hover:text-foreground"
-                onClick={() => toggleSort("sentiment")}
-              >
-                <div className="flex items-center gap-1">
-                  Sentiment <SortIcon field="sentiment" />
-                </div>
-              </th>
-              <th className="hidden px-3 py-3 text-left font-medium text-muted-foreground lg:table-cell">
-                Preview
-              </th>
-              <th className="px-3 py-3 text-center font-medium text-muted-foreground w-12">
-                <Star className="h-4 w-4 mx-auto" />
-              </th>
-              <th className="px-3 py-3 text-right font-medium text-muted-foreground">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortedEntries.map((entry, index) => (
-              <tr
-                key={entry.id}
-                className={`border-b transition-colors hover:bg-muted/50 cursor-pointer ${
-                  selectedRowIndex === index ? "bg-primary/10 ring-1 ring-primary/20" : ""
-                }`}
-                onClick={() => setSelectedRowIndex(index)}
-                onDoubleClick={() => setSelectedEntry(entry)}
-                tabIndex={0}
-                role="row"
-                aria-selected={selectedRowIndex === index}
-              >
-                <td className="px-3 py-3">
-                  <div className="font-medium">
-                    {new Date(entry.date).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {new Date(entry.date).getFullYear()}
-                  </div>
-                </td>
-                <td className="px-3 py-3">
-                  <span className="rounded-full bg-muted px-2 py-1 text-xs font-medium">
-                    {entry.type || "—"}
-                  </span>
-                </td>
-                <td className="hidden px-3 py-3 md:table-cell">
-                  {entry.inferredMode || "—"}
-                </td>
-                <td className="px-3 py-3">
-                  <span
-                    className={`inline-block rounded-full px-2 py-1 text-xs font-medium ${SENTIMENT_BADGE[getSentimentType(entry.sentimentAI)]}`}
+      <div className="space-y-5">
+        {groups.map((group) => (
+          <div key={group.label}>
+            {/* Group header */}
+            <div className="mb-1.5 flex items-center gap-2 px-3">
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                {group.label}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                · {group.entries.length} {group.entries.length === 1 ? "entry" : "entries"}
+              </span>
+            </div>
+
+            {/* Entry rows */}
+            <div className="space-y-0.5">
+              {group.entries.map((entry) => {
+                const flatIndex = sortedEntries.indexOf(entry)
+                return (
+                  <div
+                    key={entry.id}
+                    className={cn(
+                      "group flex items-center gap-3 rounded-lg px-3 py-2.5 cursor-pointer transition-colors",
+                      "hover:bg-muted/50",
+                      selectedRowIndex === flatIndex && "bg-primary/10 ring-1 ring-inset ring-primary/20"
+                    )}
+                    onClick={() => setSelectedRowIndex(flatIndex)}
+                    onDoubleClick={() => setSelectedEntry(entry)}
+                    tabIndex={0}
+                    role="row"
+                    aria-selected={selectedRowIndex === flatIndex}
                   >
-                    {entry.sentimentAI?.split(" ")[0] || "—"}
-                  </span>
-                </td>
-                <td className="hidden max-w-[200px] truncate px-3 py-3 text-muted-foreground lg:table-cell">
-                  {entry.text?.slice(0, 60) || "—"}...
-                </td>
-                <td className="px-3 py-3 text-center">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleToggleBookmark(entry)
-                    }}
-                    aria-label={entry.isBookmarked ? "Remove bookmark" : "Add bookmark"}
-                    className="rounded-full p-2 hover:bg-muted transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-                  >
-                    <Star
+                    {/* Date */}
+                    <span className="w-12 shrink-0 text-right text-xs font-medium text-muted-foreground">
+                      {new Date(entry.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                    </span>
+
+                    {/* Type tag */}
+                    <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs font-medium">
+                      {entry.type || "—"}
+                    </span>
+
+                    {/* Sentiment tag */}
+                    <span
                       className={cn(
-                        "h-4 w-4 transition-colors",
-                        entry.isBookmarked
-                          ? "fill-yellow-400 text-yellow-400"
-                          : "text-muted-foreground hover:text-yellow-400"
+                        "hidden sm:inline-block shrink-0 rounded-full px-2 py-0.5 text-xs font-medium",
+                        SENTIMENT_BADGE[getSentimentType(entry.sentimentAI)]
                       )}
-                    />
-                  </button>
-                </td>
-                <td className="px-3 py-3 text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setSelectedEntry(entry)
-                      }}
-                      aria-label={`View entry from ${new Date(entry.date).toLocaleDateString()}`}
-                      className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary min-w-[44px] min-h-[44px] flex items-center justify-center"
                     >
-                      <Eye className="h-4 w-4" />
-                    </button>
+                      {entry.sentimentAI?.split(" ")[0] || "—"}
+                    </span>
+
+                    {/* Name / preview */}
+                    <span className="flex-1 min-w-0">
+                      {entry.name && (
+                        <span className="block truncate text-sm font-medium leading-tight">{entry.name}</span>
+                      )}
+                      <span className="block truncate text-xs text-muted-foreground leading-tight">
+                        {entry.text?.slice(0, 90) || "—"}
+                      </span>
+                    </span>
+
+                    {/* Bookmark */}
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleEdit(entry)
-                      }}
-                      aria-label="Edit entry"
-                      className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted min-w-[44px] min-h-[44px] flex items-center justify-center"
+                      onClick={(e) => { e.stopPropagation(); handleToggleBookmark(entry) }}
+                      aria-label={entry.isBookmarked ? "Remove bookmark" : "Add bookmark"}
+                      className="shrink-0 rounded-full p-1.5 hover:bg-muted transition-colors"
                     >
-                      <Pencil className="h-4 w-4" />
+                      <Star
+                        className={cn(
+                          "h-4 w-4 transition-colors",
+                          entry.isBookmarked
+                            ? "fill-yellow-400 text-yellow-400"
+                            : "text-muted-foreground hover:text-yellow-400"
+                        )}
+                      />
                     </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleDelete(entry)
-                      }}
-                      aria-label="Delete entry"
-                      className="rounded-full p-2 text-destructive transition-colors hover:bg-destructive/10 min-w-[44px] min-h-[44px] flex items-center justify-center"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+
+                    {/* Hover actions */}
+                    <div className="shrink-0 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setSelectedEntry(entry) }}
+                        aria-label={`View entry from ${new Date(entry.date).toLocaleDateString()}`}
+                        className="rounded-full p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleEdit(entry) }}
+                        aria-label="Edit entry"
+                        className="rounded-full p-1.5 text-muted-foreground hover:bg-muted transition-colors"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDelete(entry) }}
+                        aria-label="Delete entry"
+                        className="rounded-full p-1.5 text-destructive hover:bg-destructive/10 transition-colors"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                )
+              })}
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Entry Modal */}

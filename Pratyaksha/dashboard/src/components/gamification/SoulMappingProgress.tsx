@@ -1,6 +1,7 @@
 // Soul Mapping Progress - Shows all 17 topics with completion status and tier locks
-import { Check, Lock, ChevronDown, Sparkles, Baby, Heart, Smile, Users, Target, Flame, User, CloudRain, Moon } from "lucide-react";
+import { Check, Lock, ChevronDown, Sparkles, Baby, Heart, Smile, Users, Target, Flame, User, CloudRain, Moon, PenLine } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useKarma } from "../../contexts/KarmaContext";
 import type { UnlockTier } from "../../lib/gamificationStorage";
 import {
@@ -65,6 +66,7 @@ interface SoulMappingProgressProps {
 export function SoulMappingProgress({ className, compact = false }: SoulMappingProgressProps) {
   const { soulMappingProgress, isTierUnlocked, isTopicCompleted, entriesUntilNextLevel, nextUnlockLevel } = useKarma();
   const [expandedTiers, setExpandedTiers] = useState<Set<UnlockTier>>(new Set(["surface"]));
+  const navigate = useNavigate();
 
   const toggleTier = (tier: UnlockTier) => {
     setExpandedTiers(prev => {
@@ -144,18 +146,8 @@ export function SoulMappingProgress({ className, compact = false }: SoulMappingP
               const meta = TOPIC_META[topicId];
               const isCompleted = isTopicCompleted(topicId);
 
-              return (
-                <div
-                  key={topicId}
-                  className={cn(
-                    "flex items-center gap-2 p-2 rounded-lg border transition-all",
-                    isCompleted
-                      ? "bg-emerald-500/10 border-emerald-500/30"
-                      : isUnlocked
-                      ? "bg-muted/30 border-border/50 hover:border-border"
-                      : "bg-muted/20 border-transparent opacity-50"
-                  )}
-                >
+              const cardContent = (
+                <>
                   {/* Status Icon */}
                   <div className={cn(
                     "flex items-center justify-center h-5 w-5 rounded-full flex-shrink-0",
@@ -172,11 +164,42 @@ export function SoulMappingProgress({ className, compact = false }: SoulMappingP
 
                   {/* Topic Name */}
                   <span className={cn(
-                    "text-xs font-medium truncate",
+                    "text-xs font-medium truncate flex-1 text-left",
                     isCompleted ? "text-emerald-600 dark:text-emerald-400" : ""
                   )}>
                     {meta?.name || topicId}
                   </span>
+
+                  {/* Write hint — only for unlocked uncompleted topics */}
+                  {isUnlocked && !isCompleted && (
+                    <PenLine className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                  )}
+                </>
+              );
+
+              if (isUnlocked) {
+                return (
+                  <button
+                    key={topicId}
+                    onClick={() => navigate(`/logs?topic=${topicId}`)}
+                    className={cn(
+                      "group flex items-center gap-2 p-2 rounded-lg border transition-all text-left w-full",
+                      isCompleted
+                        ? "bg-emerald-500/10 border-emerald-500/30 hover:bg-emerald-500/15"
+                        : "bg-muted/30 border-border/50 hover:border-primary/40 hover:bg-primary/5 cursor-pointer"
+                    )}
+                  >
+                    {cardContent}
+                  </button>
+                );
+              }
+
+              return (
+                <div
+                  key={topicId}
+                  className="flex items-center gap-2 p-2 rounded-lg border bg-muted/20 border-transparent opacity-50"
+                >
+                  {cardContent}
                 </div>
               );
             })}

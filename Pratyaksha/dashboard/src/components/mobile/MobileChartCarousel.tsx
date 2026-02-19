@@ -85,24 +85,24 @@ export function MobileChartCarousel({ charts }: MobileChartCarouselProps) {
       </div>
 
       {/* Compact navigation bar - above the FAB */}
-      <div className="flex items-center justify-between px-3 py-2 bg-background/80 backdrop-blur-sm border-t mb-16">
-        {/* Prev button + name */}
+      <div className="flex items-center px-2 py-2 bg-background/80 backdrop-blur-sm border-t mb-16 w-full overflow-hidden">
+        {/* Prev button */}
         <button
           onClick={goPrev}
-          className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors min-w-[80px]"
+          className="flex items-center gap-0.5 text-muted-foreground hover:text-foreground transition-colors w-16 flex-shrink-0"
           aria-label={`Previous: ${prevChart.name}`}
         >
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className="h-4 w-4 flex-shrink-0" />
           <span className="text-xs truncate">{prevChart.name}</span>
         </button>
 
         {/* Dot indicators */}
-        <div className="flex items-center gap-0">
+        <div className="flex items-center justify-center flex-1 overflow-hidden">
           {charts.map((chart, i) => (
             <button
               key={chart.id}
               onClick={() => goTo(i)}
-              className="p-2.5"
+              className="p-1.5 flex-shrink-0"
               aria-label={`Go to ${chart.name}`}
             >
               <span className={cn(
@@ -115,14 +115,14 @@ export function MobileChartCarousel({ charts }: MobileChartCarouselProps) {
           ))}
         </div>
 
-        {/* Next button + name */}
+        {/* Next button */}
         <button
           onClick={goNext}
-          className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors min-w-[80px] justify-end"
+          className="flex items-center gap-0.5 text-muted-foreground hover:text-foreground transition-colors w-16 flex-shrink-0 justify-end"
           aria-label={`Next: ${nextChart.name}`}
         >
           <span className="text-xs truncate">{nextChart.name}</span>
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-4 w-4 flex-shrink-0" />
         </button>
       </div>
     </div>

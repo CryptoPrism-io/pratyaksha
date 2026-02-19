@@ -2,6 +2,8 @@ import { useState, useMemo, useRef, useEffect } from "react"
 import { useSearchParams } from "react-router-dom"
 import { GuidedEntryForm } from "../components/logs/GuidedEntryForm"
 import { SmartPromptCard } from "../components/logs/SmartPromptCard"
+import { DailyReflectionCard } from "../components/logs/DailyReflectionCard"
+import { LifeBlueprintGuided } from "../components/gamification/LifeBlueprintGuided"
 import { EntriesTable } from "../components/charts/EntriesTable"
 import { FilterBar, type FilterState } from "../components/filters/FilterBar"
 import { useEntries } from "../hooks/useEntries"
@@ -30,6 +32,15 @@ export function Logs() {
   const searchInputRef = useRef<HTMLInputElement>(null)
   const [urlFiltersApplied, setUrlFiltersApplied] = useState(false)
   const [selectedPrompt, setSelectedPrompt] = useState<string | undefined>(undefined)
+  const [selectedSoulMappingTopic, setSelectedSoulMappingTopic] = useState<string | undefined>(undefined)
+  const [activeTab, setActiveTab] = useState<"log" | "entries">("log")
+
+  // Listen for tab-switch requests from the OnboardingTour
+  useEffect(() => {
+    const handler = (e: CustomEvent<"log" | "entries">) => setActiveTab(e.detail)
+    window.addEventListener("pratyaksha-switch-tab" as string, handler as EventListener)
+    return () => window.removeEventListener("pratyaksha-switch-tab" as string, handler as EventListener)
+  }, [])
 
   // Pre-request microphone permission for voice logging
   const { permission, requestPermission, isSupported } = useMicrophonePermission()
@@ -54,6 +65,25 @@ export function Logs() {
   useEffect(() => {
     if (urlFiltersApplied) return
 
+    // Simple tab-switch param (used by PatternWarningBanner "View related entries")
+    const viewParam = searchParams.get("view")
+    if (viewParam === "entries") {
+      setActiveTab("entries")
+      setSearchParams({}, { replace: true })
+      setUrlFiltersApplied(true)
+      return
+    }
+
+    // Soul mapping topic pre-select (from Profile page topic click)
+    const topicParam = searchParams.get("topic")
+    if (topicParam) {
+      setSelectedSoulMappingTopic(topicParam)
+      setActiveTab("log")
+      setSearchParams({}, { replace: true })
+      setUrlFiltersApplied(true)
+      return
+    }
+
     const typeParam = searchParams.get("type")
     const modeParam = searchParams.get("mode")
     const energyParam = searchParams.get("energy")
@@ -69,6 +99,8 @@ export function Logs() {
         // Use search for contradiction or tag since there's no dedicated filter
         search: tagParam || contradictionParam || prev.search,
       }))
+      // Switch to Entries tab so filtered results are immediately visible
+      setActiveTab("entries")
       // Clear URL params after applying
       setSearchParams({}, { replace: true })
     }
@@ -126,57 +158,91 @@ export function Logs() {
       {/* Onboarding Tour - continues from Dashboard */}
       <OnboardingTour />
 
-      <div className="container mx-auto space-y-6 px-4 py-6 md:px-6">
-        {/* Smart Prompts - Personalized suggestions based on user's blueprint */}
-        <SmartPromptCard
-          onSelectPrompt={(text) => {
-            setSelectedPrompt(text)
-            // Scroll to form
-            document.querySelector('[data-tour="log-entry-form"]')?.scrollIntoView({
-              behavior: 'smooth',
-              block: 'start'
-            })
-          }}
-        />
-
-        {/* Guided Entry Form - Above the fold */}
-        <div data-tour="log-entry-form">
-          <GuidedEntryForm
-            initialPrompt={selectedPrompt}
-            onSuccess={() => setSelectedPrompt(undefined)}
-          />
-        </div>
-
-        {/* Historical Entries Section */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-semibold">Your Entries</h2>
-            <span className="text-sm text-muted-foreground">
-              {entries?.length || 0} total entries
-            </span>
-          </div>
-
-          {/* Filters */}
-          <div data-tour="logs-filters">
-          <FilterBar
-            filters={filters}
-            onFiltersChange={setFilters}
-            availableTypes={availableTypes}
-            availableModes={availableModes}
-            availableEnergies={availableEnergies}
-            searchInputRef={searchInputRef}
-            entries={entries || []}
-            filteredCount={filteredEntriesCount}
-            onRefresh={() => refetch()}
-            isRefreshing={isFetching}
-          />
-          </div>
-
-          {/* Entries Table */}
-          <div data-tour="entries-table" className="rounded-xl glass-card p-4">
-            <EntriesTable filters={filters} />
+      {/* Tab bar */}
+      <div className="border-b border-border/60 bg-background/50 backdrop-blur-sm sticky top-16 z-10">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="flex gap-0">
+            <button
+              onClick={() => setActiveTab("log")}
+              className={`px-6 py-3.5 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === "log"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Log
+            </button>
+            <button
+              onClick={() => setActiveTab("entries")}
+              className={`px-6 py-3.5 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${
+                activeTab === "entries"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Entries
+              {entries?.length ? (
+                <span className="rounded-full bg-muted px-1.5 py-0.5 text-xs font-normal text-muted-foreground">
+                  {entries.length}
+                </span>
+              ) : null}
+            </button>
           </div>
         </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-6 md:px-6">
+        {/* ── Tab: Log ── */}
+        {activeTab === "log" && (
+          <div className="space-y-4" data-tour="log-entry-form">
+            <SmartPromptCard
+              onSelectPrompt={(text) => {
+                setSelectedPrompt(text)
+                setSelectedSoulMappingTopic(undefined)
+              }}
+            />
+            <GuidedEntryForm
+              initialPrompt={selectedPrompt}
+              initialSoulMappingTopicId={selectedSoulMappingTopic}
+              onSuccess={() => {
+                setSelectedPrompt(undefined)
+                setSelectedSoulMappingTopic(undefined)
+                setActiveTab("entries")
+              }}
+            />
+            <DailyReflectionCard
+              onSelectItem={(prompt, topicId) => {
+                setSelectedPrompt(prompt)
+                setSelectedSoulMappingTopic(topicId)
+              }}
+            />
+            <LifeBlueprintGuided />
+          </div>
+        )}
+
+        {/* ── Tab: Entries ── */}
+        {activeTab === "entries" && (
+          <div className="space-y-4">
+            <div data-tour="logs-filters">
+              <FilterBar
+                filters={filters}
+                onFiltersChange={setFilters}
+                availableTypes={availableTypes}
+                availableModes={availableModes}
+                availableEnergies={availableEnergies}
+                searchInputRef={searchInputRef}
+                entries={entries || []}
+                filteredCount={filteredEntriesCount}
+                onRefresh={() => refetch()}
+                isRefreshing={isFetching}
+              />
+            </div>
+
+            <div data-tour="entries-table" className="rounded-xl glass-card p-4">
+              <EntriesTable filters={filters} />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

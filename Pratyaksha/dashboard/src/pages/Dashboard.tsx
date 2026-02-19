@@ -28,8 +28,8 @@ import { OnboardingTour } from "../components/onboarding/OnboardingTour"
 import { MobileChartCarousel } from "../components/mobile/MobileChartCarousel"
 import { useIsMobile } from "../hooks/useMediaQuery"
 import { VisionAlignmentCard } from "../components/insights/VisionAlignmentCard"
-import { PatternWarningBanner } from "../components/insights/PatternWarningBanner"
 import { DemoBanner } from "../components/layout/DemoBanner"
+import { AnalyticsTabBar } from "../components/layout/AnalyticsTabBar"
 
 export function Dashboard() {
   const navigate = useNavigate()
@@ -114,6 +114,9 @@ export function Dashboard() {
       {/* Onboarding Tour */}
       <OnboardingTour />
 
+      {/* Analytics sub-nav */}
+      <AnalyticsTabBar />
+
       {/* Stats + Filter Row - Same line on desktop */}
       <div className="container mx-auto px-2 pt-4 md:px-6 md:pt-6 overflow-x-hidden">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
@@ -147,8 +150,6 @@ export function Dashboard() {
           </div>
         </div>
 
-        {/* Pattern Warning Banner - Shows when anti-vision drift detected */}
-        <PatternWarningBanner className="mt-4" />
       </div>
 
       {/* Charts - Mobile Carousel or Desktop Grid */}

@@ -118,14 +118,14 @@ export function FilterBar({
 
   return (
     <div className={cn("space-y-4", className)}>
-      {/* Main filter row */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+      {/* Main filter row — always a single row; icon-only on mobile */}
+      <div className="flex flex-row items-center gap-1.5 sm:gap-2">
         {/* Search input */}
-        <div className="relative flex-1">
+        <div className="relative flex-1 min-w-0">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             ref={searchInputRef}
-            placeholder="Search entries... (press / to focus)"
+            placeholder="Search…"
             value={filters.search}
             onChange={(e) => updateFilter("search", e.target.value)}
             className="pl-9 pr-9"
@@ -142,56 +142,42 @@ export function FilterBar({
           )}
         </div>
 
-        {/* Date range quick buttons - visible on larger screens */}
-        <div className="hidden md:flex items-center gap-1">
-          {DATE_RANGE_OPTIONS.map((option) => (
-            <Button
-              key={option.value}
-              variant={filters.dateRange === option.value ? "default" : "outline"}
-              size="sm"
-              onClick={() => updateFilter("dateRange", option.value as FilterState["dateRange"])}
-              className="min-h-[44px] h-auto"
-            >
-              {option.label}
-            </Button>
-          ))}
-        </div>
-
-        {/* Mobile date range dropdown */}
-        <div className="flex md:hidden">
-          <Select
-            value={filters.dateRange}
-            onValueChange={(value) => updateFilter("dateRange", value as FilterState["dateRange"])}
+        {/* Date range dropdown — icon-only on mobile */}
+        <Select
+          value={filters.dateRange}
+          onValueChange={(value) => updateFilter("dateRange", value as FilterState["dateRange"])}
+        >
+          <SelectTrigger
+            className="w-9 sm:w-[160px] h-9 sm:h-auto sm:min-h-[44px] shrink-0 px-0 sm:px-3 justify-center sm:justify-between"
+            aria-label="Select date range"
           >
-            <SelectTrigger className="w-full min-h-[44px]" aria-label="Select date range">
-              <Calendar className="mr-2 h-4 w-4" />
+            <Calendar className="h-4 w-4 shrink-0" />
+            <span className="hidden sm:flex items-center gap-1 ml-1 flex-1 truncate">
               <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {DATE_RANGE_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+            </span>
+          </SelectTrigger>
+          <SelectContent>
+            {DATE_RANGE_OPTIONS.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-        {/* Quick Bookmark Toggle (#6 Quick Win) */}
+        {/* Bookmark toggle — icon-only on mobile */}
         <Button
           variant={filters.bookmarked === "bookmarked" ? "default" : "outline"}
           size="sm"
           onClick={() => updateFilter("bookmarked", filters.bookmarked === "bookmarked" ? "all" : "bookmarked")}
           className={cn(
-            "min-h-[44px] min-w-[44px] px-3 gap-2",
+            "h-9 w-9 sm:h-auto sm:w-auto sm:min-h-[44px] sm:min-w-[44px] px-0 sm:px-3 shrink-0",
             filters.bookmarked === "bookmarked" && "bg-yellow-500 hover:bg-yellow-600 text-white border-yellow-500"
           )}
           aria-label={filters.bookmarked === "bookmarked" ? "Show all entries" : "Show bookmarked only"}
         >
           <Star className={cn("h-4 w-4", filters.bookmarked === "bookmarked" && "fill-current")} />
-          <span className="hidden sm:inline">
-            {filters.bookmarked === "bookmarked" ? "Starred" : "Starred"}
-          </span>
+          <span className="hidden sm:inline sm:ml-2">Starred</span>
         </Button>
 
         {/* Refresh button */}
@@ -201,26 +187,26 @@ export function FilterBar({
             size="sm"
             onClick={onRefresh}
             disabled={isRefreshing}
-            className="min-h-[44px] min-w-[44px] px-2"
+            className="h-9 w-9 sm:h-auto sm:min-h-[44px] sm:min-w-[44px] px-0 sm:px-2 shrink-0"
             aria-label="Refresh entries"
           >
             <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
           </Button>
         )}
 
-        {/* Filter toggle button */}
+        {/* Filter popover — icon-only on mobile */}
         <Popover open={isExpanded} onOpenChange={setIsExpanded}>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
               size="sm"
-              className="min-h-[44px] min-w-[100px]"
+              className="h-9 w-9 sm:h-auto sm:min-h-[44px] sm:min-w-[44px] px-0 sm:px-3 shrink-0 relative"
               aria-label="Toggle advanced filters"
             >
-              <Filter className="mr-2 h-4 w-4" />
-              Filters
+              <Filter className="h-4 w-4" />
+              <span className="hidden sm:inline sm:ml-2">Filters</span>
               {activeFilterCount > 0 && (
-                <span className="ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
+                <span className="absolute -top-1.5 -right-1.5 sm:static sm:ml-2 flex h-4 w-4 sm:h-5 sm:w-5 items-center justify-center rounded-full bg-primary text-[10px] sm:text-xs text-primary-foreground">
                   {activeFilterCount}
                 </span>
               )}
@@ -398,27 +384,28 @@ export function FilterBar({
           <ExportButton
             entries={entries}
             filteredCount={filteredCount}
-            className="min-h-[44px]"
+            className="h-9 w-9 sm:h-auto sm:w-auto sm:min-h-[44px] px-0 sm:px-3 shrink-0"
           />
         )}
 
-        {/* Clear All button - visible when filters are active */}
+        {/* Clear All — icon-only on mobile, hidden when no active filters */}
         {activeFilterCount > 0 && (
           <Button
             variant="ghost"
             size="sm"
             onClick={clearFilters}
-            className="min-h-[44px] text-muted-foreground hover:text-foreground"
+            className="h-9 w-9 sm:h-auto sm:w-auto sm:min-h-[44px] px-0 sm:px-2 shrink-0 text-muted-foreground hover:text-foreground"
+            aria-label="Clear all filters"
           >
-            <X className="h-4 w-4 mr-1" />
-            Clear All
+            <X className="h-4 w-4" />
+            <span className="hidden sm:inline sm:ml-1">Clear</span>
           </Button>
         )}
       </div>
 
       {/* Active filter pills */}
       {activeFilterCount > 0 && (
-        <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-2">
+        <div className="flex flex-row flex-wrap items-center gap-2">
           <span className="text-xs sm:text-sm text-muted-foreground shrink-0">Filters:</span>
           {filters.search && (
             <FilterPill

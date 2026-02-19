@@ -33,7 +33,7 @@ interface SmartPromptCardProps {
 export function SmartPromptCard({ onSelectPrompt }: SmartPromptCardProps) {
   const { data: entries = [] } = useEntries()
   const [dismissedLocally, setDismissedLocally] = useState<Set<string>>(new Set())
-  const [isExpanded, setIsExpanded] = useState(true)
+  const [isExpanded, setIsExpanded] = useState(false)
 
   // Generate prompts
   const prompts = useMemo(() => {

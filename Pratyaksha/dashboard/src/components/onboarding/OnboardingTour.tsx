@@ -275,6 +275,13 @@ export function OnboardingTour({ forceShow, onComplete }: OnboardingTourProps) {
           navigate("/dashboard")
           return
         }
+        const nextIndex = currentIndex + 1
+        // Steps 1 and 2 target elements in the Entries tab — switch tab first, then wait for re-render
+        if (nextIndex === 1 || nextIndex === 2) {
+          window.dispatchEvent(new CustomEvent("pratyaksha-switch-tab", { detail: "entries" }))
+          setTimeout(() => driverObj.moveNext(), 300)
+          return
+        }
         driverObj.moveNext()
       },
       onDestroyStarted: () => {

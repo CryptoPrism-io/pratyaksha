@@ -11,6 +11,7 @@ import {
   Clock,
   Sparkles,
   X,
+  ArrowLeft,
 } from "lucide-react";
 import {
   LIFE_CATEGORIES,
@@ -51,6 +52,31 @@ const SECTION_ORDER: Section[] = [
   { type: "summary" },
 ];
 
+// Sections without the summary (index 0-12)
+const ACTIVE_SECTIONS = SECTION_ORDER.slice(0, -1);
+
+// Group definitions for the card grid
+const SECTION_GROUPS = [
+  {
+    label: "Foundation",
+    color: "text-indigo-400",
+    bgColor: "bg-indigo-500/10",
+    indices: [0, 7], // opening, fears
+  },
+  {
+    label: "Life Areas",
+    color: "text-emerald-400",
+    bgColor: "bg-emerald-500/10",
+    indices: [1, 2, 3, 4, 5, 6], // career, health, relationships, finance, growth, lifestyle
+  },
+  {
+    label: "Time Horizons",
+    color: "text-amber-400",
+    bgColor: "bg-amber-500/10",
+    indices: [8, 9, 10, 11, 12], // 6m, 1y, 3y, 5y, 10y
+  },
+];
+
 export function LifeBlueprintGuided({ className }: LifeBlueprintGuidedProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [blueprint, setBlueprint] = useState<LifeBlueprint>(() => loadLifeBlueprint());
@@ -58,14 +84,16 @@ export function LifeBlueprintGuided({ className }: LifeBlueprintGuidedProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answer, setAnswer] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
+  // null = show the card grid, number = show questionnaire for that section
+  const [activeSectionIndex, setActiveSectionIndex] = useState<number | null>(null);
 
   const currentSection = SECTION_ORDER[currentSectionIndex];
 
-  // Scroll into view when expanded or section/question changes
+  // Scroll into view when expanded or section changes
   useEffect(() => {
     if (isExpanded && containerRef.current) {
       setTimeout(() => {
-        containerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        containerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 50);
     }
   }, [isExpanded, currentSectionIndex, currentQuestionIndex]);
@@ -109,45 +137,36 @@ export function LifeBlueprintGuided({ className }: LifeBlueprintGuidedProps) {
 
   const handleSaveAnswer = () => {
     if (!currentQuestion || !answer.trim()) return;
-
     setBlueprint(prev => saveQuestionResponse(prev, currentQuestion.id, answer.trim()));
   };
 
   const handleNext = () => {
     handleSaveAnswer();
-
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
     } else {
-      // Mark section as completed and move to next
       const sectionId = getSectionId(currentSection);
       setBlueprint(prev => markSectionCompleted(prev, sectionId));
-
-      if (currentSectionIndex < SECTION_ORDER.length - 1) {
-        setCurrentSectionIndex(prev => prev + 1);
-        setCurrentQuestionIndex(0);
-      }
+      // Return to grid after completing a section
+      setActiveSectionIndex(null);
     }
   };
 
   const handlePrevious = () => {
     handleSaveAnswer();
-
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(prev => prev - 1);
-    } else if (currentSectionIndex > 0) {
-      setCurrentSectionIndex(prev => prev - 1);
-      const prevQuestions = getQuestionsForSection(SECTION_ORDER[currentSectionIndex - 1]);
-      setCurrentQuestionIndex(prevQuestions.length - 1);
+    } else {
+      // Back to grid
+      setActiveSectionIndex(null);
     }
   };
 
   const handleSkip = () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
-    } else if (currentSectionIndex < SECTION_ORDER.length - 1) {
-      setCurrentSectionIndex(prev => prev + 1);
-      setCurrentQuestionIndex(0);
+    } else {
+      setActiveSectionIndex(null);
     }
   };
 
@@ -155,12 +174,13 @@ export function LifeBlueprintGuided({ className }: LifeBlueprintGuidedProps) {
     handleSaveAnswer();
     setCurrentSectionIndex(index);
     setCurrentQuestionIndex(0);
+    setActiveSectionIndex(index);
   };
 
   // Compact collapsed view
   if (!isExpanded) {
     const completedCount = blueprint.completedSections.length;
-    const totalSections = SECTION_ORDER.length - 1; // Exclude summary
+    const totalSections = ACTIVE_SECTIONS.length;
     const answeredCount = blueprint.responses.length;
 
     return (
@@ -179,7 +199,7 @@ export function LifeBlueprintGuided({ className }: LifeBlueprintGuidedProps) {
                 <p className="text-sm text-muted-foreground">
                   {answeredCount === 0
                     ? "Define your vision, fears, and goals through guided reflection"
-                    : `${answeredCount} reflections • ${completedCount}/${totalSections} sections`
+                    : `${answeredCount} reflections · ${completedCount}/${totalSections} sections`
                   }
                 </p>
               </div>
@@ -201,29 +221,102 @@ export function LifeBlueprintGuided({ className }: LifeBlueprintGuidedProps) {
     );
   }
 
-  // Summary view
-  if (currentSection.type === "summary") {
+  // ── Questionnaire view (section selected) ──
+  if (activeSectionIndex !== null) {
     return (
-      <div ref={containerRef} className={cn("rounded-xl glass-card p-6", className)}>
-        <SummaryView
-          blueprint={blueprint}
-          onClose={() => setIsExpanded(false)}
-          onEdit={(sectionIndex) => jumpToSection(sectionIndex)}
-        />
+      <div ref={containerRef} className={cn("rounded-xl glass-card", className)}>
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => { handleSaveAnswer(); setActiveSectionIndex(null); }}
+              className="p-1.5 hover:bg-muted rounded-lg transition-colors text-muted-foreground hover:text-foreground"
+              title="Back to all sections"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </button>
+            <SectionIcon section={currentSection} />
+            <div>
+              <h2 className="font-semibold">{getSectionTitle(currentSection)}</h2>
+              <p className="text-xs text-muted-foreground">{getSectionSubtitle(currentSection)}</p>
+            </div>
+          </div>
+          <button
+            onClick={() => { handleSaveAnswer(); setIsExpanded(false); setActiveSectionIndex(null); }}
+            className="p-2 hover:bg-muted rounded-lg transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Progress bar */}
+        <div className="px-4 pt-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xs text-muted-foreground">
+              Question {currentQuestionIndex + 1} of {questions.length}
+            </span>
+          </div>
+          <div className="h-1 rounded-full bg-muted overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all"
+              style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Question */}
+        {currentQuestion && (
+          <div className="p-6">
+            <QuestionCard
+              question={currentQuestion}
+              answer={answer}
+              onAnswerChange={setAnswer}
+            />
+          </div>
+        )}
+
+        {/* Navigation */}
+        <div className="flex items-center justify-between p-4 border-t bg-muted/30">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handlePrevious}
+          >
+            <ChevronLeft className="h-4 w-4 mr-1" />
+            {currentQuestionIndex === 0 ? "All Sections" : "Back"}
+          </Button>
+
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={handleSkip}>
+              Skip
+            </Button>
+            <Button size="sm" onClick={handleNext} disabled={!answer.trim()}>
+              {currentQuestionIndex === questions.length - 1 ? "Done" : "Continue"}
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </div>
+        </div>
       </div>
     );
   }
 
-  // Main questionnaire view
+  // ── Card grid view (default expanded view) ──
+  const completedCount = blueprint.completedSections.length;
+  const totalSections = ACTIVE_SECTIONS.length;
+
   return (
     <div ref={containerRef} className={cn("rounded-xl glass-card", className)}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b">
         <div className="flex items-center gap-3">
-          <SectionIcon section={currentSection} />
+          <div className="p-2 rounded-lg bg-gradient-to-br from-indigo-500/20 to-purple-500/20">
+            <Compass className="h-5 w-5 text-indigo-500" />
+          </div>
           <div>
-            <h2 className="font-semibold">{getSectionTitle(currentSection)}</h2>
-            <p className="text-xs text-muted-foreground">{getSectionSubtitle(currentSection)}</p>
+            <h2 className="font-semibold">Life Blueprint</h2>
+            <p className="text-xs text-muted-foreground">
+              {completedCount}/{totalSections} sections completed
+            </p>
           </div>
         </div>
         <button
@@ -235,79 +328,87 @@ export function LifeBlueprintGuided({ className }: LifeBlueprintGuidedProps) {
       </div>
 
       {/* Progress bar */}
-      <div className="px-4 pt-4">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-xs text-muted-foreground">
-            Question {currentQuestionIndex + 1} of {questions.length}
-          </span>
-          <span className="text-xs text-muted-foreground">•</span>
-          <span className="text-xs text-muted-foreground">
-            Section {currentSectionIndex + 1} of {SECTION_ORDER.length}
-          </span>
-        </div>
-        <div className="h-1 rounded-full bg-muted overflow-hidden">
+      <div className="px-4 pt-3">
+        <div className="h-1.5 rounded-full bg-muted overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all"
-            style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
+            style={{ width: `${(completedCount / totalSections) * 100}%` }}
           />
         </div>
       </div>
 
-      {/* Question */}
-      {currentQuestion && (
-        <div className="p-6">
-          <QuestionCard
-            question={currentQuestion}
-            answer={answer}
-            onAnswerChange={setAnswer}
-          />
-        </div>
-      )}
+      {/* Section groups */}
+      <div className="p-4 space-y-4">
+        {SECTION_GROUPS.map(group => (
+          <div key={group.label} className="space-y-2">
+            {/* Group label */}
+            <div className={cn("px-2 py-1 rounded-md inline-flex items-center gap-1.5", group.bgColor)}>
+              <span className={cn("text-xs font-semibold", group.color)}>{group.label}</span>
+            </div>
 
-      {/* Navigation */}
-      <div className="flex items-center justify-between p-4 border-t bg-muted/30">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handlePrevious}
-          disabled={currentSectionIndex === 0 && currentQuestionIndex === 0}
-        >
-          <ChevronLeft className="h-4 w-4 mr-1" />
-          Back
-        </Button>
+            {/* Cards grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {group.indices.map(sectionIdx => {
+                const section = ACTIVE_SECTIONS[sectionIdx];
+                const sectionId = getSectionId(section);
+                const isCompleted = isSectionCompleted(blueprint, sectionId);
+                const sectionQuestions = getQuestionsForSection(section);
+                const answeredCount = sectionQuestions.filter(q =>
+                  getQuestionResponse(blueprint, q.id)
+                ).length;
+                const hasStarted = answeredCount > 0;
 
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={handleSkip}>
-            Skip
-          </Button>
-          <Button size="sm" onClick={handleNext} disabled={!answer.trim()}>
-            {currentQuestionIndex === questions.length - 1 ? "Next Section" : "Continue"}
-            <ChevronRight className="h-4 w-4 ml-1" />
-          </Button>
-        </div>
+                return (
+                  <button
+                    key={sectionIdx}
+                    onClick={() => jumpToSection(sectionIdx)}
+                    className={cn(
+                      "group flex flex-col gap-2 p-3 rounded-lg border text-left transition-all",
+                      isCompleted
+                        ? "border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/10"
+                        : hasStarted
+                        ? "border-indigo-500/30 bg-indigo-500/5 hover:bg-indigo-500/10"
+                        : "border-border hover:border-muted-foreground/40 hover:bg-muted/30"
+                    )}
+                  >
+                    <div className="flex items-start justify-between">
+                      <SectionIcon section={section} />
+                      {isCompleted ? (
+                        <Check className="h-3.5 w-3.5 text-emerald-500 flex-shrink-0" />
+                      ) : hasStarted ? (
+                        <span className="text-[10px] font-medium text-indigo-400">
+                          {answeredCount}/{sectionQuestions.length}
+                        </span>
+                      ) : (
+                        <ChevronRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                      )}
+                    </div>
+                    <div>
+                      <p className={cn(
+                        "text-xs font-medium leading-tight",
+                        isCompleted ? "text-emerald-600 dark:text-emerald-400" : ""
+                      )}>
+                        {getSectionTitle(section)}
+                      </p>
+                      {!isCompleted && (
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                          {sectionQuestions.length} questions
+                        </p>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </div>
 
-      {/* Section navigation dots */}
-      <div className="flex items-center justify-center gap-1 py-3 border-t">
-        {SECTION_ORDER.slice(0, -1).map((section, index) => {
-          const sectionId = getSectionId(section);
-          const isCompleted = isSectionCompleted(blueprint, sectionId);
-          const isCurrent = index === currentSectionIndex;
-
-          return (
-            <button
-              key={index}
-              onClick={() => jumpToSection(index)}
-              className={cn(
-                "h-2 rounded-full transition-all",
-                isCurrent ? "w-6 bg-indigo-500" : "w-2",
-                isCompleted && !isCurrent && "bg-emerald-500",
-                !isCompleted && !isCurrent && "bg-muted hover:bg-muted-foreground/30"
-              )}
-              title={getSectionTitle(section)}
-            />
-          );
-        })}
+      {/* Footer hint */}
+      <div className="px-4 pb-4 text-center">
+        <p className="text-xs text-muted-foreground">
+          Tap any section to start or continue · Complete at your own pace
+        </p>
       </div>
     </div>
   );
@@ -397,83 +498,6 @@ function SectionIcon({ section }: { section: Section }) {
     default:
       return <Compass className={cn(iconClass, "text-indigo-500")} />;
   }
-}
-
-function SummaryView({
-  blueprint,
-  onClose,
-  onEdit
-}: {
-  blueprint: LifeBlueprint;
-  onClose: () => void;
-  onEdit: (sectionIndex: number) => void;
-}) {
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-emerald-500/20">
-            <Check className="h-5 w-5 text-emerald-500" />
-          </div>
-          <div>
-            <h2 className="font-semibold">Blueprint Complete</h2>
-            <p className="text-sm text-muted-foreground">
-              {blueprint.responses.length} reflections captured
-            </p>
-          </div>
-        </div>
-        <button
-          onClick={onClose}
-          className="p-2 hover:bg-muted rounded-lg transition-colors"
-        >
-          <X className="h-4 w-4" />
-        </button>
-      </div>
-
-      <div className="grid gap-3">
-        {SECTION_ORDER.slice(0, -1).map((section, index) => {
-          const sectionId = getSectionId(section);
-          const isCompleted = isSectionCompleted(blueprint, sectionId);
-          const questions = getQuestionsForSection(section);
-          const answeredCount = questions.filter(q =>
-            getQuestionResponse(blueprint, q.id)
-          ).length;
-
-          return (
-            <button
-              key={index}
-              onClick={() => onEdit(index)}
-              className={cn(
-                "flex items-center justify-between p-3 rounded-lg border text-left transition-all",
-                isCompleted
-                  ? "border-emerald-500/30 bg-emerald-500/5"
-                  : "border-border hover:border-muted-foreground/30"
-              )}
-            >
-              <div className="flex items-center gap-3">
-                <SectionIcon section={section} />
-                <div>
-                  <p className="text-sm font-medium">{getSectionTitle(section)}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {answeredCount}/{questions.length} answered
-                  </p>
-                </div>
-              </div>
-              {isCompleted ? (
-                <Check className="h-4 w-4 text-emerald-500" />
-              ) : (
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              )}
-            </button>
-          );
-        })}
-      </div>
-
-      <Button className="w-full" onClick={onClose}>
-        Done
-      </Button>
-    </div>
-  );
 }
 
 // ==================== HELPERS ====================
