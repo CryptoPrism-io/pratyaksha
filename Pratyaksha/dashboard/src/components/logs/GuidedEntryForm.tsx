@@ -469,7 +469,7 @@ export function GuidedEntryForm({ onSuccess, initialPrompt, initialSoulMappingTo
   const [text, setText] = useState("")
   const [isProcessing, setIsProcessing] = useState(false)
   const [processingStep, setProcessingStep] = useState(0)
-  const [currentNudgeIndex, setCurrentNudgeIndex] = useState(0)
+  const [, setCurrentNudgeIndex] = useState(0)
   const [showProfileSection, setShowProfileSection] = useState(false)
   const [activeSoulMappingTopicId, setActiveSoulMappingTopicId] = useState<string | null>(null)
 
