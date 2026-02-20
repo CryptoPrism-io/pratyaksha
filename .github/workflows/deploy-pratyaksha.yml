@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - feat/postgres-langchain-migration
     paths:
       - 'Pratyaksha/dashboard/**'
   workflow_dispatch:
