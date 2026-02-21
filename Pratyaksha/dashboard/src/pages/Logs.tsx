@@ -14,6 +14,7 @@ import {
   hasMicrophonePermissionBeenAsked,
   markMicrophonePermissionAsked
 } from "../hooks/useMicrophonePermission"
+import { getDateRangeFromPreset, isDateInRange } from "../lib/dateFilters"
 
 const DEFAULT_FILTERS: FilterState = {
   search: "",
@@ -133,11 +134,8 @@ export function Logs() {
         if (!matchesSearch) return false
       }
       if (filters.dateRange !== "all") {
-        const entryDate = new Date(entry.date)
-        const now = new Date()
-        const daysAgo = parseInt(filters.dateRange)
-        const cutoffDate = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000)
-        if (entryDate < cutoffDate) return false
+        const range = getDateRangeFromPreset(filters.dateRange as Parameters<typeof getDateRangeFromPreset>[0])
+        if (range && !isDateInRange(entry.date, range)) return false
       }
       if (filters.type !== "all" && entry.type !== filters.type) return false
       if (filters.sentiment !== "all" && !entry.sentimentAI?.toLowerCase().includes(filters.sentiment.toLowerCase())) return false

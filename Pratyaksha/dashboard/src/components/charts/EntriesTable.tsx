@@ -10,6 +10,7 @@ import { EditEntryModal } from "../entries/EditEntryModal"
 import { cn } from "../../lib/utils"
 import { toast } from "sonner"
 import type { FilterState } from "../filters/FilterBar"
+import { getDateRangeFromPreset, isDateInRange } from "../../lib/dateFilters"
 
 function TableSkeleton() {
   return (
@@ -352,11 +353,8 @@ export function EntriesTable({ filters, selectedIndex: externalSelectedIndex, on
 
       // Date range filter
       if (filters?.dateRange && filters.dateRange !== "all") {
-        const entryDate = new Date(entry.date)
-        const now = new Date()
-        const daysAgo = parseInt(filters.dateRange)
-        const cutoffDate = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000)
-        if (entryDate < cutoffDate) return false
+        const range = getDateRangeFromPreset(filters.dateRange as Parameters<typeof getDateRangeFromPreset>[0])
+        if (range && !isDateInRange(entry.date, range)) return false
       }
 
       // Type filter
