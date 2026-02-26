@@ -305,9 +305,27 @@ const sizeClasses = [
 
 // Stats with numeric targets for animation
 const stats = [
-  { label: "AI Agents", value: 9, suffix: "", description: "Analyzing your patterns" },
-  { label: "Visualizations", value: 10, suffix: "+", description: "See your journey" },
-  { label: "Entry Types", value: 15, suffix: "", description: "Journal your way" },
+  { label: "Sec to Log", value: 10, suffix: "", description: "Fast enough to keep using" },
+  { label: "AI Agents", value: 9, suffix: "", description: "Structured pattern analysis" },
+  { label: "Visual Views", value: 10, suffix: "+", description: "From raw notes to signal" },
+]
+
+const heroVariants = [
+  {
+    headline: "Cognitive Logger, Visualized.",
+    subline:
+      "Capture thoughts in seconds. See patterns in focus, mood, and decisions so you can act with clarity.",
+  },
+  {
+    headline: "Capture Fast. See Patterns. Think Better.",
+    subline:
+      "Becoming turns quick logs into visual insight, so your next decision is based on evidence, not noise.",
+  },
+  {
+    headline: "Log Less. Understand More.",
+    subline:
+      "Skip long journaling sessions. Capture key moments and reveal the patterns shaping your trajectory.",
+  },
 ]
 
 // Animated counter component - counts from 0 to target with easing
@@ -652,6 +670,17 @@ export function HeroIntro() {
   const [typedText, setTypedText] = useState("B")
   const [showCursor, setShowCursor] = useState(false)
   const [cursorFlicker, setCursorFlicker] = useState(false)
+  const [heroVariantIndex, setHeroVariantIndex] = useState(0)
+
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const raw = new URLSearchParams(window.location.search).get("hero")
+    if (!raw) return
+    const parsed = Number(raw)
+    if (Number.isInteger(parsed) && parsed >= 1 && parsed <= heroVariants.length) {
+      setHeroVariantIndex(parsed - 1)
+    }
+  }, [])
 
   // Animate "Becoming" with typing effect: b (already shown) → be → ... → becoming...
   useEffect(() => {
@@ -769,6 +798,8 @@ export function HeroIntro() {
     // After reveal: all words settle to 0.07 (CSS handles hover)
     return 0.07
   }
+
+  const heroVariant = heroVariants[heroVariantIndex] ?? heroVariants[0]
 
   return (
     <section
@@ -895,11 +926,11 @@ export function HeroIntro() {
           <div className="h-6 md:h-10" />
 
           <h2 className="mb-3 text-2xl md:text-3xl lg:text-4xl text-center font-space font-semibold heading-gradient">
-            Stop drifting. Start becoming.
+            {heroVariant.headline}
           </h2>
 
           <p className="mx-auto mb-8 max-w-3xl text-lg text-muted-foreground md:text-xl text-center px-4 leading-relaxed">
-            Most journals are just text storage. Becoming is an AI partner that tracks your trajectory, alerts you when you drift, and helps you become who you defined.
+            {heroVariant.subline}
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pointer-events-auto">
@@ -907,7 +938,7 @@ export function HeroIntro() {
               to="/signup"
               className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-teal-700 to-teal-800 px-10 py-5 text-xl font-medium text-white shadow-lg shadow-teal-900/20 transition-all hover:scale-105 hover:shadow-xl hover:shadow-teal-900/30"
             >
-              Start Becoming
+              Start Free
               <ArrowRight className="h-6 w-6 transition-transform group-hover:translate-x-1" />
             </Link>
 
@@ -915,15 +946,21 @@ export function HeroIntro() {
               to="/dashboard"
               className="inline-flex items-center gap-2 rounded-full border border-rose-700/30 bg-rose-900/5 px-10 py-5 text-xl font-medium transition-all hover:bg-rose-900/10 hover:border-rose-700/50"
             >
-              See the Dashboard
+              See 60-sec Demo
             </Link>
           </div>
 
-          <p className="mt-6 text-base text-muted-foreground">
-            Free to start. Your journey begins now.
+          <p className="mt-5 text-base text-muted-foreground">
+            Free to start. No credit card required.
           </p>
 
-          <div className="mt-12 grid grid-cols-3 gap-6 sm:gap-10 border-t border-border/50 pt-8 w-full max-w-3xl">
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs pointer-events-none">
+            <span className="rounded-full border border-border/60 bg-background/50 px-3 py-1 text-muted-foreground">Private by default</span>
+            <span className="rounded-full border border-border/60 bg-background/50 px-3 py-1 text-muted-foreground">2-minute setup</span>
+            <span className="rounded-full border border-border/60 bg-background/50 px-3 py-1 text-muted-foreground">Designed for consistency</span>
+          </div>
+
+          <div className="mt-8 grid grid-cols-3 gap-6 sm:gap-10 border-t border-border/50 pt-6 w-full max-w-3xl">
             {stats.map((stat) => (
               <div key={stat.label} className="text-center">
                 <div className="text-3xl font-bold text-foreground md:text-4xl tabular-nums">

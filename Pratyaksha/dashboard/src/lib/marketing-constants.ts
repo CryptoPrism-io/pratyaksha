@@ -30,13 +30,13 @@ export const STATE_LABELS = {
 // Content for each state
 export const STATE_CONTENT = {
   [STATES.DORMANT]: {
-    headline: 'See what your mind has been trying to tell you',
-    subline: 'Your thoughts hold patterns you\'ve never noticed. Until now.',
+    headline: 'Cognitive Logger, Visualized',
+    subline: 'Capture thoughts quickly, then see the patterns shaping your focus, mood, and decisions.',
     cta: null,
   },
   [STATES.CHAOS]: {
-    headline: 'Journaling alone doesn\'t reveal patterns',
-    subline: 'You write. You reflect. But the connections stay hidden in the noise.',
+    headline: 'Logging alone is not enough',
+    subline: 'Without pattern visibility, your best insights stay buried in old entries.',
     features: [
       'Scattered thoughts across dozens of entries',
       'Recurring themes you can\'t see',
@@ -46,7 +46,7 @@ export const STATE_CONTENT = {
   },
   [STATES.ORGANIZING]: {
     headline: 'AI that connects the dots',
-    subline: 'Four specialized agents work together to understand your mind.',
+    subline: 'Specialized agents transform raw logs into structured cognitive signals.',
     agents: [
       { name: 'Intent Agent', desc: 'Classifies your entry type', icon: 'brain' },
       { name: 'Emotion Agent', desc: 'Analyzes mood & energy', icon: 'heart' },
@@ -55,8 +55,8 @@ export const STATE_CONTENT = {
     ],
   },
   [STATES.ILLUMINATED]: {
-    headline: 'Your mind, visualized',
-    subline: '21 ways to see what words alone can\'t show.',
+    headline: 'Your patterns, visualized',
+    subline: 'See trends, contradictions, and shifts that text alone cannot reveal.',
     features: [
       { name: 'Emotional Timeline', desc: 'Track mood over time' },
       { name: 'Energy Radar', desc: 'Multi-dimensional view' },
@@ -65,8 +65,8 @@ export const STATE_CONTENT = {
     ],
   },
   [STATES.RADIANT]: {
-    headline: 'Begin your journey',
-    subline: 'Transform raw thoughts into actionable self-insight.',
+    headline: 'Start seeing your patterns',
+    subline: 'Turn quick logs into clear insights and better next decisions.',
     cta: 'Start Free',
     secondaryCta: 'Watch Demo',
   },

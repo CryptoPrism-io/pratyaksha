@@ -109,29 +109,29 @@ function AnimatedStatCounter({
 const steps = [
   {
     number: "1",
-    title: "Define",
-    description: "Set your Vision. And crucially, your Anti-Vision.",
+    title: "Capture",
+    description: "Log thoughts, events, and decisions in seconds.",
     icon: Compass,
     color: "from-teal-500 to-cyan-500",
   },
   {
     number: "2",
-    title: "Journal",
-    description: "Write or speak your truth. 9 agents analyze.",
+    title: "Structure",
+    description: "AI tags mood, intent, themes, and contradictions.",
     icon: MessageCircle,
     color: "from-teal-400 to-teal-600",
   },
   {
     number: "3",
-    title: "See",
-    description: "Dashboard shows your patterns visually.",
+    title: "Visualize",
+    description: "See your patterns across days, weeks, and months.",
     icon: LayoutDashboard,
     color: "from-rose-400 to-pink-500",
   },
   {
     number: "4",
-    title: "Stay On Track",
-    description: "AI warns you before you drift too far.",
+    title: "Act",
+    description: "Turn recurring patterns into better next decisions.",
     icon: Bell,
     color: "from-rose-500 to-rose-600",
   },
@@ -139,32 +139,32 @@ const steps = [
 
 // Comparison: Other apps vs Becoming
 const comparison = [
-  { feature: "Focus", generic: "Track mood", becoming: "Track who you're becoming" },
-  { feature: "AI", generic: "1 generic pass", becoming: "9 specialized agents" },
-  { feature: "Goals", generic: "None", becoming: "Trajectory Tracking" },
-  { feature: "Warnings", generic: "None", becoming: "Drift alerts" },
-  { feature: "Visibility", generic: "Data sits there", becoming: "Dashboard shows patterns" },
+  { feature: "Input", generic: "Long-form writing", becoming: "Quick cognitive logs" },
+  { feature: "Analysis", generic: "Surface-level summary", becoming: "9 specialized agents" },
+  { feature: "Output", generic: "Entry archive", becoming: "Pattern visualizations" },
+  { feature: "Decision support", generic: "No clear next step", becoming: "Actionable insights" },
+  { feature: "Consistency", generic: "Hard to sustain", becoming: "Fast, repeatable workflow" },
 ]
 
 // Testimonials (success stories) - specificity = trust
 const testimonials = [
   {
-    quote: "I thought I was just tired. Becoming showed I was drifting toward burnout for six weeks. The pattern was obvious once I saw it.",
+    quote: "I thought I was just tired. Becoming showed a recurring burnout pattern over six weeks. Once I saw it, I changed my schedule.",
     author: "Priya",
     role: "Software Engineer",
-    highlight: "drifting toward burnout",
+    highlight: "recurring burnout pattern",
   },
   {
-    quote: "Three months of entries. One dashboard view. I finally understood why I kept self-sabotaging my promotions.",
+    quote: "Three months of logs and one dashboard view explained why I kept delaying high-impact work.",
     author: "Marcus",
     role: "Entrepreneur",
-    highlight: "self-sabotaging",
+    highlight: "delaying high-impact work",
   },
   {
-    quote: "The contradiction chart showed Action vs Fear appearing in 73% of my work entries. That number changed everything.",
+    quote: "The contradiction chart showed Action vs Fear in 73% of my work logs. That single pattern changed my behavior.",
     author: "Sarah",
     role: "Product Manager",
-    highlight: "73% of my work entries",
+    highlight: "73% of my work logs",
   },
 ]
 
@@ -180,7 +180,7 @@ const productFeatures: Array<{
   {
     icon: LayoutDashboard,
     title: "Emotional Timeline",
-    description: "See how your emotional balance shifts over weeks—not entries.",
+    description: "See how emotional balance shifts over weeks, not isolated entries.",
     color: "from-teal-500 to-cyan-500",
     badge: "Beautiful",
     chart: DemoTimelineChart,
@@ -263,7 +263,7 @@ const discoveryFeatures = [
   {
     icon: Brain,
     title: "Identity Architecture",
-    description: "17 topics. 3 depth levels. Know yourself.",
+    description: "17 topics and 3 depth levels to map your thinking profile.",
     color: "from-pink-500 to-rose-500",
   },
   {
@@ -391,7 +391,7 @@ export function Landing() {
                 to="/signup"
                 className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-gradient-to-r from-teal-500 to-teal-600 text-white text-sm font-medium transition-transform font-space cta-pulse"
               >
-                Get Started
+                Start Free
                 <ArrowRight className="h-3.5 w-3.5" />
               </Link>
               {/* Mobile hamburger button */}
@@ -471,7 +471,7 @@ export function Landing() {
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-teal-500 to-teal-600 text-white font-medium hover:scale-[1.02] transition-transform"
                 >
-                  Get Started
+                  Start Free
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
@@ -499,10 +499,10 @@ export function Landing() {
             {/* Opening hook - clear problem statement */}
             <RevealOnScroll className="text-center mb-16">
               <h2 className="text-3xl font-bold tracking-tight md:text-5xl heading-gradient mb-6">
-                Journaling without <TextHighlight variant="rose">visibility</TextHighlight> is just venting.
+                Logging without <TextHighlight variant="rose">pattern visibility</TextHighlight> keeps you stuck.
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                You write. You reflect. But <span className="text-foreground font-medium">nothing changes</span>—because you can't see the patterns.
+                You are not missing effort. You are missing feedback loops that show what repeats and why.
               </p>
             </RevealOnScroll>
 
@@ -514,7 +514,7 @@ export function Landing() {
                 </div>
                 <h3 className="font-semibold text-lg mb-2">Writing without insight</h3>
                 <p className="text-muted-foreground text-sm">
-                  You journal, but do you actually see your patterns? Your insights are buried in text, never to be seen again.
+                  Valuable signals stay buried in text, so you repeat the same cycles without noticing.
                 </p>
               </div>
 
@@ -524,7 +524,7 @@ export function Landing() {
                 </div>
                 <h3 className="font-semibold text-lg mb-2">Goals without tracking</h3>
                 <p className="text-muted-foreground text-sm">
-                  You set intentions every January. By March, they've faded. Who tells you when you drift?
+                  Good intentions fade when there is no visible trail from daily behavior to long-term direction.
                 </p>
               </div>
 
@@ -534,7 +534,7 @@ export function Landing() {
                 </div>
                 <h3 className="font-semibold text-lg mb-2">Patterns forming unseen</h3>
                 <p className="text-muted-foreground text-sm">
-                  By the time you notice, they're already habits. The trajectory was set months ago.
+                  By the time you feel the cost, the pattern has already hardened into a habit.
                 </p>
               </div>
             </div>
@@ -542,7 +542,7 @@ export function Landing() {
             {/* Empathy close - glass panel */}
             <div className="glass-teal p-6 rounded-2xl text-center">
               <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-4">
-                <span className="text-foreground font-medium">We built Becoming because we lived this.</span> We journaled for years—and still felt stuck.
+                <span className="text-foreground font-medium">We built Becoming because we lived this.</span> We logged for years and still felt unclear until we could finally see patterns.
               </p>
               <Link to="/research" className="cta-highlight text-foreground">
                 Read our research
@@ -566,13 +566,13 @@ export function Landing() {
             <RevealOnScroll className="text-center mb-16">
               <div className="mb-4 inline-flex items-center gap-2 rounded-full glass-teal px-4 py-2 text-sm">
                 <Zap className="h-4 w-4 text-teal-500" />
-                <span>Not just another AI journal</span>
+                <span>Cognitive logging, not note storage</span>
               </div>
               <h2 className="text-3xl font-bold tracking-tight md:text-5xl heading-gradient mb-4">
-                This isn't ChatGPT with a <TextHighlight variant="gradient">journal skin</TextHighlight>.
+                From raw entries to <TextHighlight variant="gradient">decision-ready insight</TextHighlight>.
               </h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Unlike chatbots that forget context, Becoming uses a <span className="text-foreground font-semibold">9-Agent Pipeline</span> to cross-reference every entry against your goals, fears, and history.
+                Becoming uses a <span className="text-foreground font-semibold">9-agent pipeline</span> to connect your entries, context, and trajectory so you can decide with evidence.
               </p>
             </RevealOnScroll>
 
@@ -595,8 +595,8 @@ export function Landing() {
             {/* Key insight - premium glass */}
             <div className="glass-feature-card p-6 text-center hover-glow">
               <p className="text-lg mb-4">
-                <span className="font-semibold">The difference:</span> Generic AI gives you "take a deep breath."
-                Becoming says <span className="text-teal-600 dark:text-teal-400 font-medium">"I see you're drifting toward burnout—the thing you said you fear most."</span>
+                <span className="font-semibold">The difference:</span> generic tools store what you said.
+                Becoming shows <span className="text-teal-600 dark:text-teal-400 font-medium">what keeps repeating and what to do next.</span>
               </p>
               <Link to="/signup" className="cta-highlight text-foreground">
                 Try it free
@@ -620,10 +620,10 @@ export function Landing() {
           <div className="mx-auto max-w-6xl backdrop-blur-sm bg-background/30 rounded-3xl p-8 md:p-12 border border-white/5">
             <RevealOnScroll className="mx-auto max-w-2xl text-center mb-16">
               <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-5xl heading-gradient">
-                <TextHighlight variant="teal">Four steps</TextHighlight> to becoming.
+                <TextHighlight variant="teal">Four steps</TextHighlight> to clarity.
               </h2>
               <p className="text-lg text-muted-foreground">
-                From <TextHighlight variant="rose">drifting</TextHighlight> unconsciously to living <TextHighlight variant="teal">intentionally</TextHighlight>.
+                From scattered entries to visible patterns to better daily decisions.
               </p>
             </RevealOnScroll>
 
@@ -656,7 +656,7 @@ export function Landing() {
                 to="/signup"
                 className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-teal-500 to-teal-600 px-8 py-4 text-lg font-medium text-white transition-all cta-pulse"
               >
-                Start Becoming
+                Start Free
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Link>
             </div>
@@ -692,7 +692,7 @@ export function Landing() {
                 </h3>
                 <div className="space-y-4 text-muted-foreground">
                   <p>
-                    We journaled for years. Set goals every January. Watched them fade by March.
+                    We logged for years. Set goals every January. Watched them fade by March.
                     Felt stuck in patterns we couldn't see clearly.
                   </p>
                   <p>
@@ -748,7 +748,7 @@ export function Landing() {
                 This is what <TextHighlight variant="teal">clarity</TextHighlight> feels like.
               </h2>
               <p className="text-lg text-muted-foreground">
-                Real stories from people who stopped drifting.
+                Real stories from people who found actionable clarity.
               </p>
             </div>
 
@@ -911,7 +911,7 @@ export function Landing() {
                 Go deeper than mood tracking.
               </h2>
               <p className="text-lg text-muted-foreground">
-                Define who you want to become. Let AI help you get there.
+                Define your direction. Let AI help you stay aligned with it.
               </p>
             </div>
 
@@ -989,14 +989,14 @@ export function Landing() {
                   <TrendingUp className="w-6 h-6 text-amber-500" />
                 </div>
                 <h3 className="font-semibold mb-2">Grow Intentionally</h3>
-                <p className="text-sm text-muted-foreground">Stay on track toward who you want to become.</p>
+                <p className="text-sm text-muted-foreground">Stay aligned with who you want to become.</p>
               </div>
             </div>
 
             {/* CTA */}
             <div className="text-center mt-10">
               <Link to="/signup" className="cta-highlight text-foreground">
-                Start your journey
+                Start Free
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
@@ -1021,9 +1021,9 @@ export function Landing() {
                 </div>
               </div>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                "We journaled for years and still felt stuck. We built Becoming to finally see our own patterns—and we're sharing it with you."
+                "We logged for years and still felt stuck. We built Becoming to finally see our own patterns, and now we are sharing it with you."
               </p>
-              <p className="mt-4 mb-6 font-medium text-teal-600 dark:text-teal-400">— The Becoming Team</p>
+              <p className="mt-4 mb-6 font-medium text-teal-600 dark:text-teal-400">- The Becoming Team</p>
               <Link to="/blog" className="cta-highlight cta-highlight-rose text-foreground">
                 Read our story
                 <ArrowRight className="h-4 w-4" />
@@ -1093,16 +1093,16 @@ export function Landing() {
               Your patterns are already <TextHighlight variant="gradient">forming</TextHighlight>.
             </h2>
             <p className="mx-auto mb-2 max-w-xl text-xl text-muted-foreground relative z-10">
-              The question is: are they the ones you want?
+              The question is: can you see them early enough to change them?
             </p>
             <p className="mx-auto mb-8 max-w-xl text-muted-foreground relative z-10">
-              Define your vision. Let AI keep you on course.
+              Start logging today. Turn your cognitive patterns into better choices.
             </p>
             <Link
               to="/signup"
               className="group relative z-10 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-teal-500 to-teal-600 px-8 py-4 text-lg font-medium text-white transition-all cta-pulse"
             >
-              Start Becoming
+              Start Free
               <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
             </Link>
             <p className="mt-4 text-sm text-muted-foreground relative z-10">
@@ -1126,7 +1126,7 @@ export function Landing() {
                 Who you want to be.
               </p>
               <p className="text-xs text-muted-foreground">
-                A journal. A dashboard. An AI that keeps you on track.
+                Cognitive logging with a visual dashboard and AI-backed insights.
               </p>
             </div>
 
@@ -1169,3 +1169,5 @@ export function Landing() {
     </div>
   )
 }
+
+
