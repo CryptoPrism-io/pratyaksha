@@ -4,7 +4,7 @@ import { GitCompareArrows } from "lucide-react"
 
 export function Compare() {
   return (
-    <div className="min-h-screen dashboard-glass-bg">
+    <div className="min-h-screen bg-background">
       <AnalyticsTabBar />
       <PremiumGate
         title="Period Comparison"

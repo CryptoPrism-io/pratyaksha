@@ -64,7 +64,7 @@ export function LevelProgressCard({ className }: LevelProgressCardProps) {
   const nextInfo = nextUnlockLevel ? TIER_INFO[nextUnlockLevel] : null;
 
   return (
-    <div className={cn("rounded-xl glass-card p-6", className)}>
+    <div className={cn("rounded-md signal-card p-6", className)}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">

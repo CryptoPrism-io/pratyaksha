@@ -156,7 +156,7 @@ export function KarmaDisplayExpanded({ className }: { className?: string }) {
   };
 
   return (
-    <div className={cn("rounded-xl glass-card p-6", className)}>
+    <div className={cn("rounded-md signal-card p-6", className)}>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-gradient-to-br from-amber-500/20 to-yellow-500/20">

@@ -218,7 +218,7 @@ export function StreakWidget() {
   const milestoneMessage = getMilestoneMessage(streak)
 
   return (
-    <div className="rounded-xl glass-card p-5">
+    <div className="rounded-md signal-card-hero p-5">
       {/* Streak Counter Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">

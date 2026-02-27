@@ -10,7 +10,7 @@ interface PremiumGateProps {
 
 export function PremiumGate({ title, description, features, icon }: PremiumGateProps) {
   return (
-    <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center px-4 py-12 dashboard-glass-bg">
+    <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center px-4 py-12 bg-background">
       <div className="max-w-md w-full space-y-6 text-center">
         {/* Lock badge */}
         <div className="flex justify-center">

@@ -4,7 +4,7 @@ import { PremiumGate } from "../components/ui/PremiumGate"
 
 export function Insights() {
   return (
-    <div className="min-h-screen dashboard-glass-bg">
+    <div className="min-h-screen bg-background">
       <DemoBanner compact />
       <AnalyticsTabBar />
       <PremiumGate

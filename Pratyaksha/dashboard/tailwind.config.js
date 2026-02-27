@@ -88,12 +88,12 @@ export default {
   		},
   		fontFamily: {
   			sans: [
-  				'Inter',
+  				'Geist',
   				'system-ui',
   				'sans-serif'
   			],
   			mono: [
-  				'JetBrains Mono',
+  				'Geist Mono',
   				'monospace'
   			]
   		},

@@ -73,7 +73,7 @@ export function MobileChartCarousel({ charts }: MobileChartCarouselProps) {
         onTouchEnd={onTouchEnd}
       >
         <div className="h-full p-2">
-          <div className="h-full rounded-lg glass-card p-3 overflow-hidden">
+          <div className="h-full rounded-md signal-card p-3 overflow-hidden">
             {/* Chart title */}
             <h3 className="text-sm font-semibold mb-2">{currentChart.name}</h3>
             {/* Chart content */}

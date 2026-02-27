@@ -5,7 +5,7 @@ import { useStats, useEntries } from "../hooks/useEntries"
 import { useAuth } from "../contexts/AuthContext"
 import { useKarma } from "../contexts/KarmaContext"
 import { useDemoPersona } from "../contexts/DemoPersonaContext"
-import { Brain, FileText, TrendingUp, Activity, Keyboard, Plus, GitBranch, Zap, BarChart3, LineChart, AlertTriangle, Hash, Clock } from "lucide-react"
+import { Brain, Keyboard, Plus, GitBranch, Zap, BarChart3, LineChart, AlertTriangle, Hash, Clock } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
@@ -104,7 +104,7 @@ export function Dashboard() {
   ])
 
   return (
-    <div className="min-h-screen dashboard-glass-bg">
+    <div className="min-h-screen bg-background">
       {/* Screen reader only H1 */}
       <h1 className="sr-only">Becoming Dashboard - Cognitive Analytics</h1>
 
@@ -122,24 +122,24 @@ export function Dashboard() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           {/* Stats cards - 4 columns on all screens */}
           <div data-tour="stats-bar" className="grid grid-cols-4 gap-1 sm:gap-2 md:gap-3 flex-shrink-0 w-full md:w-auto">
-            <div className="flex flex-col items-center glass-stat rounded-lg px-1 py-1.5 sm:px-4 sm:py-3">
-              <FileText className="h-3 w-3 sm:h-5 sm:w-5 text-muted-foreground mb-0.5 sm:mb-1" />
-              <p className="text-sm sm:text-xl font-semibold">{isLoading ? "..." : stats?.totalEntries ?? 0}</p>
+            <div className="flex flex-col items-center signal-stat rounded-md px-1 py-1.5 sm:px-4 sm:py-3">
+              <div className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--positive))] mb-1 sm:mb-1.5" />
+              <p className="text-sm sm:text-xl font-semibold signal-data">{isLoading ? "..." : stats?.totalEntries ?? 0}</p>
               <p className="text-[10px] sm:text-xs text-muted-foreground leading-tight">Entries</p>
             </div>
-            <div className="flex flex-col items-center glass-stat rounded-lg px-1 py-1.5 sm:px-4 sm:py-3">
-              <TrendingUp className="h-3 w-3 sm:h-5 sm:w-5 text-muted-foreground mb-0.5 sm:mb-1" />
-              <p className="text-sm sm:text-xl font-semibold">{isLoading ? "..." : stats?.recentEntries ?? 0}</p>
+            <div className="flex flex-col items-center signal-stat rounded-md px-1 py-1.5 sm:px-4 sm:py-3">
+              <div className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--chart-5))] mb-1 sm:mb-1.5" />
+              <p className="text-sm sm:text-xl font-semibold signal-data">{isLoading ? "..." : stats?.recentEntries ?? 0}</p>
               <p className="text-[10px] sm:text-xs text-muted-foreground leading-tight">Recent</p>
             </div>
-            <div className="flex flex-col items-center glass-stat rounded-lg px-1 py-1.5 sm:px-4 sm:py-3">
-              <Brain className="h-3 w-3 sm:h-5 sm:w-5 text-muted-foreground mb-0.5 sm:mb-1" />
-              <p className="text-sm sm:text-xl font-semibold">{isLoading ? "..." : stats?.avgWordsPerEntry ?? 0}</p>
+            <div className="flex flex-col items-center signal-stat rounded-md px-1 py-1.5 sm:px-4 sm:py-3">
+              <div className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--neutral))] mb-1 sm:mb-1.5" />
+              <p className="text-sm sm:text-xl font-semibold signal-data">{isLoading ? "..." : stats?.avgWordsPerEntry ?? 0}</p>
               <p className="text-[10px] sm:text-xs text-muted-foreground leading-tight">Words</p>
             </div>
-            <div className="flex flex-col items-center glass-stat rounded-lg px-1 py-1.5 sm:px-4 sm:py-3">
-              <Activity className="h-3 w-3 sm:h-5 sm:w-5 text-muted-foreground mb-0.5 sm:mb-1" />
-              <p className="text-sm sm:text-xl font-semibold">{isLoading ? "..." : `${stats?.positiveRatio ?? 0}%`}</p>
+            <div className="flex flex-col items-center signal-stat rounded-md px-1 py-1.5 sm:px-4 sm:py-3">
+              <div className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--chart-4))] mb-1 sm:mb-1.5" />
+              <p className="text-sm sm:text-xl font-semibold signal-data">{isLoading ? "..." : `${stats?.positiveRatio ?? 0}%`}</p>
               <p className="text-[10px] sm:text-xs text-muted-foreground leading-tight"><span className="sm:hidden">Pos</span><span className="hidden sm:inline">Positive</span></p>
             </div>
           </div>
@@ -159,8 +159,8 @@ export function Dashboard() {
         </div>
       ) : (
         <DashboardGrid>
-          {/* Row 1: Streak Calendar + Contradiction Flow */}
-          <div data-tour="streak-widget" className="col-span-1 lg:col-span-4">
+          {/* Row 1: Streak Calendar + Contradiction Flow (hero tier) */}
+          <div data-tour="streak-widget" className="col-span-1 lg:col-span-4 animate-card-mount stagger-1">
             <StreakWidget />
           </div>
 
@@ -171,6 +171,7 @@ export function Dashboard() {
             tooltip="Sankey diagram showing how entry types flow through contradictions to cognitive modes. Reveals hidden connections in your thought patterns."
             colSpan={8}
             icon={GitBranch}
+            className="animate-card-mount stagger-2 signal-card-hero"
           >
             <ContradictionFlow />
           </ChartCard>
@@ -183,6 +184,7 @@ export function Dashboard() {
             tooltip="Shows your energy distribution across Growth, Stability, and Challenge categories compared to optimal ranges. Helps identify which areas need attention."
             colSpan={12}
             icon={Zap}
+            className="animate-card-mount stagger-3"
           >
             <EnergyRadarGroup />
           </ChartCard>
@@ -195,6 +197,7 @@ export function Dashboard() {
             tooltip="Visualizes the relationship between your energy levels and cognitive modes. Click any bar or bubble to see related entries."
             colSpan={8}
             icon={BarChart3}
+            className="animate-card-mount stagger-4"
           >
             <EnergyModeResponsive />
           </ChartCard>
@@ -206,6 +209,7 @@ export function Dashboard() {
             tooltip="Pie chart showing the distribution of your cognitive modes (Reflective, Calm, Hopeful, etc.). Understand your dominant mental patterns."
             colSpan={4}
             icon={Brain}
+            className="animate-card-mount stagger-5"
           >
             <ModeDistribution />
           </ChartCard>
@@ -218,6 +222,7 @@ export function Dashboard() {
             tooltip="Track how your emotions evolve over time. The line shows sentiment score trends, helping you identify patterns and cycles in your mental states."
             colSpan={8}
             icon={LineChart}
+            className="animate-card-mount stagger-6"
           >
             <EmotionalTimeline />
           </ChartCard>
@@ -229,12 +234,13 @@ export function Dashboard() {
             tooltip="Tracks internal conflicts like Hope vs. Hopelessness, Control vs. Surrender. High counts may indicate areas needing attention or integration."
             colSpan={4}
             icon={AlertTriangle}
+            className="animate-card-mount stagger-7"
           >
             <ContradictionTracker />
           </ChartCard>
 
           {/* Row 5: Vision Alignment + Theme Tags + Daily Rhythm */}
-          <div className="col-span-1 lg:col-span-4">
+          <div className="col-span-1 lg:col-span-4 animate-card-mount stagger-8">
             <VisionAlignmentCard />
           </div>
 
@@ -245,6 +251,7 @@ export function Dashboard() {
             tooltip="Word cloud of AI-extracted themes from your entries. Larger words appear more frequently. Helps identify recurring topics in your thoughts."
             colSpan={4}
             icon={Hash}
+            className="animate-card-mount stagger-9"
           >
             <ThemeCloud />
           </ChartCard>
@@ -256,6 +263,7 @@ export function Dashboard() {
             tooltip="Shows when you typically journal during the week. Identify your most productive reflection times and build better habits."
             colSpan={4}
             icon={Clock}
+            className="animate-card-mount stagger-10"
           >
             <DailyRhythm />
           </ChartCard>

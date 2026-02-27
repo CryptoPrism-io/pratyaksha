@@ -34,7 +34,7 @@ export function Login() {
 
   if (!isConfigured) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4 dashboard-glass-bg">
+      <div className="min-h-screen flex items-center justify-center px-4 bg-background">
         <div className="max-w-md w-full text-center">
           <div className="mx-auto mb-4"><MothLogo size="xl" animated /></div>
           <h1 className="text-2xl font-bold mb-2">Firebase Not Configured</h1>
@@ -53,7 +53,7 @@ export function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 dashboard-glass-bg">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-background">
       <div className="max-w-md w-full">
         {/* Logo */}
         <div className="text-center mb-8">

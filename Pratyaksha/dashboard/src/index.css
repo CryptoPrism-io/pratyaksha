@@ -1,15 +1,19 @@
-/* ⚡ OPTIMIZED FONTS - Only load essential fonts globally
- * Removed 15+ decorative fonts to improve performance
- * Lighthouse impact: -1,260ms load time, -18 network requests
- * Previous bundle: 17+ fonts loaded on every page
- * Current bundle: 3 essential fonts only
+/* ⚡ OPTIMIZED FONTS
+ * Primary: Geist (sans) + Geist Mono (data/numbers) via @fontsource
+ * Legacy: Satoshi, Clash Display, Space Grotesk kept for landing/marketing pages
  */
 
-/* Primary App Fonts (Dashboard/App) */
+/* Primary App Fonts — Geist family (dashboard, logs, header, chat) */
+@import '@fontsource/geist-sans/400.css';
+@import '@fontsource/geist-sans/500.css';
+@import '@fontsource/geist-sans/600.css';
+@import '@fontsource/geist-sans/700.css';
+@import '@fontsource/geist-mono/400.css';
+@import '@fontsource/geist-mono/500.css';
+
+/* Legacy fonts — landing, blog, research, brand pages only */
 @import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap');
 @import url('https://api.fontshare.com/v2/css?f[]=clash-display@600,700&display=swap');
-
-/* Landing Page Font (single decorative font) */
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&display=swap');
 
 /* 🚫 REMOVED FONTS (were causing performance issues):
@@ -180,47 +184,47 @@
 
 @layer base {
   :root {
-    /* Light mode: Warm beige tones */
-    --background: 40 30% 96%;
-    --foreground: 20 15% 15%;
-    --card: 40 25% 98%;
-    --card-foreground: 20 15% 15%;
-    --popover: 40 25% 98%;
-    --popover-foreground: 20 15% 15%;
-    --primary: 20 15% 15%;
-    --primary-foreground: 40 30% 96%;
-    --secondary: 35 20% 92%;
-    --secondary-foreground: 20 15% 15%;
-    --muted: 35 20% 92%;
-    --muted-foreground: 20 10% 45%;
-    --accent: 35 20% 92%;
-    --accent-foreground: 20 15% 15%;
+    /* Light mode: Cool-tinted paper */
+    --background: 220 14% 97%;
+    --foreground: 220 14% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 14% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 14% 10%;
+    --primary: 220 14% 10%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 12% 93%;
+    --secondary-foreground: 220 14% 10%;
+    --muted: 220 12% 93%;
+    --muted-foreground: 220 8% 45%;
+    --accent: 220 12% 93%;
+    --accent-foreground: 220 14% 10%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 30 15% 85%;
-    --input: 30 15% 85%;
-    --ring: 20 15% 15%;
+    --border: 220 10% 88%;
+    --input: 220 10% 88%;
+    --ring: 220 14% 10%;
     --radius: 0.5rem;
 
-    /* Custom colors - Muted pastel Teal, Rose, Amber palette */
-    --positive: 168 45% 42%;  /* Muted Teal */
-    --negative: 350 40% 55%;  /* Muted Rose */
-    --neutral: 38 50% 50%;    /* Muted Amber */
+    /* Data colors — luminous accents */
+    --positive: 168 70% 40%;   /* Teal (Signal) */
+    --negative: 350 75% 52%;   /* Rose (Alert) */
+    --neutral: 42 90% 48%;     /* Amber (Neutral) */
 
-    /* Chart colors - Subtle, pastel spectrum */
-    --chart-1: 168 45% 42%;   /* Muted Teal */
-    --chart-2: 350 40% 55%;   /* Muted Rose */
-    --chart-3: 38 50% 50%;    /* Muted Amber */
-    --chart-4: 170 40% 35%;   /* Deeper Teal */
-    --chart-5: 352 35% 48%;   /* Deeper Rose */
+    /* Chart colors — vivid on white */
+    --chart-1: 168 70% 40%;    /* Teal */
+    --chart-2: 350 75% 52%;    /* Rose */
+    --chart-3: 42 90% 48%;     /* Amber */
+    --chart-4: 265 70% 55%;    /* Violet (AI) */
+    --chart-5: 190 80% 42%;    /* Cyan (Info) */
 
-    /* Extended palette for charts - softer */
-    --chart-teal: 168 45% 42%;
-    --chart-rose: 350 40% 55%;
-    --chart-amber: 38 50% 50%;
-    --chart-teal-light: 167 40% 65%;
-    --chart-rose-light: 352 35% 72%;
-    --chart-amber-light: 40 50% 65%;
+    /* Extended chart palette */
+    --chart-teal: 168 70% 40%;
+    --chart-rose: 350 75% 52%;
+    --chart-amber: 42 90% 48%;
+    --chart-teal-light: 168 55% 60%;
+    --chart-rose-light: 350 55% 68%;
+    --chart-amber-light: 42 70% 62%;
   }
 
   * {
@@ -256,45 +260,46 @@
     cursor: none !important;
   }
   .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 7%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 7%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
+    /* Dark mode: Cool-blue tinted black */
+    --background: 220 14% 4%;
+    --foreground: 210 10% 93%;
+    --card: 220 13% 7%;
+    --card-foreground: 210 10% 93%;
+    --popover: 220 13% 7%;
+    --popover-foreground: 210 10% 93%;
+    --primary: 210 10% 93%;
+    --primary-foreground: 220 14% 4%;
+    --secondary: 220 12% 11%;
+    --secondary-foreground: 210 10% 93%;
+    --muted: 220 12% 11%;
+    --muted-foreground: 220 8% 50%;
+    --accent: 220 12% 11%;
+    --accent-foreground: 210 10% 93%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 18%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
+    --border: 220 10% 12%;
+    --input: 220 12% 11%;
+    --ring: 210 10% 70%;
 
-    /* Custom colors for dark mode - Muted pastel Teal, Rose, Amber */
-    --positive: 168 40% 45%;  /* Muted Teal */
-    --negative: 350 35% 52%;  /* Muted Rose */
-    --neutral: 38 45% 52%;    /* Muted Amber */
+    /* Data colors — luminous on dark canvas */
+    --positive: 168 70% 48%;   /* Teal (Signal) */
+    --negative: 350 75% 58%;   /* Rose (Alert) */
+    --neutral: 42 90% 55%;     /* Amber (Neutral) */
 
-    /* Chart colors - Subtle pastel spectrum (dark mode) */
-    --chart-1: 168 40% 45%;   /* Muted Teal */
-    --chart-2: 350 35% 52%;   /* Muted Rose */
-    --chart-3: 38 45% 52%;    /* Muted Amber */
-    --chart-4: 170 35% 38%;   /* Deeper Teal */
-    --chart-5: 352 30% 45%;   /* Deeper Rose */
+    /* Chart colors — glow on dark */
+    --chart-1: 168 70% 48%;    /* Teal */
+    --chart-2: 350 75% 58%;    /* Rose */
+    --chart-3: 42 90% 55%;     /* Amber */
+    --chart-4: 265 70% 62%;    /* Violet (AI) */
+    --chart-5: 190 80% 50%;    /* Cyan (Info) */
 
-    /* Extended palette for charts (dark mode) - softer */
-    --chart-teal: 168 40% 45%;
-    --chart-rose: 350 35% 52%;
-    --chart-amber: 38 45% 52%;
-    --chart-teal-light: 167 35% 55%;
-    --chart-rose-light: 352 30% 58%;
-    --chart-amber-light: 40 45% 58%;
+    /* Extended chart palette (dark) */
+    --chart-teal: 168 70% 48%;
+    --chart-rose: 350 75% 58%;
+    --chart-amber: 42 90% 55%;
+    --chart-teal-light: 168 55% 58%;
+    --chart-rose-light: 350 55% 65%;
+    --chart-amber-light: 42 70% 62%;
   }
 }
 
@@ -2302,4 +2307,94 @@ h1, h2, h3, h4, h5, h6 {
   background-clip: text;
   animation: text-shimmer 3s linear infinite;
 }
+
+/* =====================================================
+   SIGNAL DASHBOARD SYSTEM
+   Crisp, data-first card system for dashboard/logs/chat
+   ===================================================== */
+
+/* Signal card — standard chart card */
+.signal-card {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  transition: border-color 150ms ease;
+}
+
+.signal-card:hover {
+  border-color: hsl(var(--muted-foreground) / 0.3);
+}
+
+/* Signal card hero — gradient border for top-row cards */
+.signal-card-hero {
+  background: hsl(var(--card));
+  border: 1px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+}
+
+.signal-card-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    hsl(168 70% 48% / 0.15),
+    hsl(265 70% 62% / 0.15)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.signal-card-hero:hover::before {
+  background: linear-gradient(
+    135deg,
+    hsl(168 70% 48% / 0.3),
+    hsl(265 70% 62% / 0.3)
+  );
+}
+
+/* Signal stat — compact stat pill */
+.signal-stat {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+}
+
+/* Signal data number — monospace for all data values */
+.signal-data {
+  font-family: 'Geist Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Card mount stagger animation */
+@keyframes card-mount {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-card-mount {
+  opacity: 0;
+  animation: card-mount 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Stagger delays for dashboard cards */
+.stagger-1 { animation-delay: 50ms; }
+.stagger-2 { animation-delay: 100ms; }
+.stagger-3 { animation-delay: 150ms; }
+.stagger-4 { animation-delay: 200ms; }
+.stagger-5 { animation-delay: 250ms; }
+.stagger-6 { animation-delay: 300ms; }
+.stagger-7 { animation-delay: 350ms; }
+.stagger-8 { animation-delay: 400ms; }
+.stagger-9 { animation-delay: 450ms; }
+.stagger-10 { animation-delay: 500ms; }
 

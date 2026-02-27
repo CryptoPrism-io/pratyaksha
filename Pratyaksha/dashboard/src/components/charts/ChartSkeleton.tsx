@@ -125,7 +125,7 @@ export function ChartSkeleton({ type, className }: ChartSkeletonProps) {
 
 export function ChartCardSkeleton({ type = 'line' }: { type?: ChartSkeletonProps['type'] }) {
   return (
-    <div className="rounded-xl glass-card p-4">
+    <div className="rounded-md signal-card p-4">
       <div className="mb-4">
         <Skeleton className="h-5 w-32 mb-2" />
         <Skeleton className="h-3 w-48" />

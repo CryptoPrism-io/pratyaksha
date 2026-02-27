@@ -73,7 +73,7 @@ export function Profile() {
     : "0"
 
   return (
-    <div className="min-h-screen dashboard-glass-bg">
+    <div className="min-h-screen bg-background">
       {/* Demo Mode Banner */}
       <DemoBanner compact />
 

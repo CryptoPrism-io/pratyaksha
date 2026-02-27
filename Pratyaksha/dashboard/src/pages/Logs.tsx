@@ -146,7 +146,7 @@ export function Logs() {
   }, [entries, filters])
 
   return (
-    <div className="min-h-screen dashboard-glass-bg">
+    <div className="min-h-screen bg-background">
       {/* Screen reader only H1 */}
       <h1 className="sr-only">Becoming Logs - Journal Entries</h1>
 
@@ -157,14 +157,14 @@ export function Logs() {
       <OnboardingTour />
 
       {/* Tab bar */}
-      <div className="border-b border-border/60 bg-background/50 backdrop-blur-sm sticky top-16 z-10">
+      <div className="border-b border-border/50 bg-background sticky top-12 z-10">
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex gap-0">
             <button
               onClick={() => setActiveTab("log")}
-              className={`px-6 py-3.5 text-sm font-medium border-b-2 transition-colors ${
+              className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === "log"
-                  ? "border-primary text-primary"
+                  ? "border-[hsl(168_70%_48%)] text-foreground"
                   : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -172,15 +172,15 @@ export function Logs() {
             </button>
             <button
               onClick={() => setActiveTab("entries")}
-              className={`px-6 py-3.5 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${
+              className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${
                 activeTab === "entries"
-                  ? "border-primary text-primary"
+                  ? "border-[hsl(168_70%_48%)] text-foreground"
                   : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
             >
               Entries
               {entries?.length ? (
-                <span className="rounded-full bg-muted px-1.5 py-0.5 text-xs font-normal text-muted-foreground">
+                <span className="text-xs font-mono text-muted-foreground signal-data">
                   {entries.length}
                 </span>
               ) : null}
@@ -236,7 +236,7 @@ export function Logs() {
               />
             </div>
 
-            <div data-tour="entries-table" className="rounded-xl glass-card p-4">
+            <div data-tour="entries-table" className="rounded-md signal-card p-4">
               <EntriesTable filters={filters} />
             </div>
           </div>

@@ -58,7 +58,7 @@ export function DailySummaryCard() {
   const canGoNext = !isToday(selectedDate)
 
   return (
-    <div className="rounded-xl glass-card p-6">
+    <div className="rounded-md signal-card p-6">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/10">

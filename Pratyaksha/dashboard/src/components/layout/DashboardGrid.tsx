@@ -115,7 +115,7 @@ export function ChartCard({
     <div
       data-tour={dataTour}
       className={cn(
-        "rounded-lg sm:rounded-xl glass-card p-2 sm:p-4 card-hover",
+        "rounded-md sm:rounded-lg signal-card p-2 sm:p-4",
         mobileSpanClass,
         "md:col-span-1",
         colSpanClass[colSpan],

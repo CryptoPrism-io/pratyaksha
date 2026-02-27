@@ -55,8 +55,8 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between px-2 sm:px-4 md:px-8 max-w-full">
+    <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background">
+      <div className="container flex h-12 items-center justify-between px-2 sm:px-4 md:px-8 max-w-full">
         {/* Logo - Links to landing page */}
         <Link to="/" className="flex items-center gap-2 sm:gap-3 flex-shrink-0 group min-h-[44px]">
           <MothLogo size="md" animated />
@@ -68,32 +68,35 @@ export function Header() {
           <Link
             to="/logs"
             className={cn(
-              "flex items-center justify-center gap-2 text-sm font-medium transition-colors hover:text-primary w-10 h-10 sm:w-auto sm:min-h-[44px] sm:px-1",
-              isLogs ? "text-primary" : "text-muted-foreground"
+              "relative flex items-center justify-center gap-2 text-sm font-medium transition-colors hover:text-foreground w-10 h-10 sm:w-auto sm:min-h-[44px] sm:px-1",
+              isLogs ? "text-foreground" : "text-muted-foreground"
             )}
           >
-            <PlusCircle className="h-5 w-5" />
+            <PlusCircle className="h-4 w-4" />
             <span className="hidden sm:inline">Logs</span>
+            {isLogs && <span className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full bg-[hsl(168_70%_48%)]" />}
           </Link>
           <Link
             to="/dashboard"
             className={cn(
-              "flex items-center justify-center gap-2 text-sm font-medium transition-colors hover:text-primary w-10 h-10 sm:w-auto sm:min-h-[44px] sm:px-1",
-              isDashboard ? "text-primary" : "text-muted-foreground"
+              "relative flex items-center justify-center gap-2 text-sm font-medium transition-colors hover:text-foreground w-10 h-10 sm:w-auto sm:min-h-[44px] sm:px-1",
+              isDashboard ? "text-foreground" : "text-muted-foreground"
             )}
           >
-            <LayoutDashboard className="h-5 w-5" />
+            <LayoutDashboard className="h-4 w-4" />
             <span className="hidden sm:inline">Dashboard</span>
+            {isDashboard && <span className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full bg-[hsl(168_70%_48%)]" />}
           </Link>
           <Link
             to="/chat"
             className={cn(
-              "flex items-center justify-center gap-2 text-sm font-medium transition-colors hover:text-primary w-10 h-10 sm:w-auto sm:min-h-[44px] sm:px-1",
-              isChat ? "text-primary" : "text-muted-foreground"
+              "relative flex items-center justify-center gap-2 text-sm font-medium transition-colors hover:text-foreground w-10 h-10 sm:w-auto sm:min-h-[44px] sm:px-1",
+              isChat ? "text-foreground" : "text-muted-foreground"
             )}
           >
-            <MessageSquare className="h-5 w-5" />
+            <MessageSquare className="h-4 w-4" />
             <span className="hidden sm:inline">Chat</span>
+            {isChat && <span className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full bg-[hsl(168_70%_48%)]" />}
           </Link>
           <div className="ml-1 border-l pl-1 sm:ml-2 sm:pl-2 md:ml-3 md:pl-3 flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
             <span className="hidden sm:flex"><KarmaDisplay compact /></span>
@@ -128,7 +131,7 @@ export function Header() {
                     onClick={() => setShowMenu(false)}
                   />
                   {/* Menu */}
-                  <div className="absolute right-0 top-full mt-1 z-50 min-w-[180px] max-w-[calc(100vw-2rem)] rounded-lg border bg-card shadow-lg py-1">
+                  <div className="absolute right-0 top-full mt-1 z-50 min-w-[180px] max-w-[calc(100vw-2rem)] rounded-md border border-border bg-card shadow-lg py-1">
                     {/* Install App Section - Always show for testing */}
                     <div className="px-3 py-1.5 text-xs font-medium text-muted-foreground">
                       Install App

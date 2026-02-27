@@ -81,7 +81,7 @@ export function LifeBlueprintEditor({ className }: LifeBlueprintEditorProps) {
   };
 
   return (
-    <div className={cn("rounded-xl glass-card p-6", className)}>
+    <div className={cn("rounded-md signal-card p-6", className)}>
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <div className="p-2 rounded-lg bg-gradient-to-br from-indigo-500/20 to-purple-500/20">
