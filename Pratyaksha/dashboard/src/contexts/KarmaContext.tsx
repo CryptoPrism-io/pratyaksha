@@ -20,6 +20,7 @@ import {
   shouldAutoGiftKarma,
 } from "../lib/gamificationStorage";
 import { toast } from "sonner";
+import { apiFetch } from "@/lib/api";
 
 // ==================== TYPES ====================
 
@@ -136,7 +137,7 @@ export function KarmaProvider({ children }: KarmaProviderProps) {
     if (!user) return;
 
     try {
-      const response = await fetch(`/api/user-profile/${user.uid}`);
+      const response = await apiFetch(`/api/user-profile/${user.uid}`);
       const data = await response.json();
 
       if (data.success && data.profile?.gamification) {
@@ -162,7 +163,7 @@ export function KarmaProvider({ children }: KarmaProviderProps) {
     if (!user) return;
 
     try {
-      await fetch("/api/user-profile", {
+      await apiFetch("/api/user-profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -33,6 +33,10 @@ dist-ssr
 # Test coverage
 coverage
 
+# Firebase Hosting deploy cache
+.firebase/
+.firebase
+
 # Test/check scripts with hardcoded credentials (NEVER commit these)
 check-*.mjs
 setup-*.mjs

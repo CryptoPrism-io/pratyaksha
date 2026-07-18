@@ -13,6 +13,7 @@ import { hasCompletedFirstTimeOnboarding, calculateEarnedBadges, markOnboardingC
 import { OnboardingProgress } from "./OnboardingProgress";
 import { BadgeRevealQueue } from "./BadgeReveal";
 import { cn } from "@/lib/utils";
+import { apiFetch } from "@/lib/api";
 
 // Import all slides
 import { SlideWelcome } from "./slides/SlideWelcome";
@@ -127,7 +128,7 @@ export function FirstTimeOnboarding({
     // Sync profile to Airtable if user is logged in
     if (user) {
       try {
-        await fetch("/api/user-profile", {
+        await apiFetch("/api/user-profile", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

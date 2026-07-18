@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react"
+import { apiFetch } from "@/lib/api"
 
 export interface SpeechResult {
   rawText: string
@@ -192,7 +193,7 @@ export function useSpeechToText(options: UseSpeechToTextOptions = {}) {
 
       const endpoint = processIntent ? "/api/speech/process" : "/api/speech/transcribe"
 
-      const response = await fetch(endpoint, {
+      const response = await apiFetch(endpoint, {
         method: "POST",
         body: formData,
       })

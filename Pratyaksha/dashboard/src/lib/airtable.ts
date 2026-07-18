@@ -1,5 +1,7 @@
 // Airtable API Client for Pratyaksha Dashboard
 
+import { apiFetch } from "@/lib/api"
+
 const API_KEY = import.meta.env.VITE_AIRTABLE_API_KEY
 const BASE_ID = import.meta.env.VITE_AIRTABLE_BASE_ID || "appMzFpUZLuZs9VGc"
 const TABLE_ID = import.meta.env.VITE_AIRTABLE_TABLE_ID || "tblhKYssgHtjpmbni"
@@ -189,7 +191,7 @@ export interface CreateEntryResponse {
  */
 export async function createEntry(input: CreateEntryInput): Promise<Entry> {
   // Use the backend API for full AI processing
-  const response = await fetch("/api/process-entry", {
+  const response = await apiFetch("/api/process-entry", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -285,7 +287,7 @@ export async function fetchEntries(userId?: string, demoPersona?: string): Promi
   }
 
   // Fetch from PostgreSQL API
-  const response = await fetch("/api/entries", {
+  const response = await apiFetch("/api/entries", {
     headers: {
       "X-Firebase-UID": userId,
       "Content-Type": "application/json",
@@ -353,7 +355,7 @@ export async function fetchWeeklySummary(
     params.append("regenerate", "true")
   }
 
-  const response = await fetch(`/api/weekly-summary?${params}`)
+  const response = await apiFetch(`/api/weekly-summary?${params}`)
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ error: "Unknown error" }))
@@ -397,7 +399,7 @@ export async function fetchDailySummary(
 ): Promise<DailySummaryResponse> {
   const params = new URLSearchParams({ date })
 
-  const response = await fetch(`/api/daily-summary?${params}`)
+  const response = await apiFetch(`/api/daily-summary?${params}`)
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ error: "Unknown error" }))
@@ -457,7 +459,7 @@ export async function fetchMonthlySummary(
     params.append("regenerate", "true")
   }
 
-  const response = await fetch(`/api/monthly-summary?${params}`)
+  const response = await apiFetch(`/api/monthly-summary?${params}`)
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ error: "Unknown error" }))
@@ -492,7 +494,7 @@ export interface UpdateEntryResponse {
  * Update an existing entry - triggers AI re-analysis
  */
 export async function updateEntry(input: UpdateEntryInput): Promise<UpdateEntryResponse> {
-  const response = await fetch(`/api/entry/${input.recordId}`, {
+  const response = await apiFetch(`/api/entry/${input.recordId}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ text: input.text, type: input.type, format: input.format }),
@@ -510,7 +512,7 @@ export async function updateEntry(input: UpdateEntryInput): Promise<UpdateEntryR
  * Soft delete an entry
  */
 export async function deleteEntry(recordId: string): Promise<{ success: boolean }> {
-  const response = await fetch(`/api/entry/${recordId}`, {
+  const response = await apiFetch(`/api/entry/${recordId}`, {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
   })
@@ -534,7 +536,7 @@ export async function toggleBookmark(
   recordId: string,
   bookmarked: boolean
 ): Promise<{ success: boolean; entry?: { id: string } }> {
-  const response = await fetch(`/api/entry/${recordId}/bookmark`, {
+  const response = await apiFetch(`/api/entry/${recordId}/bookmark`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ bookmarked }),

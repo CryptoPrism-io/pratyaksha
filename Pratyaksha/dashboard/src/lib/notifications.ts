@@ -1,6 +1,7 @@
 // Push Notifications Service using Firebase Cloud Messaging
 import { getMessaging, getToken, onMessage, type Messaging } from "firebase/messaging"
 import { initializeApp, getApp, getApps } from "firebase/app"
+import { apiFetch } from "@/lib/api"
 
 // Firebase configuration (same as auth)
 const firebaseConfig = {
@@ -346,7 +347,7 @@ export async function registerTokenWithBackend(
   preferences: NotificationPreferences
 ): Promise<boolean> {
   try {
-    const response = await fetch("/api/notifications/register", {
+    const response = await apiFetch("/api/notifications/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -371,7 +372,7 @@ export async function updatePreferencesOnBackend(
   preferences: NotificationPreferences
 ): Promise<boolean> {
   try {
-    const response = await fetch("/api/notifications/preferences", {
+    const response = await apiFetch("/api/notifications/preferences", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

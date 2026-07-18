@@ -23,6 +23,7 @@ import {
   type LifeBlueprint,
   DEFAULT_LIFE_BLUEPRINT,
 } from "../lib/lifeBlueprintStorage"
+import { apiFetch } from "@/lib/api"
 
 // ==================== TYPES ====================
 
@@ -130,7 +131,7 @@ export function useUserProfileSync(): UseUserProfileSyncReturn {
     setStatus(prev => ({ ...prev, isLoading: true, error: null }))
 
     try {
-      const response = await fetch(`/api/user-profile/${user.uid}`)
+      const response = await apiFetch(`/api/user-profile/${user.uid}`)
 
       if (!response.ok) {
         // 404 means no profile exists yet - that's ok
@@ -237,7 +238,7 @@ export function useUserProfileSync(): UseUserProfileSyncReturn {
         return true
       }
 
-      const response = await fetch("/api/user-profile", {
+      const response = await apiFetch("/api/user-profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
