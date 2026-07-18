@@ -30,7 +30,7 @@ interface DateFilterProviderProps {
 
 export function DateFilterProvider({
   children,
-  defaultPreset = "30",
+  defaultPreset = "all",
 }: DateFilterProviderProps) {
   const [preset, setPresetState] = useState<DateRangePreset>(() => getStoredPreset(defaultPreset))
   const [customRange, setCustomRangeState] = useState<DateRange | null>(null)

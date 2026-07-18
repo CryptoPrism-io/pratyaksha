@@ -1,82 +1,44 @@
-name: Deploy Becoming (Cloud Run + Firebase Hosting)
+name: Deploy Pratyaksha Frontend (Firebase Hosting)
+
+# Frontend (React/Vite) -> Firebase Hosting, site "pratyaksha-3f089"
+# (https://pratyaksha-3f089.web.app), project pratyaksha-3f089.
+#
+# This replaces the old GCP pipeline (Cloud Build -> Cloud Run + Firebase site
+# "becoming" in project social-data-pipeline-and-push), which was removed in the
+# AWS migration. The backend API now runs on AWS Lightsail (container image in
+# ECR) and is deployed separately (docker build/push to ECR + `aws lightsail
+# create-container-service-deployment`), NOT by this workflow.
+#
+# Manual-trigger only for now so a push cannot fire a half-configured deploy.
+# To enable auto-deploy on push: uncomment the `push:` trigger below AND add
+# these repository secrets:
+#   FIREBASE_SERVICE_ACCOUNT  - JSON key for a service account with the
+#                               "Firebase Hosting Admin" role on project pratyaksha-3f089
+#   VITE_API_BASE_URL         - https://pratyaksha.8xy5d1tats0s8.us-east-1.cs.amazonlightsail.com
+#   VITE_AIRTABLE_API_KEY, VITE_AIRTABLE_BASE_ID, VITE_AIRTABLE_TABLE_ID
+#   VITE_FIREBASE_API_KEY, VITE_FIREBASE_AUTH_DOMAIN, VITE_FIREBASE_PROJECT_ID,
+#   VITE_FIREBASE_STORAGE_BUCKET, VITE_FIREBASE_MESSAGING_SENDER_ID,
+#   VITE_FIREBASE_APP_ID, VITE_FIREBASE_VAPID_KEY
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'Pratyaksha/dashboard/**'
   workflow_dispatch:
+  # push:                              # <- re-enable after configuring the secrets above
+  #   branches: [main]
+  #   paths: ['Pratyaksha/dashboard/**']
 
 env:
-  PROJECT_ID: social-data-pipeline-and-push
-  REGION: asia-south1
+  FIREBASE_PROJECT_ID: pratyaksha-3f089
 
 jobs:
-  deploy:
-    permissions:
-      contents: read
-      id-token: write
+  deploy-frontend:
     runs-on: ubuntu-latest
-
     defaults:
       run:
         working-directory: Pratyaksha/dashboard
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Authenticate to Google Cloud
-        id: auth
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
-          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
-          token_format: access_token
-
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
-        with:
-          project_id: ${{ env.PROJECT_ID }}
-
-      # ── Deploy Backend via Cloud Build ─────────
-      # Uses --async to avoid Cloud Build polling quota (60 GET req/min limit).
-      # Build runs in Cloud Build; track at console.cloud.google.com/cloud-build.
-      - name: Submit Cloud Build (async)
-        id: build
-        run: |
-          BUILD_ID=$(gcloud builds submit \
-            --config=cloudbuild.yaml \
-            --async \
-            --substitutions="_VITE_AIRTABLE_API_KEY=${{ secrets.VITE_AIRTABLE_API_KEY }},_VITE_AIRTABLE_BASE_ID=${{ secrets.VITE_AIRTABLE_BASE_ID }},_VITE_AIRTABLE_TABLE_ID=${{ secrets.VITE_AIRTABLE_TABLE_ID }},_VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }},_VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }},_VITE_FIREBASE_PROJECT_ID=${{ secrets.VITE_FIREBASE_PROJECT_ID }},_VITE_FIREBASE_STORAGE_BUCKET=${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }},_VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }},_VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }},_VITE_FIREBASE_VAPID_KEY=${{ secrets.VITE_FIREBASE_VAPID_KEY }},_OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }},_GROQ_API_KEY=${{ secrets.GROQ_API_KEY }},_DB_HOST=${{ secrets.DB_HOST }},_DB_NAME=${{ secrets.DB_NAME }},_DB_USER=${{ secrets.DB_USER }},_DB_PASSWORD=${{ secrets.DB_PASSWORD }},_DATABASE_URL=${{ secrets.DATABASE_URL }},_CLOUD_SQL_CONNECTION_NAME=${{ secrets.CLOUD_SQL_CONNECTION_NAME }}" \
-            --project ${{ env.PROJECT_ID }} \
-            --format="value(name)" 2>/dev/null | sed 's|.*/||')
-          echo "build_id=$BUILD_ID" >> $GITHUB_OUTPUT
-          echo "Build submitted: $BUILD_ID"
-          echo "Track at: https://console.cloud.google.com/cloud-build/builds/$BUILD_ID?project=${{ env.PROJECT_ID }}"
-
-      - name: Wait for Cloud Build (exponential backoff)
-        run: |
-          BUILD_ID="${{ steps.build.outputs.build_id }}"
-          WAIT=30
-          for i in 1 2 3 4 5 6 7 8 9 10; do
-            sleep $WAIT
-            STATUS=$(gcloud builds describe "$BUILD_ID" \
-              --project ${{ env.PROJECT_ID }} \
-              --format="value(status)" 2>/dev/null || echo "UNKNOWN")
-            echo "[$i] Status: $STATUS (waited ${WAIT}s)"
-            if [ "$STATUS" = "SUCCESS" ]; then exit 0; fi
-            if [ "$STATUS" = "FAILURE" ] || [ "$STATUS" = "CANCELLED" ] || [ "$STATUS" = "TIMEOUT" ]; then
-              echo "Build failed with status: $STATUS"
-              exit 1
-            fi
-            WAIT=$((WAIT < 120 ? WAIT + 30 : 120))
-          done
-          echo "Build still running after max wait — check console"
-          exit 0
-
-      # ── Deploy Frontend to Firebase Hosting ────
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -84,6 +46,9 @@ jobs:
 
       - name: Install dependencies and build frontend
         env:
+          # Backend origin baked into the bundle. Empty would make the frontend
+          # call same-origin /api (only correct for the single-container build).
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
           VITE_AIRTABLE_API_KEY: ${{ secrets.VITE_AIRTABLE_API_KEY }}
           VITE_AIRTABLE_BASE_ID: ${{ secrets.VITE_AIRTABLE_BASE_ID }}
           VITE_AIRTABLE_TABLE_ID: ${{ secrets.VITE_AIRTABLE_TABLE_ID }}
@@ -98,13 +63,15 @@ jobs:
           npm ci
           npm run build
 
-      - name: Deploy to Firebase Hosting
+      - name: Write Firebase service account
         run: |
-          npx firebase-tools deploy --only hosting:becoming --project ${{ env.PROJECT_ID }}
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
+          printf '%s' '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > "$RUNNER_TEMP/firebase-sa.json"
 
-      - name: Display URLs
+      - name: Deploy to Firebase Hosting
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-sa.json
         run: |
-          echo "Backend:  https://pratyaksha-963362833537.asia-south1.run.app"
-          echo "Frontend: https://ai-becoming.web.app"
+          npx firebase-tools deploy --only hosting --project "$FIREBASE_PROJECT_ID" --non-interactive
+
+      - name: Display URL
+        run: echo "Frontend deployed -> https://pratyaksha-3f089.web.app"

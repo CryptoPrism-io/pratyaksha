@@ -15,6 +15,7 @@ import {
   Loader2,
   AlertTriangle,
 } from "lucide-react"
+import { apiFetch } from "@/lib/api"
 
 // Static class map — avoids Tailwind JIT purging dynamic interpolation
 const COLOR_CLASSES: Record<string, { bg: string; text: string }> = {
@@ -157,7 +158,7 @@ export function Signup() {
   async function fetchExistingUsers() {
     setLoadingList(true)
     try {
-      const res = await fetch("/api/test-users")
+      const res = await apiFetch("/api/test-users")
       const data = await res.json()
       if (data.success) {
         setExistingUsers(data.users)
@@ -173,7 +174,7 @@ export function Signup() {
     setLoadingUser(profile.id)
     try {
       // Upsert the test user in PostgreSQL
-      const res = await fetch("/api/test-users/setup", {
+      const res = await apiFetch("/api/test-users/setup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -209,7 +210,7 @@ export function Signup() {
 
   async function handleDeleteUser(firebaseUid: string) {
     try {
-      const res = await fetch(`/api/test-users/${firebaseUid}`, { method: "DELETE" })
+      const res = await apiFetch(`/api/test-users/${firebaseUid}`, { method: "DELETE" })
       const data = await res.json()
       if (data.success) {
         toast.success(`Deleted ${firebaseUid}`)
@@ -225,7 +226,7 @@ export function Signup() {
   async function handleDeleteAll() {
     setDeleting(true)
     try {
-      const res = await fetch("/api/test-users/all", { method: "DELETE" })
+      const res = await apiFetch("/api/test-users/all", { method: "DELETE" })
       const data = await res.json()
       if (data.success) {
         toast.success(`Deleted ${data.deletedCount} test user(s)`)

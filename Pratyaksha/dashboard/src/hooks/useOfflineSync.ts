@@ -15,6 +15,7 @@ import {
 } from "../lib/offlineDb"
 import type { PendingEntry } from "../lib/offlineDb"
 import { useAuth } from "../contexts/AuthContext"
+import { apiFetch } from "@/lib/api"
 
 const MAX_RETRIES = 3
 const SYNC_INTERVAL = 30000 // 30 seconds
@@ -111,7 +112,7 @@ export function useOfflineSync() {
       await updatePendingEntry(entry.id, { status: "syncing" })
 
       // Send to server with userId
-      const response = await fetch("/api/process-entry", {
+      const response = await apiFetch("/api/process-entry", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: entry.text, userId: user?.uid }),
@@ -201,7 +202,7 @@ export function useOfflineSync() {
 
     // Try to send directly with userId
     try {
-      const response = await fetch("/api/process-entry", {
+      const response = await apiFetch("/api/process-entry", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text, userId: user?.uid }),

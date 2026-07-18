@@ -1,6 +1,8 @@
 // First-time onboarding profile storage
 // localStorage key: pratyaksha-first-time-onboarding-profile
 
+import { apiFetch } from "@/lib/api";
+
 export type UserOnboardingProfile = {
   // Demographics (Slide 2)
   displayName: string;
@@ -208,7 +210,7 @@ export async function syncOnboardingFromServer(uid: string): Promise<boolean> {
   if (typeof window === "undefined") return false;
 
   try {
-    const response = await fetch(`/api/user-profile/${uid}`);
+    const response = await apiFetch(`/api/user-profile/${uid}`);
     if (!response.ok) {
       // User profile doesn't exist yet - first time user
       return false;

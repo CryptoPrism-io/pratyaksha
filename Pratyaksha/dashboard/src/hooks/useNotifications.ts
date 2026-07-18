@@ -15,11 +15,12 @@ import {
   type NotificationPreferences,
 } from "../lib/notifications"
 import { useAuth } from "../contexts/AuthContext"
+import { apiFetch } from "@/lib/api"
 
 // Fetch settings from backend
 async function fetchSettingsFromBackend(userId: string): Promise<NotificationPreferences | null> {
   try {
-    const response = await fetch(`/api/notifications/settings/${userId}`)
+    const response = await apiFetch(`/api/notifications/settings/${userId}`)
     if (!response.ok) return null
     const data = await response.json()
     if (data.success && data.settings) {

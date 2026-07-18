@@ -1,6 +1,7 @@
 // Chart Explainer Hook - AI explanations with server-side caching
 // Server caches responses in prompt_cache table (PostgreSQL)
 import { useState, useCallback } from "react"
+import { apiFetch } from "@/lib/api"
 
 export type ChartType =
   | "energyRadar"
@@ -75,7 +76,7 @@ export function useChartExplainer({
     setInsufficientKarma(false)
 
     try {
-      const response = await fetch("/api/explain", {
+      const response = await apiFetch("/api/explain", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

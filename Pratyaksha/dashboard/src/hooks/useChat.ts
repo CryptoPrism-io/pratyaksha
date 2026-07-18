@@ -4,6 +4,7 @@ import { useAuth } from "../contexts/AuthContext"
 import { loadLifeBlueprint, getBlueprintForAI, hasBlueprintForAI } from "../lib/lifeBlueprintStorage"
 import { loadGamificationState, getCurrentUnlockLevel } from "../lib/gamificationStorage"
 import { loadOnboardingProfile } from "../lib/onboardingStorage"
+import { apiFetch } from "@/lib/api"
 
 // UserContext type that matches server's expected format
 interface UserContext {
@@ -119,7 +120,7 @@ export function useChat(options: UseChatOptions = {}) {
     setError(null)
 
     try {
-      const response = await fetch("/api/chat", {
+      const response = await apiFetch("/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
