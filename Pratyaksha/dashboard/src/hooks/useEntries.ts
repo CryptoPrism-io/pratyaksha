@@ -31,7 +31,7 @@ import { useDemoPersona } from "../contexts/DemoPersonaContext"
 
 // Fetch all entries (filtered by logged-in user or demo persona)
 export function useEntriesRaw() {
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const { persona } = useDemoPersona()
   const userId = user?.uid
 
@@ -41,7 +41,9 @@ export function useEntriesRaw() {
     staleTime: 1000 * 30,       // 30 seconds
     refetchInterval: 1000 * 30, // Poll every 30 seconds
     refetchOnWindowFocus: true, // Refresh when switching back to tab
-    enabled: true, // Always enabled - shows demo data if no user, user's entries if logged in
+    // Wait until Firebase auth resolves before fetching, so a signed-in user
+    // never briefly sees demo data during the auth-loading window.
+    enabled: !authLoading,
   })
 }
 
