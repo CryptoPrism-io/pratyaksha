@@ -5,7 +5,7 @@ import { cn } from "../../lib/utils"
 const TABS = [
   { label: "Dashboard", path: "/dashboard", premium: false },
   { label: "Insights", path: "/insights", premium: false },
-  { label: "Compare", path: "/compare", premium: true },
+  { label: "Compare", path: "/compare", premium: false },
 ]
 
 export function AnalyticsTabBar() {
