@@ -26,8 +26,14 @@ on:
   #   branches: [main]
   #   paths: ['Pratyaksha/dashboard/**']
 
+# Canonical URL is https://ai-becoming.web.app (site "ai-becoming" in the
+# social-data-pipeline-and-push Firebase project) — the URL the product is
+# actually used on. FIREBASE_SERVICE_ACCOUNT must be a key for that project
+# with the "Firebase Hosting Admin" role. The site is configured in
+# firebase.ai-becoming.json (Auth remains on the pratyaksha-3f089 project,
+# which already authorizes ai-becoming.web.app).
 env:
-  FIREBASE_PROJECT_ID: pratyaksha-3f089
+  FIREBASE_PROJECT_ID: social-data-pipeline-and-push
 
 jobs:
   deploy-frontend:
@@ -71,7 +77,7 @@ jobs:
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-sa.json
         run: |
-          npx firebase-tools deploy --only hosting --project "$FIREBASE_PROJECT_ID" --non-interactive
+          npx firebase-tools deploy --only hosting --project "$FIREBASE_PROJECT_ID" --config firebase.ai-becoming.json --non-interactive
 
       - name: Display URL
-        run: echo "Frontend deployed -> https://pratyaksha-3f089.web.app"
+        run: echo "Frontend deployed -> https://ai-becoming.web.app"

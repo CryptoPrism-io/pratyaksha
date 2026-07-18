@@ -295,17 +295,18 @@ export async function fetchEntries(userId?: string, demoPersona?: string): Promi
   })
 
   if (!response.ok) {
+    // A logged-in user's request failed (network / backend down / 404 no such
+    // user). Surface the error instead of silently showing someone else's demo
+    // data — React Query keeps the last good entries during background
+    // refetches and retries, so a real signed-in user never sees Mario's data.
     console.error(`Failed to fetch entries: ${response.status}`)
-    // Fallback to demo data on error
-    const { getDemoData } = await import("./demoPersonas")
-    return getDemoData("mario")
+    throw new Error(`Failed to fetch entries (${response.status})`)
   }
 
   const data = await response.json()
   if (!data.success || !data.entries) {
     console.error("Invalid response from /api/entries")
-    const { getDemoData } = await import("./demoPersonas")
-    return getDemoData("mario")
+    throw new Error("Invalid response from /api/entries")
   }
 
   return data.entries.map(transformRecord)
