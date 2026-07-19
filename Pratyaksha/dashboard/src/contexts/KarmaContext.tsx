@@ -18,6 +18,7 @@ import {
   isYesterday,
   getSoulMappingProgress,
   shouldAutoGiftKarma,
+  isOwnerUid,
 } from "../lib/gamificationStorage";
 import { toast } from "sonner";
 import { apiFetch } from "@/lib/api";
@@ -30,6 +31,8 @@ type KarmaCost = keyof typeof KARMA_COSTS;
 interface KarmaContextValue {
   // State
   karma: number;
+  /** True for owner/unlimited accounts — no karma is ever charged. */
+  isUnlimited: boolean;
   unlockLevel: UnlockTier;
   completedSoulMappingTopics: string[];
   streakDays: number;
@@ -77,6 +80,9 @@ export function KarmaProvider({ children }: KarmaProviderProps) {
 
   // Load state from localStorage
   const [state, setState] = useState<GamificationState>(() => loadGamificationState());
+
+  // Owner/unlimited accounts bypass all karma costs.
+  const isUnlimited = isOwnerUid(user?.uid);
 
   // Sync entry count from actual entries
   const entryCount = entries.length;
@@ -204,6 +210,8 @@ export function KarmaProvider({ children }: KarmaProviderProps) {
 
   // Spend karma for an action
   const spendKarma = useCallback((cost: KarmaCost): boolean => {
+    if (isUnlimited) return true; // owner: never charged
+
     const amount = KARMA_COSTS[cost];
 
     if (state.karma < amount) {
@@ -216,13 +224,14 @@ export function KarmaProvider({ children }: KarmaProviderProps) {
     }));
 
     return true;
-  }, [state.karma]);
+  }, [state.karma, isUnlimited]);
 
   // Check if user can afford a cost
   const canAfford = useCallback((cost: KarmaCost | number): boolean => {
+    if (isUnlimited) return true; // owner: always affordable
     const amount = typeof cost === "number" ? cost : KARMA_COSTS[cost];
     return state.karma >= amount;
-  }, [state.karma]);
+  }, [state.karma, isUnlimited]);
 
   // Check if a tier is unlocked
   const isTierUnlocked = useCallback((tier: UnlockTier): boolean => {
@@ -387,6 +396,7 @@ export function KarmaProvider({ children }: KarmaProviderProps) {
   const value: KarmaContextValue = {
     // State
     karma: state.karma,
+    isUnlimited,
     unlockLevel,
     completedSoulMappingTopics: state.completedSoulMappingTopics,
     streakDays: state.streakDays,

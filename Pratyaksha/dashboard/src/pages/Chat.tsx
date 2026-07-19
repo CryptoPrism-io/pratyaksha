@@ -22,7 +22,8 @@ export function Chat() {
   const [showFollowUp, setShowFollowUp] = useState(false)
   const [showKarmaDialog, setShowKarmaDialog] = useState(false)
 
-  const { canAfford, spendKarma, karma } = useKarma()
+  const { canAfford, spendKarma, karma, isUnlimited } = useKarma()
+  const karmaDisplay = isUnlimited ? "∞" : `${karma}`
 
   const {
     messages,
@@ -134,7 +135,7 @@ export function Chat() {
           <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20">
             <Sparkles className="h-3 w-3 text-amber-500 flex-shrink-0" />
             <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
-              {karma} XP
+              {karmaDisplay} XP
             </span>
           </div>
 
@@ -229,7 +230,11 @@ export function Chat() {
       {/* XP cost notice — per active persona */}
       <div className="flex items-center justify-center gap-1.5 py-1.5 border-t bg-amber-500/5 text-xs text-amber-600 dark:text-amber-400">
         <Sparkles className="h-3 w-3" />
-        <span><strong>{activeMeta.label}</strong> costs <strong>{messageCost} XP</strong>/message · You have <strong>{karma} XP</strong></span>
+        <span>{isUnlimited ? (
+          <><strong>{activeMeta.label}</strong> · Unlimited access <strong>∞</strong></>
+        ) : (
+          <><strong>{activeMeta.label}</strong> costs <strong>{messageCost} XP</strong>/message · You have <strong>{karma} XP</strong></>
+        )}</span>
       </div>
 
       {/* Input */}

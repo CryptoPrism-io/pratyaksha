@@ -54,6 +54,18 @@ export const KARMA_COSTS = {
   REGENERATE_SUMMARY: 10,      // Weekly/Monthly
 } as const;
 
+// Owner / unlimited accounts: these Firebase UIDs bypass all karma costs
+// (canAfford always true, spendKarma never decrements) and see "∞" XP. Everyone
+// else is metered normally so they can't run up the owner's OpenAI bill on the
+// expensive personas. The gate is client-side only (matches the rest of karma).
+export const OWNER_UIDS: string[] = [
+  "5kI3ZmRHZNNf4OHwqn68lplcUQG3", // yogass09@gmail.com (owner)
+];
+
+export function isOwnerUid(uid?: string | null): boolean {
+  return !!uid && OWNER_UIDS.includes(uid);
+}
+
 // Entry count thresholds for unlocking tiers
 export const UNLOCK_THRESHOLDS = {
   SURFACE: 0,   // Always unlocked
