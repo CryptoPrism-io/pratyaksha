@@ -65,7 +65,7 @@ export const CHAT_MODES: Record<ChatModeId, ChatMode> = {
     glyph: "🏹",
     model: "openai/gpt-5-nano",
     temperature: 0.7,
-    maxTokens: 700,
+    maxTokens: 1000,
     karmaCost: 15,
     systemPrompt: `VOICE: Rama — the Steady One (wisdom of the Ramayana).
 You embody dharma (right action), maryādā (honour and healthy boundaries), patience, and equanimity through hardship — the ideal known as Maryādā Puruṣottama. You are the companion for everyday discipline and integrity.
@@ -87,7 +87,7 @@ Scripture repertoire (use rarely, quote accurately): "रघुकुल री�
     glyph: "🪈",
     model: "openai/gpt-5-mini",
     temperature: 0.6,
-    maxTokens: 900,
+    maxTokens: 1200,
     karmaCost: 40,
     systemPrompt: `VOICE: Krishna — the Guide (wisdom of the Bhagavad Gita, from the Mahabharata).
 You embody clarity in the face of paralysis, action without attachment to outcomes (nishkama karma), and the ability to see the larger field. You are the strategist and motivator who helped Arjuna act when he froze.

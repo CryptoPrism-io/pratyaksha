@@ -34,6 +34,18 @@ export const MODELS = {
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY
 
+/**
+ * GPT-5 family models are REASONING models: their completion budget is shared
+ * between hidden reasoning tokens and visible output. With a normal chat budget
+ * the reasoning can consume everything and leave an EMPTY response. Force
+ * reasoning to "minimal" so they behave like fast chat models and actually emit
+ * text. Non-GPT-5 models (e.g. gpt-4o) reject this param, so only add it for
+ * gpt-5*. Returned as modelKwargs so it passes straight through to OpenRouter.
+ */
+function reasoningKwargs(model: string): Record<string, unknown> {
+  return /(^|\/)gpt-5/.test(model) ? { reasoning_effort: "minimal" } : {}
+}
+
 /** Create a ChatOpenAI instance routed through OpenRouter */
 export function getModel(
   modelName: string = MODELS.CHEAP,
@@ -55,6 +67,7 @@ export function getModel(
       },
     },
     apiKey: OPENROUTER_API_KEY,
+    modelKwargs: reasoningKwargs(modelName),
   })
 }
 
@@ -90,7 +103,7 @@ export async function callOpenRouter<T>(
       },
     },
     apiKey: OPENROUTER_API_KEY!,
-    modelKwargs: { response_format: { type: "json_object" } },
+    modelKwargs: { response_format: { type: "json_object" }, ...reasoningKwargs(model) },
   })
 
   const messages: BaseMessage[] = []
