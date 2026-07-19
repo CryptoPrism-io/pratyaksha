@@ -5,11 +5,21 @@
 // =============================================================================
 import type { ChatModeId } from "../config/chatModes"
 
+export interface StoredSource {
+  id: string
+  date: string | null
+  title: string | null
+  snippet: string | null
+  similarity: number
+}
+
 export interface StoredMessage {
   id: string
   role: "user" | "assistant"
   content: string
   timestamp: number
+  sources?: StoredSource[]
+  reaction?: "up" | "down" | null
 }
 
 export interface ChatThread {

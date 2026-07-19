@@ -32,6 +32,8 @@ export function Chat() {
     sendMessage,
     stop,
     newChat,
+    setReaction,
+    followups,
     threads,
     activeThreadId,
     loadThread,
@@ -164,6 +166,11 @@ export function Chat() {
                   key={message.id}
                   message={message}
                   isLatest={index === arr.length - 1}
+                  onReact={
+                    message.role === "assistant"
+                      ? (reaction) => setReaction(message.id, reaction)
+                      : undefined
+                  }
                 />
               ))}
 
@@ -176,6 +183,7 @@ export function Chat() {
                 onSelect={handleSend}
                 disabled={isLoading}
                 context={followUpContext as "patterns" | "emotions" | "insights" | "general"}
+                suggestions={followups}
               />
             )}
 

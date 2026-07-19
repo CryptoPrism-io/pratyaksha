@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from "react"
-import type { Message } from "../components/chat/ChatMessage"
+import type { Message, MessageSource } from "../components/chat/ChatMessage"
 import { useAuth } from "../contexts/AuthContext"
 import { loadLifeBlueprint, getBlueprintForAI, hasBlueprintForAI } from "../lib/lifeBlueprintStorage"
 import { loadGamificationState, getCurrentUnlockLevel } from "../lib/gamificationStorage"
@@ -103,11 +103,25 @@ function buildUserContext(): UserContext | null {
 // ── message <-> storage conversion ──────────────────────────────────────────
 
 function toStored(m: Message): StoredMessage {
-  return { id: m.id, role: m.role, content: m.content, timestamp: m.timestamp.getTime() }
+  return {
+    id: m.id,
+    role: m.role,
+    content: m.content,
+    timestamp: m.timestamp.getTime(),
+    sources: m.sources,
+    reaction: m.reaction ?? null,
+  }
 }
 
 function fromStored(m: StoredMessage): Message {
-  return { id: m.id, role: m.role, content: m.content, timestamp: new Date(m.timestamp) }
+  return {
+    id: m.id,
+    role: m.role,
+    content: m.content,
+    timestamp: new Date(m.timestamp),
+    sources: m.sources,
+    reaction: m.reaction ?? null,
+  }
 }
 
 interface UseChatOptions {
@@ -126,6 +140,7 @@ export function useChat(options: UseChatOptions = {}) {
 
   const [activeThreadId, setActiveThreadId] = useState<string | null>(null)
   const [threads, setThreads] = useState<ChatThread[]>([])
+  const [followups, setFollowups] = useState<string[]>([]) // AI-generated next prompts
 
   const abortRef = useRef<AbortController | null>(null)
   const createdAtRef = useRef<number>(Date.now())
@@ -159,6 +174,48 @@ export function useChat(options: UseChatOptions = {}) {
       refreshThreads()
     },
     [uid, refreshThreads]
+  )
+
+  // Fetch AI-generated follow-up prompts based on the last exchange.
+  const fetchFollowups = useCallback(
+    async (userMessage: string, assistantMessage: string) => {
+      try {
+        const res = await apiFetch("/api/chat/followups", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(uid ? { "x-firebase-uid": uid } : {}),
+          },
+          body: JSON.stringify({ userMessage, assistantMessage }),
+        })
+        if (!res.ok) return
+        const data = await res.json()
+        if (Array.isArray(data.suggestions)) {
+          setFollowups(
+            data.suggestions.filter((s: unknown) => typeof s === "string" && s).slice(0, 3)
+          )
+        }
+      } catch {
+        /* best-effort — UI falls back to static suggestions */
+      }
+    },
+    [uid]
+  )
+
+  // Toggle 👍/👎 on a message and persist it.
+  const setReaction = useCallback(
+    (messageId: string, reaction: "up" | "down") => {
+      setMessages((prev) => {
+        const next = prev.map((m) =>
+          m.id === messageId
+            ? { ...m, reaction: m.reaction === reaction ? null : reaction }
+            : m
+        )
+        if (activeThreadId) persist(next, activeThreadId, mode)
+        return next
+      })
+    },
+    [activeThreadId, mode, persist]
   )
 
   const sendMessage = useCallback(
@@ -198,13 +255,21 @@ export function useChat(options: UseChatOptions = {}) {
       setIsLoading(true)
       setIsStreaming(false)
       setError(null)
+      setFollowups([])
 
       const controller = new AbortController()
       abortRef.current = controller
 
+      let assistantText = ""
+
       const updateAssistant = (updater: (c: string) => string) => {
         setMessages((prev) =>
           prev.map((m) => (m.id === assistantId ? { ...m, content: updater(m.content) } : m))
+        )
+      }
+      const setAssistantSources = (sources: MessageSource[]) => {
+        setMessages((prev) =>
+          prev.map((m) => (m.id === assistantId ? { ...m, sources } : m))
         )
       }
 
@@ -266,15 +331,25 @@ export function useChat(options: UseChatOptions = {}) {
                 setIsLoading(false)
                 setIsStreaming(true)
               }
+              assistantText += data.text
               updateAssistant((c) => c + data.text)
+            } else if (event === "sources" && Array.isArray(data.sources)) {
+              setAssistantSources(data.sources as MessageSource[])
             } else if (event === "error") {
               throw new Error(data.error || "Stream error")
             } else if (event === "done") {
               if (typeof data.response === "string" && data.response.length > 0) {
+                assistantText = data.response
                 updateAssistant(() => data.response)
               }
             }
           }
+        }
+
+        // Generation completed cleanly — fetch tailored follow-up prompts
+        // (best-effort; the UI falls back to static suggestions on failure).
+        if (assistantText.trim().length > 0) {
+          void fetchFollowups(trimmed, assistantText)
         }
       } catch (err) {
         const isAbort = err instanceof DOMException && err.name === "AbortError"
@@ -299,7 +374,7 @@ export function useChat(options: UseChatOptions = {}) {
         })
       }
     },
-    [messages, activeThreadId, uid, userContext, mode, persist]
+    [messages, activeThreadId, uid, userContext, mode, persist, fetchFollowups]
   )
 
   const stop = useCallback(() => {
@@ -311,6 +386,7 @@ export function useChat(options: UseChatOptions = {}) {
     setMessages([])
     setActiveThreadId(null)
     setError(null)
+    setFollowups([])
     createdAtRef.current = Date.now()
   }, [])
 
@@ -324,6 +400,7 @@ export function useChat(options: UseChatOptions = {}) {
       setMode(thread.modeId ?? DEFAULT_MODE_ID)
       createdAtRef.current = thread.createdAt
       setError(null)
+      setFollowups([])
     },
     [uid]
   )
@@ -347,6 +424,9 @@ export function useChat(options: UseChatOptions = {}) {
     sendMessage,
     stop,
     newChat,
+    // feedback + follow-ups
+    setReaction,
+    followups,
     // thread history
     threads,
     activeThreadId,

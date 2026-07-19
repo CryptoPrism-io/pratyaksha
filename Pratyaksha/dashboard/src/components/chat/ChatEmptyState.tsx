@@ -1,6 +1,9 @@
+import { useMemo } from "react"
 import { MessageSquare, BookOpen, Brain, Sparkles, TrendingUp, Heart } from "lucide-react"
 import { QuickPrompts } from "./QuickPrompts"
 import { useStats } from "../../hooks/useEntries"
+import { loadOnboardingProfile } from "../../lib/onboardingStorage"
+import { loadGamificationState } from "../../lib/gamificationStorage"
 
 interface ChatEmptyStateProps {
   onSelect: (prompt: string) => void
@@ -9,6 +12,28 @@ interface ChatEmptyStateProps {
 
 export function ChatEmptyState({ onSelect, disabled }: ChatEmptyStateProps) {
   const { data: stats } = useStats()
+
+  // Personalized greeting from local profile/streak (no AI call).
+  const { firstName, greeting } = useMemo(() => {
+    let firstName = ""
+    let greeting =
+      "Your personal journal companion. I can help you discover patterns, understand emotions, and uncover insights from your reflections."
+    try {
+      const profile = loadOnboardingProfile()
+      const gam = loadGamificationState()
+      firstName = (profile.displayName || "").trim().split(/\s+/)[0] || ""
+      const streak = gam.streakDays || 0
+      const entries = gam.totalEntriesLogged || 0
+      if (streak >= 3) {
+        greeting = `You're on a ${streak}-day streak — want to look at what's been shifting for you?`
+      } else if (entries >= 5) {
+        greeting = `You've logged ${entries} reflections. Ask me what patterns are emerging, or where you're stuck.`
+      }
+    } catch {
+      /* fall back to the default greeting */
+    }
+    return { firstName, greeting }
+  }, [])
 
   return (
     <div className="h-full flex flex-col items-center justify-center py-8 px-4">
@@ -30,11 +55,10 @@ export function ChatEmptyState({ onSelect, disabled }: ChatEmptyStateProps) {
 
       {/* Welcome Text */}
       <h2 className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent mb-2">
-        Hi! I'm Becoming AI
+        {firstName ? `Hi ${firstName}, I'm Becoming AI` : "Hi! I'm Becoming AI"}
       </h2>
       <p className="text-sm text-muted-foreground text-center max-w-md mb-6">
-        Your personal journal companion. I can help you discover patterns,
-        understand emotions, and uncover insights from your reflections.
+        {greeting}
       </p>
 
       {/* Context Cards - What AI knows */}

@@ -416,10 +416,28 @@ export async function chat(
 
     // RAG: Find semantically similar entries to the user's message (PRIVACY FIX: filter by userId)
     let ragContext = ""
+    // Citations: the actual entries that informed this reply, surfaced to the UI.
+    let sources: Array<{
+      id: string
+      date: string | null
+      title: string | null
+      snippet: string | null
+      similarity: number
+    }> = []
     try {
       const similarEntries = await findSimilarEntries(message, 5, user.id)
       if (similarEntries.length > 0) {
         ragContext = buildRAGContext(similarEntries)
+        // Only cite reasonably-relevant entries (>= 25% cosine similarity).
+        sources = similarEntries
+          .filter((e) => e.similarity >= 0.25)
+          .map((e) => ({
+            id: e.entryId,
+            date: e.date,
+            title: e.name,
+            snippet: e.snapshot || e.text?.slice(0, 140) || null,
+            similarity: e.similarity,
+          }))
         console.log(`[Chat] RAG: Found ${similarEntries.length} similar entries for user ${user.id}`)
       }
     } catch (ragError) {
@@ -461,6 +479,8 @@ export async function chat(
 
       // Let the client show a status while RAG/context work already finished.
       send("meta", { mode: mode.id, model: mode.model })
+      // Surface the entries that informed this reply (citations).
+      if (sources.length > 0) send("sources", { sources })
 
       try {
         let full = ""
@@ -497,6 +517,7 @@ export async function chat(
       response: aiResponse,
       tokensUsed: tokens,
       mode: mode.id,
+      sources,
     })
 
   } catch (error) {
@@ -509,5 +530,54 @@ export async function chat(
       success: false,
       error: error instanceof Error ? error.message : "Chat request failed",
     })
+  }
+}
+
+// ── AI-generated follow-up suggestions ──────────────────────────────────────
+
+interface FollowupsRequest {
+  userMessage?: string
+  assistantMessage: string
+}
+
+/**
+ * Given the assistant's last reply (and the user's question), return three
+ * short, first-person follow-up prompts the user could tap next. Cheap + fast.
+ */
+export async function chatFollowups(
+  req: Request<object, object, FollowupsRequest>,
+  res: Response
+) {
+  const { userMessage = "", assistantMessage } = req.body
+
+  if (!assistantMessage || typeof assistantMessage !== "string") {
+    return res.status(400).json({ success: false, error: "assistantMessage is required" })
+  }
+
+  const prompt = `A journaling companion just replied to the user. Suggest THREE short follow-up messages the USER might send next to go deeper. Write them in the user's first-person voice ("Why do I…", "Help me…", "What should I…"). Keep each under 8 words. Make them specific to this exchange, not generic.
+
+USER ASKED:
+"${userMessage.slice(0, 500)}"
+
+ASSISTANT REPLIED:
+"${assistantMessage.slice(0, 1500)}"
+
+Respond with JSON: { "suggestions": ["...", "...", "..."] }`
+
+  try {
+    const { data } = await callOpenRouter<{ suggestions: string[] }>(
+      prompt,
+      MODELS.CHEAP,
+      "You generate concise, specific follow-up prompts. Respond only with valid JSON.",
+      { maxTokens: 200, temperature: 0.7 }
+    )
+    const suggestions = (data.suggestions || [])
+      .filter((s) => typeof s === "string" && s.trim().length > 0)
+      .slice(0, 3)
+    return res.json({ success: true, suggestions })
+  } catch (error) {
+    console.log("[Chat] Follow-up generation failed:", error)
+    // Non-fatal — the client falls back to its static suggestions.
+    return res.json({ success: true, suggestions: [] })
   }
 }

@@ -1,25 +1,52 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import ReactMarkdown from "react-markdown"
 import { cn } from "../../lib/utils"
-import { User, Bot, Copy, Check, ThumbsUp, ThumbsDown, Sparkles } from "lucide-react"
+import { User, Bot, Copy, Check, ThumbsUp, ThumbsDown, Sparkles, BookOpen, ChevronDown } from "lucide-react"
 import { toast } from "sonner"
+
+export interface MessageSource {
+  id: string
+  date: string | null
+  title: string | null
+  snippet: string | null
+  similarity: number
+}
 
 export interface Message {
   id: string
   role: "user" | "assistant"
   content: string
   timestamp: Date
+  /** Journal entries that informed this reply (citations). */
+  sources?: MessageSource[]
+  /** Persisted 👍/👎 feedback. */
+  reaction?: "up" | "down" | null
 }
 
 interface ChatMessageProps {
   message: Message
   isLatest?: boolean
+  /** Called when the user reacts; when provided, the reaction is controlled. */
+  onReact?: (reaction: "up" | "down") => void
 }
 
-export function ChatMessage({ message, isLatest = false }: ChatMessageProps) {
+function formatDate(date: string | null): string {
+  if (!date) return "Undated"
+  const d = new Date(date)
+  if (isNaN(d.getTime())) return date
+  return d.toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })
+}
+
+export function ChatMessage({ message, isLatest = false, onReact }: ChatMessageProps) {
   const isUser = message.role === "user"
+  const navigate = useNavigate()
   const [copied, setCopied] = useState(false)
-  const [reaction, setReaction] = useState<"up" | "down" | null>(null)
+  const [localReaction, setLocalReaction] = useState<"up" | "down" | null>(null)
+  const [showSources, setShowSources] = useState(false)
+
+  // Controlled by the parent when onReact is provided; otherwise local-only.
+  const reaction = onReact ? message.reaction ?? null : localReaction
 
   const handleCopy = async () => {
     try {
@@ -33,11 +60,17 @@ export function ChatMessage({ message, isLatest = false }: ChatMessageProps) {
   }
 
   const handleReaction = (type: "up" | "down") => {
-    setReaction(reaction === type ? null : type)
+    if (onReact) {
+      onReact(type)
+    } else {
+      setLocalReaction((prev) => (prev === type ? null : type))
+    }
     if (reaction !== type) {
       toast.success(type === "up" ? "Thanks for the feedback!" : "We'll try to improve")
     }
   }
+
+  const sources = message.sources ?? []
 
   return (
     <div
@@ -96,13 +129,10 @@ export function ChatMessage({ message, isLatest = false }: ChatMessageProps) {
           ) : (
             <ReactMarkdown
               components={{
-                // Style headings
                 h1: ({ children }) => <h1 className="text-lg font-bold mt-4 mb-2 text-violet-700 dark:text-violet-300">{children}</h1>,
                 h2: ({ children }) => <h2 className="text-base font-semibold mt-3 mb-2 text-violet-600 dark:text-violet-400">{children}</h2>,
                 h3: ({ children }) => <h3 className="text-sm font-semibold mt-2 mb-1">{children}</h3>,
-                // Style paragraphs
                 p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-                // Style lists
                 ul: ({ children }) => <ul className="list-none space-y-1 my-2">{children}</ul>,
                 ol: ({ children }) => <ol className="list-decimal list-inside space-y-1 my-2">{children}</ol>,
                 li: ({ children }) => (
@@ -111,16 +141,13 @@ export function ChatMessage({ message, isLatest = false }: ChatMessageProps) {
                     <span>{children}</span>
                   </li>
                 ),
-                // Style emphasis
                 strong: ({ children }) => <strong className="font-semibold text-violet-700 dark:text-violet-300">{children}</strong>,
                 em: ({ children }) => <em className="italic text-muted-foreground">{children}</em>,
-                // Style code
                 code: ({ children }) => (
                   <code className="px-1.5 py-0.5 rounded bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 text-xs font-mono">
                     {children}
                   </code>
                 ),
-                // Style blockquotes for insights
                 blockquote: ({ children }) => (
                   <blockquote className="border-l-4 border-violet-400 pl-4 py-2 my-3 bg-violet-50 dark:bg-violet-900/20 rounded-r-lg italic">
                     {children}
@@ -132,6 +159,41 @@ export function ChatMessage({ message, isLatest = false }: ChatMessageProps) {
             </ReactMarkdown>
           )}
         </div>
+
+        {/* Sources / citations (AI messages only) */}
+        {!isUser && sources.length > 0 && (
+          <div className="pt-1">
+            <button
+              onClick={() => setShowSources((s) => !s)}
+              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
+            >
+              <BookOpen className="h-3 w-3" />
+              <span>Based on {sources.length} of your {sources.length === 1 ? "entry" : "entries"}</span>
+              <ChevronDown className={cn("h-3 w-3 transition-transform", showSources && "rotate-180")} />
+            </button>
+            {showSources && (
+              <div className="mt-2 space-y-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
+                {sources.map((s) => (
+                  <button
+                    key={s.id}
+                    onClick={() => navigate(`/logs?entry=${encodeURIComponent(s.id)}`)}
+                    className="w-full text-left flex items-start gap-2 rounded-lg border border-violet-200/40 dark:border-violet-800/40 bg-violet-50/50 dark:bg-violet-900/10 px-2.5 py-1.5 hover:bg-violet-100/60 dark:hover:bg-violet-900/20 transition-colors"
+                  >
+                    <span className="flex-shrink-0 mt-0.5 text-[10px] font-medium text-violet-500 tabular-nums">
+                      {formatDate(s.date)}
+                    </span>
+                    <span className="flex-1 min-w-0">
+                      {s.title && <span className="block text-xs font-medium truncate">{s.title}</span>}
+                      {s.snippet && (
+                        <span className="block text-[11px] text-muted-foreground line-clamp-2">{s.snippet}</span>
+                      )}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Actions for AI messages */}
         {!isUser && (
@@ -149,6 +211,7 @@ export function ChatMessage({ message, isLatest = false }: ChatMessageProps) {
             <div className="w-px h-4 bg-border mx-1" />
             <button
               onClick={() => handleReaction("up")}
+              aria-label="Helpful"
               className={cn(
                 "inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-colors",
                 reaction === "up"
@@ -160,6 +223,7 @@ export function ChatMessage({ message, isLatest = false }: ChatMessageProps) {
             </button>
             <button
               onClick={() => handleReaction("down")}
+              aria-label="Not helpful"
               className={cn(
                 "inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-colors",
                 reaction === "down"
