@@ -45,7 +45,11 @@ export const KARMA_REWARDS = {
 
 // Karma spending costs
 export const KARMA_COSTS = {
-  AI_CHAT_MESSAGE: 50,         // Per message
+  AI_CHAT_MESSAGE: 50,         // Legacy flat cost (kept for back-compat)
+  // Per-persona chat costs (Shiva > Krishna > Rama, tracking model cost).
+  AI_CHAT_RAMA: 15,            // gpt-5-nano
+  AI_CHAT_KRISHNA: 40,         // gpt-5-mini
+  AI_CHAT_SHIVA: 90,           // gpt-5.6-luna
   AI_CHART_EXPLAINER: 3,       // Free if cached
   REGENERATE_SUMMARY: 10,      // Weekly/Monthly
 } as const;

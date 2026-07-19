@@ -8,9 +8,11 @@ import { loadGamificationState } from "../../lib/gamificationStorage"
 interface ChatEmptyStateProps {
   onSelect: (prompt: string) => void
   disabled?: boolean
+  /** Persona-specific opening prompts for the active mode. */
+  starters?: string[]
 }
 
-export function ChatEmptyState({ onSelect, disabled }: ChatEmptyStateProps) {
+export function ChatEmptyState({ onSelect, disabled, starters }: ChatEmptyStateProps) {
   const { data: stats } = useStats()
 
   // Personalized greeting from local profile/streak (no AI call).
@@ -101,8 +103,23 @@ export function ChatEmptyState({ onSelect, disabled }: ChatEmptyStateProps) {
         ))}
       </div>
 
-      {/* Quick Prompts */}
-      <QuickPrompts onSelect={onSelect} disabled={disabled} />
+      {/* Quick Prompts — persona starters when a mode is active */}
+      {starters && starters.length > 0 ? (
+        <div className="w-full max-w-md space-y-2">
+          {starters.map((prompt) => (
+            <button
+              key={prompt}
+              onClick={() => onSelect(prompt)}
+              disabled={disabled}
+              className="w-full text-left px-4 py-2.5 rounded-xl border border-violet-200 dark:border-violet-800 bg-violet-50/50 dark:bg-violet-900/10 text-sm hover:bg-violet-100/70 dark:hover:bg-violet-900/20 hover:border-violet-300 dark:hover:border-violet-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {prompt}
+            </button>
+          ))}
+        </div>
+      ) : (
+        <QuickPrompts onSelect={onSelect} disabled={disabled} />
+      )}
     </div>
   )
 }

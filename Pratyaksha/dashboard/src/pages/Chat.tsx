@@ -14,6 +14,8 @@ import { Button } from "../components/ui/button"
 import { toast } from "sonner"
 import { cn } from "../lib/utils"
 import { DemoBanner } from "../components/layout/DemoBanner"
+import { getModeMeta } from "../config/chatModes"
+import { KARMA_COSTS } from "../lib/gamificationStorage"
 
 export function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -71,15 +73,20 @@ export function Chat() {
     return "general"
   }, [messages])
 
+  // Active persona's cost (Shiva > Krishna > Rama)
+  const activeMeta = getModeMeta(mode)
+  const costKey = activeMeta.costKey
+  const messageCost = KARMA_COSTS[costKey]
+
   const handleSend = (message: string) => {
-    // Check if user can afford the AI chat message
-    if (!canAfford("AI_CHAT_MESSAGE")) {
+    // Check if user can afford this persona's message cost
+    if (!canAfford(costKey)) {
       setShowKarmaDialog(true)
       return
     }
 
-    // Deduct Karma
-    spendKarma("AI_CHAT_MESSAGE")
+    // Deduct Karma for the active persona
+    spendKarma(costKey)
 
     setShowFollowUp(false)
     sendMessage(message)
@@ -148,7 +155,7 @@ export function Chat() {
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 ? (
-          <ChatEmptyState onSelect={handleSend} disabled={isLoading} />
+          <ChatEmptyState onSelect={handleSend} disabled={isLoading} starters={activeMeta.starters} />
         ) : (
           <>
             {/* Conversation start indicator */}
@@ -219,10 +226,10 @@ export function Chat() {
         )}
       </div>
 
-      {/* XP cost notice */}
+      {/* XP cost notice — per active persona */}
       <div className="flex items-center justify-center gap-1.5 py-1.5 border-t bg-amber-500/5 text-xs text-amber-600 dark:text-amber-400">
         <Sparkles className="h-3 w-3" />
-        <span>Each message costs <strong>50 XP</strong> · You have <strong>{karma} XP</strong></span>
+        <span><strong>{activeMeta.label}</strong> costs <strong>{messageCost} XP</strong>/message · You have <strong>{karma} XP</strong></span>
       </div>
 
       {/* Input */}
@@ -237,8 +244,8 @@ export function Chat() {
       <InsufficientKarmaDialog
         open={showKarmaDialog}
         onOpenChange={setShowKarmaDialog}
-        requiredCost="AI_CHAT_MESSAGE"
-        action="AI Chat"
+        requiredCost={costKey}
+        action={`${activeMeta.label} chat`}
       />
       </div>
     </div>

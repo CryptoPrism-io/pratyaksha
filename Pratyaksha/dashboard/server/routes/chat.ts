@@ -1,7 +1,7 @@
 // AI Chat Route - Full historical context chat with personalization + RAG
 import { Request, Response } from "express"
-import { MODELS, callChat, callOpenRouter, streamChat, type ChatMessage } from "../lib/openrouter"
-import { getMode, SHARED_SYSTEM_RULES } from "../config/chatModes"
+import { callChat, callOpenRouter, streamChat, type ChatMessage } from "../lib/openrouter"
+import { getMode, SHARED_SYSTEM_RULES, CHAT_HELPER_MODEL } from "../config/chatModes"
 import {
   UserContext,
   buildUserContextPrompt,
@@ -78,7 +78,7 @@ Respond with JSON:
   try {
     const response = await callOpenRouter<RelevantContext>(
       extractionPrompt,
-      MODELS.CHEAP,
+      CHAT_HELPER_MODEL,
       "You extract relevant personal context for personalized advice. Respond only with valid JSON."
     )
 
@@ -567,7 +567,7 @@ Respond with JSON: { "suggestions": ["...", "...", "..."] }`
   try {
     const { data } = await callOpenRouter<{ suggestions: string[] }>(
       prompt,
-      MODELS.CHEAP,
+      CHAT_HELPER_MODEL,
       "You generate concise, specific follow-up prompts. Respond only with valid JSON.",
       { maxTokens: 200, temperature: 0.7 }
     )
