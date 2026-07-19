@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useMemo } from "react"
-import { AlertCircle, Sparkles, RotateCcw } from "lucide-react"
+import { AlertCircle, Sparkles, Plus, RotateCcw } from "lucide-react"
 import { useChat } from "../hooks/useChat"
 import { useKarma } from "../contexts/KarmaContext"
 import { ChatMessage } from "../components/chat/ChatMessage"
@@ -7,6 +7,8 @@ import { ChatInput } from "../components/chat/ChatInput"
 import { ChatEmptyState } from "../components/chat/ChatEmptyState"
 import { TypingIndicator } from "../components/chat/TypingIndicator"
 import { FollowUpSuggestions } from "../components/chat/FollowUpSuggestions"
+import { ModePicker } from "../components/chat/ModePicker"
+import { ThreadHistory } from "../components/chat/ThreadHistory"
 import { InsufficientKarmaDialog } from "../components/gamification/InsufficientKarmaDialog"
 import { Button } from "../components/ui/button"
 import { toast } from "sonner"
@@ -20,7 +22,21 @@ export function Chat() {
 
   const { canAfford, spendKarma, karma } = useKarma()
 
-  const { messages, isLoading, error, sendMessage, clearMessages } = useChat({
+  const {
+    messages,
+    isLoading,
+    isStreaming,
+    error,
+    mode,
+    setMode,
+    sendMessage,
+    stop,
+    newChat,
+    threads,
+    activeThreadId,
+    loadThread,
+    deleteThread,
+  } = useChat({
     onError: (err) => {
       toast.error(err.message || "Failed to get response")
     },
@@ -31,14 +47,15 @@ export function Chat() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
-  // Show follow-up suggestions after AI responds
+  // Show follow-up suggestions after AI finishes responding
   useEffect(() => {
-    if (messages.length > 0 && messages[messages.length - 1].role === "assistant" && !isLoading) {
+    const last = messages[messages.length - 1]
+    if (last && last.role === "assistant" && last.content.trim() && !isLoading && !isStreaming) {
       const timer = setTimeout(() => setShowFollowUp(true), 500)
       return () => clearTimeout(timer)
     }
     setShowFollowUp(false)
-  }, [messages, isLoading])
+  }, [messages, isLoading, isStreaming])
 
   // Determine follow-up context based on conversation
   const followUpContext = useMemo(() => {
@@ -92,23 +109,35 @@ export function Chat() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {/* XP cost badge */}
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20">
+          {/* Mode picker */}
+          <ModePicker value={mode} onChange={setMode} disabled={isLoading || isStreaming} />
+
+          {/* Conversation history */}
+          <ThreadHistory
+            threads={threads}
+            activeThreadId={activeThreadId}
+            onSelect={loadThread}
+            onDelete={deleteThread}
+            onNew={newChat}
+          />
+
+          {/* XP badge */}
+          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20">
             <Sparkles className="h-3 w-3 text-amber-500 flex-shrink-0" />
             <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
               {karma} XP
             </span>
-            <span className="text-xs text-muted-foreground hidden sm:inline">· 50/msg</span>
           </div>
+
           {messages.length > 0 && (
             <Button
               variant="ghost"
               size="sm"
-              onClick={clearMessages}
-              className="text-muted-foreground hover:text-destructive gap-1.5"
+              onClick={newChat}
+              className="text-muted-foreground hover:text-foreground gap-1.5"
             >
-              <RotateCcw className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">New Chat</span>
+              <Plus className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">New</span>
             </Button>
           )}
         </div>
@@ -127,16 +156,19 @@ export function Chat() {
               <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
             </div>
 
-            {messages.map((message, index) => (
-              <ChatMessage
-                key={message.id}
-                message={message}
-                isLatest={index === messages.length - 1}
-              />
-            ))}
+            {messages
+              // Hide the assistant placeholder until its first token arrives
+              .filter((m) => m.role === "user" || m.content.trim().length > 0)
+              .map((message, index, arr) => (
+                <ChatMessage
+                  key={message.id}
+                  message={message}
+                  isLatest={index === arr.length - 1}
+                />
+              ))}
 
-            {/* Typing Indicator */}
-            {isLoading && <TypingIndicator />}
+            {/* Typing Indicator — only before the first token streams in */}
+            {isLoading && !isStreaming && <TypingIndicator />}
 
             {/* Follow-up Suggestions */}
             {showFollowUp && !isLoading && (
@@ -186,7 +218,12 @@ export function Chat() {
       </div>
 
       {/* Input */}
-      <ChatInput onSend={handleSend} isLoading={isLoading} />
+      <ChatInput
+        onSend={handleSend}
+        isLoading={isLoading}
+        isStreaming={isStreaming}
+        onStop={stop}
+      />
 
       {/* Insufficient Karma Dialog */}
       <InsufficientKarmaDialog

@@ -1,6 +1,7 @@
 // AI Chat Route - Full historical context chat with personalization + RAG
 import { Request, Response } from "express"
-import { MODELS, callChat, callOpenRouter, type ChatMessage } from "../lib/openrouter"
+import { MODELS, callChat, callOpenRouter, streamChat, type ChatMessage } from "../lib/openrouter"
+import { getMode, SHARED_SYSTEM_RULES } from "../config/chatModes"
 import {
   UserContext,
   buildUserContextPrompt,
@@ -24,6 +25,10 @@ interface ChatRequest {
   }>
   // NEW: Optional user context for personalization
   userContext?: UserContext
+  /** Chat persona/model id (mirror | guide | sage). Defaults to mirror. */
+  mode?: string
+  /** When true (default when Accept: text/event-stream), reply is streamed via SSE. */
+  stream?: boolean
 }
 
 interface RelevantContext {
@@ -273,34 +278,18 @@ ${recentEntries.map((e, i) => `${i + 1}. [${e.date}] ${e.type} - ${e.mode} / ${e
 `.trim()
 }
 
-const SYSTEM_PROMPT_BASE = `You are Pratyaksha AI, a thoughtful and insightful companion for cognitive journaling. You have access to the user's complete journal history and can help them understand patterns, emotions, and growth opportunities.
-
-Your role is to:
-1. Provide warm, empathetic responses that feel personal and supportive
-2. Identify patterns and insights from their journaling data
-3. Offer gentle observations without being preachy or prescriptive
-4. Ask clarifying questions when helpful
-5. Celebrate growth and progress when you notice it
-6. Suggest actionable next steps when appropriate
-7. When the user has shared their vision/goals, reference them when discussing direction or progress
-8. Gently alert when patterns seem to drift toward their stated anti-vision
-
-Guidelines:
-- Be conversational and natural, not clinical
-- Reference specific data when relevant (e.g., "I notice you've mentioned X in several entries...")
-- Acknowledge the emotional weight of what the user shares
-- Keep responses focused and digestible (2-4 paragraphs typically)
-- If asked about something not in their data, be honest about limitations
-- When the user has defined goals, connect patterns to those goals
-- Adjust your tone based on user's stated stress level and emotional openness
-
-IMPORTANT: Return your response as plain text, NOT as JSON. Just write naturally.`
-
 export async function chat(
   req: Request<object, object, ChatRequest>,
   res: Response
 ) {
-  let { message, history = [], userContext } = req.body
+  let { message, history = [], userContext, mode: modeId, stream } = req.body
+
+  // Resolve persona/model. Streaming is on unless explicitly disabled or the
+  // client didn't ask for an event stream.
+  const mode = getMode(modeId)
+  const wantsStream =
+    stream !== false &&
+    (stream === true || (req.headers.accept || "").includes("text/event-stream"))
 
   if (!message || typeof message !== "string") {
     return res.status(400).json({
@@ -438,9 +427,11 @@ export async function chat(
       console.log("[Chat] RAG unavailable (embeddings may not be indexed yet)")
     }
 
-    // Build messages array with optional personalization + RAG + explicit requirements
+    // Build messages array: shared base rules + selected persona voice, then
+    // optional personalization + RAG + explicit requirements.
     const chatMessages: ChatMessage[] = [
-      { role: "system", content: SYSTEM_PROMPT_BASE },
+      { role: "system", content: SHARED_SYSTEM_RULES },
+      { role: "system", content: mode.systemPrompt },
       // Inject personal context if available (before journal data)
       ...(personalContextSection ? [{ role: "system" as const, content: personalContextSection }] : []),
       { role: "system", content: `Here is the user's journal data:\n\n${contextSummary}${ragContext}` },
@@ -454,11 +445,49 @@ export async function chat(
       { role: "user", content: message },
     ]
 
-    // Call LangChain chat (plain text, not JSON)
+    console.log(`[Chat] Mode=${mode.id} model=${mode.model} stream=${wantsStream}`)
+
+    // ── Streaming path (Server-Sent Events) ─────────────────────────────────
+    if (wantsStream) {
+      res.setHeader("Content-Type", "text/event-stream")
+      res.setHeader("Cache-Control", "no-cache, no-transform")
+      res.setHeader("Connection", "keep-alive")
+      res.setHeader("X-Accel-Buffering", "no") // disable proxy buffering
+      res.flushHeaders?.()
+
+      const send = (event: string, data: unknown) => {
+        res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`)
+      }
+
+      // Let the client show a status while RAG/context work already finished.
+      send("meta", { mode: mode.id, model: mode.model })
+
+      try {
+        let full = ""
+        for await (const delta of streamChat(chatMessages, mode.model, {
+          maxTokens: mode.maxTokens,
+          temperature: mode.temperature,
+        })) {
+          full += delta
+          send("delta", { text: delta })
+        }
+        send("done", { response: full })
+      } catch (streamErr) {
+        console.error("[Chat] Stream error:", streamErr)
+        send("error", {
+          error: streamErr instanceof Error ? streamErr.message : "Stream failed",
+        })
+      } finally {
+        res.end()
+      }
+      return
+    }
+
+    // ── Non-streaming fallback (plain JSON) ─────────────────────────────────
     const { text: aiResponse, tokens } = await callChat(
       chatMessages,
-      MODELS.CHEAP,
-      { maxTokens: 800, temperature: 0.7 }
+      mode.model,
+      { maxTokens: mode.maxTokens, temperature: mode.temperature }
     )
 
     console.log(`[Chat] Response generated (${tokens} tokens)`)
@@ -467,10 +496,15 @@ export async function chat(
       success: true,
       response: aiResponse,
       tokensUsed: tokens,
+      mode: mode.id,
     })
 
   } catch (error) {
     console.error("[Chat] Error:", error)
+    if (res.headersSent) {
+      res.write(`event: error\ndata: ${JSON.stringify({ error: "Chat request failed" })}\n\n`)
+      return res.end()
+    }
     return res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : "Chat request failed",
