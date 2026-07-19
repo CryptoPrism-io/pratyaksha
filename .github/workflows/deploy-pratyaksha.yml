@@ -1,49 +1,49 @@
 name: Deploy Pratyaksha Frontend (Firebase Hosting)
 
-# Frontend (React/Vite) -> Firebase Hosting, site "pratyaksha-3f089"
-# (https://pratyaksha-3f089.web.app), project pratyaksha-3f089.
+# Frontend (React/Vite) -> Firebase Hosting site "ai-becoming"
+# (canonical https://ai-becoming.web.app) in project social-data-pipeline-and-push.
 #
-# This replaces the old GCP pipeline (Cloud Build -> Cloud Run + Firebase site
-# "becoming" in project social-data-pipeline-and-push), which was removed in the
-# AWS migration. The backend API now runs on AWS Lightsail (container image in
-# ECR) and is deployed separately (docker build/push to ECR + `aws lightsail
-# create-container-service-deployment`), NOT by this workflow.
+# Auth: Workload Identity Federation (KEYLESS) — reuses the WIF_PROVIDER /
+# WIF_SERVICE_ACCOUNT secrets the pre-migration Cloud Run deploy already used
+# (see commit ae857a4). google-github-actions/auth writes Application Default
+# Credentials that firebase-tools picks up — no service-account JSON, no token to
+# rotate. If the WIF service account lacks the "Firebase Hosting Admin" role on
+# the project, grant it once in IAM (that is the only possible one-time step).
 #
-# Manual-trigger only for now so a push cannot fire a half-configured deploy.
-# To enable auto-deploy on push: uncomment the `push:` trigger below AND add
-# these repository secrets:
-#   FIREBASE_SERVICE_ACCOUNT  - JSON key for a service account with the
-#                               "Firebase Hosting Admin" role on project pratyaksha-3f089
-#   VITE_API_BASE_URL         - https://pratyaksha.8xy5d1tats0s8.us-east-1.cs.amazonlightsail.com
-#   VITE_AIRTABLE_API_KEY, VITE_AIRTABLE_BASE_ID, VITE_AIRTABLE_TABLE_ID
-#   VITE_FIREBASE_API_KEY, VITE_FIREBASE_AUTH_DOMAIN, VITE_FIREBASE_PROJECT_ID,
-#   VITE_FIREBASE_STORAGE_BUCKET, VITE_FIREBASE_MESSAGING_SENDER_ID,
-#   VITE_FIREBASE_APP_ID, VITE_FIREBASE_VAPID_KEY
+# Backend (Lightsail) deploys separately via deploy-backend.yml.
 
 on:
   workflow_dispatch:
-  # push:                              # <- re-enable after configuring the secrets above
-  #   branches: [main]
-  #   paths: ['Pratyaksha/dashboard/**']
+  push:
+    branches: [main]
+    paths:
+      - 'Pratyaksha/dashboard/**'
+      - '.github/workflows/deploy-pratyaksha.yml'
 
-# Canonical URL is https://ai-becoming.web.app (site "ai-becoming" in the
-# social-data-pipeline-and-push Firebase project) — the URL the product is
-# actually used on. FIREBASE_SERVICE_ACCOUNT must be a key for that project
-# with the "Firebase Hosting Admin" role. The site is configured in
-# firebase.ai-becoming.json (Auth remains on the pratyaksha-3f089 project,
-# which already authorizes ai-becoming.web.app).
 env:
   FIREBASE_PROJECT_ID: social-data-pipeline-and-push
+  # Backend origin baked into the bundle (public Lightsail URL — hardcoded, not a secret).
+  VITE_API_BASE_URL: https://pratyaksha.8xy5d1tats0s8.us-east-1.cs.amazonlightsail.com
 
 jobs:
   deploy-frontend:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write        # required for WIF
     defaults:
       run:
         working-directory: Pratyaksha/dashboard
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud (WIF, keyless)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+          # exports GOOGLE_APPLICATION_CREDENTIALS for firebase-tools (ADC)
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -52,9 +52,6 @@ jobs:
 
       - name: Install dependencies and build frontend
         env:
-          # Backend origin baked into the bundle. Empty would make the frontend
-          # call same-origin /api (only correct for the single-container build).
-          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
           VITE_AIRTABLE_API_KEY: ${{ secrets.VITE_AIRTABLE_API_KEY }}
           VITE_AIRTABLE_BASE_ID: ${{ secrets.VITE_AIRTABLE_BASE_ID }}
           VITE_AIRTABLE_TABLE_ID: ${{ secrets.VITE_AIRTABLE_TABLE_ID }}
@@ -69,15 +66,12 @@ jobs:
           npm ci
           npm run build
 
-      - name: Write Firebase service account
+      - name: Deploy to Firebase Hosting (ADC from WIF)
         run: |
-          printf '%s' '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > "$RUNNER_TEMP/firebase-sa.json"
-
-      - name: Deploy to Firebase Hosting
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-sa.json
-        run: |
-          npx firebase-tools deploy --only hosting --project "$FIREBASE_PROJECT_ID" --config firebase.ai-becoming.json --non-interactive
+          npx firebase-tools deploy --only hosting \
+            --project "$FIREBASE_PROJECT_ID" \
+            --config firebase.ai-becoming.json \
+            --non-interactive
 
       - name: Display URL
         run: echo "Frontend deployed -> https://ai-becoming.web.app"

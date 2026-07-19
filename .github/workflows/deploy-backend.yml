@@ -1,0 +1,77 @@
+name: Deploy Pratyaksha Backend (Lightsail)
+
+# Backend API (Express/TS) -> AWS Lightsail container. Builds the image on the
+# GitHub runner (Docker built-in — no local Docker needed), pushes to ECR, then
+# redeploys Lightsail. Env is injected from Secrets Manager by the deploy script.
+#
+# Auth: AWS access keys in repo secrets (AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY)
+# for an IAM identity allowed to: ECR push + set-repository-policy, Lightsail
+# get-container-services + create-container-service-deployment, and Secrets
+# Manager get-secret-value on /cryptoprism/pratyaksha/*.
+#
+# Path-filtered to backend inputs so pure-frontend changes don't trigger a
+# ~10-min image rebuild (the canonical frontend is served by Firebase, not the
+# container). Manual runs available via workflow_dispatch.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'Pratyaksha/dashboard/server/**'
+      - 'Pratyaksha/dashboard/Dockerfile'
+      - 'Pratyaksha/dashboard/package.json'
+      - 'Pratyaksha/dashboard/package-lock.json'
+      - 'Pratyaksha/dashboard/scripts/deploy-lightsail.sh'
+      - '.github/workflows/deploy-backend.yml'
+
+env:
+  AWS_REGION: us-east-1
+  ECR: 405633560616.dkr.ecr.us-east-1.amazonaws.com/pratyaksha
+  API_BASE_URL: https://pratyaksha.8xy5d1tats0s8.us-east-1.cs.amazonlightsail.com
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Pratyaksha/dashboard
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Log in to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push image
+        env:
+          # VITE_* are baked into the image's embedded frontend at build time.
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+          VITE_FIREBASE_VAPID_KEY: ${{ secrets.VITE_FIREBASE_VAPID_KEY }}
+        run: |
+          docker build -t "$ECR:latest" \
+            --build-arg VITE_FIREBASE_API_KEY="$VITE_FIREBASE_API_KEY" \
+            --build-arg VITE_FIREBASE_AUTH_DOMAIN="$VITE_FIREBASE_AUTH_DOMAIN" \
+            --build-arg VITE_FIREBASE_PROJECT_ID="$VITE_FIREBASE_PROJECT_ID" \
+            --build-arg VITE_FIREBASE_STORAGE_BUCKET="$VITE_FIREBASE_STORAGE_BUCKET" \
+            --build-arg VITE_FIREBASE_MESSAGING_SENDER_ID="$VITE_FIREBASE_MESSAGING_SENDER_ID" \
+            --build-arg VITE_FIREBASE_APP_ID="$VITE_FIREBASE_APP_ID" \
+            --build-arg VITE_FIREBASE_VAPID_KEY="$VITE_FIREBASE_VAPID_KEY" \
+            --build-arg VITE_API_BASE_URL="$API_BASE_URL" \
+            .
+          docker push "$ECR:latest"
+
+      - name: Deploy to Lightsail
+        run: bash scripts/deploy-lightsail.sh
