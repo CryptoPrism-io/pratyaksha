@@ -22,9 +22,11 @@ name: Deploy Pratyaksha Frontend (Firebase Hosting)
 
 on:
   workflow_dispatch:
-  # push:                              # <- re-enable after configuring the secrets above
-  #   branches: [main]
-  #   paths: ['Pratyaksha/dashboard/**']
+  push:
+    branches: [main]
+    paths:
+      - 'Pratyaksha/dashboard/**'
+      - '.github/workflows/deploy-pratyaksha.yml'
 
 # Canonical URL is https://ai-becoming.web.app (site "ai-becoming" in the
 # social-data-pipeline-and-push Firebase project) — the URL the product is
@@ -52,9 +54,10 @@ jobs:
 
       - name: Install dependencies and build frontend
         env:
-          # Backend origin baked into the bundle. Empty would make the frontend
-          # call same-origin /api (only correct for the single-container build).
-          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+          # Backend origin baked into the bundle (public Lightsail URL — hardcoded
+          # so it is not a required secret). Empty would make the frontend call
+          # same-origin /api (only correct for the single-container build).
+          VITE_API_BASE_URL: https://pratyaksha.8xy5d1tats0s8.us-east-1.cs.amazonlightsail.com
           VITE_AIRTABLE_API_KEY: ${{ secrets.VITE_AIRTABLE_API_KEY }}
           VITE_AIRTABLE_BASE_ID: ${{ secrets.VITE_AIRTABLE_BASE_ID }}
           VITE_AIRTABLE_TABLE_ID: ${{ secrets.VITE_AIRTABLE_TABLE_ID }}
