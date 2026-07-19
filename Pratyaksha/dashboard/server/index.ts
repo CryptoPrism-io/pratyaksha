@@ -9,7 +9,8 @@ import { getDailySummary } from "./routes/dailySummary"
 import { getMonthlySummary } from "./routes/monthlySummary"
 import { registerToken, updatePreferences, sendNotification, getSettings, testNotification, cronNotifications } from "./routes/notifications"
 import { explainChart } from "./routes/explain"
-import { chat } from "./routes/chat"
+import { chat, chatFollowups } from "./routes/chat"
+import { getPublicModes } from "./config/chatModes"
 import speechRouter from "./routes/speech"
 import { getUserProfile, upsertUserProfile } from "./routes/userProfile"
 import {
@@ -53,8 +54,16 @@ app.get("/api/monthly-summary", getMonthlySummary)
 // AI Chart Explainer route
 app.post("/api/explain", explainChart)
 
-// AI Chat route
+// AI Chat route (streams via SSE when Accept: text/event-stream)
 app.post("/api/chat", chat)
+
+// Chat mode metadata for the frontend picker (no system prompts exposed)
+app.get("/api/chat/modes", (_req, res) => {
+  res.json({ success: true, modes: getPublicModes() })
+})
+
+// AI-generated follow-up suggestions for the chat
+app.post("/api/chat/followups", chatFollowups)
 
 // Speech-to-text routes (Groq Whisper)
 app.use("/api/speech", speechRouter)

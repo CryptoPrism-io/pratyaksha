@@ -108,6 +108,20 @@ export function Logs() {
     setUrlFiltersApplied(true)
   }, [searchParams, setSearchParams, urlFiltersApplied])
 
+  // Deep link from chat citations: /logs?entry=<id> — surface that entry in the
+  // Entries tab. Waits for entries to load, then filters to it by title/text.
+  useEffect(() => {
+    const entryId = searchParams.get("entry")
+    if (!entryId || !entries) return
+    const target = entries.find((e) => e.id === entryId)
+    setActiveTab("entries")
+    setFilters({
+      ...DEFAULT_FILTERS,
+      search: target?.name || target?.text?.slice(0, 40) || "",
+    })
+    setSearchParams({}, { replace: true })
+  }, [searchParams, entries, setSearchParams])
+
   // Extract unique types, modes, and energies from entries
   const { availableTypes, availableModes, availableEnergies } = useMemo(() => {
     if (!entries) return { availableTypes: [], availableModes: [], availableEnergies: [] }

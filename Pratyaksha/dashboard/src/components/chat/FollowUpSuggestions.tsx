@@ -1,10 +1,12 @@
-import { ArrowRight, Zap, HelpCircle, Lightbulb, BarChart3 } from "lucide-react"
+import { ArrowRight, Zap, HelpCircle, Lightbulb, BarChart3, Sparkles } from "lucide-react"
 import { cn } from "../../lib/utils"
 
 interface FollowUpSuggestionsProps {
   onSelect: (prompt: string) => void
   disabled?: boolean
   context?: "patterns" | "emotions" | "insights" | "general"
+  /** AI-generated suggestions tailored to the last reply; overrides the static set. */
+  suggestions?: string[]
 }
 
 // Context-aware follow-up suggestions
@@ -31,16 +33,24 @@ const FOLLOW_UPS: Record<string, Array<{ icon: React.ElementType; label: string;
   ],
 }
 
-export function FollowUpSuggestions({ onSelect, disabled, context = "general" }: FollowUpSuggestionsProps) {
-  const suggestions = FOLLOW_UPS[context] || FOLLOW_UPS.general
+export function FollowUpSuggestions({ onSelect, disabled, context = "general", suggestions }: FollowUpSuggestionsProps) {
+  // Prefer AI-tailored suggestions; fall back to the static context set.
+  const aiItems = (suggestions ?? []).filter((s) => s && s.trim().length > 0)
+  const useAi = aiItems.length > 0
+
+  const items = useAi
+    ? aiItems.map((label) => ({ icon: Sparkles, label, prompt: label }))
+    : FOLLOW_UPS[context] || FOLLOW_UPS.general
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-1 duration-300 ml-13 pl-[52px]">
-      <p className="text-xs text-muted-foreground mb-2">Continue the conversation:</p>
+      <p className="text-xs text-muted-foreground mb-2">
+        {useAi ? "Suggested next:" : "Continue the conversation:"}
+      </p>
       <div className="flex flex-wrap gap-2">
-        {suggestions.map((item) => (
+        {items.map((item, i) => (
           <button
-            key={item.label}
+            key={`${item.label}-${i}`}
             onClick={() => onSelect(item.prompt)}
             disabled={disabled}
             className={cn(

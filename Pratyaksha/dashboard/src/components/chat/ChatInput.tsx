@@ -1,14 +1,17 @@
 import { useState, useRef, useEffect } from "react"
-import { Send, Loader2, Sparkles } from "lucide-react"
+import { Send, Sparkles, Square } from "lucide-react"
 import { cn } from "../../lib/utils"
 
 interface ChatInputProps {
   onSend: (message: string) => void
   isLoading?: boolean
+  /** True while the assistant is generating; shows a stop button. */
+  isStreaming?: boolean
+  onStop?: () => void
   placeholder?: string
 }
 
-export function ChatInput({ onSend, isLoading, placeholder = "Ask about your journal patterns..." }: ChatInputProps) {
+export function ChatInput({ onSend, isLoading, isStreaming, onStop, placeholder = "Ask about your journal patterns..." }: ChatInputProps) {
   const [input, setInput] = useState("")
   const [isFocused, setIsFocused] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -22,9 +25,11 @@ export function ChatInput({ onSend, isLoading, placeholder = "Ask about your jou
     }
   }, [input])
 
+  const busy = isLoading || isStreaming
+
   const handleSubmit = () => {
     const trimmed = input.trim()
-    if (trimmed && !isLoading) {
+    if (trimmed && !busy) {
       onSend(trimmed)
       setInput("")
     }
@@ -68,7 +73,7 @@ export function ChatInput({ onSend, isLoading, placeholder = "Ask about your jou
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           placeholder={placeholder}
-          disabled={isLoading}
+          disabled={busy}
           rows={1}
           className={cn(
             "flex-1 resize-none bg-transparent px-2 py-2 text-sm",
@@ -78,25 +83,34 @@ export function ChatInput({ onSend, isLoading, placeholder = "Ask about your jou
           )}
         />
 
-        {/* Send button */}
-        <button
-          onClick={handleSubmit}
-          disabled={!input.trim() || isLoading}
-          aria-label={isLoading ? "Sending message" : "Send message"}
-          className={cn(
-            "flex-shrink-0 h-9 w-9 rounded-xl flex items-center justify-center transition-all duration-300",
-            input.trim() && !isLoading
-              ? "bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-md shadow-violet-500/25 hover:shadow-lg hover:shadow-violet-500/30 hover:scale-105"
-              : "bg-muted text-muted-foreground",
-            "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-          )}
-        >
-          {isLoading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
+        {/* Send / Stop button */}
+        {isStreaming && onStop ? (
+          <button
+            onClick={onStop}
+            aria-label="Stop generating"
+            className={cn(
+              "flex-shrink-0 h-9 w-9 rounded-xl flex items-center justify-center transition-all duration-300",
+              "bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-md shadow-rose-500/25 hover:scale-105"
+            )}
+          >
+            <Square className="h-3.5 w-3.5 fill-current" />
+          </button>
+        ) : (
+          <button
+            onClick={handleSubmit}
+            disabled={!input.trim() || isLoading}
+            aria-label={isLoading ? "Sending message" : "Send message"}
+            className={cn(
+              "flex-shrink-0 h-9 w-9 rounded-xl flex items-center justify-center transition-all duration-300",
+              input.trim() && !isLoading
+                ? "bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-md shadow-violet-500/25 hover:shadow-lg hover:shadow-violet-500/30 hover:scale-105"
+                : "bg-muted text-muted-foreground",
+              "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            )}
+          >
             <Send className="h-4 w-4" />
-          )}
-        </button>
+          </button>
+        )}
       </div>
 
       {/* Keyboard hint */}

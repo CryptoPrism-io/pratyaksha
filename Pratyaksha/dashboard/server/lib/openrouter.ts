@@ -170,3 +170,46 @@ export async function callChat(
 
   return { text, tokens }
 }
+
+// ── streamChat — token-by-token streaming for the chat UI ───────────────────
+
+/**
+ * Stream an LLM reply chunk-by-chunk via LangChain + OpenRouter.
+ * Yields text deltas as they arrive; the consumer is responsible for
+ * accumulating them. Use for the chat route's SSE response.
+ */
+export async function* streamChat(
+  messages: ChatMessage[],
+  model: string = MODELS.CHEAP,
+  options?: CallOptions
+): AsyncGenerator<string, void, unknown> {
+  const llm = getModel(model, {
+    maxTokens: options?.maxTokens ?? 800,
+    temperature: options?.temperature ?? 0.7,
+  })
+
+  const langchainMessages: BaseMessage[] = messages.map((m) => {
+    switch (m.role) {
+      case "system":
+        return new SystemMessage(m.content)
+      case "user":
+        return new HumanMessage(m.content)
+      case "assistant":
+        return new AIMessage(m.content)
+    }
+  })
+
+  const stream = await llm.stream(langchainMessages)
+
+  for await (const chunk of stream) {
+    const content =
+      typeof chunk.content === "string"
+        ? chunk.content
+        : Array.isArray(chunk.content)
+          ? chunk.content
+              .map((c) => (typeof c === "string" ? c : "text" in c ? c.text : ""))
+              .join("")
+          : ""
+    if (content) yield content
+  }
+}
