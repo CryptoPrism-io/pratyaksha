@@ -78,92 +78,31 @@
   letter-spacing: -0.01em;
 }
 
-/* Brand text with gradient - muted, elegant */
+/* Brand text — solid teal (gradient text banned per design.md) */
 .brand-gradient {
-  background: linear-gradient(135deg, #115e59 0%, #0f766e 30%, #9f1239 70%, #be123c 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: hsl(168 70% 40%);
 }
 
-/* Heading gradient - white with subtle color hints */
+.dark .brand-gradient {
+  color: hsl(168 70% 48%);
+}
+
+/* Heading — solid foreground (gradient text banned per design.md) */
 .heading-gradient {
-  background: linear-gradient(
-    135deg,
-    #1f2937 0%,
-    #374151 25%,
-    #115e59 50%,
-    #374151 75%,
-    #1f2937 100%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  /* Prevent descenders (g, y, p, q) from being clipped */
-  padding-bottom: 0.2em;
-  margin-bottom: -0.2em;
+  color: hsl(220 14% 30%);
 }
 
-/* Dark mode: white with teal/rose/amber hints */
 .dark .heading-gradient {
-  background: linear-gradient(
-    135deg,
-    #ffffff 0%,
-    #f0fdfa 15%,
-    #ccfbf1 30%,
-    #ffffff 45%,
-    #ffe4e6 55%,
-    #fef3c7 70%,
-    #f0fdfa 85%,
-    #ffffff 100%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  /* Prevent descenders (g, y, p, q) from being clipped */
-  padding-bottom: 0.2em;
-  margin-bottom: -0.2em;
+  color: hsl(210 10% 93%);
 }
 
-/* Animated brand gradient - subtle in light, vibrant in dark */
+/* Animated brand gradient — flattened to solid teal, no shimmer */
 .brand-gradient-animated {
-  background: linear-gradient(
-    90deg,
-    #115e59 0%,
-    #0f766e 20%,
-    #9f1239 50%,
-    #be123c 70%,
-    #0f766e 90%,
-    #115e59 100%
-  );
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: brand-shimmer 10s ease-in-out infinite;
+  color: hsl(168 70% 40%);
 }
 
-/* Dark mode: brighter, more saturated gradient */
 .dark .brand-gradient-animated {
-  background: linear-gradient(
-    90deg,
-    #2dd4bf 0%,
-    #14b8a6 20%,
-    #fb7185 50%,
-    #f43f5e 70%,
-    #14b8a6 90%,
-    #2dd4bf 100%
-  );
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-@keyframes brand-shimmer {
-  0% { background-position: 100% 50%; }
-  50% { background-position: 0% 50%; }
-  100% { background-position: 100% 50%; }
+  color: hsl(168 70% 48%);
 }
 
 /* Stylized "Becoming" with split styling - light Be + bold coming */
@@ -232,31 +171,34 @@
   }
 
   html {
-    cursor: none !important;
+    cursor: auto;
   }
 
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
     margin: 0;
-    cursor: none !important;
   }
 
-  /* Hide cursor everywhere - comprehensive */
-  *, *::before, *::after {
-    cursor: none !important;
-  }
-
-  /* Force hide cursor on all interactive elements */
-  a, button, input, select, textarea, label,
-  [role="button"], [role="link"], [role="checkbox"], [role="radio"],
-  [role="slider"], [role="switch"], [role="tab"], [role="menuitem"],
-  [tabindex], [onclick], [data-radix-collection-item] {
-    cursor: none !important;
-  }
-
-  /* Override any inline cursor styles */
-  [style*="cursor"] {
+  /* Hide cursor only under the moth-cursor mode (marketing routes) */
+  .moth-cursor-mode,
+  .moth-cursor-mode *,
+  .moth-cursor-mode a,
+  .moth-cursor-mode button,
+  .moth-cursor-mode input,
+  .moth-cursor-mode select,
+  .moth-cursor-mode textarea,
+  .moth-cursor-mode label,
+  .moth-cursor-mode [role="button"],
+  .moth-cursor-mode [role="link"],
+  .moth-cursor-mode [role="checkbox"],
+  .moth-cursor-mode [role="radio"],
+  .moth-cursor-mode [role="slider"],
+  .moth-cursor-mode [role="switch"],
+  .moth-cursor-mode [role="tab"],
+  .moth-cursor-mode [role="menuitem"],
+  .moth-cursor-mode [tabindex],
+  .moth-cursor-mode [onclick] {
     cursor: none !important;
   }
   .dark {
@@ -1093,9 +1035,7 @@ h1, h2, h3, h4, h5, h6 {
   position: absolute;
   border-radius: 50%;
   pointer-events: none;
-  animation:
-    orb-float 20s ease-in-out infinite,
-    orb-pulse 8s ease-in-out infinite;
+  /* Static — infinite orb-float animation caused scroll repaint cost on large blurred layers. */
 }
 
 /* Hide floating orbs on mobile and tablet to prevent overflow and improve performance */
@@ -2397,4 +2337,30 @@ h1, h2, h3, h4, h5, h6 {
 .stagger-8 { animation-delay: 400ms; }
 .stagger-9 { animation-delay: 450ms; }
 .stagger-10 { animation-delay: 500ms; }
+
+/* =====================================================
+   PERFORMANCE + REDUCED MOTION
+   ===================================================== */
+
+/* Smooth scrolling only when the user hasn't asked for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  html, body {
+    scroll-behavior: auto;
+  }
+
+  /* Kill all infinite/decorative animations */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .reveal-up {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
 

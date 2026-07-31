@@ -1,19 +1,39 @@
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
+import { useLocation } from "react-router-dom"
 
 // Muted pastel color palette
 const DARK_TEAL = "#115e59"
 const DARK_ROSE = "#9f1239"
 const DARK_BODY = "#1c1917"
 
+// Marketing routes only — the moth cursor is a brand accent, not app chrome.
+const MARKETING_PATHS = new Set(["/", "/home-old"])
+
 export function MothCursor() {
+  const location = useLocation()
   const [pos, setPos] = useState({ x: -100, y: -100 })
   const [visible, setVisible] = useState(false)
   const [isFastFlutter, setIsFastFlutter] = useState(false)
+  const rafRef = useRef<number | null>(null)
+  const reducedMotion = useMemo(
+    () => typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches,
+    []
+  )
 
   useEffect(() => {
+    // No moth on app routes or for reduced-motion users.
+    if (!MARKETING_PATHS.has(location.pathname) || reducedMotion) {
+      setVisible(false)
+      return
+    }
+
     const handleMove = (e: MouseEvent) => {
-      setPos({ x: e.clientX, y: e.clientY })
-      setVisible(true)
+      if (rafRef.current !== null) return
+      rafRef.current = requestAnimationFrame(() => {
+        setPos({ x: e.clientX, y: e.clientY })
+        setVisible(true)
+        rafRef.current = null
+      })
     }
     const handleLeave = () => setVisible(false)
     const handleEnter = () => setVisible(true)
@@ -30,14 +50,15 @@ export function MothCursor() {
     window.addEventListener("moth-collision-flutter", handleFlutter)
 
     return () => {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current)
       window.removeEventListener("mousemove", handleMove)
       document.removeEventListener("mouseleave", handleLeave)
       document.removeEventListener("mouseenter", handleEnter)
       window.removeEventListener("moth-collision-flutter", handleFlutter)
     }
-  }, [])
+  }, [location.pathname, reducedMotion])
 
-  if (!visible) return null
+  if (!visible || reducedMotion) return null
 
   // Size reduced to 25% of previous: ~27x17
   const width = 27

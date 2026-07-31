@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, lazy, Suspense } from "react"
 import { ThemeToggle } from "../components/theme-toggle"
 import {
   ArrowRight,
@@ -30,17 +30,31 @@ import { cn } from "../lib/utils"
 import { MothLogo } from "../components/brand/MothLogo"
 import { HeroIntro } from "../components/landing/HeroIntro"
 import { BackgroundOrbs } from "../components/landing/BackgroundOrbs"
-import { DemoTimelineChart } from "../components/marketing/DemoCharts/DemoTimelineChart"
-import { DemoModeChart } from "../components/marketing/DemoCharts/DemoModeChart"
-import { DemoRadarChart } from "../components/marketing/DemoCharts/DemoRadarChart"
-import { DemoHeatmapChart } from "../components/marketing/DemoCharts/DemoHeatmapChart"
-import { DemoContradictionChart } from "../components/marketing/DemoCharts/DemoContradictionChart"
-import { DemoTrendChart } from "../components/marketing/DemoCharts/DemoTrendChart"
 import { ThemedBackground } from "../components/ui/ThemedImage"
 import {
   TextHighlight,
   RevealOnScroll,
 } from "../components/typography"
+
+// Demo charts are below the fold — lazy-load recharts so the initial bundle stays small.
+const DemoTimelineChart = lazy(() =>
+  import("../components/marketing/DemoCharts/DemoTimelineChart").then((m) => ({ default: m.DemoTimelineChart }))
+)
+const DemoModeChart = lazy(() =>
+  import("../components/marketing/DemoCharts/DemoModeChart").then((m) => ({ default: m.DemoModeChart }))
+)
+const DemoRadarChart = lazy(() =>
+  import("../components/marketing/DemoCharts/DemoRadarChart").then((m) => ({ default: m.DemoRadarChart }))
+)
+const DemoHeatmapChart = lazy(() =>
+  import("../components/marketing/DemoCharts/DemoHeatmapChart").then((m) => ({ default: m.DemoHeatmapChart }))
+)
+const DemoContradictionChart = lazy(() =>
+  import("../components/marketing/DemoCharts/DemoContradictionChart").then((m) => ({ default: m.DemoContradictionChart }))
+)
+const DemoTrendChart = lazy(() =>
+  import("../components/marketing/DemoCharts/DemoTrendChart").then((m) => ({ default: m.DemoTrendChart }))
+)
 
 // Animated counter with increasing speed effect
 function AnimatedStatCounter({
@@ -842,7 +856,9 @@ export function Landing() {
                 {/* Real chart demo - reveals on hover */}
                 {feature.chart && (
                   <div className="h-32 rounded-xl bg-muted/50 dark:bg-black/20 overflow-hidden border border-border/50 transition-all duration-500 group-hover:h-40">
-                    <feature.chart animate={true} />
+                    <Suspense fallback={<div className="h-full w-full" />}>
+                      <feature.chart animate={true} />
+                    </Suspense>
                   </div>
                 )}
               </div>

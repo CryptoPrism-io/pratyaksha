@@ -1,23 +1,8 @@
+import { lazy, Suspense } from "react"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { AppLayout } from "./components/layout/AppLayout"
-import MarketingHome from "./pages/MarketingHome"
 import { Landing } from "./pages/Landing"
-import { Dashboard } from "./pages/Dashboard"
-import { Logs } from "./pages/Logs"
-import { Insights } from "./pages/Insights"
-import { Compare } from "./pages/Compare"
-import { Chat } from "./pages/Chat"
-import { Profile } from "./pages/Profile"
-import { Login } from "./pages/Login"
-import { Signup } from "./pages/Signup"
-import { Blog } from "./pages/Blog"
-import { BlogPostPage } from "./pages/BlogPostPage"
-import { ResearchIndex } from "./pages/research"
-import { SciencePage } from "./pages/research/SciencePage"
-import { AgentPipelinePage } from "./pages/research/AgentPipelinePage"
-import { MethodologyPage } from "./pages/research/MethodologyPage"
-import { BrandKit } from "./pages/BrandKit"
 import { Toaster } from "./components/ui/sonner"
 import { ThemeProvider } from "./components/theme-provider"
 import { DateFilterProvider } from "./contexts/DateFilterContext"
@@ -31,6 +16,25 @@ import { ProfileSyncProvider } from "./contexts/ProfileSyncContext"
 import { PublicOnlyRoute } from "./components/auth/ProtectedRoute"
 import { FirstTimeOnboarding } from "./components/onboarding/FirstTimeOnboarding"
 import { MothCursor } from "./components/ui/MothCursor"
+import { PageFallback } from "./components/ui/PageFallback"
+
+// Route-level code splitting: only the landing page loads in the initial bundle.
+const MarketingHome = lazy(() => import("./pages/MarketingHome"))
+const Dashboard = lazy(() => import("./pages/Dashboard").then((m) => ({ default: m.Dashboard })))
+const Logs = lazy(() => import("./pages/Logs").then((m) => ({ default: m.Logs })))
+const Insights = lazy(() => import("./pages/Insights").then((m) => ({ default: m.Insights })))
+const Compare = lazy(() => import("./pages/Compare").then((m) => ({ default: m.Compare })))
+const Chat = lazy(() => import("./pages/Chat").then((m) => ({ default: m.Chat })))
+const Profile = lazy(() => import("./pages/Profile").then((m) => ({ default: m.Profile })))
+const Blog = lazy(() => import("./pages/Blog").then((m) => ({ default: m.Blog })))
+const BlogPostPage = lazy(() => import("./pages/BlogPostPage").then((m) => ({ default: m.BlogPostPage })))
+const ResearchIndex = lazy(() => import("./pages/research").then((m) => ({ default: m.ResearchIndex })))
+const SciencePage = lazy(() => import("./pages/research/SciencePage").then((m) => ({ default: m.SciencePage })))
+const AgentPipelinePage = lazy(() => import("./pages/research/AgentPipelinePage").then((m) => ({ default: m.AgentPipelinePage })))
+const MethodologyPage = lazy(() => import("./pages/research/MethodologyPage").then((m) => ({ default: m.MethodologyPage })))
+const BrandKit = lazy(() => import("./pages/BrandKit").then((m) => ({ default: m.BrandKit })))
+const Login = lazy(() => import("./pages/Login").then((m) => ({ default: m.Login })))
+const Signup = lazy(() => import("./pages/Signup").then((m) => ({ default: m.Signup })))
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -49,8 +53,6 @@ function App() {
       enableSystem
       disableTransitionOnChange
     >
-      {/* Global moth cursor */}
-      <MothCursor />
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <ProfileSyncProvider>
@@ -60,34 +62,36 @@ function App() {
             <KarmaProvider>
             <BrowserRouter>
               <AppLayout>
-                <Routes>
-                  <Route path="/" element={<Landing />} />
-                  <Route path="/home-old" element={<MarketingHome />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/logs" element={<Logs />} />
-                  {/* Insights route removed - use Compare instead */}
-                  <Route path="/insights" element={<Insights />} />
-                  <Route path="/compare" element={<Compare />} />
-                  <Route path="/chat" element={<Chat />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/blog" element={<Blog />} />
-                  <Route path="/blog/:slug" element={<BlogPostPage />} />
-                  <Route path="/research" element={<ResearchIndex />} />
-                  <Route path="/research/science" element={<SciencePage />} />
-                  <Route path="/research/agents" element={<AgentPipelinePage />} />
-                  <Route path="/research/methodology" element={<MethodologyPage />} />
-                  <Route path="/brand" element={<BrandKit />} />
-                  <Route
-                    path="/login"
-                    element={
-                      <PublicOnlyRoute>
-                        <Login />
-                      </PublicOnlyRoute>
-                    }
-                  />
-                  <Route path="/signup" element={<Signup />} />
-                </Routes>
+                <Suspense fallback={<PageFallback />}>
+                  <Routes>
+                    <Route path="/" element={<Landing />} />
+                    <Route path="/home-old" element={<MarketingHome />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/logs" element={<Logs />} />
+                    <Route path="/insights" element={<Insights />} />
+                    <Route path="/compare" element={<Compare />} />
+                    <Route path="/chat" element={<Chat />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/blog" element={<Blog />} />
+                    <Route path="/blog/:slug" element={<BlogPostPage />} />
+                    <Route path="/research" element={<ResearchIndex />} />
+                    <Route path="/research/science" element={<SciencePage />} />
+                    <Route path="/research/agents" element={<AgentPipelinePage />} />
+                    <Route path="/research/methodology" element={<MethodologyPage />} />
+                    <Route path="/brand" element={<BrandKit />} />
+                    <Route
+                      path="/login"
+                      element={
+                        <PublicOnlyRoute>
+                          <Login />
+                        </PublicOnlyRoute>
+                      }
+                    />
+                    <Route path="/signup" element={<Signup />} />
+                  </Routes>
+                </Suspense>
               </AppLayout>
+              <MothCursor />
               <Toaster position="bottom-right" richColors closeButton />
               <FirstTimeOnboarding />
               <InstallPrompt />
