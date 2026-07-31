@@ -1,101 +1,84 @@
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, X, LayoutDashboard, FileText, GitCompare, MessageCircle } from 'lucide-react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Menu, X } from 'lucide-react'
 
 const NAV_LINKS = [
-  { label: 'Logs', href: '/logs', icon: FileText },
-  { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Compare', href: '/compare', icon: GitCompare },
-  { label: 'Chat', href: '/chat', icon: MessageCircle },
+  { label: 'Features', href: '#features' },
+  { label: 'Pipeline', href: '#pipeline' },
+  { label: 'Dashboard', href: '/dashboard' },
 ]
 
 export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
-          <motion.a
-            href="/"
-            className="flex items-center gap-2"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-              <span className="text-white text-sm font-bold" style={{ fontFamily: 'serif' }}>प्र</span>
-            </div>
-            <span className="text-white font-semibold text-lg hidden sm:block">Pratyaksha</span>
-          </motion.a>
-
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-1">
-            {NAV_LINKS.map((link) => (
-              <motion.a
-                key={link.label}
-                href={link.href}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-white/70 hover:text-white hover:bg-white/5 transition-colors"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <link.icon className="w-4 h-4" />
-                <span className="text-sm font-medium">{link.label}</span>
-              </motion.a>
-            ))}
+    <nav aria-label="Primary" className="fixed inset-x-0 top-4 z-20 flex justify-center px-4">
+      <div className="inline-flex items-center gap-1 rounded-full border border-rule bg-paper/80 py-2 pl-4 pr-2 shadow-[0_8px_24px_-12px_rgba(0,0,0,0.6)] backdrop-blur-xl backdrop-saturate-150">
+        {/* Logo */}
+        <a href="/" className="flex items-center gap-2 pr-3">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-accent">
+            <span className="font-sanskrit text-xs font-bold text-accent-ink">प्र</span>
           </div>
+          <span className="hidden text-sm font-semibold text-ink sm:block">Pratyaksha</span>
+        </a>
 
-          {/* Desktop CTA */}
-          <div className="hidden md:flex items-center gap-3">
-            <motion.a
-              href="/dashboard"
-              className="px-5 py-2 rounded-full bg-purple-500 text-white text-sm font-medium hover:bg-purple-400 transition-colors"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+        {/* Desktop Links */}
+        <div className="hidden items-center md:flex">
+          {NAV_LINKS.map((link) => (
+            <a
+              key={link.label}
+              href={link.href}
+              className="rounded-full px-3.5 py-2 text-sm font-medium text-ink-2 transition-colors hover:text-ink"
             >
-              Enter Dashboard
-            </motion.a>
-          </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden p-2 text-white/70 hover:text-white"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+              {link.label}
+            </a>
+          ))}
         </div>
+
+        {/* CTA */}
+        <a
+          href="/dashboard"
+          className="ml-1 hidden items-center rounded-full bg-accent px-4 py-2 text-sm font-semibold text-accent-ink transition-colors hover:brightness-110 md:inline-flex"
+        >
+          Start free
+        </a>
+
+        {/* Mobile menu button */}
+        <button
+          className="p-2 text-ink-2 md:hidden"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          aria-expanded={isMobileMenuOpen}
+          aria-label="Toggle menu"
+        >
+          {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile menu */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-black/90 backdrop-blur-xl border-t border-white/10"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute inset-x-4 top-full mt-2 rounded-2xl border border-rule bg-paper/90 p-2 shadow-xl backdrop-blur-xl md:hidden"
           >
-            <div className="px-4 py-4 space-y-2">
-              {NAV_LINKS.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  className="flex items-center gap-3 px-4 py-3 rounded-lg text-white/70 hover:text-white hover:bg-white/5 transition-colors"
-                >
-                  <link.icon className="w-5 h-5" />
-                  <span className="font-medium">{link.label}</span>
-                </a>
-              ))}
-              <div className="pt-2 border-t border-white/10">
-                <a
-                  href="/dashboard"
-                  className="block w-full px-4 py-3 rounded-lg bg-purple-500 text-white text-center font-medium"
-                >
-                  Enter Dashboard
-                </a>
-              </div>
-            </div>
+            {NAV_LINKS.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                className="block rounded-xl px-4 py-3 text-sm font-medium text-ink-2 transition-colors hover:bg-paper-2 hover:text-ink"
+              >
+                {link.label}
+              </a>
+            ))}
+            <a
+              href="/dashboard"
+              className="mt-1 block rounded-xl bg-accent px-4 py-3 text-center text-sm font-semibold text-accent-ink"
+            >
+              Start free
+            </a>
           </motion.div>
         )}
       </AnimatePresence>

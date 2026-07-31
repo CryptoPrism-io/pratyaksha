@@ -1,24 +1,23 @@
 import { Navbar } from './components/Navbar'
 import { Hero } from './components/Hero'
+import { Stats } from './components/Stats'
 import { Features } from './components/Features'
 import { HowItWorks } from './components/HowItWorks'
-import { Stats } from './components/Stats'
 import { CTA } from './components/CTA'
 import { Footer } from './components/Footer'
 import { BackgroundOrbs } from './components/BackgroundOrbs'
 
 export default function App() {
   return (
-    <div className="relative min-h-screen bg-[#0a0a0f]">
-      {/* Ambient background */}
+    <div className="relative min-h-screen bg-paper text-ink">
+      {/* Static atmospheric blooms (no animation) */}
       <BackgroundOrbs />
 
       {/* Content */}
       <div className="relative z-10">
         <Navbar />
 
-        {/* Main content */}
-        <main className="space-y-16 sm:space-y-24 lg:space-y-32">
+        <main className="space-y-20 sm:space-y-28 lg:space-y-36">
           <Hero />
           <Stats />
           <Features />

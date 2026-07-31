@@ -1,16 +1,13 @@
-import { motion } from 'framer-motion'
-
-const ORBS = [
-  { size: 500, x: '5%', y: '15%', color: 'rgba(167, 139, 250, 0.06)', blur: 120 },
-  { size: 400, x: '75%', y: '55%', color: 'rgba(96, 165, 250, 0.05)', blur: 100 },
-  { size: 350, x: '55%', y: '5%', color: 'rgba(236, 72, 153, 0.04)', blur: 90 },
+const BLOOMS = [
+  { size: 560, x: '-6%', y: '8%', color: 'var(--color-bloom-a)', blur: 140 },
+  { size: 520, x: '72%', y: '52%', color: 'var(--color-bloom-b)', blur: 120 },
 ]
 
 export function BackgroundOrbs() {
   return (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 0 }}>
-      {ORBS.map((orb, i) => (
-        <motion.div
+    <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+      {BLOOMS.map((orb, i) => (
+        <div
           key={i}
           className="absolute rounded-full"
           style={{
@@ -20,16 +17,6 @@ export function BackgroundOrbs() {
             top: orb.y,
             background: orb.color,
             filter: `blur(${orb.blur}px)`,
-          }}
-          animate={{
-            x: [0, 30, -20, 0],
-            y: [0, -25, 35, 0],
-            scale: [1, 1.05, 0.95, 1],
-          }}
-          transition={{
-            duration: 20 + i * 5,
-            repeat: Infinity,
-            ease: 'easeInOut',
           }}
         />
       ))}
