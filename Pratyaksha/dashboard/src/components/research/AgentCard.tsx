@@ -75,11 +75,11 @@ export function AgentCard({
                 <p className="text-sm text-muted-foreground">{what}</p>
               </div>
               <div className="space-y-2">
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-rose-500">Why</h4>
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-violet-500">Why</h4>
                 <p className="text-sm text-muted-foreground">{why}</p>
               </div>
               <div className="space-y-2">
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-violet-500">How</h4>
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-teal-500">How</h4>
                 <p className="text-sm text-muted-foreground">{how}</p>
               </div>
             </div>
