@@ -10,7 +10,7 @@ import { AnalyticsTabBar } from "../components/layout/AnalyticsTabBar"
 
 export function Insights() {
   return (
-    <div className="min-h-screen dashboard-glass-bg">
+    <div className="min-h-screen bg-background">
       {/* Demo Mode Banner */}
       <DemoBanner compact />
       <AnalyticsTabBar />

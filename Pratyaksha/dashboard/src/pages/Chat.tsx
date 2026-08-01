@@ -98,19 +98,19 @@ export function Chat() {
       {/* Demo Mode Banner */}
       <DemoBanner compact />
 
-      <div className="container mx-auto max-w-4xl flex-1 flex flex-col bg-gradient-to-b from-violet-50/30 to-transparent dark:from-violet-950/10">
+      <div className="container mx-auto max-w-4xl flex-1 flex flex-col bg-background">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b bg-background/80 backdrop-blur-sm sticky top-0 z-10">
+      <div className="flex flex-wrap items-center justify-between gap-2 p-4 border-b bg-background/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-violet-500 via-purple-500 to-violet-600 flex items-center justify-center shadow-lg shadow-violet-500/25">
+            <div className="h-11 w-11 rounded-2xl bg-violet-600 flex items-center justify-center">
               <Sparkles className="h-5 w-5 text-white" />
             </div>
             {/* Online indicator */}
-            <div className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-emerald-500 border-2 border-background" />
+            <div className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-teal-500 border-2 border-background" />
           </div>
           <div>
-            <h1 className="text-lg font-semibold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
+            <h1 className="text-lg font-semibold text-foreground">
               Becoming AI
             </h1>
             <p className="text-xs text-muted-foreground">
@@ -118,7 +118,7 @@ export function Chat() {
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {/* Mode picker */}
           <ModePicker value={mode} onChange={setMode} disabled={isLoading || isStreaming} />
 
@@ -132,9 +132,9 @@ export function Chat() {
           />
 
           {/* XP badge */}
-          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20">
-            <Sparkles className="h-3 w-3 text-amber-500 flex-shrink-0" />
-            <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
+          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-teal-500/10 border border-teal-500/20">
+            <Sparkles className="h-3 w-3 text-teal-600 dark:text-teal-400 flex-shrink-0" />
+            <span className="text-xs font-medium text-teal-600 dark:text-teal-400 signal-data">
               {karmaDisplay} XP
             </span>
           </div>
@@ -161,9 +161,9 @@ export function Chat() {
           <>
             {/* Conversation start indicator */}
             <div className="flex items-center gap-2 justify-center text-xs text-muted-foreground py-2">
-              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+              <div className="h-px flex-1 bg-border" />
               <span>Conversation started</span>
-              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+              <div className="h-px flex-1 bg-border" />
             </div>
 
             {messages
@@ -199,8 +199,7 @@ export function Chat() {
             {error && (
               <div className={cn(
                 "flex items-center gap-3 p-4 rounded-2xl",
-                "bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20",
-                "border border-red-200 dark:border-red-800",
+                "bg-red-500/10 border border-red-500/30",
                 "animate-in fade-in slide-in-from-bottom-2 duration-300"
               )}>
                 <div className="h-10 w-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
@@ -228,7 +227,7 @@ export function Chat() {
       </div>
 
       {/* XP cost notice — per active persona */}
-      <div className="flex items-center justify-center gap-1.5 py-1.5 border-t bg-amber-500/5 text-xs text-amber-600 dark:text-amber-400">
+      <div className="flex items-center justify-center gap-1.5 py-1.5 border-t bg-teal-500/5 text-xs text-teal-600 dark:text-teal-400">
         <Sparkles className="h-3 w-3" />
         <span>{isUnlimited ? (
           <><strong>{activeMeta.label}</strong> · Unlimited access <strong>∞</strong></>

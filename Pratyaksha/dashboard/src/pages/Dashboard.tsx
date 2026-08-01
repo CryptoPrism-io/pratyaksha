@@ -124,22 +124,22 @@ export function Dashboard() {
           <div data-tour="stats-bar" className="grid grid-cols-4 gap-1 sm:gap-2 md:gap-3 flex-shrink-0 w-full md:w-auto">
             <div className="flex flex-col items-center signal-stat rounded-md px-1 py-1.5 sm:px-4 sm:py-3">
               <div className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--positive))] mb-1 sm:mb-1.5" />
-              <p className="text-sm sm:text-xl font-semibold signal-data">{isLoading ? "..." : stats?.totalEntries ?? 0}</p>
+              <p className="text-sm sm:text-xl font-semibold signal-data">{isLoading ? "…" : stats?.totalEntries ?? 0}</p>
               <p className="text-[10px] sm:text-xs text-muted-foreground leading-tight">Entries</p>
             </div>
             <div className="flex flex-col items-center signal-stat rounded-md px-1 py-1.5 sm:px-4 sm:py-3">
               <div className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--chart-5))] mb-1 sm:mb-1.5" />
-              <p className="text-sm sm:text-xl font-semibold signal-data">{isLoading ? "..." : stats?.recentEntries ?? 0}</p>
+              <p className="text-sm sm:text-xl font-semibold signal-data">{isLoading ? "…" : stats?.recentEntries ?? 0}</p>
               <p className="text-[10px] sm:text-xs text-muted-foreground leading-tight">Recent</p>
             </div>
             <div className="flex flex-col items-center signal-stat rounded-md px-1 py-1.5 sm:px-4 sm:py-3">
               <div className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--neutral))] mb-1 sm:mb-1.5" />
-              <p className="text-sm sm:text-xl font-semibold signal-data">{isLoading ? "..." : stats?.avgWordsPerEntry ?? 0}</p>
+              <p className="text-sm sm:text-xl font-semibold signal-data">{isLoading ? "…" : stats?.avgWordsPerEntry ?? 0}</p>
               <p className="text-[10px] sm:text-xs text-muted-foreground leading-tight">Words</p>
             </div>
             <div className="flex flex-col items-center signal-stat rounded-md px-1 py-1.5 sm:px-4 sm:py-3">
               <div className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--chart-4))] mb-1 sm:mb-1.5" />
-              <p className="text-sm sm:text-xl font-semibold signal-data">{isLoading ? "..." : `${stats?.positiveRatio ?? 0}%`}</p>
+              <p className="text-sm sm:text-xl font-semibold signal-data">{isLoading ? "…" : `${stats?.positiveRatio ?? 0}%`}</p>
               <p className="text-[10px] sm:text-xs text-muted-foreground leading-tight"><span className="sm:hidden">Pos</span><span className="hidden sm:inline">Positive</span></p>
             </div>
           </div>
@@ -277,34 +277,34 @@ export function Dashboard() {
           <button
             data-tour="add-entry-fab"
             onClick={() => navigate("/logs")}
-            className="flex items-center justify-center w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-xl hover:bg-primary/90 transition-all active:scale-95"
+            className="flex items-center justify-center w-14 h-14 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors active:scale-95"
             aria-label="Add new entry"
           >
             <Plus className="h-7 w-7" />
           </button>
         </div>
       ) : (
-        <div className="fixed bottom-4 right-4 z-40 flex flex-col gap-2 group/fab opacity-70 hover:opacity-100 transition-opacity">
+        <div className="fixed bottom-4 right-4 z-40 flex flex-col gap-2 group/fab">
           {/* Add Entry FAB - Primary action */}
           <button
             data-tour="add-entry-fab"
             onClick={() => navigate("/logs")}
-            className="flex items-center gap-0 group-hover/fab:gap-2 h-11 rounded-full bg-primary text-primary-foreground px-3 group-hover/fab:px-4 shadow-lg hover:bg-primary/90 transition-all hover:scale-105 active:scale-95"
+            className="flex items-center gap-0 group-hover/fab:gap-2 group-focus-within/fab:gap-2 h-11 rounded-full bg-primary text-primary-foreground px-3 group-hover/fab:px-4 group-focus-within/fab:px-4 hover:bg-primary/90 transition-colors active:scale-95"
             aria-label="Add new entry"
           >
             <Plus className="h-5 w-5 flex-shrink-0" />
-            <span className="text-sm font-medium max-w-0 overflow-hidden whitespace-nowrap group-hover/fab:max-w-[100px] transition-all duration-200">Add Entry</span>
+            <span className="text-sm font-medium max-w-0 overflow-hidden whitespace-nowrap group-hover/fab:max-w-[100px] group-focus-within/fab:max-w-[100px] transition-[max-width] duration-200">Add Entry</span>
           </button>
 
           {/* Keyboard shortcuts button */}
           <button
             data-tour="shortcuts-fab"
             onClick={() => setShowShortcuts(true)}
-            className="flex items-center gap-0 group-hover/fab:gap-2 h-10 rounded-full bg-card border px-2.5 group-hover/fab:px-3 shadow-lg hover:bg-muted transition-all"
+            className="flex items-center gap-0 group-hover/fab:gap-2 group-focus-within/fab:gap-2 h-10 rounded-full bg-card border px-2.5 group-hover/fab:px-3 group-focus-within/fab:px-3 hover:bg-muted transition-colors"
             aria-label="Show keyboard shortcuts"
           >
             <Keyboard className="h-4 w-4 flex-shrink-0" />
-            <span className="text-sm max-w-0 overflow-hidden whitespace-nowrap group-hover/fab:max-w-[60px] transition-all duration-200">Press ?</span>
+            <span className="text-sm max-w-0 overflow-hidden whitespace-nowrap group-hover/fab:max-w-[60px] group-focus-within/fab:max-w-[60px] transition-[max-width] duration-200">Press ?</span>
           </button>
         </div>
       )}

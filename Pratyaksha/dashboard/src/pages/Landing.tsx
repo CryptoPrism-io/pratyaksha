@@ -25,6 +25,7 @@ import {
   Play,
   Menu,
   X,
+  Github,
 } from "lucide-react"
 import { cn } from "../lib/utils"
 import { MothLogo } from "../components/brand/MothLogo"
@@ -113,7 +114,7 @@ function AnimatedStatCounter({
   }, [hasAnimated, target])
 
   return (
-    <div ref={ref} className={className}>
+    <div ref={ref} className={`tabular-nums ${className}`}>
       {count}{suffix}
     </div>
   )
@@ -126,28 +127,28 @@ const steps = [
     title: "Capture",
     description: "Log thoughts, events, and decisions in seconds.",
     icon: Compass,
-    color: "from-teal-500 to-cyan-500",
+    color: "bg-teal-500",
   },
   {
     number: "2",
     title: "Structure",
     description: "AI tags mood, intent, themes, and contradictions.",
     icon: MessageCircle,
-    color: "from-teal-400 to-teal-600",
+    color: "bg-teal-500",
   },
   {
     number: "3",
     title: "Visualize",
     description: "See your patterns across days, weeks, and months.",
     icon: LayoutDashboard,
-    color: "from-rose-400 to-pink-500",
+    color: "bg-violet-600",
   },
   {
     number: "4",
     title: "Act",
     description: "Turn recurring patterns into better next decisions.",
     icon: Bell,
-    color: "from-rose-500 to-rose-600",
+    color: "bg-violet-600",
   },
 ]
 
@@ -195,7 +196,7 @@ const productFeatures: Array<{
     icon: LayoutDashboard,
     title: "Emotional Timeline",
     description: "See how emotional balance shifts over weeks, not isolated entries.",
-    color: "from-teal-500 to-cyan-500",
+    color: "bg-teal-500",
     badge: "Beautiful",
     chart: DemoTimelineChart,
   },
@@ -203,7 +204,7 @@ const productFeatures: Array<{
     icon: Activity,
     title: "Energy Radar",
     description: "Track five dimensions: Focus, Clarity, Drive, Calm, Peace.",
-    color: "from-violet-500 to-purple-500",
+    color: "bg-violet-600",
     badge: "Insightful",
     chart: DemoRadarChart,
   },
@@ -211,7 +212,7 @@ const productFeatures: Array<{
     icon: Calendar,
     title: "Activity Heatmap",
     description: "See your consistency patterns at a glance.",
-    color: "from-emerald-500 to-green-500",
+    color: "bg-teal-500",
     badge: "Visual",
     chart: DemoHeatmapChart,
   },
@@ -219,7 +220,7 @@ const productFeatures: Array<{
     icon: BarChart3,
     title: "Mode Distribution",
     description: "Know which mental states dominate your weeks.",
-    color: "from-rose-500 to-pink-500",
+    color: "bg-violet-600",
     badge: "Clear",
     chart: DemoModeChart,
   },
@@ -227,7 +228,7 @@ const productFeatures: Array<{
     icon: GitCompare,
     title: "Contradiction Flow",
     description: "Spot internal conflicts: Action vs Fear, Growth vs Comfort.",
-    color: "from-amber-500 to-orange-500",
+    color: "bg-teal-500",
     badge: "Unique",
     chart: DemoContradictionChart,
   },
@@ -235,7 +236,7 @@ const productFeatures: Array<{
     icon: TrendingUp,
     title: "Mood Trends",
     description: "Watch your trajectory shift over time.",
-    color: "from-blue-500 to-indigo-500",
+    color: "bg-violet-600",
     badge: "Deep",
     chart: DemoTrendChart,
   },
@@ -247,21 +248,21 @@ const additionalFeatures = [
     icon: Mic,
     title: "Voice Logging",
     description: "Speak. We transcribe and analyze.",
-    color: "from-rose-500 to-pink-500",
+    color: "bg-violet-600",
     badge: "Hands-free",
   },
   {
     icon: MessageCircle,
     title: "AI Chat",
     description: "Knows your history, goals, and patterns.",
-    color: "from-teal-500 to-emerald-500",
+    color: "bg-teal-500",
     badge: "Context-aware",
   },
   {
     icon: Brain,
     title: "9-Agent Pipeline",
     description: "Intent, Emotion, Theme, Contradiction, Drift.",
-    color: "from-indigo-500 to-violet-500",
+    color: "bg-violet-600",
     badge: "Powerful",
   },
 ]
@@ -272,19 +273,19 @@ const discoveryFeatures = [
     icon: Map,
     title: "Life Blueprint",
     description: "Vision. Anti-Vision. Levers. Goals.",
-    color: "from-violet-500 to-purple-500",
+    color: "bg-violet-600",
   },
   {
     icon: Brain,
     title: "Identity Architecture",
     description: "17 topics and 3 depth levels to map your thinking profile.",
-    color: "from-pink-500 to-rose-500",
+    color: "bg-teal-500",
   },
   {
     icon: AlertTriangle,
     title: "Drift Warnings",
     description: "4 alert types. Before it's too late.",
-    color: "from-amber-500 to-orange-500",
+    color: "bg-teal-500",
   },
 ]
 
@@ -294,7 +295,7 @@ export function Landing() {
   return (
     <div className="flex min-h-screen flex-col overflow-hidden relative">
       {/* Sleek Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-[9999] pointer-events-auto">
+      <nav className="fixed top-0 left-0 right-0 z-50 pointer-events-auto">
         <div className="mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between backdrop-blur-md bg-background/30 border border-white/10 rounded-full px-4 sm:px-6 py-2.5 sm:py-3 shadow-lg">
             {/* Logo */}
@@ -306,15 +307,15 @@ export function Landing() {
             {/* Nav Links - Hidden on mobile */}
             <div className="hidden md:flex items-center font-space text-sm tracking-wide">
               {/* Primary: What, Why, How */}
-              <a href="#what" className="px-4 py-2 text-muted-foreground hover:text-foreground transition-all nav-link-underline">
+              <a href="#what" className="px-4 py-2 text-muted-foreground hover:text-foreground transition-colors nav-link-underline">
                 What
               </a>
               <span className="text-border/60">|</span>
-              <a href="#why" className="px-4 py-2 text-muted-foreground hover:text-foreground transition-all nav-link-underline">
+              <a href="#why" className="px-4 py-2 text-muted-foreground hover:text-foreground transition-colors nav-link-underline">
                 Why
               </a>
               <span className="text-border/60">|</span>
-              <a href="#how" className="px-4 py-2 text-muted-foreground hover:text-foreground transition-all nav-link-underline">
+              <a href="#how" className="px-4 py-2 text-muted-foreground hover:text-foreground transition-colors nav-link-underline">
                 How
               </a>
 
@@ -323,22 +324,22 @@ export function Landing() {
               {/* Secondary with Dropdowns: Blog, Research, About */}
               {/* Blog Dropdown */}
               <div className="relative group">
-                <Link to="/blog" className="px-4 py-2 text-muted-foreground hover:text-foreground transition-all flex items-center gap-1 nav-link-underline">
+                <Link to="/blog" className="px-4 py-2 text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 nav-link-underline">
                   Blog
                   <ChevronRight className="h-3 w-3 rotate-90 opacity-50" />
                 </Link>
-                <div className="absolute top-full left-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                <div className="absolute top-full left-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-200">
                   <div className="bg-background/95 backdrop-blur-md border border-border/50 rounded-xl shadow-xl p-2 min-w-[180px]">
-                    <Link to="/blog" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
+                    <Link to="/blog" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
                       All Posts
                     </Link>
-                    <Link to="/blog?tag=Product" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
+                    <Link to="/blog?tag=Product" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
                       Product Updates
                     </Link>
-                    <Link to="/blog?tag=Science" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
+                    <Link to="/blog?tag=Science" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
                       Science & Research
                     </Link>
-                    <Link to="/blog?tag=Guides" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
+                    <Link to="/blog?tag=Guides" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
                       Guides & Tutorials
                     </Link>
                   </div>
@@ -349,22 +350,22 @@ export function Landing() {
 
               {/* Research Dropdown */}
               <div className="relative group">
-                <Link to="/research" className="px-4 py-2 text-muted-foreground hover:text-foreground transition-all flex items-center gap-1 nav-link-underline">
+                <Link to="/research" className="px-4 py-2 text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 nav-link-underline">
                   Research
                   <ChevronRight className="h-3 w-3 rotate-90 opacity-50" />
                 </Link>
-                <div className="absolute top-full left-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                <div className="absolute top-full left-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-200">
                   <div className="bg-background/95 backdrop-blur-md border border-border/50 rounded-xl shadow-xl p-2 min-w-[200px]">
-                    <Link to="/research" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
+                    <Link to="/research" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
                       Overview
                     </Link>
-                    <Link to="/research/science" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
+                    <Link to="/research/science" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
                       Science & Evidence
                     </Link>
-                    <Link to="/research/agents" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
+                    <Link to="/research/agents" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
                       Agent Pipeline
                     </Link>
-                    <Link to="/research/methodology" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
+                    <Link to="/research/methodology" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
                       CBT Methodology
                     </Link>
                   </div>
@@ -375,22 +376,22 @@ export function Landing() {
 
               {/* About Dropdown */}
               <div className="relative group">
-                <a href="#about" className="px-4 py-2 text-muted-foreground hover:text-foreground transition-all flex items-center gap-1 nav-link-underline">
+                <a href="#about" className="px-4 py-2 text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 nav-link-underline">
                   About
                   <ChevronRight className="h-3 w-3 rotate-90 opacity-50" />
                 </a>
-                <div className="absolute top-full right-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                <div className="absolute top-full right-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-200">
                   <div className="bg-background/95 backdrop-blur-md border border-border/50 rounded-xl shadow-xl p-2 min-w-[180px]">
-                    <a href="#about" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
+                    <a href="#about" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
                       Our Story
                     </a>
-                    <a href="#mission" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
+                    <a href="#mission" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
                       Mission
                     </a>
-                    <a href="#team" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
+                    <a href="#team" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
                       Team
                     </a>
-                    <a href="#contact" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all">
+                    <a href="#contact" className="block px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
                       Contact
                     </a>
                   </div>
@@ -403,7 +404,7 @@ export function Landing() {
               <ThemeToggle />
               <Link
                 to="/signup"
-                className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-gradient-to-r from-teal-500 to-teal-600 text-white text-sm font-medium transition-transform font-space cta-pulse"
+                className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-teal-500 text-white text-sm font-medium transition-colors hover:bg-teal-400 font-space"
               >
                 Start Free
                 <ArrowRight className="h-3.5 w-3.5" />
@@ -433,21 +434,21 @@ export function Landing() {
                 <a
                   href="#what"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="px-4 py-3 rounded-xl text-foreground hover:bg-muted/50 transition-all font-medium"
+                  className="px-4 py-3 rounded-xl text-foreground hover:bg-muted/50 transition-colors font-medium"
                 >
                   What
                 </a>
                 <a
                   href="#why"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="px-4 py-3 rounded-xl text-foreground hover:bg-muted/50 transition-all font-medium"
+                  className="px-4 py-3 rounded-xl text-foreground hover:bg-muted/50 transition-colors font-medium"
                 >
                   Why
                 </a>
                 <a
                   href="#how"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="px-4 py-3 rounded-xl text-foreground hover:bg-muted/50 transition-all font-medium"
+                  className="px-4 py-3 rounded-xl text-foreground hover:bg-muted/50 transition-colors font-medium"
                 >
                   How
                 </a>
@@ -458,21 +459,21 @@ export function Landing() {
                 <Link
                   to="/blog"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="px-4 py-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all"
+                  className="px-4 py-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
                 >
                   Blog
                 </Link>
                 <Link
                   to="/research"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="px-4 py-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all"
+                  className="px-4 py-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
                 >
                   Research
                 </Link>
                 <a
                   href="#about"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="px-4 py-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all"
+                  className="px-4 py-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
                 >
                   About
                 </a>
@@ -483,7 +484,7 @@ export function Landing() {
                 <Link
                   to="/signup"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-teal-500 to-teal-600 text-white font-medium hover:scale-[1.02] transition-transform"
+                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-teal-500 text-white font-medium hover:bg-teal-400 transition-colors"
                 >
                   Start Free
                   <ArrowRight className="h-4 w-4" />
@@ -508,21 +509,21 @@ export function Landing() {
         {/* Ambient glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-rose-500/5 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.card-lift]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto [&_.glass-teal]:pointer-events-auto">
-          <div className="mx-auto max-w-4xl backdrop-blur-sm bg-background/30 rounded-3xl p-8 md:p-12 border border-white/5">
+        <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto [&_.glass-teal]:pointer-events-auto">
+          <div className="mx-auto max-w-4xl">
             {/* Opening hook - clear problem statement */}
-            <RevealOnScroll className="text-center mb-16">
+            <RevealOnScroll className="mb-16">
               <h2 className="text-3xl font-bold tracking-tight md:text-5xl heading-gradient mb-6">
                 Logging without <TextHighlight variant="rose">pattern visibility</TextHighlight> keeps you stuck.
               </h2>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-xl text-muted-foreground max-w-2xl">
                 You are not missing effort. You are missing feedback loops that show what repeats and why.
               </p>
             </RevealOnScroll>
 
             {/* The 3 problems - glass cards with hover lift */}
             <div className="grid md:grid-cols-3 gap-6 mb-12">
-              <div className="glass-feature-card p-6 card-lift">
+              <div className="glass-feature-card p-6">
                 <div className="h-12 w-12 rounded-xl glass-rose flex items-center justify-center mb-4">
                   <Sparkles className="h-6 w-6 text-rose-500" />
                 </div>
@@ -532,7 +533,7 @@ export function Landing() {
                 </p>
               </div>
 
-              <div className="glass-feature-card p-6 card-lift">
+              <div className="glass-feature-card p-6">
                 <div className="h-12 w-12 rounded-xl bg-amber-500/10 backdrop-blur-sm border border-amber-500/20 flex items-center justify-center mb-4">
                   <Target className="h-6 w-6 text-amber-500" />
                 </div>
@@ -542,7 +543,7 @@ export function Landing() {
                 </p>
               </div>
 
-              <div className="glass-feature-card p-6 card-lift">
+              <div className="glass-feature-card p-6">
                 <div className="h-12 w-12 rounded-xl bg-orange-500/10 backdrop-blur-sm border border-orange-500/20 flex items-center justify-center mb-4">
                   <TrendingUp className="h-6 w-6 text-orange-500" />
                 </div>
@@ -575,8 +576,8 @@ export function Landing() {
         {/* Background orbs */}
         <div className="absolute top-20 right-20 w-80 h-80 bg-teal-500/8 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.card-lift]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto [&_.glass-teal]:pointer-events-auto [&_.hover-glow]:pointer-events-auto">
-          <div className="mx-auto max-w-4xl backdrop-blur-sm bg-background/30 rounded-3xl p-8 md:p-12 border border-white/5">
+        <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto [&_.glass-teal]:pointer-events-auto ">
+          <div className="mx-auto max-w-4xl">
             <RevealOnScroll className="text-center mb-16">
               <div className="mb-4 inline-flex items-center gap-2 rounded-full glass-teal px-4 py-2 text-sm">
                 <Zap className="h-4 w-4 text-teal-500" />
@@ -607,7 +608,7 @@ export function Landing() {
             </div>
 
             {/* Key insight - premium glass */}
-            <div className="glass-feature-card p-6 text-center hover-glow">
+            <div className="glass-feature-card p-6 text-center">
               <p className="text-lg mb-4">
                 <span className="font-semibold">The difference:</span> generic tools store what you said.
                 Becoming shows <span className="text-teal-600 dark:text-teal-400 font-medium">what keeps repeating and what to do next.</span>
@@ -630,8 +631,8 @@ export function Landing() {
         <div className="absolute top-10 left-1/4 w-72 h-72 bg-teal-500/8 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-10 right-1/4 w-64 h-64 bg-rose-500/8 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.card-lift]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto [&_.card-shine]:pointer-events-auto">
-          <div className="mx-auto max-w-6xl backdrop-blur-sm bg-background/30 rounded-3xl p-8 md:p-12 border border-white/5">
+        <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto [&_.card-shine]:pointer-events-auto">
+          <div className="mx-auto max-w-6xl">
             <RevealOnScroll className="mx-auto max-w-2xl text-center mb-16">
               <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-5xl heading-gradient">
                 <TextHighlight variant="teal">Four steps</TextHighlight> to clarity.
@@ -646,12 +647,12 @@ export function Landing() {
                 <div key={step.number} className="relative group">
                   {/* Connector line with gradient (hidden on mobile) */}
                   {step.number !== "4" && (
-                    <div className="hidden md:block absolute top-12 left-full w-full h-0.5 bg-gradient-to-r from-teal-500/30 via-rose-500/20 to-transparent z-0" />
+                    <div className="hidden md:block absolute top-12 left-full w-full h-0.5 bg-teal-500/20 z-0" />
                   )}
 
                   <div className="relative z-10 text-center glass-feature-card p-6 card-shine">
                     <div className={cn(
-                      "mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r text-white text-2xl font-bold transition-transform duration-300 group-hover:scale-110",
+                      "mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl text-white text-2xl font-bold",
                       step.color
                     )}>
                       <step.icon className="h-8 w-8" />
@@ -668,7 +669,7 @@ export function Landing() {
             <div className="text-center mt-12">
               <Link
                 to="/signup"
-                className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-teal-500 to-teal-600 px-8 py-4 text-lg font-medium text-white transition-all cta-pulse"
+                className="group inline-flex items-center gap-2 rounded-full bg-teal-500 px-8 py-4 text-lg font-medium text-white transition-colors hover:bg-teal-400"
               >
                 Start Free
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
@@ -686,10 +687,10 @@ export function Landing() {
         {/* Background orb */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-violet-500/5 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.card-lift]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto">
-          <div className="mx-auto max-w-4xl backdrop-blur-sm bg-background/30 rounded-3xl p-8 md:p-12 border border-white/5">
+        <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto">
+          <div className="mx-auto max-w-4xl">
             {/* Section headline */}
-            <RevealOnScroll className="text-center mb-16">
+            <RevealOnScroll className="mb-16">
               <h2 className="text-3xl font-bold tracking-tight md:text-5xl heading-gradient mb-4">
                 Meet your <TextHighlight variant="gradient">guide</TextHighlight>.
               </h2>
@@ -720,22 +721,22 @@ export function Landing() {
 
               {/* Authority side - stats with glass - animated counters */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="glass-feature-card p-6 text-center card-lift">
+                <div className="glass-feature-card p-6 text-center">
                   <AnimatedStatCounter target={9} className="text-4xl font-bold text-violet-500 mb-1" />
                   <div className="text-sm font-medium">AI Agents</div>
                   <div className="text-xs text-muted-foreground">Specialized analysis</div>
                 </div>
-                <div className="glass-feature-card p-6 text-center card-lift">
+                <div className="glass-feature-card p-6 text-center">
                   <AnimatedStatCounter target={95} suffix="+" className="text-4xl font-bold text-blue-500 mb-1" />
                   <div className="text-sm font-medium">Data Points</div>
                   <div className="text-xs text-muted-foreground">Per user profile</div>
                 </div>
-                <div className="glass-feature-card p-6 text-center card-lift">
+                <div className="glass-feature-card p-6 text-center">
                   <AnimatedStatCounter target={17} className="text-4xl font-bold text-pink-500 mb-1" />
                   <div className="text-sm font-medium">Core Themes</div>
                   <div className="text-xs text-muted-foreground">Deep self-discovery</div>
                 </div>
-                <div className="glass-feature-card p-6 text-center card-lift">
+                <div className="glass-feature-card p-6 text-center">
                   <AnimatedStatCounter target={4} className="text-4xl font-bold text-amber-500 mb-1" />
                   <div className="text-sm font-medium">Warning Types</div>
                   <div className="text-xs text-muted-foreground">Proactive alerts</div>
@@ -755,8 +756,8 @@ export function Landing() {
         <div className="absolute inset-0 bg-gradient-to-b from-muted/30 via-background to-muted/20 -z-10" />
         <div className="absolute top-1/3 right-0 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.card-lift]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto [&_.hover-glow]:pointer-events-auto">
-          <div className="mx-auto max-w-4xl backdrop-blur-sm bg-background/30 rounded-3xl p-8 md:p-12 border border-white/5">
+        <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto ">
+          <div className="mx-auto max-w-4xl">
             <div className="text-center mb-16">
               <h2 className="text-3xl font-bold tracking-tight md:text-5xl heading-gradient mb-4">
                 This is what <TextHighlight variant="teal">clarity</TextHighlight> feels like.
@@ -770,14 +771,14 @@ export function Landing() {
               {testimonials.map((testimonial, index) => (
                 <div
                   key={testimonial.author}
-                  className="glass-feature-card p-6 card-lift hover-glow"
+                  className="glass-feature-card p-6"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <Quote className="h-8 w-8 text-teal-500/40 mb-4" />
                   <p className="text-sm mb-4 leading-relaxed">
-                    "{testimonial.quote.split(testimonial.highlight)[0]}
+                    “{testimonial.quote.split(testimonial.highlight)[0]}
                     <span className="text-teal-600 dark:text-teal-400 font-medium">{testimonial.highlight}</span>
-                    {testimonial.quote.split(testimonial.highlight)[1]}"
+                    {testimonial.quote.split(testimonial.highlight)[1]}”
                   </p>
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-full glass-teal flex items-center justify-center font-semibold text-teal-600 dark:text-teal-400">
@@ -813,7 +814,7 @@ export function Landing() {
         <div className="absolute bottom-20 right-10 w-80 h-80 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto [&_.glass-teal]:pointer-events-auto">
-          <div className="mx-auto max-w-6xl backdrop-blur-sm bg-background/30 rounded-3xl p-8 md:p-12 border border-white/5">
+          <div className="mx-auto max-w-6xl">
             <RevealOnScroll className="mx-auto max-w-2xl text-center mb-16">
               <div className="mb-4 inline-flex items-center gap-2 rounded-full glass-teal px-4 py-2 text-sm">
                 <Sparkles className="h-4 w-4 text-teal-500" />
@@ -838,7 +839,7 @@ export function Landing() {
                 {/* Header */}
                 <div className="flex items-center justify-between mb-4">
                   <div className={cn(
-                    "inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r text-white transition-transform duration-300 group-hover:scale-110",
+                    "inline-flex h-12 w-12 items-center justify-center rounded-xl text-white",
                     feature.color
                   )}>
                     <feature.icon className="h-6 w-6" />
@@ -855,7 +856,7 @@ export function Landing() {
 
                 {/* Real chart demo - reveals on hover */}
                 {feature.chart && (
-                  <div className="h-32 rounded-xl bg-muted/50 dark:bg-black/20 overflow-hidden border border-border/50 transition-all duration-500 group-hover:h-40">
+                  <div className="h-32 rounded-xl bg-muted/50 dark:bg-black/20 overflow-hidden border border-border/50 transition-[height] duration-500 group-hover:h-40">
                     <Suspense fallback={<div className="h-full w-full" />}>
                       <feature.chart animate={true} />
                     </Suspense>
@@ -867,14 +868,14 @@ export function Landing() {
           </div>
 
           {/* Additional features - smaller cards */}
-          <div className="mt-8 mx-auto max-w-4xl grid gap-4 md:grid-cols-3 backdrop-blur-sm bg-background/30 rounded-3xl p-6 border border-white/5">
+          <div className="mt-8 mx-auto max-w-4xl grid gap-4 md:grid-cols-3">
             {additionalFeatures.map((feature) => (
               <div
                 key={feature.title}
                 className="group glass-feature-card p-5 flex items-start gap-4"
               >
                 <div className={cn(
-                  "flex-shrink-0 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r text-white",
+                  "flex-shrink-0 inline-flex h-10 w-10 items-center justify-center rounded-lg text-white",
                   feature.color
                 )}>
                   <feature.icon className="h-5 w-5" />
@@ -888,14 +889,14 @@ export function Landing() {
           </div>
 
           {/* Dashboard Preview Teaser */}
-          <div className="mt-16 mx-auto max-w-4xl text-center backdrop-blur-sm bg-background/30 rounded-3xl p-8 border border-white/5">
+          <div className="mt-16 mx-auto max-w-4xl text-center">
             <div className="glass-teal p-8 rounded-2xl">
               <p className="text-foreground mb-6 text-lg">
                 10+ visualizations. All connected to your journal. See your transformation unfold.
               </p>
               <Link
                 to="/dashboard"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-teal-500 to-teal-600 text-white font-medium hover:scale-105 transition-transform"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-teal-500 text-white font-medium hover:bg-teal-400 transition-colors"
               >
                 <Play className="h-4 w-4" />
                 Explore the Dashboard
@@ -916,8 +917,8 @@ export function Landing() {
         <div className="absolute top-1/2 left-10 w-64 h-64 bg-violet-500/8 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-10 right-20 w-72 h-72 bg-pink-500/8 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto [&_.card-scale-glow]:pointer-events-auto [&_.glass-teal]:pointer-events-auto">
-          <div className="mx-auto max-w-4xl backdrop-blur-sm bg-background/30 rounded-3xl p-8 md:p-12 border border-white/5">
+        <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto [&_.glass-teal]:pointer-events-auto">
+          <div className="mx-auto max-w-4xl">
             <div className="mx-auto max-w-2xl text-center mb-16">
               <div className="mb-4 inline-flex items-center gap-2 rounded-full glass-teal px-4 py-2 text-sm">
                 <Compass className="h-4 w-4 text-teal-500" />
@@ -935,11 +936,11 @@ export function Landing() {
             {discoveryFeatures.map((feature, index) => (
               <div
                 key={feature.title}
-                className="glass-feature-card p-8 card-scale-glow"
+                className="glass-feature-card p-8"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 <div className={cn(
-                  "mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r text-white transition-transform duration-300 group-hover:scale-110",
+                  "mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl text-white",
                   feature.color
                 )}>
                   <feature.icon className="h-6 w-6" />
@@ -972,9 +973,9 @@ export function Landing() {
         <div className="absolute top-20 right-20 w-80 h-80 bg-teal-500/8 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-20 left-20 w-72 h-72 bg-violet-500/8 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto [&_.card-lift]:pointer-events-auto [&_.glass-teal]:pointer-events-auto">
+        <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto [&_.glass-teal]:pointer-events-auto">
           {/* Mission Section */}
-          <div id="mission" className="mx-auto max-w-4xl mb-24 backdrop-blur-sm bg-background/30 rounded-3xl p-8 md:p-12 border border-white/5">
+          <div id="mission" className="mx-auto max-w-4xl mb-24">
             <RevealOnScroll className="text-center mb-12">
               <div className="mb-4 inline-flex items-center gap-2 rounded-full glass-teal px-4 py-2 text-sm">
                 <Target className="h-4 w-4 text-teal-500" />
@@ -986,21 +987,21 @@ export function Landing() {
             </RevealOnScroll>
 
             <div className="grid md:grid-cols-3 gap-6">
-              <div className="glass-feature-card p-6 text-center card-lift">
+              <div className="glass-feature-card p-6 text-center">
                 <div className="w-12 h-12 rounded-full bg-teal-500/10 flex items-center justify-center mx-auto mb-4">
                   <Eye className="w-6 h-6 text-teal-500" />
                 </div>
                 <h3 className="font-semibold mb-2">See Clearly</h3>
                 <p className="text-sm text-muted-foreground">Make your invisible patterns visible through beautiful visualizations.</p>
               </div>
-              <div className="glass-feature-card p-6 text-center card-lift">
+              <div className="glass-feature-card p-6 text-center">
                 <div className="w-12 h-12 rounded-full bg-rose-500/10 flex items-center justify-center mx-auto mb-4">
                   <Brain className="w-6 h-6 text-rose-500" />
                 </div>
                 <h3 className="font-semibold mb-2">Understand Deeply</h3>
                 <p className="text-sm text-muted-foreground">AI that truly knows your goals, fears, and aspirations.</p>
               </div>
-              <div className="glass-feature-card p-6 text-center card-lift">
+              <div className="glass-feature-card p-6 text-center">
                 <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto mb-4">
                   <TrendingUp className="w-6 h-6 text-amber-500" />
                 </div>
@@ -1019,7 +1020,7 @@ export function Landing() {
           </div>
 
           {/* Team Section */}
-          <div id="team" className="mx-auto max-w-4xl mb-24 backdrop-blur-sm bg-background/30 rounded-3xl p-8 md:p-12 border border-white/5">
+          <div id="team" className="mx-auto max-w-4xl mb-24">
             <RevealOnScroll className="text-center mb-12">
               <h2 className="text-2xl font-bold tracking-tight md:text-4xl mb-4 heading-gradient">
                 Built by people who <TextHighlight variant="rose">needed this</TextHighlight>.
@@ -1032,12 +1033,12 @@ export function Landing() {
 
             <div className="glass-feature-card p-8 text-center">
               <div className="flex items-center justify-center gap-4 mb-6">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-teal-500 to-rose-500 flex items-center justify-center text-white text-2xl font-bold">
+                <div className="w-16 h-16 rounded-full bg-teal-500 flex items-center justify-center text-white text-2xl font-bold">
                   B
                 </div>
               </div>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                "We logged for years and still felt stuck. We built Becoming to finally see our own patterns, and now we are sharing it with you."
+                “We logged for years and still felt stuck. We built Becoming to finally see our own patterns, and now we are sharing it with you.”
               </p>
               <p className="mt-4 mb-6 font-medium text-teal-600 dark:text-teal-400">- The Becoming Team</p>
               <Link to="/blog" className="cta-highlight cta-highlight-rose text-foreground">
@@ -1048,7 +1049,7 @@ export function Landing() {
           </div>
 
           {/* Contact Section */}
-          <div id="contact" className="mx-auto max-w-2xl backdrop-blur-sm bg-background/30 rounded-3xl p-8 md:p-12 border border-white/5">
+          <div id="contact" className="mx-auto max-w-2xl">
             <RevealOnScroll className="text-center">
               <h2 className="text-2xl font-bold tracking-tight md:text-3xl mb-4 heading-gradient">
                 Get in touch
@@ -1059,20 +1060,22 @@ export function Landing() {
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <a
-                  href="mailto:hello@becoming.app"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full glass-feature-card hover:scale-105 transition-transform"
-                >
-                  <MessageCircle className="h-5 w-5 text-teal-500" />
-                  <span>hello@becoming.app</span>
-                </a>
-                <a
-                  href="https://twitter.com/becomingapp"
+                  href="https://github.com/CryptoPrism-io/pratyaksha"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full glass-feature-card hover:scale-105 transition-transform"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full glass-feature-card transition-colors"
                 >
-                  <Sparkles className="h-5 w-5 text-rose-500" />
-                  <span>@becomingapp</span>
+                  <Github className="h-5 w-5 text-teal-500" />
+                  <span>GitHub</span>
+                </a>
+                <a
+                  href="https://github.com/CryptoPrism-io/pratyaksha/issues"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full glass-feature-card transition-colors"
+                >
+                  <MessageCircle className="h-5 w-5 text-violet-500" />
+                  <span>Open an Issue</span>
                 </a>
               </div>
             </RevealOnScroll>
@@ -1099,7 +1102,7 @@ export function Landing() {
         <div className="container mx-auto px-4 relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.glass-feature-card]:pointer-events-auto">
           <RevealOnScroll className="mx-auto max-w-4xl rounded-3xl glass-feature-card p-12 text-center relative overflow-hidden pointer-events-auto">
             {/* Animated gradient border */}
-            <div className="absolute inset-0 rounded-3xl p-px bg-gradient-to-r from-teal-500/50 via-rose-500/30 to-teal-500/50 -z-10 opacity-50" />
+            <div className="absolute inset-0 rounded-3xl p-px bg-teal-500/20 -z-10 opacity-50" />
 
             {/* Animated glow orbs inside */}
             <div className="absolute -top-20 -left-20 w-48 h-48 bg-teal-500/20 rounded-full blur-3xl floating-orb floating-orb-teal" />
@@ -1116,7 +1119,7 @@ export function Landing() {
             </p>
             <Link
               to="/signup"
-              className="group relative z-10 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-teal-500 to-teal-600 px-8 py-4 text-lg font-medium text-white transition-all cta-pulse"
+              className="group relative z-10 inline-flex items-center gap-2 rounded-full bg-teal-500 px-8 py-4 text-lg font-medium text-white transition-colors hover:bg-teal-400"
             >
               Start Free
               <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />

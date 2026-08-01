@@ -135,7 +135,7 @@ export function SmartPromptCard({ onSelectPrompt }: SmartPromptCardProps) {
         className="w-full p-4 flex items-center justify-between hover:bg-muted/30 transition-colors"
       >
         <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5">
+          <div className="p-1.5 rounded-lg bg-primary/10">
             <Sparkles className="h-4 w-4 text-primary" />
           </div>
           <div className="text-left">
@@ -168,7 +168,7 @@ export function SmartPromptCard({ onSelectPrompt }: SmartPromptCardProps) {
                 key={prompt.id}
                 onClick={() => handleSelectPrompt(prompt)}
                 className={cn(
-                  "group relative flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all",
+                  "group relative flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors",
                   style.bg,
                   style.border
                 )}

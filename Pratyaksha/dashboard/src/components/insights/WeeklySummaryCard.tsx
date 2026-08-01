@@ -159,19 +159,19 @@ export function WeeklySummaryCard() {
               <div className="flex h-2 rounded-full overflow-hidden bg-secondary">
                 {summary.sentimentBreakdown.positive > 0 && (
                   <div
-                    className="bg-green-500 transition-all"
+                    className="bg-green-500 transition-colors"
                     style={{ width: `${(summary.sentimentBreakdown.positive / summary.entryCount) * 100}%` }}
                   />
                 )}
                 {summary.sentimentBreakdown.neutral > 0 && (
                   <div
-                    className="bg-slate-400 transition-all"
+                    className="bg-slate-400 transition-colors"
                     style={{ width: `${(summary.sentimentBreakdown.neutral / summary.entryCount) * 100}%` }}
                   />
                 )}
                 {summary.sentimentBreakdown.negative > 0 && (
                   <div
-                    className="bg-red-500 transition-all"
+                    className="bg-red-500 transition-colors"
                     style={{ width: `${(summary.sentimentBreakdown.negative / summary.entryCount) * 100}%` }}
                   />
                 )}

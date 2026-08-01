@@ -697,7 +697,7 @@ export function GuidedEntryForm({ onSuccess, initialPrompt, initialSoulMappingTo
                 disabled={isProcessing || isSpeechProcessing}
                 aria-label={isRecording ? "Stop recording" : "Start voice recording"}
                 className={cn(
-                  "rounded-full p-2 transition-all",
+                  "rounded-full p-2 transition-colors",
                   isRecording
                     ? "bg-red-500 text-white animate-pulse"
                     : isSpeechProcessing
@@ -755,7 +755,7 @@ export function GuidedEntryForm({ onSuccess, initialPrompt, initialSoulMappingTo
               key={mode.id}
               onClick={() => handleSelectNudge(mode)}
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-all",
+                "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
                 activeMode?.id === mode.id
                   ? cn(mode.bgColor, mode.color, "border-current")
                   : "border-border text-muted-foreground hover:border-muted-foreground/50 hover:text-foreground"
@@ -828,7 +828,7 @@ export function GuidedEntryForm({ onSuccess, initialPrompt, initialSoulMappingTo
           className="w-full p-4 flex items-center justify-between hover:bg-muted/50 transition-colors"
         >
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-gradient-to-br from-violet-500/20 to-pink-500/20">
+            <div className="p-2 rounded-lg bg-violet-500/20">
               <User className="h-5 w-5 text-violet-400" />
             </div>
             <div className="text-left">
@@ -863,10 +863,9 @@ export function GuidedEntryForm({ onSuccess, initialPrompt, initialSoulMappingTo
                       key={mode.id}
                       onClick={() => handleSelectMode(mode, true)}
                       className={cn(
-                        "group relative p-3 rounded-xl border-2 transition-all text-left",
+                        "group relative p-3 rounded-xl border-2 transition-colors text-left",
                         completed ? "border-emerald-500/50 bg-emerald-500/10" : mode.borderColor,
                         !completed && mode.bgColor,
-                        "hover:scale-[1.02] active:scale-[0.98]"
                       )}
                     >
                       {completed && (
@@ -910,10 +909,9 @@ export function GuidedEntryForm({ onSuccess, initialPrompt, initialSoulMappingTo
                       onClick={() => handleSelectMode(mode, true)}
                       disabled={!isTierUnlocked("deep")}
                       className={cn(
-                        "group relative p-3 rounded-xl border-2 transition-all text-left",
+                        "group relative p-3 rounded-xl border-2 transition-colors text-left",
                         completed ? "border-emerald-500/50 bg-emerald-500/10" : mode.borderColor,
                         !completed && mode.bgColor,
-                        isTierUnlocked("deep") && "hover:scale-[1.02] active:scale-[0.98]"
                       )}
                     >
                       {completed && (
@@ -962,10 +960,9 @@ export function GuidedEntryForm({ onSuccess, initialPrompt, initialSoulMappingTo
                       onClick={() => handleSelectMode(mode, true)}
                       disabled={!isTierUnlocked("core")}
                       className={cn(
-                        "group relative p-3 rounded-xl border-2 transition-all text-left",
+                        "group relative p-3 rounded-xl border-2 transition-colors text-left",
                         completed ? "border-emerald-500/50 bg-emerald-500/10" : mode.borderColor,
                         !completed && mode.bgColor,
-                        isTierUnlocked("core") && "hover:scale-[1.02] active:scale-[0.98]"
                       )}
                     >
                       {completed && (

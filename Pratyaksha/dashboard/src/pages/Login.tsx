@@ -36,14 +36,14 @@ export function Login() {
     return (
       <div className="min-h-screen flex items-center justify-center px-4 bg-background">
         <div className="max-w-md w-full text-center">
-          <div className="mx-auto mb-4"><MothLogo size="xl" animated /></div>
+          <div className="mx-auto mb-4"><MothLogo size="xl" /></div>
           <h1 className="text-2xl font-bold mb-2">Firebase Not Configured</h1>
           <p className="text-muted-foreground mb-6">
             Authentication is not available. The app is running in demo mode.
           </p>
           <Link
             to="/logs"
-            className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors"
+            className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60"
           >
             Continue to Demo
           </Link>
@@ -57,9 +57,9 @@ export function Login() {
       <div className="max-w-md w-full">
         {/* Logo */}
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-3 justify-center">
-            <MothLogo size="lg" animated />
-            <BrandWordmark size="xl" variant="default" animated />
+          <Link to="/" className="inline-flex items-center gap-3 justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 rounded-lg">
+            <MothLogo size="lg" />
+            <BrandWordmark size="xl" variant="default" />
           </Link>
           <p className="mt-3 text-muted-foreground font-light tracking-wide">Sign in to your journal</p>
         </div>
@@ -78,7 +78,7 @@ export function Login() {
             type="button"
             onClick={handleGoogleSignIn}
             disabled={isLoading}
-            className="w-full h-12 rounded-lg border bg-background font-medium hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+            className="w-full h-12 rounded-lg border bg-background font-medium hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60"
           >
             {isLoading ? (
               <Loader2 className="h-5 w-5 animate-spin" />
@@ -104,16 +104,12 @@ export function Login() {
             )}
             <span>{isLoading ? "Signing in..." : "Continue with Google"}</span>
           </button>
-
-          <p className="mt-4 text-xs text-center text-muted-foreground">
-            By signing in, you agree to our terms of service and privacy policy.
-          </p>
         </div>
 
         {/* Demo Link */}
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Just exploring?{" "}
-          <Link to="/logs" className="text-primary hover:underline">
+          <Link to="/logs" className="text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 rounded-sm">
             Continue as demo user
           </Link>
         </p>

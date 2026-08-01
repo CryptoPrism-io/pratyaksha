@@ -104,8 +104,7 @@ export function RadarPreview({ className }: { className?: string }) {
         fill="url(#radarGrad)"
         stroke="#0d9488"
         strokeWidth="2"
-        className="opacity-60 group-hover:opacity-100 transition-opacity duration-500 origin-center group-hover:scale-100 scale-75"
-        style={{ transformOrigin: "center", transition: "all 0.5s ease" }}
+        className="opacity-60 group-hover:opacity-100 transition-opacity duration-500"
       />
       {/* Points */}
       {points.map((p, i) => (
@@ -167,14 +166,7 @@ export function ModePiePreview({ className }: { className?: string }) {
       viewBox="0 0 100 100"
       className={cn("w-full h-full chart-preview", className)}
     >
-      <g
-        className="origin-center group-hover:animate-spin"
-        style={{
-          transformOrigin: "50px 50px",
-          animationDuration: "20s",
-          animationTimingFunction: "linear",
-        }}
-      >
+      <g>
         {segments.map((segment, i) => {
           const startPercent = cumulativePercent
           cumulativePercent += segment.percent
@@ -261,7 +253,7 @@ export function ThemeCloudPreview({ className }: { className?: string }) {
           fill="#0d9488"
           fillOpacity={0.6}
           textAnchor="middle"
-          className="font-medium opacity-40 group-hover:opacity-100 transition-all duration-300"
+          className="font-medium opacity-40 group-hover:opacity-100 transition-opacity duration-300"
           style={{
             transform: "translateY(0)",
             transitionDelay: `${i * 50}ms`,

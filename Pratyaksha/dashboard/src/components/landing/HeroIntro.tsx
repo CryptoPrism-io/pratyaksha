@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef, useCallback } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import { Link } from "react-router-dom"
 import { ArrowRight } from "lucide-react"
 
@@ -6,166 +6,12 @@ import { ArrowRight } from "lucide-react"
 const DARK_TEAL = "#115e59"    // teal-800 - muted
 const DARK_ROSE = "#9f1239"    // rose-800 - muted
 const DARK_BODY = "#1c1917"    // stone-900 - dark neutral
-const DARK_AMBER = "#92400e"   // amber-800 - muted
-
-// Single colors for tiny spawned moths
-const SINGLE_COLORS = [DARK_TEAL, DARK_ROSE, DARK_AMBER]
-
-// Orbiting moth - positioned relative to "Becoming" text
-interface OrbitingMothProps {
-  onPositionUpdate?: (x: number, y: number) => void
-  isFluttering?: boolean
-}
-
-function OrbitingMoth({ onPositionUpdate, isFluttering = false }: OrbitingMothProps) {
-  const ref = useRef<HTMLDivElement>(null)
-  const animDuration = useMemo(() => 10 + Math.random() * 8, [])
-
-  // Report position for collision detection
-  useEffect(() => {
-    if (!onPositionUpdate) return
-    const interval = setInterval(() => {
-      if (ref.current) {
-        const rect = ref.current.getBoundingClientRect()
-        onPositionUpdate(rect.left + rect.width / 2, rect.top + rect.height / 2)
-      }
-    }, 50)
-    return () => clearInterval(interval)
-  }, [onPositionUpdate])
-
+// Static hero moth - gently flutters beside the "Becoming" text
+function OrbitingMoth() {
   return (
-    <div
-      ref={ref}
-      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none"
-      style={{
-        animation: `infinity-orbit ${animDuration}s linear infinite`,
-        opacity: 0.8,
-      }}
-    >
-      <MothSVG large fastFlutter={isFluttering} />
+    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none opacity-80">
+      <MothSVG large />
     </div>
-  )
-}
-
-// Track cursor position for collision detection (global MothCursor handles visuals)
-function useCursorTracker(onPosition: (x: number, y: number) => void) {
-  useEffect(() => {
-    const handleMove = (e: MouseEvent) => {
-      onPosition(e.clientX, e.clientY)
-    }
-
-    window.addEventListener("mousemove", handleMove)
-    return () => window.removeEventListener("mousemove", handleMove)
-  }, [onPosition])
-}
-
-// Baby moth that flies to a word and sits on it
-interface FreeFloatingMothProps {
-  id: number
-  variant: number
-  startX: number
-  startY: number
-  targetX: number  // Target word position (viewport %)
-  targetY: number
-  onArrived?: (id: number) => void
-}
-
-function FreeFloatingMoth({ id, variant, startX, startY, targetX, targetY, onArrived }: FreeFloatingMothProps) {
-  const [position, setPosition] = useState({ x: startX, y: startY })
-  const [hasArrived, setHasArrived] = useState(false)
-  const arrivedRef = useRef(false)
-
-  // Pick a single color based on variant
-  const color = SINGLE_COLORS[variant % SINGLE_COLORS.length]
-
-  // Animate flying to target word
-  useEffect(() => {
-    const duration = 2000 + Math.random() * 1500 // 2-3.5 seconds flight
-    const startTime = Date.now()
-
-    // Convert target from % to viewport pixels
-    const targetPxX = (targetX / 100) * window.innerWidth
-    const targetPxY = (targetY / 100) * window.innerHeight
-
-    let animationFrame: number
-
-    const animate = () => {
-      const elapsed = Date.now() - startTime
-      const progress = Math.min(elapsed / duration, 1)
-
-      // Smooth ease-out for natural flight
-      const eased = 1 - Math.pow(1 - progress, 3)
-
-      // Add slight wobble during flight
-      const wobbleX = Math.sin(progress * Math.PI * 4) * (1 - progress) * 20
-      const wobbleY = Math.cos(progress * Math.PI * 3) * (1 - progress) * 15
-
-      const newX = startX + (targetPxX - startX) * eased + wobbleX
-      const newY = startY + (targetPxY - startY) * eased + wobbleY
-
-      setPosition({ x: newX, y: newY })
-
-      if (progress < 1) {
-        animationFrame = requestAnimationFrame(animate)
-      } else {
-        // Arrived at target
-        setHasArrived(true)
-        if (!arrivedRef.current) {
-          arrivedRef.current = true
-          onArrived?.(id)
-        }
-      }
-    }
-
-    animationFrame = requestAnimationFrame(animate)
-
-    return () => {
-      if (animationFrame) cancelAnimationFrame(animationFrame)
-    }
-  }, [id, startX, startY, targetX, targetY, onArrived])
-
-  // Gentle hover animation when sitting on word
-  const hoverOffset = hasArrived ? Math.sin(Date.now() / 500) * 2 : 0
-
-  return (
-    <div
-      className="absolute pointer-events-none transition-transform"
-      style={{
-        left: position.x - 8,
-        top: position.y - 5 + hoverOffset,
-        opacity: 0.9,
-        transform: `rotate(${hasArrived ? 0 : Math.sin(Date.now() / 200) * 15}deg)`,
-      }}
-    >
-      <TinyMothSVG color={color} />
-    </div>
-  )
-}
-
-// Tiny single-color moth for spawned moths
-function TinyMothSVG({ color }: { color: string }) {
-
-  return (
-    <svg width={16} height={10} viewBox="0 0 80 50">
-      {/* Left wing - single color */}
-      <ellipse
-        cx="25" cy="25" rx="16" ry="10"
-        fill={color}
-        opacity="0.9"
-        className="animate-wing-left"
-        style={{ transformOrigin: "40px 25px" }}
-      />
-      {/* Right wing - single color */}
-      <ellipse
-        cx="55" cy="25" rx="16" ry="10"
-        fill={color}
-        opacity="0.9"
-        className="animate-wing-right"
-        style={{ transformOrigin: "40px 25px" }}
-      />
-      {/* Body */}
-      <ellipse cx="40" cy="25" rx="2" ry="8" fill={DARK_BODY} opacity="0.9" />
-    </svg>
   )
 }
 
@@ -537,95 +383,11 @@ export function HeroIntro() {
     }
   }, [])
 
-  // Moth collision and spawning state
-  const [spawnedMoths, setSpawnedMoths] = useState<Array<{
-    id: number
-    variant: number
-    x: number
-    y: number
-    targetWordIndex: number
-    targetX: number
-    targetY: number
-  }>>([])
-  const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 })
-  const [orbitMothPos, setOrbitMothPos] = useState({ x: -100, y: -100 })
-  const [canSpawn, setCanSpawn] = useState(true)
-  const [isCollisionFlutter, setIsCollisionFlutter] = useState(false)
   const heroRef = useRef<HTMLElement>(null)
-
-  // Track which words have moths sitting on them
-  const [mothsOnWords, setMothsOnWords] = useState<Set<number>>(new Set())
-
-  // Handle when a moth arrives at its target word
-  const handleMothArrived = useCallback((mothId: number) => {
-    const moth = spawnedMoths.find(m => m.id === mothId)
-    if (moth) {
-      setMothsOnWords(prev => new Set([...prev, moth.targetWordIndex]))
-    }
-  }, [spawnedMoths])
-
-  const MAX_MOTHS = 50
-
-  // Handle cursor position update
-  const handleCursorPosition = useCallback((x: number, y: number) => {
-    setCursorPos({ x, y })
-  }, [])
-
-  // Track cursor for collision detection
-  useCursorTracker(handleCursorPosition)
-
-  // Handle orbit moth position update
-  const handleOrbitMothPosition = useCallback((x: number, y: number) => {
-    setOrbitMothPos({ x, y })
-  }, [])
 
   // Generate scattered words first (needed for moth targets)
   // Mobile: hidden, Tablet: 50 words, Desktop: 1000 words
   const scatteredWords = useMemo(() => generateScatteredWords(deviceType), [deviceType])
-
-  // Check for collision between cursor and orbiting moth (only after animation)
-  useEffect(() => {
-    if (phase !== "complete" || !canSpawn) return
-    if (orbitMothPos.x < 0 || cursorPos.x < 0) return // Not initialized
-
-    const distance = Math.sqrt(
-      Math.pow(cursorPos.x - orbitMothPos.x, 2) +
-      Math.pow(cursorPos.y - orbitMothPos.y, 2)
-    )
-
-    // Collision threshold ~50px
-    if (distance < 50 && spawnedMoths.length < MAX_MOTHS) {
-      // Trigger 10x fast flutter on collision for both moths
-      setIsCollisionFlutter(true)
-      setTimeout(() => setIsCollisionFlutter(false), 500) // Flutter for 0.5s
-
-      // Dispatch event for cursor moth to flutter too
-      window.dispatchEvent(new CustomEvent("moth-collision-flutter"))
-
-      // Pick a random word that doesn't already have a moth
-      const availableWords = scatteredWords.filter((_, idx) => !mothsOnWords.has(idx))
-      if (availableWords.length === 0) return
-
-      const targetWord = availableWords[Math.floor(Math.random() * availableWords.length)]
-      const targetWordIndex = scatteredWords.findIndex(w => w.id === targetWord.id)
-
-      // Spawn new tiny moth that flies to the target word
-      const newMoth = {
-        id: Date.now(),
-        variant: spawnedMoths.length,
-        x: (cursorPos.x + orbitMothPos.x) / 2,
-        y: (cursorPos.y + orbitMothPos.y) / 2,
-        targetWordIndex,
-        targetX: targetWord.x,
-        targetY: targetWord.y,
-      }
-      setSpawnedMoths(prev => [...prev, newMoth])
-      setCanSpawn(false)
-
-      // Cooldown before next spawn
-      setTimeout(() => setCanSpawn(true), 1500)
-    }
-  }, [phase, cursorPos, orbitMothPos, canSpawn, spawnedMoths.length, scatteredWords, mothsOnWords])
 
   // Outside-to-center reveal over 3 seconds with smooth easing
   const [revealProgress, setRevealProgress] = useState(0)
@@ -806,26 +568,6 @@ export function HeroIntro() {
       ref={heroRef}
       className="relative min-h-screen flex items-center justify-center overflow-hidden"
     >
-      {/* Baby moths - fly to random words and sit on them */}
-      {/* Stays visible throughout page at subtle opacity */}
-      <div
-        className="fixed inset-0 z-[2] pointer-events-none transition-opacity duration-300"
-        style={{ opacity: Math.max(0.15, 1 - (scrollY / 600)) }}
-      >
-        {spawnedMoths.map((moth) => (
-          <FreeFloatingMoth
-            key={moth.id}
-            id={moth.id}
-            variant={moth.variant}
-            startX={moth.x}
-            startY={moth.y}
-            targetX={moth.targetX}
-            targetY={moth.targetY}
-            onArrived={handleMothArrived}
-          />
-        ))}
-      </div>
-
       {/* Background - FIXED to persist on scroll */}
       <div className="fixed inset-0 -z-10 bg-gradient-to-br from-teal-900/5 via-background to-rose-900/5 pointer-events-none" />
       <div className="fixed inset-0 -z-10 hero-pattern opacity-10 pointer-events-none" />
@@ -851,7 +593,6 @@ export function HeroIntro() {
           }}
         >
           {scatteredWords.map((item, index) => {
-            const hasMothSitting = mothsOnWords.has(index)
             // Parallax offset - larger words move faster (feel closer)
             const parallaxOffset = scrollY * item.parallaxFactor
 
@@ -859,7 +600,7 @@ export function HeroIntro() {
               <div
                 key={item.id}
                 className={`absolute select-none ${item.size} ${item.font} ${item.color} ${
-                  !isFlickering && !hasMothSitting ? "pointer-events-auto cursor-default scattered-word" : ""
+                  !isFlickering ? "pointer-events-auto cursor-default scattered-word" : ""
                 }`}
                 style={{
                   left: `${item.x}%`,
@@ -870,12 +611,6 @@ export function HeroIntro() {
                   ...(isFlickering && {
                     opacity: getWordOpacity(index, item.x, item.y),
                     transition: "opacity 0.12s cubic-bezier(0.4, 0, 0.2, 1)",
-                  }),
-                  // Moth sitting on word: high opacity
-                  ...(!isFlickering && hasMothSitting && {
-                    opacity: 0.7,
-                    transition: "opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
-                    textShadow: "0 0 10px currentColor",
                   }),
                 }}
               >
@@ -912,14 +647,14 @@ export function HeroIntro() {
                 className="inline-block w-[2px] h-[0.75em] ml-1"
                 style={{
                   verticalAlign: "baseline",
-                  background: "linear-gradient(180deg, #115e59, #9f1239)",
+                  background: "#0d9488",
                   opacity: cursorFlicker ? 1 : undefined,
                   animation: cursorFlicker ? "none" : "cursor-blink 0.6s ease-in-out infinite",
                 }}
               />
             )}
-            {/* Orbiting moth appears when typing is complete */}
-            {becomingAlive && !showCursor && <OrbitingMoth onPositionUpdate={handleOrbitMothPosition} isFluttering={isCollisionFlutter} />}
+            {/* Static moth appears when typing is complete */}
+            {becomingAlive && !showCursor && <OrbitingMoth />}
           </h1>
 
           {/* Hero content - all in same glassmorphism card */}
@@ -936,7 +671,7 @@ export function HeroIntro() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pointer-events-auto">
             <Link
               to="/signup"
-              className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-teal-700 to-teal-800 px-10 py-5 text-xl font-medium text-white shadow-lg shadow-teal-900/20 transition-all hover:scale-105 hover:shadow-xl hover:shadow-teal-900/30"
+              className="group inline-flex items-center gap-2 rounded-full bg-teal-500 px-10 py-5 text-xl font-medium text-white transition-colors hover:bg-teal-400"
             >
               Start Free
               <ArrowRight className="h-6 w-6 transition-transform group-hover:translate-x-1" />
@@ -944,7 +679,7 @@ export function HeroIntro() {
 
             <Link
               to="/dashboard"
-              className="inline-flex items-center gap-2 rounded-full border border-rose-700/30 bg-rose-900/5 px-10 py-5 text-xl font-medium transition-all hover:bg-rose-900/10 hover:border-rose-700/50"
+              className="inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-10 py-5 text-xl font-medium transition-colors hover:bg-violet-500/20 hover:border-violet-500/50"
             >
               See 60-sec Demo
             </Link>
@@ -990,17 +725,6 @@ export function HeroIntro() {
         </div>
       )}
 
-      {/* Moth spawn hint */}
-      {phase === "complete" && spawnedMoths.length < MAX_MOTHS && (
-        <div className="absolute bottom-8 left-8 animate-fade-in">
-          <div className="flex items-center gap-2 text-muted-foreground/40 text-xs">
-            <span>Catch the moth</span>
-            <span className="text-muted-foreground/60">
-              {spawnedMoths.length}/{MAX_MOTHS}
-            </span>
-          </div>
-        </div>
-      )}
     </section>
   )
 }

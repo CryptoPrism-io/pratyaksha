@@ -34,10 +34,10 @@ export function KarmaDisplay({ compact = false, showTooltip = true, className }:
   const content = (
     <div
       className={cn(
-        "flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-all",
-        "bg-gradient-to-r from-amber-500/10 to-yellow-500/10",
+        "flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-colors",
+        "bg-amber-500/10",
         "border border-amber-500/20",
-        "hover:border-amber-500/40 hover:from-amber-500/15 hover:to-yellow-500/15",
+        "hover:border-amber-500/40 hover:bg-amber-500/15",
         className
       )}
     >
@@ -82,7 +82,7 @@ export function KarmaDisplay({ compact = false, showTooltip = true, className }:
               </div>
               <div className="h-1.5 rounded-full bg-muted overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-amber-500 to-yellow-500 transition-all duration-500"
+                  className="h-full bg-amber-500 transition-colors duration-500"
                   style={{ width: `${soulMappingProgress.percentage}%` }}
                 />
               </div>
@@ -159,7 +159,7 @@ export function KarmaDisplayExpanded({ className }: { className?: string }) {
     <div className={cn("rounded-md signal-card p-6", className)}>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-gradient-to-br from-amber-500/20 to-yellow-500/20">
+          <div className="p-2 rounded-lg bg-amber-500/20">
             <Sparkles className="h-5 w-5 text-amber-500" />
           </div>
           <div>

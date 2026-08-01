@@ -225,10 +225,10 @@ export function StreakWidget() {
           <div className={cn(
             "flex h-12 w-12 items-center justify-center rounded-full",
             streak > 0
-              ? "bg-gradient-to-br from-orange-500 to-red-500 text-white"
+              ? "bg-teal-500 text-white"
               : "bg-muted text-muted-foreground"
           )}>
-            <Flame className={cn("h-6 w-6", streak > 0 && "animate-pulse")} />
+            <Flame className={cn("h-6 w-6", streak > 0 && "text-teal-500")} />
           </div>
           <div>
             <div className="flex items-baseline gap-1.5">
@@ -263,8 +263,8 @@ export function StreakWidget() {
 
       {/* Milestone Celebration Banner (#13 Quick Win) */}
       {showCelebration && (
-        <div className="mb-4 flex items-center gap-3 rounded-lg bg-gradient-to-r from-orange-500 to-amber-500 p-4 text-white animate-pulse">
-          <PartyPopper className="h-6 w-6 animate-bounce" />
+        <div className="mb-4 flex items-center gap-3 rounded-lg bg-teal-500 p-4 text-white">
+          <PartyPopper className="h-6 w-6" />
           <div className="flex-1">
             <p className="font-bold text-lg">Milestone Reached!</p>
             <p className="text-sm text-white/90">{milestoneMessage}</p>
@@ -302,7 +302,7 @@ export function StreakWidget() {
           </div>
           <div className="h-2 rounded-full bg-muted overflow-hidden">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-orange-500 to-red-500 transition-all duration-500"
+              className="h-full rounded-full bg-teal-500 transition-colors duration-500"
               style={{ width: `${progressToNextMilestone}%` }}
             />
           </div>
@@ -434,7 +434,7 @@ function CalendarCell({ day, entryCount, isSelected, onClick }: CalendarCellProp
       onClick={onClick}
       disabled={!isClickable}
       className={cn(
-        "relative flex h-8 w-full items-center justify-center rounded-md text-xs transition-all",
+         "relative flex h-8 w-full items-center justify-center rounded-md text-xs transition-colors",
         !day.isCurrentMonth && "opacity-30",
         day.isFuture && "opacity-20",
         day.isToday && "ring-2 ring-primary ring-offset-1 ring-offset-background",

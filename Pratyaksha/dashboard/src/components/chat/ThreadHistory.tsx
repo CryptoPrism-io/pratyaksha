@@ -78,28 +78,34 @@ export function ThreadHistory({
                 <div
                   key={t.id}
                   className={cn(
-                    "group flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors cursor-pointer",
+                    "group flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors",
                     isActive ? "bg-muted" : "hover:bg-muted/60"
                   )}
-                  onClick={() => {
-                    onSelect(t.id)
-                    setOpen(false)
-                  }}
                 >
-                  <span
-                    className={cn(
-                      "h-6 w-6 flex-shrink-0 rounded-md flex items-center justify-center bg-gradient-to-br text-white",
-                      meta.gradient
-                    )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onSelect(t.id)
+                      setOpen(false)
+                    }}
+                    className="flex flex-1 min-w-0 items-center gap-2 text-left"
+                    aria-label={`Open conversation: ${t.title}`}
                   >
-                    <Icon className="h-3 w-3" />
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium truncate">{t.title}</p>
-                    <p className="text-[10px] text-muted-foreground">
-                      {meta.label} · {relativeTime(t.updatedAt)}
-                    </p>
-                  </div>
+                    <span
+                      className={cn(
+                        "h-6 w-6 flex-shrink-0 rounded-md flex items-center justify-center text-white",
+                        meta.gradient
+                      )}
+                    >
+                      <Icon className="h-3 w-3" />
+                    </span>
+                    <span className="flex-1 min-w-0">
+                      <span className="block text-xs font-medium truncate">{t.title}</span>
+                      <span className="block text-[10px] text-muted-foreground">
+                        {meta.label} · {relativeTime(t.updatedAt)}
+                      </span>
+                    </span>
+                  </button>
                   <button
                     type="button"
                     aria-label="Delete conversation"
@@ -107,7 +113,7 @@ export function ThreadHistory({
                       e.stopPropagation()
                       onDelete(t.id)
                     }}
-                    className="opacity-0 group-hover:opacity-100 p-1 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
+                    className="flex items-center p-1 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
                   >
                     <Trash2 className="h-3 w-3" />
                   </button>

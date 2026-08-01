@@ -30,7 +30,7 @@ export function ModePicker({ value, onChange, disabled }: ModePickerProps) {
         >
           <span
             className={cn(
-              "h-5 w-5 rounded-md flex items-center justify-center bg-gradient-to-br text-white",
+              "h-5 w-5 rounded-md flex items-center justify-center text-white",
               active.gradient
             )}
           >
@@ -63,7 +63,7 @@ export function ModePicker({ value, onChange, disabled }: ModePickerProps) {
               >
                 <span
                   className={cn(
-                    "mt-0.5 h-7 w-7 flex-shrink-0 rounded-lg flex items-center justify-center bg-gradient-to-br text-white",
+                    "mt-0.5 h-7 w-7 flex-shrink-0 rounded-lg flex items-center justify-center text-white",
                     m.gradient
                   )}
                 >

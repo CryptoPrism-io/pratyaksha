@@ -473,13 +473,11 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .cta-pulse {
-  animation: cta-pulse 2.5s ease-in-out infinite;
+  /* Infinite pulse removed — decorative glow on primary CTAs was a Hallmark tell. */
 }
 
 .cta-pulse:hover {
-  animation: none;
-  transform: scale(1.05);
-  box-shadow: 0 8px 30px rgba(20, 184, 166, 0.5);
+  transform: scale(1.02);
 }
 
 /* Nav Link Underline Animation - expands from center on hover */
@@ -956,7 +954,11 @@ h1, h2, h3, h4, h5, h6 {
   -webkit-backdrop-filter: blur(24px) saturate(150%);
   border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 20px;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   position: relative;
   overflow: hidden;
   box-shadow:
@@ -1116,27 +1118,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Glow border on hover - Light mode (more subtle) */
 .hover-glow {
   position: relative;
-}
-
-.hover-glow::after {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  border-radius: inherit;
-  background: linear-gradient(135deg, #0d9488, #be123c);
-  opacity: 0;
-  z-index: -1;
-  filter: blur(12px);
-  transition: opacity 0.4s ease;
-}
-
-.hover-glow:hover::after {
-  opacity: 0.25;
-}
-
-/* Dark mode - more visible glow */
-.dark .hover-glow:hover::after {
-  opacity: 0.5;
+  /* No animated gradient glow — neutralized per design.md (glow on dark = Hallmark tell). */
 }
 
 /* =====================================================
@@ -1226,14 +1208,15 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Lift on hover with shadow */
 .card-lift {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .card-lift:hover {
-  transform: translateY(-8px);
+  transform: translateY(-4px);
   box-shadow:
-    0 20px 40px -15px rgba(0, 0, 0, 0.2),
-    0 10px 20px -10px rgba(0, 0, 0, 0.1);
+    0 16px 32px -16px rgba(0, 0, 0, 0.25);
 }
 
 /* Tilt 3D effect on hover */

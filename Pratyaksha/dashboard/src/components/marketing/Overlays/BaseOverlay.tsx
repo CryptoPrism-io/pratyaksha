@@ -82,10 +82,9 @@ const popVariants: Variants = {
     y: 0,
     filter: 'blur(0px)',
     transition: {
-      type: 'spring',
-      stiffness: 300,
-      damping: 20,
-      filter: { type: 'tween', duration: 0.3 }, // Prevent negative blur from spring overshoot
+      duration: 0.25,
+      ease: [0.16, 1, 0.3, 1],
+      filter: { duration: 0.3 },
     },
   },
   exit: {
@@ -107,9 +106,8 @@ const slideUpVariants: Variants = {
     opacity: 1,
     y: 0,
     transition: {
-      type: 'spring',
-      stiffness: 200,
-      damping: 25,
+      duration: 0.25,
+      ease: [0.16, 1, 0.3, 1],
     },
   },
 }
@@ -124,9 +122,8 @@ const scaleInVariants: Variants = {
     opacity: 1,
     scale: 1,
     transition: {
-      type: 'spring',
-      stiffness: 400,
-      damping: 30,
+      duration: 0.25,
+      ease: [0.16, 1, 0.3, 1],
     },
   },
 }
@@ -143,9 +140,8 @@ const rotateInVariants: Variants = {
     rotateX: 0,
     y: 0,
     transition: {
-      type: 'spring',
-      stiffness: 250,
-      damping: 20,
+      duration: 0.25,
+      ease: [0.16, 1, 0.3, 1],
     },
   },
 }
@@ -242,10 +238,9 @@ export function TextReveal({
               y: 0,
               filter: 'blur(0px)',
               transition: {
-                type: 'spring',
-                stiffness: 300,
-                damping: 20,
-                filter: { type: 'tween', duration: 0.3 },
+                duration: 0.25,
+                ease: [0.16, 1, 0.3, 1],
+                filter: { duration: 0.3 },
               },
             },
           }}

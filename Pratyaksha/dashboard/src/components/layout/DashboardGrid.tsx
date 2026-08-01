@@ -135,12 +135,12 @@ export function ChartCard({
           {aiExplainer && aiExplainerData && (
             <div className="relative group" onClick={(e) => e.stopPropagation()}>
               {/* Glow effect behind the button */}
-              <div className="absolute inset-0 bg-violet-500/30 rounded-full blur-md opacity-60 group-hover:opacity-100 group-hover:scale-125 transition-all duration-300" />
+              <div className="absolute inset-0 bg-violet-500/30 rounded-full blur-md opacity-60 group-hover:opacity-100 transition-opacity duration-300" />
               <ChartExplainer
                 chartType={aiExplainer}
                 chartData={aiExplainerData}
                 summary={aiExplainerSummary}
-                className="relative transition-transform duration-200 group-hover:scale-110"
+                className="relative"
               />
             </div>
           )}

@@ -135,7 +135,7 @@ export function SlideCommitment({
 
       {/* Badge preview */}
       {willEarnExplorer && (
-        <div className="w-full max-w-sm mb-6 p-4 rounded-xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/30 z-10">
+        <div className="w-full max-w-sm mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 z-10">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
               <Compass className="w-6 h-6 text-amber-500" />
@@ -176,7 +176,7 @@ export function SlideCommitment({
         <Button
           onClick={onComplete}
           size="lg"
-          className="flex-1 group bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+          className="flex-1 bg-primary hover:bg-primary/90"
         >
           Start Journaling
           <Sparkles className="w-4 h-4 ml-2 group-hover:rotate-12 transition-transform" />

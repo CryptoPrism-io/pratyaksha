@@ -92,7 +92,7 @@ export function SoulMappingProgress({ className, compact = false }: SoulMappingP
         <button
           onClick={() => toggleTier(tier)}
           className={cn(
-            "w-full flex items-center justify-between p-3 rounded-lg transition-all",
+            "w-full flex items-center justify-between p-3 rounded-lg transition-colors",
             info.bgColor,
             "hover:opacity-90",
             !isUnlocked && "opacity-60"
@@ -183,7 +183,7 @@ export function SoulMappingProgress({ className, compact = false }: SoulMappingP
                     key={topicId}
                     onClick={() => navigate(`/logs?topic=${topicId}`)}
                     className={cn(
-                      "group flex items-center gap-2 p-2 rounded-lg border transition-all text-left w-full",
+                      "group flex items-center gap-2 p-2 rounded-lg border transition-colors text-left w-full",
                       isCompleted
                         ? "bg-emerald-500/10 border-emerald-500/30 hover:bg-emerald-500/15"
                         : "bg-muted/30 border-border/50 hover:border-primary/40 hover:bg-primary/5 cursor-pointer"
@@ -227,7 +227,7 @@ export function SoulMappingProgress({ className, compact = false }: SoulMappingP
       {/* Progress Bar */}
       <div className="h-2 rounded-full bg-muted overflow-hidden">
         <div
-          className="h-full bg-gradient-to-r from-sky-500 via-amber-500 to-violet-500 transition-all duration-500"
+          className="h-full bg-violet-500/60 transition-colors duration-500"
           style={{ width: `${soulMappingProgress.percentage}%` }}
         />
       </div>

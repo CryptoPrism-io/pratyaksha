@@ -318,7 +318,7 @@ export function StepFramePlayer({ stepConfig, animationProgress, direction }: St
 
       {/* Radial glow effect */}
       <div
-        className="absolute inset-0 pointer-events-none transition-all duration-700"
+        className="absolute inset-0 pointer-events-none transition-colors duration-700"
         style={{
           background: `radial-gradient(ellipse at center, hsla(${glowColor.h}, ${glowColor.s}%, ${glowColor.l}%, 0.15) 0%, transparent 60%)`,
         }}
@@ -351,45 +351,31 @@ export function StepFramePlayer({ stepConfig, animationProgress, direction }: St
             isFadingOut ? 'opacity-0' : 'opacity-100'
           }`}
         >
-          {/* Animated particles background */}
+          {/* Static particles background */}
           <div className="absolute inset-0 overflow-hidden">
             {[...Array(12)].map((_, i) => (
               <div
                 key={i}
-                className="absolute w-1 h-1 bg-white/20 rounded-full animate-pulse"
+                className="absolute w-1 h-1 bg-white/15 rounded-full"
                 style={{
                   left: `${10 + (i % 4) * 25}%`,
                   top: `${20 + Math.floor(i / 4) * 30}%`,
-                  animationDelay: `${i * 0.2}s`,
-                  animationDuration: `${2 + (i % 3)}s`,
                 }}
               />
             ))}
           </div>
 
-          {/* Central brain silhouette pulse */}
+          {/* Central brain silhouette */}
           <div className="relative mb-8">
-            <div
-              className="w-20 h-20 rounded-full bg-gradient-to-br from-white/10 to-white/5 animate-pulse"
-              style={{ animationDuration: '2s' }}
-            />
-            <div
-              className="absolute inset-0 w-20 h-20 rounded-full border border-white/10"
-              style={{
-                animation: 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite',
-              }}
-            />
+            <div className="w-20 h-20 rounded-full bg-white/5" />
+            <div className="absolute inset-0 w-20 h-20 rounded-full border border-white/10" />
           </div>
 
-          {/* Progress bar with glow */}
+          {/* Progress bar */}
           <div className="w-56 sm:w-64 h-1 bg-white/5 rounded-full overflow-hidden mb-4 relative">
             <div
-              className="h-full rounded-full transition-all duration-300 ease-out"
-              style={{
-                width: `${loadProgress}%`,
-                background: 'linear-gradient(90deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.3) 100%)',
-                boxShadow: '0 0 20px rgba(255,255,255,0.3)',
-              }}
+              className="h-full rounded-full bg-white/60 transition-[width] duration-300 ease-out"
+              style={{ width: `${loadProgress}%` }}
             />
           </div>
 

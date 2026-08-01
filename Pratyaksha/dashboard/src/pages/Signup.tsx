@@ -5,10 +5,6 @@ import { MothLogo } from "../components/brand/MothLogo"
 import { Badge } from "../components/ui/badge"
 import { toast } from "sonner"
 import {
-  Briefcase,
-  Brain,
-  GraduationCap,
-  TreePine,
   Trash2,
   LogIn,
   Users,
@@ -18,12 +14,10 @@ import {
 import { apiFetch } from "@/lib/api"
 
 // Static class map — avoids Tailwind JIT purging dynamic interpolation
-const COLOR_CLASSES: Record<string, { bg: string; text: string }> = {
-  rose: { bg: "bg-rose-500/10", text: "text-rose-500" },
-  blue: { bg: "bg-blue-500/10", text: "text-blue-500" },
-  purple: { bg: "bg-purple-500/10", text: "text-purple-500" },
-  emerald: { bg: "bg-emerald-500/10", text: "text-emerald-500" },
-}
+const AVATAR_TINTS = [
+  { bg: "bg-teal-500/15", text: "text-teal-500" },
+  { bg: "bg-violet-500/15", text: "text-violet-500" },
+]
 
 interface TestUserProfile {
   id: string
@@ -34,8 +28,7 @@ interface TestUserProfile {
   stressLevel: number
   emotionalOpenness: number
   personalGoal: string
-  icon: React.ReactNode
-  color: string
+  initials: string
 }
 
 const TEST_USERS: TestUserProfile[] = [
@@ -48,8 +41,7 @@ const TEST_USERS: TestUserProfile[] = [
     stressLevel: 4,
     emotionalOpenness: 4,
     personalGoal: "Scale SaaS to $1M ARR",
-    icon: <Briefcase className="h-5 w-5" />,
-    color: "rose",
+    initials: "AC",
   },
   {
     id: "test-bob",
@@ -60,8 +52,7 @@ const TEST_USERS: TestUserProfile[] = [
     stressLevel: 2,
     emotionalOpenness: 5,
     personalGoal: "Help 1000 people overcome anxiety",
-    icon: <Brain className="h-5 w-5" />,
-    color: "blue",
+    initials: "BW",
   },
   {
     id: "test-carol",
@@ -72,8 +63,7 @@ const TEST_USERS: TestUserProfile[] = [
     stressLevel: 5,
     emotionalOpenness: 3,
     personalGoal: "Complete PhD without burnout",
-    icon: <GraduationCap className="h-5 w-5" />,
-    color: "purple",
+    initials: "CN",
   },
   {
     id: "test-david",
@@ -84,8 +74,7 @@ const TEST_USERS: TestUserProfile[] = [
     stressLevel: 2,
     emotionalOpenness: 3,
     personalGoal: "Find meaning in retirement",
-    icon: <TreePine className="h-5 w-5" />,
-    color: "emerald",
+    initials: "DT",
   },
 ]
 
@@ -245,7 +234,11 @@ export function Signup() {
     // Show a minimal page with clickable moth logo while redirect happens
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <button onClick={handleLogoClick} className="p-4 cursor-default">
+        <button
+          onClick={handleLogoClick}
+          aria-label="Open admin"
+          className="p-4 cursor-default rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60"
+        >
           <MothLogo size="xl" />
         </button>
       </div>
@@ -256,8 +249,8 @@ export function Signup() {
     <div className="min-h-screen bg-background p-6 max-w-4xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-3 mb-8">
-        <div className="p-2 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
-          <AlertTriangle className="h-5 w-5 text-yellow-500" />
+        <div className="p-2 rounded-lg bg-violet-500/10 border border-violet-500/30">
+          <AlertTriangle className="h-5 w-5 text-violet-500" />
         </div>
         <div>
           <h1 className="text-2xl font-bold text-foreground">Test User Admin</h1>
@@ -269,43 +262,50 @@ export function Signup() {
 
       {/* Test User Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-        {TEST_USERS.map((profile) => {
+        {TEST_USERS.map((profile, index) => {
           const existing = existingUsers.find((u) => u.firebaseUid === profile.id)
           const isLoading = loadingUser === profile.id
+          const tint = AVATAR_TINTS[index % AVATAR_TINTS.length]
 
           return (
             <div
               key={profile.id}
               className="rounded-xl border border-border bg-card p-5 space-y-3"
             >
-              {/* Name & icon */}
+              {/* Name & avatar */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className={`p-1.5 rounded-md ${COLOR_CLASSES[profile.color]?.bg} ${COLOR_CLASSES[profile.color]?.text}`}>
-                    {profile.icon}
+                  <div className={`flex items-center justify-center h-9 w-9 rounded-md ${tint.bg} ${tint.text} font-semibold text-sm`}>
+                    {profile.initials}
                   </div>
                   <div>
                     <p className="font-semibold text-foreground">{profile.displayName}</p>
                     <p className="text-xs text-muted-foreground">{profile.profession}</p>
                   </div>
                 </div>
+                <Badge variant="outline" className="text-[10px] uppercase tracking-wider text-violet-500 border-violet-500/40">
+                  TEST DATA
+                </Badge>
+              </div>
+
+              {/* Placeholder fixture stats */}
+              <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+                <span>Age: {profile.ageRange}</span>
+                <span>Stress: {profile.stressLevel}/5</span>
+                <span>Openness: {profile.emotionalOpenness}/5</span>
                 {existing && (
                   <Badge variant="outline" className="text-xs">
                     {existing.entryCount} entries
                   </Badge>
                 )}
               </div>
-
-              {/* Stats */}
-              <div className="flex gap-3 text-xs text-muted-foreground">
-                <span>Age: {profile.ageRange}</span>
-                <span>Stress: {profile.stressLevel}/5</span>
-                <span>Openness: {profile.emotionalOpenness}/5</span>
-              </div>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground/60">
+                Placeholder fixture — not real user metrics
+              </p>
 
               {/* Goal */}
               <p className="text-sm text-muted-foreground italic">
-                "{profile.personalGoal}"
+                “{profile.personalGoal}”
               </p>
 
               {/* Actions */}
@@ -313,7 +313,7 @@ export function Signup() {
                 <button
                   onClick={() => handleLoginAs(profile)}
                   disabled={isLoading}
-                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium disabled:opacity-50 transition-colors"
+                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60"
                 >
                   {isLoading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -325,7 +325,7 @@ export function Signup() {
                 {existing && (
                   <button
                     onClick={() => handleDeleteUser(profile.id)}
-                    className="px-3 py-2 rounded-lg border border-destructive/30 text-destructive hover:bg-destructive/10 text-sm transition-colors"
+                    className="px-3 py-2 rounded-lg border border-destructive/30 text-destructive hover:bg-destructive/10 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60"
                     title="Delete this test user"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -346,7 +346,7 @@ export function Signup() {
           </div>
           <button
             onClick={fetchExistingUsers}
-            className="text-sm text-primary hover:underline"
+            className="text-sm text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 rounded-sm"
           >
             Refresh
           </button>
@@ -359,7 +359,7 @@ export function Signup() {
           </div>
         ) : existingUsers.length === 0 ? (
           <p className="text-sm text-muted-foreground py-4">
-            No test users found. Click "Login as" above to create one.
+            No test users found. Click “Login as” above to create one.
           </p>
         ) : (
           <div className="space-y-2">
@@ -392,13 +392,13 @@ export function Signup() {
                         navigate("/dashboard")
                       }
                     }}
-                    className="text-xs px-2 py-1 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                    className="text-xs px-2 py-1 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60"
                   >
                     Switch
                   </button>
                   <button
                     onClick={() => handleDeleteUser(u.firebaseUid)}
-                    className="text-xs px-2 py-1 rounded text-destructive hover:bg-destructive/10 transition-colors"
+                    className="text-xs px-2 py-1 rounded text-destructive hover:bg-destructive/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60"
                   >
                     Delete
                   </button>
@@ -414,7 +414,7 @@ export function Signup() {
         <button
           onClick={handleDeleteAll}
           disabled={deleting}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-destructive/40 text-destructive hover:bg-destructive/10 text-sm font-medium disabled:opacity-50 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-destructive/40 text-destructive hover:bg-destructive/10 text-sm font-medium disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60"
         >
           {deleting ? (
             <Loader2 className="h-4 w-4 animate-spin" />

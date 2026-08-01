@@ -58,14 +58,8 @@ export function FeaturesOverlay({ isVisible, onNext, transitionOpacity, isPreloa
           <motion.div
             className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full mb-3 sm:mb-5 text-xs sm:text-sm"
             style={{ backgroundColor: `${color.hex}20`, color: color.hex }}
-            whileHover={{ scale: 1.05 }}
           >
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
-            >
-              <BarChart3 className="w-4 h-4" />
-            </motion.div>
+            <BarChart3 className="w-4 h-4" />
             21 Visualizations
           </motion.div>
         </AnimatedText>
@@ -113,22 +107,21 @@ export function FeaturesOverlay({ isVisible, onNext, transitionOpacity, isPreloa
               >
                 <motion.div
                   animate={isHovered ? {
-                    scale: 1.618,
+                    scale: 1.02,
                     zIndex: 50,
                   } : {
                     scale: 1,
                     zIndex: 1,
                   }}
                   transition={{
-                    type: 'spring',
-                    stiffness: 300,
-                    damping: 25,
+                    duration: 0.25,
+                    ease: [0.16, 1, 0.3, 1],
                   }}
                   className="origin-center"
                 >
-                  <GlassCard className={`h-full !p-2 sm:!p-3 transition-all duration-300 border ${
+                  <GlassCard className={`h-full !p-2 sm:!p-3 transition-colors duration-300 border ${
                     isHovered
-                      ? 'bg-slate-900/95 border-white/30 shadow-2xl shadow-black/50'
+                      ? 'bg-slate-900/95 border-white/30'
                       : 'hover:bg-white/10 border-transparent hover:border-white/20'
                   }`}>
                     {/* Header */}
@@ -150,7 +143,7 @@ export function FeaturesOverlay({ isVisible, onNext, transitionOpacity, isPreloa
                     </div>
 
                     {/* Chart container */}
-                    <div className={`w-full rounded bg-white/5 overflow-hidden transition-all duration-300 ${
+                    <div className={`w-full rounded bg-white/5 overflow-hidden transition-[height] duration-300 ${
                       isHovered ? 'h-32 sm:h-40' : 'h-20 sm:h-28'
                     }`}>
                       {isVisible && <Chart animate={!isHovered} />}
@@ -189,31 +182,19 @@ export function FeaturesOverlay({ isVisible, onNext, transitionOpacity, isPreloa
           {/* Primary: Continue to final CTA */}
           <motion.button
             onClick={onNext}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.98 }}
-            className="group flex items-center gap-2 px-6 py-3 rounded-full bg-white/10 border border-white/20 text-white hover:bg-white/20 hover:border-white/30 transition-all duration-300"
+            className="group flex items-center gap-2 px-6 py-3 rounded-full bg-white/10 border border-white/20 text-white hover:bg-white/20 hover:border-white/30 transition-colors duration-300"
           >
-            <motion.div
-              animate={{ rotate: [0, 15, -15, 0] }}
-              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-            >
-              <Sparkles className="w-4 h-4" style={{ color: STATE_COLORS[STATES.ILLUMINATED].hex }} />
-            </motion.div>
+            <Sparkles className="w-4 h-4" style={{ color: STATE_COLORS[STATES.ILLUMINATED].hex }} />
             <span className="text-sm font-medium">Begin Your Journey</span>
           </motion.button>
 
           {/* Secondary: Explore Dashboard */}
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.98 }}
+          <Link
+            to="/dashboard"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/20 text-white/70 hover:text-white hover:border-white/30 text-sm transition-colors"
           >
-            <Link
-              to="/dashboard"
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/20 text-white/70 hover:text-white hover:border-white/30 text-sm transition-all"
-            >
-              Explore Dashboard
-            </Link>
-          </motion.div>
+            Explore Dashboard
+          </Link>
         </motion.div>
       </div>
     </BaseOverlay>

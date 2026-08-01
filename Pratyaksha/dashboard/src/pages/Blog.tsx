@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom'
 import { Calendar, Clock, ArrowRight, Sparkles } from 'lucide-react'
 import { BlogLayout } from '../components/blog'
 import { getAllPosts } from '../lib/blog'
-import { cn } from '../lib/utils'
 
 export function Blog() {
   const posts = getAllPosts()
@@ -10,10 +9,6 @@ export function Blog() {
   return (
     <BlogLayout>
       <div className="relative overflow-hidden">
-        {/* Background orbs */}
-        <div className="absolute top-20 left-10 w-96 h-96 bg-teal-500/8 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-60 right-20 w-80 h-80 bg-rose-500/6 rounded-full blur-3xl pointer-events-none" />
-
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 relative z-10">
           {/* Page Header - Bold Modern Typography */}
           <div className="text-center mb-16 sm:mb-20">
@@ -21,8 +16,8 @@ export function Blog() {
               <Sparkles className="h-4 w-4 text-teal-500" />
               <span>Insights & Ideas</span>
             </div>
-            <h1 className="font-space text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 tracking-tight">
-              <span className="brand-gradient">Becoming</span> Blog
+            <h1 className="font-space text-4xl sm:text-5xl font-bold mb-6 tracking-tight">
+              <span className="text-teal-600 dark:text-teal-400">Becoming</span> Blog
             </h1>
             <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Deep dives into transformation, cognitive patterns, and the science of becoming who you want to be.
@@ -31,15 +26,11 @@ export function Blog() {
 
           {/* Posts Grid - Glassmorphism Cards */}
           <div className="grid gap-6 sm:gap-8">
-            {posts.map((post, index) => (
+            {posts.map((post) => (
               <article key={post.slug}>
                 <Link
                   to={`/blog/${post.slug}`}
-                  className={cn(
-                    "block group glass-feature-card p-6 sm:p-8 card-lift hover-glow",
-                    "transition-all duration-300"
-                  )}
-                  style={{ animationDelay: `${index * 100}ms` }}
+                  className="block group glass-feature-card p-6 sm:p-8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors"
                 >
                   {/* Tags */}
                   {post.tags.length > 0 && (
@@ -77,12 +68,12 @@ export function Blog() {
                         })}
                       </span>
                       <span className="flex items-center gap-1.5">
-                        <Clock className="w-4 h-4 text-rose-500/70" />
+                        <Clock className="w-4 h-4 text-violet-500/70" />
                         {post.readingTime} min
                       </span>
                     </div>
 
-                    <span className="flex items-center gap-1.5 text-sm font-medium text-teal-600 dark:text-teal-400 opacity-0 group-hover:opacity-100 transition-all translate-x-0 group-hover:translate-x-1">
+                    <span className="flex items-center gap-1.5 text-sm font-medium text-teal-600 dark:text-teal-400">
                       Read more
                       <ArrowRight className="w-4 h-4" />
                     </span>
@@ -98,7 +89,7 @@ export function Blog() {
               <div className="glass-feature-card p-12 inline-block">
                 <p className="text-muted-foreground text-lg mb-4">No posts yet. Check back soon!</p>
                 <p className="text-sm text-muted-foreground/70">
-                  We're crafting insights on transformation and cognitive patterns.
+                  We’re crafting insights on transformation and cognitive patterns.
                 </p>
               </div>
             </div>
@@ -115,7 +106,7 @@ export function Blog() {
               </p>
               <Link
                 to="/signup"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-teal-500 to-teal-600 text-white font-medium hover:scale-105 hover:shadow-xl hover:shadow-teal-500/25 transition-all"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-violet-600 text-white font-medium hover:bg-violet-500 transition-colors"
               >
                 Start Becoming
                 <ArrowRight className="w-4 h-4" />

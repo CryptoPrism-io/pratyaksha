@@ -112,22 +112,22 @@ export function ComparisonSummary({ summary, isLoading, className }: ComparisonS
       label: "Entries",
       value: summary.entries,
       icon: FileText,
-      color: "text-blue-500",
-      bgColor: "bg-blue-500/10",
+      color: "text-teal-600 dark:text-teal-400",
+      bgColor: "bg-teal-500/10",
     },
     {
       label: "Avg Words",
       value: summary.avgWordsPerEntry,
       icon: MessageSquare,
-      color: "text-purple-500",
-      bgColor: "bg-purple-500/10",
+      color: "text-violet-600 dark:text-violet-400",
+      bgColor: "bg-violet-500/10",
     },
     {
       label: "Positive",
       value: `${summary.positivePercent}%`,
       icon: Smile,
-      color: "text-green-500",
-      bgColor: "bg-green-500/10",
+      color: "text-teal-600 dark:text-teal-400",
+      bgColor: "bg-teal-500/10",
     },
     {
       label: "Negative",
@@ -140,8 +140,8 @@ export function ComparisonSummary({ summary, isLoading, className }: ComparisonS
       label: "Neutral",
       value: `${summary.neutralPercent}%`,
       icon: Meh,
-      color: "text-gray-500",
-      bgColor: "bg-gray-500/10",
+      color: "text-muted-foreground",
+      bgColor: "bg-muted/50",
     },
   ]
 
@@ -150,19 +150,19 @@ export function ComparisonSummary({ summary, isLoading, className }: ComparisonS
       label: "Dominant Mode",
       value: summary.dominantMode,
       icon: Brain,
-      color: "text-indigo-500",
+      color: "text-violet-600 dark:text-violet-400",
     },
     {
       label: "Dominant Energy",
       value: summary.dominantEnergy,
       icon: Zap,
-      color: "text-amber-500",
+      color: "text-teal-600 dark:text-teal-400",
     },
     {
       label: "Top Contradiction",
       value: summary.topContradiction,
       icon: AlertTriangle,
-      color: "text-orange-500",
+      color: "text-muted-foreground",
     },
   ]
 
@@ -180,7 +180,7 @@ export function ComparisonSummary({ summary, isLoading, className }: ComparisonS
             </div>
             <div>
               <p className="text-xs text-muted-foreground">{label}</p>
-              <p className="text-sm font-semibold">{value}</p>
+              <p className="text-sm font-semibold signal-data">{value}</p>
             </div>
           </div>
         ))}
@@ -215,7 +215,7 @@ export function ComparisonSummary({ summary, isLoading, className }: ComparisonS
                 className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full bg-muted"
               >
                 {type}
-                <span className="text-muted-foreground">({count})</span>
+                <span className="text-muted-foreground signal-data">({count})</span>
               </span>
             ))}
           </div>
@@ -229,7 +229,7 @@ export function ComparisonSummary({ summary, isLoading, className }: ComparisonS
         return (
           <div className="pt-3 border-t space-y-2">
             <div className="flex items-center gap-1.5">
-              <Lightbulb className="h-4 w-4 text-yellow-500" />
+              <Lightbulb className="h-4 w-4 text-teal-500" />
               <span className="text-xs font-medium text-muted-foreground">Recommendation</span>
             </div>
             <div className="space-y-1.5 pl-5">
@@ -242,7 +242,7 @@ export function ComparisonSummary({ summary, isLoading, className }: ComparisonS
                 <p className="text-xs text-muted-foreground">{rec.why}</p>
               </div>
               <div className="flex items-start gap-2">
-                <Zap className="h-3.5 w-3.5 text-amber-500 mt-0.5 shrink-0" />
+                <Zap className="h-3.5 w-3.5 text-violet-500 mt-0.5 shrink-0" />
                 <p className="text-xs">{rec.how}</p>
               </div>
             </div>

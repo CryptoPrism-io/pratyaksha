@@ -43,19 +43,19 @@ export function ChatInput({ onSend, isLoading, isStreaming, onStop, placeholder 
   }
 
   return (
-    <div className="border-t bg-gradient-to-t from-background via-background to-transparent pt-2">
+    <div className="border-t bg-card pt-2">
       <div className={cn(
-        "flex gap-2 items-end p-3 mx-4 mb-4 rounded-2xl border-2 transition-all duration-300",
-        "bg-background/80 backdrop-blur-sm",
+        "flex gap-2 items-end p-3 mx-4 mb-4 rounded-2xl border-2 transition-colors duration-300",
+        "bg-card",
         isFocused
-          ? "border-violet-400 dark:border-violet-500 shadow-lg shadow-violet-500/10"
+          ? "border-violet-400 dark:border-violet-500"
           : "border-border hover:border-violet-300 dark:hover:border-violet-700"
       )}>
         {/* AI indicator */}
         <div className={cn(
-          "flex-shrink-0 h-9 w-9 rounded-xl flex items-center justify-center transition-all duration-300",
+          "flex-shrink-0 h-9 w-9 rounded-xl flex items-center justify-center transition-colors duration-300",
           isFocused
-            ? "bg-gradient-to-br from-violet-500 to-purple-600"
+            ? "bg-violet-600"
             : "bg-muted"
         )}>
           <Sparkles className={cn(
@@ -89,8 +89,9 @@ export function ChatInput({ onSend, isLoading, isStreaming, onStop, placeholder 
             onClick={onStop}
             aria-label="Stop generating"
             className={cn(
-              "flex-shrink-0 h-9 w-9 rounded-xl flex items-center justify-center transition-all duration-300",
-              "bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-md shadow-rose-500/25 hover:scale-105"
+              "flex-shrink-0 h-9 w-9 rounded-xl flex items-center justify-center transition-colors duration-300",
+              "bg-violet-600 text-white hover:bg-violet-500",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             )}
           >
             <Square className="h-3.5 w-3.5 fill-current" />
@@ -101,11 +102,12 @@ export function ChatInput({ onSend, isLoading, isStreaming, onStop, placeholder 
             disabled={!input.trim() || isLoading}
             aria-label={isLoading ? "Sending message" : "Send message"}
             className={cn(
-              "flex-shrink-0 h-9 w-9 rounded-xl flex items-center justify-center transition-all duration-300",
+              "flex-shrink-0 h-9 w-9 rounded-xl flex items-center justify-center transition-colors duration-300",
               input.trim() && !isLoading
-                ? "bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-md shadow-violet-500/25 hover:shadow-lg hover:shadow-violet-500/30 hover:scale-105"
+                ? "bg-violet-600 text-white hover:bg-violet-500"
                 : "bg-muted text-muted-foreground",
-              "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              "disabled:opacity-50 disabled:cursor-not-allowed",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             )}
           >
             <Send className="h-4 w-4" />

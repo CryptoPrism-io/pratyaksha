@@ -16,7 +16,7 @@ export interface ChatModeMeta {
   label: string
   tagline: string
   icon: LucideIcon
-  /** Tailwind gradient for the avatar/active state. */
+  /** Tailwind solid bg color for the avatar/active state. */
   gradient: string
   /** Short blurb shown in the picker menu. */
   blurb: string
@@ -32,7 +32,7 @@ export const CHAT_MODES: ChatModeMeta[] = [
     label: "Rama",
     tagline: "Steadiness & dharma",
     icon: ShieldCheck,
-    gradient: "from-amber-500 via-orange-500 to-rose-500",
+    gradient: "bg-teal-500",
     blurb: "Grounds you in your values and helps you keep your word. Best for daily discipline and steadiness.",
     costKey: "AI_CHAT_RAMA",
     starters: [
@@ -46,7 +46,7 @@ export const CHAT_MODES: ChatModeMeta[] = [
     label: "Krishna",
     tagline: "Clarity & strategy",
     icon: Feather,
-    gradient: "from-sky-500 via-blue-500 to-indigo-600",
+    gradient: "bg-violet-600",
     blurb: "Cuts through paralysis, reframes, and frees you from outcome-anxiety. Best for decisions and motivation.",
     costKey: "AI_CHAT_KRISHNA",
     starters: [
@@ -60,7 +60,7 @@ export const CHAT_MODES: ChatModeMeta[] = [
     label: "Shiva",
     tagline: "Depth & transformation",
     icon: Flame,
-    gradient: "from-violet-600 via-purple-600 to-fuchsia-600",
+    gradient: "bg-violet-600",
     blurb: "Meets hard truths, dissolves what no longer serves, and guides stillness. Best for deep inner work.",
     costKey: "AI_CHAT_SHIVA",
     starters: [

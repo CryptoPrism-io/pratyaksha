@@ -18,6 +18,14 @@ const PERSONA_ICONS: Record<DemoPersona, React.ReactNode> = {
   nova: <Rocket className="h-4 w-4" />,
 }
 
+// Deterministic accent classes per persona (teal/violet only)
+const PERSONA_ACCENT: Record<DemoPersona, string> = {
+  mario: "text-teal-500",
+  kratos: "text-violet-500",
+  sherlock: "text-violet-500",
+  nova: "text-teal-500",
+}
+
 interface DemoBannerProps {
   /** Show persona selector (default: true) */
   showPersonaSelector?: boolean
@@ -55,9 +63,9 @@ export function DemoBanner({ showPersonaSelector = true, compact = false }: Demo
 
   if (compact) {
     return (
-      <div className={`bg-gradient-to-r ${personaConfig.bgGradient} border-b border-${personaConfig.color}-500/20 px-3 py-2`}>
+      <div className={`${personaConfig.bgGradient} border-b border-border/40 px-3 py-2`}>
         <div className="flex items-center justify-center gap-2 text-sm">
-          <span className={`text-${personaConfig.color}-500`}>
+          <span className={PERSONA_ACCENT[persona]}>
             {PERSONA_ICONS[persona]}
           </span>
           <span className="text-muted-foreground">Demo mode</span>
@@ -74,9 +82,9 @@ export function DemoBanner({ showPersonaSelector = true, compact = false }: Demo
   }
 
   return (
-    <div className={`bg-gradient-to-r ${personaConfig.bgGradient} border-b border-${personaConfig.color}-500/20 px-4 py-1 text-center`}>
+    <div className={`${personaConfig.bgGradient} border-b border-border/40 px-4 py-1 text-center`}>
       <div className="flex items-center justify-center gap-2 flex-wrap min-h-[44px]">
-        <span className={`text-${personaConfig.color}-500`}>
+        <span className={PERSONA_ACCENT[persona]}>
           {PERSONA_ICONS[persona]}
         </span>
         <span className="text-sm text-muted-foreground">Viewing demo journal of</span>

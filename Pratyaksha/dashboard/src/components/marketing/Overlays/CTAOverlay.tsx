@@ -20,48 +20,10 @@ export function CTAOverlay({ isVisible, transitionOpacity, isPreloading }: CTAOv
         {/* Glowing orb with particles */}
         <AnimatedText delay={0} animation="scaleIn">
           <motion.div className="relative mb-10">
-            {/* Orbiting particles */}
-            {[...Array(3)].map((_, i) => (
-              <motion.div
-                key={i}
-                className="absolute w-2 h-2 bg-white/30 rounded-full"
-                style={{
-                  top: '50%',
-                  left: '50%',
-                }}
-                animate={{
-                  x: [0, Math.cos(i * 2.09) * 50, 0],
-                  y: [0, Math.sin(i * 2.09) * 50, 0],
-                  opacity: [0.3, 0.8, 0.3],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  delay: i * 1,
-                  ease: 'easeInOut',
-                }}
-              />
-            ))}
-
-            <motion.div
-              animate={{
-                boxShadow: [
-                  '0 0 40px 10px rgba(255,255,255,0.2)',
-                  '0 0 80px 30px rgba(255,255,255,0.4)',
-                  '0 0 40px 10px rgba(255,255,255,0.2)',
-                ],
-                scale: [1, 1.05, 1],
-              }}
-              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-              className="w-20 h-20 rounded-full bg-white/10 backdrop-blur-xl flex items-center justify-center"
-            >
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-              >
-                <Sparkles className="w-10 h-10 text-white" />
-              </motion.div>
-            </motion.div>
+            {/* Static orb */}
+            <div className="w-20 h-20 rounded-full bg-white/10 backdrop-blur-xl flex items-center justify-center">
+              <Sparkles className="w-10 h-10 text-white" />
+            </div>
           </motion.div>
         </AnimatedText>
 
@@ -96,54 +58,35 @@ export function CTAOverlay({ isVisible, transitionOpacity, isPreloading }: CTAOv
           <div className="flex flex-col items-center gap-4">
             {/* Primary row */}
             <div className="flex flex-col sm:flex-row items-center gap-4">
-              <motion.div
-                whileHover={{ scale: 1.05, y: -3 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Link to="/dashboard">
-                  <Button
-                    size="lg"
-                    className="bg-white text-gray-900 hover:bg-gray-100 gap-2 px-8 py-6 text-lg font-semibold relative overflow-hidden group"
-                  >
-                    <motion.span
-                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-                      animate={{ x: ['-100%', '200%'] }}
-                      transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
-                    />
-                    <span className="relative z-10 flex items-center gap-2">
-                      Start Free
-                      <ArrowRight className="w-5 h-5" />
-                    </span>
-                  </Button>
-                </Link>
-              </motion.div>
+              <Link to="/dashboard">
+                <Button
+                  size="lg"
+                  className="bg-white text-gray-900 hover:bg-gray-100 gap-2 px-8 py-6 text-lg font-semibold"
+                >
+                  Start Free
+                  <ArrowRight className="w-5 h-5" />
+                </Button>
+              </Link>
 
-              <motion.div
-                whileHover={{ scale: 1.05, y: -3 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Link to="/logs">
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="border-white/30 text-white hover:bg-white/10 gap-2 px-8 py-6 text-lg"
-                  >
-                    <Play className="w-5 h-5" />
-                    Start Journaling
-                  </Button>
-                </Link>
-              </motion.div>
+              <Link to="/logs">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="border-white/30 text-white hover:bg-white/10 gap-2 px-8 py-6 text-lg"
+                >
+                  <Play className="w-5 h-5" />
+                  Start Journaling
+                </Button>
+              </Link>
             </div>
 
             {/* Secondary link */}
-            <motion.div whileHover={{ y: -1 }}>
-              <Link
-                to="/dashboard"
-                className="text-white/50 hover:text-white/80 text-sm transition-colors"
-              >
-                or explore the dashboard first →
-              </Link>
-            </motion.div>
+            <Link
+              to="/dashboard"
+              className="text-white/50 hover:text-white/80 text-sm transition-colors"
+            >
+              or explore the dashboard first →
+            </Link>
           </div>
         </AnimatedText>
 
@@ -189,7 +132,7 @@ export function CTAOverlay({ isVisible, transitionOpacity, isPreloading }: CTAOv
         >
           <motion.div
             className="flex items-center gap-2 text-white/30"
-            whileHover={{ scale: 1.05, opacity: 0.5 }}
+            whileHover={{ opacity: 0.6 }}
           >
             <div className="w-6 h-6 rounded bg-white/10 flex items-center justify-center">
               <span className="text-xs font-bold">P</span>
@@ -210,7 +153,7 @@ function CheckIcon() {
       viewBox="0 0 20 20"
       initial={{ scale: 0 }}
       animate={{ scale: 1 }}
-      transition={{ type: 'spring', stiffness: 500, delay: 0.3 }}
+      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
     >
       <path
         fillRule="evenodd"

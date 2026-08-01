@@ -131,7 +131,7 @@ export function SolutionOverlay({ isVisible, onNext, transitionOpacity, isPreloa
         >
           <div className="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-lg p-3 text-left">
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+              <div className="w-2 h-2 rounded-full bg-green-400" />
               <span className="text-[10px] text-slate-400 uppercase tracking-wider">Sample Entry</span>
             </div>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed italic">
@@ -163,10 +163,9 @@ export function SolutionOverlay({ isVisible, onNext, transitionOpacity, isPreloa
                 initial={{ opacity: 0, x: index % 2 === 0 ? -30 : 30, scale: 0.9 }}
                 animate={isVisible ? { opacity: 1, x: 0, scale: 1 } : {}}
                 transition={{
-                  duration: 0.5,
+                  duration: 0.25,
+                  ease: [0.16, 1, 0.3, 1],
                   delay,
-                  type: 'spring',
-                  stiffness: 200,
                 }}
                 onMouseEnter={() => setHoveredAgent(agent.id)}
                 onMouseLeave={() => setHoveredAgent(null)}
@@ -175,23 +174,22 @@ export function SolutionOverlay({ isVisible, onNext, transitionOpacity, isPreloa
               >
                 <motion.div
                   animate={isHovered ? {
-                    scale: 1.618,
+                    scale: 1.02,
                     zIndex: 50,
                   } : {
                     scale: 1,
                     zIndex: 1,
                   }}
                   transition={{
-                    type: 'spring',
-                    stiffness: 300,
-                    damping: 25,
+                    duration: 0.25,
+                    ease: [0.16, 1, 0.3, 1],
                   }}
                   className="origin-center"
                 >
                   {/* Card */}
                   <div
-                    className={`bg-slate-900/95 backdrop-blur border rounded-lg text-left h-full transition-all duration-300 ${
-                      isHovered ? 'p-3 shadow-2xl shadow-black/50' : 'p-2.5 sm:p-3'
+                    className={`bg-slate-900/95 backdrop-blur border rounded-lg text-left h-full transition-colors duration-300 ${
+                      isHovered ? 'p-3' : 'p-2.5 sm:p-3'
                     }`}
                     style={{ borderColor: isHovered ? `${agent.color}60` : `${agent.color}40` }}
                   >
@@ -267,20 +265,13 @@ export function SolutionOverlay({ isVisible, onNext, transitionOpacity, isPreloa
                       </motion.div>
                     )}
 
-                    {/* Animated processing indicator */}
+                    {/* Processing indicator */}
                     <motion.div
                       className="absolute -top-1 -right-1 w-2 h-2 rounded-full"
                       style={{ backgroundColor: agent.color }}
                       initial={{ scale: 0 }}
-                      animate={isVisible ? {
-                        scale: [0, 1.2, 1],
-                        boxShadow: [
-                          `0 0 0 0 ${agent.color}`,
-                          `0 0 10px 3px ${agent.color}50`,
-                          `0 0 5px 1px ${agent.color}30`,
-                        ]
-                      } : {}}
-                      transition={{ duration: 0.5, delay: delay + 0.15 }}
+                      animate={isVisible ? { scale: 1 } : {}}
+                      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1], delay: delay + 0.15 }}
                     />
                   </div>
                 </motion.div>
@@ -331,31 +322,19 @@ export function SolutionOverlay({ isVisible, onNext, transitionOpacity, isPreloa
           {/* Primary: Continue journey */}
           <motion.button
             onClick={onNext}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.98 }}
-            className="group flex items-center gap-2 px-5 py-2.5 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-300 hover:bg-purple-500/30 hover:text-purple-200 transition-all duration-300"
+            className="group flex items-center gap-2 px-5 py-2.5 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-300 hover:bg-purple-500/30 hover:text-purple-200 transition-colors duration-300"
           >
             <span className="text-xs sm:text-sm font-medium">See The Light</span>
-            <motion.div
-              animate={{ x: [0, 4, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-            >
-              <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            </motion.div>
+            <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </motion.button>
 
           {/* Secondary: Try Demo */}
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.98 }}
+          <Link
+            to="/dashboard"
+            className="flex items-center gap-2 px-4 py-2 text-white/50 hover:text-white/80 text-xs sm:text-sm transition-colors"
           >
-            <Link
-              to="/dashboard"
-              className="flex items-center gap-2 px-4 py-2 text-white/50 hover:text-white/80 text-xs sm:text-sm transition-colors"
-            >
-              Try it now →
-            </Link>
-          </motion.div>
+            Try it now →
+          </Link>
         </motion.div>
       </div>
     </BaseOverlay>

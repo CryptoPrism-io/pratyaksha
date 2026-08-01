@@ -75,24 +75,24 @@ export function ChatMessage({ message, isLatest = false, onReact }: ChatMessageP
   return (
     <div
       className={cn(
-        "group relative flex gap-3 p-4 rounded-2xl transition-all duration-300",
+        "group relative flex gap-3 p-4 rounded-2xl transition-colors",
         isUser
-          ? "bg-gradient-to-r from-primary/10 to-primary/5 ml-8"
-          : "bg-gradient-to-r from-violet-500/5 to-purple-500/5 mr-8 border border-violet-200/20",
+          ? "bg-primary/10 ml-8"
+          : "bg-muted/50 mr-8 border border-border/60",
         isLatest && !isUser && "animate-in fade-in slide-in-from-bottom-2 duration-500"
       )}
     >
       {/* Avatar */}
       <div
         className={cn(
-          "flex-shrink-0 h-10 w-10 rounded-2xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-105",
+          "flex-shrink-0 h-10 w-10 rounded-2xl flex items-center justify-center",
           isUser
-            ? "bg-gradient-to-br from-primary to-primary/80"
-            : "bg-gradient-to-br from-violet-500 to-purple-600"
+            ? "bg-primary text-primary-foreground"
+            : "bg-violet-600"
         )}
       >
         {isUser ? (
-          <User className="h-5 w-5 text-white" />
+          <User className="h-5 w-5" />
         ) : (
           <Bot className="h-5 w-5 text-white" />
         )}
@@ -197,12 +197,13 @@ export function ChatMessage({ message, isLatest = false, onReact }: ChatMessageP
 
         {/* Actions for AI messages */}
         {!isUser && (
-          <div className="flex items-center gap-1 pt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex items-center gap-1 pt-2">
             <button
               onClick={handleCopy}
               className={cn(
                 "inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs",
-                "text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                "text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               )}
             >
               {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
@@ -216,7 +217,8 @@ export function ChatMessage({ message, isLatest = false, onReact }: ChatMessageP
                 "inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-colors",
                 reaction === "up"
                   ? "text-green-600 bg-green-50 dark:bg-green-900/20"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               )}
             >
               <ThumbsUp className="h-3 w-3" />
@@ -228,7 +230,8 @@ export function ChatMessage({ message, isLatest = false, onReact }: ChatMessageP
                 "inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-colors",
                 reaction === "down"
                   ? "text-red-600 bg-red-50 dark:bg-red-900/20"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               )}
             >
               <ThumbsDown className="h-3 w-3" />

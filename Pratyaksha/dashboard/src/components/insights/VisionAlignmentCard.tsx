@@ -65,7 +65,7 @@ function CircularProgress({
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
-          className={cn("transition-all duration-500", strokeColor)}
+          className={cn("transition-colors duration-500", strokeColor)}
         />
       </svg>
       {/* Center text */}
@@ -180,7 +180,7 @@ export function VisionAlignmentCard() {
   return (
     <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="p-4 border-b bg-gradient-to-r from-primary/5 to-transparent">
+      <div className="p-4 border-b bg-muted/30">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Target className="h-5 w-5 text-primary" />

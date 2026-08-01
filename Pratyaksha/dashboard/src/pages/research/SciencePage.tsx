@@ -77,7 +77,7 @@ const keyFindings = [
     title: "Emotional Processing",
     stat: "23%",
     description: "improvement in emotional regulation after 4 weeks of expressive writing",
-    color: "text-rose-500"
+    color: "text-violet-500"
   },
   {
     icon: Brain,
@@ -98,7 +98,7 @@ const keyFindings = [
     title: "Long-term Growth",
     stat: "3x",
     description: "more likely to achieve goals when journaling with reflection",
-    color: "text-amber-500"
+    color: "text-teal-500"
   }
 ]
 
@@ -106,10 +106,6 @@ export function SciencePage() {
   return (
     <ResearchLayout>
       <div className="relative overflow-hidden">
-        {/* Background orbs */}
-        <div className="absolute top-20 left-10 w-[500px] h-[500px] bg-teal-500/8 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-96 right-0 w-[400px] h-[400px] bg-rose-500/6 rounded-full blur-3xl pointer-events-none" />
-
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 relative z-10">
 
           {/* Hero */}
@@ -119,7 +115,7 @@ export function SciencePage() {
               Data Visualizations
             </div>
             <h1 className="font-space text-4xl sm:text-5xl font-bold mb-6 tracking-tight">
-              Science & <span className="brand-gradient">Evidence</span>
+              Science & <span className="text-teal-600 dark:text-teal-400">Evidence</span>
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Interactive visualizations of peer-reviewed research on journaling,
@@ -131,9 +127,9 @@ export function SciencePage() {
           <section className="mb-16">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {keyFindings.map((finding) => (
-                <div key={finding.title} className="glass-feature-card p-5 text-center card-lift">
+                <div key={finding.title} className="glass-feature-card p-5 text-center">
                   <finding.icon className={cn("w-8 h-8 mx-auto mb-3", finding.color)} />
-                  <div className="font-space text-3xl font-bold mb-1">{finding.stat}</div>
+                  <div className="font-space text-3xl font-bold mb-1 signal-data">{finding.stat}</div>
                   <div className="text-sm font-medium mb-2">{finding.title}</div>
                   <div className="text-xs text-muted-foreground">{finding.description}</div>
                 </div>
@@ -294,7 +290,7 @@ export function SciencePage() {
 
           {/* Research Methodology Note */}
           <section className="mb-16">
-            <div className="glass-feature-card p-6 sm:p-8 border-l-4 border-amber-500">
+            <div className="glass-light p-6 sm:p-8 rounded-xl">
               <h3 className="font-space font-semibold mb-3">A Note on Methodology</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 The visualizations above synthesize findings from multiple peer-reviewed studies.
@@ -307,14 +303,11 @@ export function SciencePage() {
 
           {/* CTA */}
           <section className="text-center">
-            <div className="glass-feature-card p-8 sm:p-10 relative overflow-hidden">
-              <div className="absolute -top-20 -left-20 w-48 h-48 bg-teal-500/15 rounded-full blur-3xl pointer-events-none" />
-              <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />
-
+            <div className="glass-feature-card p-8 sm:p-10">
               <div className="relative z-10">
                 <Sparkles className="w-10 h-10 mx-auto mb-4 text-teal-500" />
                 <h2 className="font-space text-2xl sm:text-3xl font-bold mb-4 tracking-tight">
-                  Be Part of the <span className="brand-gradient">Data</span>
+                  Be Part of the <span className="text-teal-600 dark:text-teal-400">Data</span>
                 </h2>
                 <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
                   Every journal entry you write contributes to your personal pattern library.
@@ -322,7 +315,7 @@ export function SciencePage() {
                 </p>
                 <Link
                   to="/logs"
-                  className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-gradient-to-r from-teal-500 to-teal-600 text-white font-semibold hover:scale-105 hover:shadow-xl hover:shadow-teal-500/25 transition-all"
+                  className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-violet-600 text-white font-semibold hover:bg-violet-500 transition-colors"
                 >
                   Start Journaling
                   <ArrowRight className="w-5 h-5" />

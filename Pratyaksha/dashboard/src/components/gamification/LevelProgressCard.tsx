@@ -100,12 +100,12 @@ export function LevelProgressCard({ className }: LevelProgressCardProps) {
         <div className="h-3 rounded-full bg-muted overflow-hidden">
           <div
             className={cn(
-              "h-full rounded-full transition-all duration-500",
+              "h-full rounded-full transition-colors duration-500",
               unlockLevel === "core"
-                ? "bg-gradient-to-r from-violet-500 to-purple-500"
+                ? "bg-violet-500"
                 : unlockLevel === "deep"
-                ? "bg-gradient-to-r from-amber-500 to-yellow-500"
-                : "bg-gradient-to-r from-sky-500 to-cyan-500"
+                ? "bg-teal-500"
+                : "bg-violet-500/60"
             )}
             style={{ width: `${progress}%` }}
           />
@@ -126,7 +126,7 @@ export function LevelProgressCard({ className }: LevelProgressCardProps) {
                 index > 0 && "ml-4"
               )}>
                 <div className={cn(
-                  "h-8 w-8 rounded-full flex items-center justify-center border-2 transition-all",
+                  "h-8 w-8 rounded-full flex items-center justify-center border-2 transition-colors",
                   isUnlocked ? info.borderColor : "border-muted",
                   isUnlocked ? info.bgColor : "bg-muted/30",
                   isCurrent && "ring-2 ring-offset-2 ring-offset-background",
@@ -149,7 +149,7 @@ export function LevelProgressCard({ className }: LevelProgressCardProps) {
                 <div className={cn(
                   "h-0.5 w-8 mx-2",
                   isTierUnlocked((["surface", "deep", "core"] as UnlockTier[])[index + 1])
-                    ? "bg-gradient-to-r from-current to-current"
+                    ? "bg-teal-500"
                     : "bg-muted"
                 )} />
               )}
@@ -189,7 +189,7 @@ export function LevelProgressCard({ className }: LevelProgressCardProps) {
 
       {/* All unlocked message */}
       {!nextInfo && (
-        <div className="p-4 rounded-lg bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/30 text-center">
+        <div className="p-4 rounded-lg bg-violet-500/10 border border-violet-500/30 text-center">
           <p className={cn("text-sm font-medium", TIER_INFO.core.color)}>
             All levels unlocked!
           </p>

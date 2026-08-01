@@ -40,11 +40,9 @@ export function StepNavbar({ currentStep, totalSteps, stepConfig, isLocked, onNa
         {/* Main navbar row */}
         <div className="flex items-center justify-between h-12">
           {/* Logo */}
-          <motion.a
+          <a
             href="#"
             className="flex items-center gap-2 group"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
           >
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-sm border border-white/10 flex items-center justify-center group-hover:border-white/20 transition-colors">
               <Sparkles className="w-4 h-4 text-white" />
@@ -53,7 +51,7 @@ export function StepNavbar({ currentStep, totalSteps, stepConfig, isLocked, onNa
               <span className="text-white font-semibold text-sm leading-tight">Becoming</span>
               <span className="text-white/40 text-[10px] leading-tight">Cognitive Journal</span>
             </div>
-          </motion.a>
+          </a>
 
           {/* Center - Journey Timeline (desktop) */}
           <div className="hidden md:flex items-center gap-1" role="tablist" aria-label="Journey sections">
@@ -70,22 +68,20 @@ export function StepNavbar({ currentStep, totalSteps, stepConfig, isLocked, onNa
                     role="tab"
                     aria-selected={isCurrent}
                     aria-label={`Go to ${step.label} section`}
-                    className={`relative px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-300 ${
+                    className={`relative px-3 py-1.5 rounded-full text-xs font-medium transition-colors duration-300 ${
                       isCurrent
                         ? 'text-white'
                         : isActive
                           ? 'text-white/70 hover:text-white'
                           : 'text-white/40 hover:text-white/60'
                     } ${canClick ? 'cursor-pointer' : 'cursor-default'}`}
-                    whileHover={canClick ? { scale: 1.05 } : {}}
-                    whileTap={canClick ? { scale: 0.95 } : {}}
                   >
                     {/* Active background pill */}
                     {isCurrent && (
                       <motion.div
                         layoutId="activeStep"
                         className="absolute inset-0 bg-white/15 backdrop-blur-sm rounded-full border border-white/20"
-                        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                        transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                       />
                     )}
                     <span className="relative z-10">{step.label}</span>
@@ -124,7 +120,7 @@ export function StepNavbar({ currentStep, totalSteps, stepConfig, isLocked, onNa
                   className="p-2.5"
                   aria-label={`Go to ${JOURNEY_STEPS[idx].label}`}
                 >
-                  <span className={`block h-1.5 rounded-full transition-all duration-300 ${
+                  <span className={`block h-1.5 rounded-full transition-[width,background-color] duration-300 ${
                     currentTextStepIndex === idx
                       ? 'bg-white w-4'
                       : currentTextStepIndex > idx
@@ -137,20 +133,18 @@ export function StepNavbar({ currentStep, totalSteps, stepConfig, isLocked, onNa
           </div>
 
           {/* Right - CTA Button */}
-          <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
+          <button
             onClick={() => !isAtEnd && onNavigate(4)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors duration-300 ${
               isAtEnd
-                ? 'bg-white text-gray-900 shadow-lg shadow-white/20'
+                ? 'bg-white text-gray-900'
                 : 'bg-white/10 text-white border border-white/20 hover:bg-white/20 hover:border-white/30'
             }`}
           >
             <span className="hidden sm:inline">{isAtEnd ? 'Start Your Journey' : 'Skip Ahead'}</span>
             <span className="sm:hidden">{isAtEnd ? 'Begin' : 'Skip'}</span>
             <ArrowRight className="w-4 h-4" />
-          </motion.button>
+          </button>
         </div>
 
         {/* Progress bar - subtle and elegant */}

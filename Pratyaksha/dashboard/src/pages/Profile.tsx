@@ -109,7 +109,7 @@ export function Profile() {
               </div>
               <button
                 onClick={handleSignOut}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border text-sm hover:bg-muted transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border text-sm hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <LogOut className="h-4 w-4" />
                 Sign Out
@@ -133,7 +133,7 @@ export function Profile() {
               {isConfigured && (
                 <button
                   onClick={handleSignIn}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm hover:bg-primary/90 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                   <LogIn className="h-4 w-4" />
                   Sign In with Google
@@ -146,19 +146,19 @@ export function Profile() {
         {/* Stats Overview */}
         <div className="grid gap-4 grid-cols-2 md:grid-cols-4 mb-6">
           <div className="rounded-xl glass-card p-4 text-center">
-            <p className="text-2xl font-bold">{totalEntries}</p>
+            <p className="text-2xl font-bold signal-data">{totalEntries}</p>
             <p className="text-xs text-muted-foreground">Total Entries</p>
           </div>
           <div className="rounded-xl glass-card p-4 text-center">
-            <p className="text-2xl font-bold">{totalDaysJournaled}</p>
+            <p className="text-2xl font-bold signal-data">{totalDaysJournaled}</p>
             <p className="text-xs text-muted-foreground">Days Journaled</p>
           </div>
           <div className="rounded-xl glass-card p-4 text-center">
-            <p className="text-2xl font-bold">{streak}</p>
+            <p className="text-2xl font-bold signal-data">{streak}</p>
             <p className="text-xs text-muted-foreground">Current Streak</p>
           </div>
           <div className="rounded-xl glass-card p-4 text-center">
-            <p className="text-2xl font-bold">{avgEntriesPerDay}</p>
+            <p className="text-2xl font-bold signal-data">{avgEntriesPerDay}</p>
             <p className="text-xs text-muted-foreground">Avg/Day</p>
           </div>
         </div>
@@ -192,7 +192,7 @@ export function Profile() {
             {!hasCompletedOnboarding && (
               <button
                 onClick={() => setShowOnboarding(true)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs hover:bg-primary/90 transition-colors"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 <Compass className="h-3 w-3" />
                 Build Your Profile
@@ -201,7 +201,7 @@ export function Profile() {
             {hasCompletedOnboarding && (
               <button
                 onClick={() => setShowOnboarding(true)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs hover:bg-muted transition-colors"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <RotateCcw className="h-3 w-3" />
                 Edit Profile
@@ -260,7 +260,7 @@ export function Profile() {
                           {[1, 2, 3, 4, 5].map((level) => (
                             <div
                               key={level}
-                              className={`h-2 w-4 rounded-sm ${level <= (onboardingProfile.stressLevel || 0) ? "bg-orange-500" : "bg-muted"}`}
+                              className={`h-2 w-4 rounded-sm ${level <= (onboardingProfile.stressLevel || 0) ? "bg-neutral-500" : "bg-muted"}`}
                             />
                           ))}
                         </div>
@@ -273,7 +273,7 @@ export function Profile() {
                           {[1, 2, 3, 4, 5].map((level) => (
                             <div
                               key={level}
-                              className={`h-2 w-4 rounded-sm ${level <= (onboardingProfile.emotionalOpenness || 0) ? "bg-blue-500" : "bg-muted"}`}
+                              className={`h-2 w-4 rounded-sm ${level <= (onboardingProfile.emotionalOpenness || 0) ? "bg-teal-500" : "bg-muted"}`}
                             />
                           ))}
                         </div>
@@ -286,7 +286,7 @@ export function Profile() {
                           {[1, 2, 3, 4, 5].map((level) => (
                             <div
                               key={level}
-                              className={`h-2 w-4 rounded-sm ${level <= (onboardingProfile.reflectionFrequency || 0) ? "bg-purple-500" : "bg-muted"}`}
+                              className={`h-2 w-4 rounded-sm ${level <= (onboardingProfile.reflectionFrequency || 0) ? "bg-violet-500" : "bg-muted"}`}
                             />
                           ))}
                         </div>
@@ -299,7 +299,7 @@ export function Profile() {
                           {[1, 2, 3, 4, 5].map((level) => (
                             <div
                               key={level}
-                              className={`h-2 w-4 rounded-sm ${level <= (onboardingProfile.lifeSatisfaction || 0) ? "bg-green-500" : "bg-muted"}`}
+                              className={`h-2 w-4 rounded-sm ${level <= (onboardingProfile.lifeSatisfaction || 0) ? "bg-teal-500" : "bg-muted"}`}
                             />
                           ))}
                         </div>
@@ -363,13 +363,13 @@ export function Profile() {
                 return (
                   <div
                     key={badgeId}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/30"
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-teal-500/10 border border-teal-500/30"
                   >
-                    <div className="w-6 h-6 rounded-full bg-amber-500/20 flex items-center justify-center">
-                      <Compass className="w-3 h-3 text-amber-500" />
+                    <div className="w-6 h-6 rounded-full bg-teal-500/20 flex items-center justify-center">
+                      <Compass className="w-3 h-3 text-teal-500" />
                     </div>
                     <div>
-                      <p className="text-xs font-medium text-amber-600 dark:text-amber-400">
+                      <p className="text-xs font-medium text-teal-600 dark:text-teal-400">
                         {badge.name}
                       </p>
                       <p className="text-[10px] text-muted-foreground">
@@ -433,11 +433,11 @@ export function Profile() {
               <h2 className="font-semibold">Data Management</h2>
             </div>
             <div className="flex flex-wrap gap-3">
-              <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm hover:bg-primary/90 transition-colors">
+              <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">
                 <Download className="h-4 w-4" />
                 Export Data
               </button>
-              <button className="flex items-center gap-2 px-4 py-2 rounded-lg border text-sm hover:bg-muted transition-colors text-destructive">
+              <button className="flex items-center gap-2 px-4 py-2 rounded-lg border text-sm hover:bg-muted transition-colors text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                 <Trash2 className="h-4 w-4" />
                 Delete All Data
               </button>

@@ -130,22 +130,21 @@ export function ProblemOverlay({ isVisible, onNext, transitionOpacity, isPreload
               >
                 <motion.div
                   animate={isHovered ? {
-                    scale: 1.618,
+                    scale: 1.02,
                     zIndex: 50,
                   } : {
                     scale: 1,
                     zIndex: 1,
                   }}
                   transition={{
-                    type: 'spring',
-                    stiffness: 300,
-                    damping: 25,
+                    duration: 0.25,
+                    ease: [0.16, 1, 0.3, 1],
                   }}
                   className="origin-center"
                 >
                   <div
-                    className={`bg-slate-900/95 backdrop-blur border rounded-lg text-left h-full transition-all duration-300 ${
-                      isHovered ? 'p-3 shadow-2xl shadow-black/50' : 'p-2.5 sm:p-3'
+                    className={`bg-slate-900/95 backdrop-blur border rounded-lg text-left h-full transition-colors duration-300 ${
+                      isHovered ? 'p-3' : 'p-2.5 sm:p-3'
                     }`}
                     style={{ borderColor: isHovered ? `${problem.color}60` : `${problem.color}40` }}
                   >
@@ -211,15 +210,10 @@ export function ProblemOverlay({ isVisible, onNext, transitionOpacity, isPreload
                       </motion.div>
                     )}
 
-                    {/* Animated indicator dot */}
-                    <motion.div
+                    {/* Indicator dot */}
+                    <div
                       className="absolute -top-1 -right-1 w-2 h-2 rounded-full"
                       style={{ backgroundColor: problem.color }}
-                      animate={{
-                        scale: [1, 1.3, 1],
-                        opacity: [0.7, 1, 0.7],
-                      }}
-                      transition={{ duration: 2, repeat: Infinity, delay: index * 0.3 }}
                     />
                   </div>
                 </motion.div>
@@ -266,15 +260,10 @@ export function ProblemOverlay({ isVisible, onNext, transitionOpacity, isPreload
           animate={isVisible ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, delay: 0.8 }}
           onClick={onNext}
-          className="mt-6 sm:mt-10 group flex items-center gap-2 text-white/70 hover:text-white transition-all duration-300"
+          className="mt-6 sm:mt-10 group flex items-center gap-2 text-white/70 hover:text-white transition-colors duration-300"
         >
           <span className="text-sm sm:text-base font-medium tracking-wide">Find The Shift</span>
-          <motion.div
-            animate={{ x: [0, 5, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-          >
-            <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
-          </motion.div>
+          <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
         </motion.button>
       </div>
     </BaseOverlay>

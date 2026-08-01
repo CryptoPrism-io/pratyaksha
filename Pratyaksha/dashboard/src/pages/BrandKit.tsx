@@ -18,23 +18,14 @@ const BRAND_COLORS = {
       { name: "Teal 100", hex: "#ccfbf1", usage: "Background tint" },
     ],
   },
-  secondary: {
-    name: "Rose",
-    colors: [
-      { name: "Rose 800", hex: "#9f1239", usage: "Secondary dark" },
-      { name: "Rose 700", hex: "#be123c", usage: "Secondary" },
-      { name: "Rose 500", hex: "#f43f5e", usage: "Secondary light" },
-      { name: "Rose 400", hex: "#fb7185", usage: "Accent" },
-      { name: "Rose 100", hex: "#ffe4e6", usage: "Background tint" },
-    ],
-  },
   accent: {
-    name: "Amber",
+    name: "Violet",
     colors: [
-      { name: "Amber 700", hex: "#b45309", usage: "Accent dark" },
-      { name: "Amber 500", hex: "#f59e0b", usage: "Accent" },
-      { name: "Amber 400", hex: "#fbbf24", usage: "Highlight" },
-      { name: "Amber 100", hex: "#fef3c7", usage: "Background tint" },
+      { name: "Violet 800", hex: "#5b21b6", usage: "AI dark" },
+      { name: "Violet 600", hex: "#7c3aed", usage: "AI accent" },
+      { name: "Violet 500", hex: "#8b5cf6", usage: "AI light" },
+      { name: "Violet 400", hex: "#a78bfa", usage: "AI highlight" },
+      { name: "Violet 100", hex: "#ede9fe", usage: "Background tint" },
     ],
   },
   neutral: {
@@ -82,15 +73,20 @@ function ColorSwatch({ name, hex, usage }: { name: string; hex: string; usage: s
   }
 
   return (
-    <button onClick={copyToClipboard} className="group flex flex-col text-left">
+    <button
+      onClick={copyToClipboard}
+      aria-label={`Copy ${name} ${hex}`}
+      title={`Copy ${hex}`}
+      className="group flex flex-col text-left rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60"
+    >
       <div
-        className="w-full h-16 rounded-lg mb-2 ring-1 ring-white/10 group-hover:ring-2 group-hover:ring-teal-500/50 transition-all flex items-center justify-center"
+        className="w-full h-16 rounded-lg mb-2 ring-1 ring-white/10 group-hover:ring-2 group-hover:ring-teal-500/50 transition-colors flex items-center justify-center"
         style={{ backgroundColor: hex }}
       >
         {copied ? (
           <Check className="h-4 w-4 text-white drop-shadow-md" />
         ) : (
-          <Copy className="h-3 w-3 text-white/0 group-hover:text-white/80 drop-shadow-md transition-all" />
+          <Copy className="h-3 w-3 text-white/0 group-hover:text-white/80 drop-shadow-md transition-colors" />
         )}
       </div>
       <span className="text-xs font-medium text-white/90">{name}</span>
@@ -107,11 +103,11 @@ function MothSVG({ className, variant = "gradient" }: { className?: string; vari
       <defs>
         <linearGradient id="mothWingL" x1="100%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" stopColor="#0d9488" />
-          <stop offset="100%" stopColor="#be123c" />
+          <stop offset="100%" stopColor="#7c3aed" />
         </linearGradient>
         <linearGradient id="mothWingR" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#0d9488" />
-          <stop offset="100%" stopColor="#be123c" />
+          <stop offset="100%" stopColor="#7c3aed" />
         </linearGradient>
       </defs>
       <ellipse cx="25" cy="25" rx="20" ry="14" fill={variant === "light" ? "#134e4a" : "url(#mothWingL)"} />
@@ -162,7 +158,7 @@ function DownloadButton({ elementId, filename, scale = 2 }: { elementId: string;
     <button
       onClick={handleDownload}
       disabled={loading}
-      className="mt-3 px-4 py-2 text-[10px] font-semibold tracking-wider uppercase border border-teal-500/50 text-teal-400 rounded hover:bg-teal-500/10 hover:border-teal-500 transition-all disabled:opacity-50"
+      className="mt-3 px-4 py-2 text-[10px] font-semibold tracking-wider uppercase border border-teal-500/50 text-teal-400 rounded hover:bg-teal-500/10 hover:border-teal-500 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60"
     >
       {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : `Download ${scale}x`}
     </button>
@@ -240,7 +236,7 @@ function DownloadAllButton() {
     <button
       onClick={handleDownloadAll}
       disabled={loading}
-      className="mt-6 px-8 py-3.5 text-xs font-semibold tracking-widest uppercase bg-gradient-to-r from-teal-500 to-teal-400 text-stone-900 rounded-md hover:from-teal-400 hover:to-teal-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-teal-500/30 transition-all disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none flex items-center gap-2"
+      className="mt-6 px-8 py-3.5 text-xs font-semibold tracking-widest uppercase bg-teal-500 text-stone-900 rounded-md hover:bg-teal-400 transition-colors disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60"
     >
       {loading ? (
         <>
@@ -270,14 +266,14 @@ export function BrandKit() {
             Becoming - Brand Assets & Guidelines
           </p>
           <div className="flex items-center justify-center gap-4 mt-8">
-            <MothLogo size="xl" animated />
-            <BrandWordmark size="2xl" variant="default" animated />
+            <MothLogo size="xl" />
+            <BrandWordmark size="2xl" variant="default" />
           </div>
           <DownloadAllButton />
         </div>
 
         {/* ==================== SECTION 01: SOCIAL MEDIA BANNERS ==================== */}
-        <section className="mb-20 pb-16 border-b border-white/10">
+        <section className="mb-24 pb-20 border-b border-white/10">
           <div className="flex items-center gap-4 mb-8">
             <span className="text-5xl font-extralight text-white/20">01</span>
             <span className="text-sm font-medium tracking-[3px] uppercase text-white">Social Media Banners</span>
@@ -289,19 +285,19 @@ export function BrandKit() {
               <div className="text-white/50 text-[11px] tracking-wider uppercase mb-3 flex items-center gap-2">
                 LinkedIn Cover <span className="text-teal-400 text-[10px]">1584 × 396px</span>
               </div>
-              <div className="bg-white/[0.02] border border-white/10 rounded-lg p-5 inline-block">
+              <div className="overflow-x-auto max-w-full">
                 <div
                   id="linkedin-banner"
                   className="w-[792px] h-[198px] bg-gradient-to-br from-stone-50 to-stone-100 flex items-center justify-between px-12 relative overflow-hidden"
                 >
-                  <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-teal-500 via-rose-500 to-teal-500" />
+                  <div className="absolute top-0 left-0 right-0 h-1.5 bg-teal-500" />
                   <div className="flex items-center gap-6 z-10">
                     <MothSVG className="w-20 h-16" />
                     <div>
                       <div className="font-clash text-2xl font-semibold text-stone-800 tracking-wide">
                         Becoming
                       </div>
-                      <div className="font-cormorant text-sm text-stone-600 italic mt-1">
+                      <div className="font-space text-sm text-stone-600 mt-1">
                         Stop drifting. Start becoming.
                       </div>
                     </div>
@@ -321,12 +317,12 @@ export function BrandKit() {
               <div className="text-white/50 text-[11px] tracking-wider uppercase mb-3 flex items-center gap-2">
                 Twitter / X Header <span className="text-teal-400 text-[10px]">1500 × 500px</span>
               </div>
-              <div className="bg-white/[0.02] border border-white/10 rounded-lg p-5 inline-block">
+              <div className="overflow-x-auto max-w-full">
                 <div
                   id="twitter-banner"
                   className="w-[750px] h-[250px] bg-gradient-to-br from-stone-900 to-stone-950 flex items-center px-16 relative overflow-hidden"
                 >
-                  <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-r from-teal-500 via-rose-500 to-teal-500" />
+                  <div className="absolute bottom-0 left-0 right-0 h-2 bg-teal-500" />
                   <div className="flex items-center gap-8 z-10">
                     <MothSVG className="w-24 h-20" />
                     <div>
@@ -356,17 +352,17 @@ export function BrandKit() {
               <div className="text-white/50 text-[11px] tracking-wider uppercase mb-3 flex items-center gap-2">
                 Instagram Post <span className="text-teal-400 text-[10px]">1080 × 1080px</span>
               </div>
-              <div className="bg-white/[0.02] border border-white/10 rounded-lg p-5 inline-block">
+              <div className="overflow-x-auto max-w-full">
                 <div
                   id="instagram-banner"
                   className="w-[400px] h-[400px] bg-gradient-to-br from-stone-900 to-stone-950 flex flex-col items-center justify-center relative overflow-hidden"
                 >
-                  <div className="absolute inset-0 border-4 border-transparent" style={{ borderImage: "linear-gradient(135deg, #14b8a6, #f43f5e) 1" }} />
+                  <div className="absolute inset-0 border-4 border-teal-500" />
                   <MothSVG className="w-32 h-28 mb-6" />
                   <div className="font-clash text-3xl font-semibold text-white tracking-wider text-center">
                     Becoming
                   </div>
-                  <div className="font-cormorant text-base text-white/60 italic mt-3">
+                  <div className="font-space text-base text-white/60 mt-3">
                     Stop drifting. Start becoming.
                   </div>
                   <div className="mt-6 text-[10px] text-white/40 tracking-widest uppercase">
@@ -385,19 +381,19 @@ export function BrandKit() {
               <div className="text-white/50 text-[11px] tracking-wider uppercase mb-3 flex items-center gap-2">
                 Facebook Cover <span className="text-teal-400 text-[10px]">820 × 312px</span>
               </div>
-              <div className="bg-white/[0.02] border border-white/10 rounded-lg p-5 inline-block">
+              <div className="overflow-x-auto max-w-full">
                 <div
                   id="facebook-banner"
                   className="w-[820px] h-[312px] bg-gradient-to-br from-stone-900 to-stone-950 flex items-center justify-center relative overflow-hidden"
                 >
-                  <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-r from-teal-500 via-rose-500 to-teal-500" />
+                  <div className="absolute bottom-0 left-0 right-0 h-2 bg-teal-500" />
                   <MothSVG className="absolute -left-20 top-1/2 -translate-y-1/2 w-64 h-64 opacity-[0.03]" />
                   <div className="text-center z-10">
                     <MothSVG className="w-24 h-20 mx-auto mb-5" />
                     <div className="font-clash text-4xl font-semibold text-white tracking-wider">
                       Becoming
                     </div>
-                    <div className="font-cormorant text-base text-white/60 italic mt-2">
+                    <div className="font-space text-base text-white/60 mt-2">
                       Stop drifting. Start becoming.
                     </div>
                     <div className="mt-5 text-[11px] text-white/40 tracking-widest uppercase">
@@ -415,13 +411,13 @@ export function BrandKit() {
               <div className="text-white/50 text-[11px] tracking-wider uppercase mb-3 flex items-center gap-2">
                 YouTube Channel Art (Safe Area) <span className="text-teal-400 text-[10px]">2560 × 423px</span>
               </div>
-              <div className="bg-white/[0.02] border border-white/10 rounded-lg p-5 inline-block">
+              <div className="overflow-x-auto max-w-full">
                 <div
                   id="youtube-banner"
                   className="w-[640px] h-[106px] bg-gradient-to-r from-stone-900 via-stone-950 to-stone-900 flex items-center justify-center relative overflow-hidden"
                 >
-                  <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-teal-500 to-rose-500" />
-                  <div className="absolute right-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-teal-500 to-rose-500" />
+                  <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-teal-500" />
+                  <div className="absolute right-0 top-0 bottom-0 w-1.5 bg-teal-500" />
                   <div className="flex items-center gap-8 z-10">
                     <MothSVG className="w-16 h-14" />
                     <div className="text-left">
@@ -443,7 +439,7 @@ export function BrandKit() {
               <div className="text-white/50 text-[11px] tracking-wider uppercase mb-3 flex items-center gap-2">
                 WhatsApp Business Profile <span className="text-teal-400 text-[10px]">640 × 640px</span>
               </div>
-              <div className="bg-white/[0.02] border border-white/10 rounded-lg p-5 inline-block">
+              <div className="overflow-x-auto max-w-full">
                 <div
                   id="whatsapp-profile"
                   className="w-[300px] h-[300px] rounded-full bg-gradient-to-br from-stone-50 to-stone-100 flex flex-col items-center justify-center relative overflow-hidden"
@@ -462,18 +458,18 @@ export function BrandKit() {
               <div className="text-white/50 text-[11px] tracking-wider uppercase mb-3 flex items-center gap-2">
                 Website OG Image <span className="text-teal-400 text-[10px]">1200 × 630px</span>
               </div>
-              <div className="bg-white/[0.02] border border-white/10 rounded-lg p-5 inline-block">
+              <div className="overflow-x-auto max-w-full">
                 <div
                   id="og-image"
                   className="w-[600px] h-[315px] bg-gradient-to-br from-stone-900 to-stone-950 flex items-center justify-center relative overflow-hidden"
                 >
-                  <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gradient-to-r from-teal-500 via-rose-500 to-teal-500" />
+                  <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-teal-500" />
                   <div className="text-center z-10">
                     <MothSVG className="w-24 h-20 mx-auto mb-5" />
                     <div className="font-clash text-4xl font-semibold text-white tracking-wider">
                       Becoming
                     </div>
-                    <div className="font-cormorant text-lg text-white/60 italic mt-2">
+                    <div className="font-space text-lg text-white/60 mt-2">
                       Who you want to be.
                     </div>
                     <div className="mt-5 text-sm text-teal-400 tracking-wider">
@@ -488,7 +484,7 @@ export function BrandKit() {
         </section>
 
         {/* ==================== SECTION 02: APP ICONS ==================== */}
-        <section className="mb-20 pb-16 border-b border-white/10">
+        <section className="mb-16 pb-12 border-b border-white/10">
           <div className="flex items-center gap-4 mb-8">
             <span className="text-5xl font-extralight text-white/20">02</span>
             <span className="text-sm font-medium tracking-[3px] uppercase text-white">App Icons</span>
@@ -502,18 +498,16 @@ export function BrandKit() {
               return (
                 <div key={`light-${size}`} className="text-center">
                   <div className="text-white/40 text-[10px] mb-2">{size}px</div>
-                  <div className="bg-white/[0.02] border border-white/10 rounded-lg p-3">
-                    <div
-                      id={`icon-${size}-light`}
-                      className="flex items-center justify-center bg-gradient-to-br from-stone-50 to-stone-100 shadow-lg"
-                      style={{
-                        width: displaySize,
-                        height: displaySize,
-                        borderRadius: displaySize * 0.22,
-                      }}
-                    >
-                      <MothSVG className="w-[55%] h-[55%]" variant="light" />
-                    </div>
+                  <div
+                    id={`icon-${size}-light`}
+                    className="flex items-center justify-center bg-gradient-to-br from-stone-50 to-stone-100"
+                    style={{
+                      width: displaySize,
+                      height: displaySize,
+                      borderRadius: displaySize * 0.22,
+                    }}
+                  >
+                    <MothSVG className="w-[55%] h-[55%]" variant="light" />
                   </div>
                 </div>
               )
@@ -528,18 +522,16 @@ export function BrandKit() {
               return (
                 <div key={`dark-${size}`} className="text-center">
                   <div className="text-white/40 text-[10px] mb-2">{size}px</div>
-                  <div className="bg-white/[0.02] border border-white/10 rounded-lg p-3">
-                    <div
-                      id={`icon-${size}-dark`}
-                      className="flex items-center justify-center bg-gradient-to-br from-stone-800 to-stone-900 shadow-lg"
-                      style={{
-                        width: displaySize,
-                        height: displaySize,
-                        borderRadius: displaySize * 0.22,
-                      }}
-                    >
-                      <MothSVG className="w-[55%] h-[55%]" />
-                    </div>
+                  <div
+                    id={`icon-${size}-dark`}
+                    className="flex items-center justify-center bg-gradient-to-br from-stone-800 to-stone-900"
+                    style={{
+                      width: displaySize,
+                      height: displaySize,
+                      borderRadius: displaySize * 0.22,
+                    }}
+                  >
+                    <MothSVG className="w-[55%] h-[55%]" />
                   </div>
                 </div>
               )
@@ -548,7 +540,7 @@ export function BrandKit() {
         </section>
 
         {/* ==================== SECTION 03: PROFILE PICTURES ==================== */}
-        <section className="mb-20 pb-16 border-b border-white/10">
+        <section className="mb-24 pb-20 border-b border-white/10">
           <div className="flex items-center gap-4 mb-8">
             <span className="text-5xl font-extralight text-white/20">03</span>
             <span className="text-sm font-medium tracking-[3px] uppercase text-white">Profile Pictures</span>
@@ -560,13 +552,11 @@ export function BrandKit() {
               <div className="text-white/40 text-[10px] tracking-wider uppercase mb-3">
                 LinkedIn / Facebook (400×400)
               </div>
-              <div className="bg-white/[0.02] border border-white/10 rounded-lg p-5">
-                <div
-                  id="profile-400-light"
-                  className="w-[200px] h-[200px] rounded-full bg-gradient-to-br from-stone-50 to-stone-100 flex items-center justify-center shadow-xl"
-                >
-                  <MothSVG className="w-28 h-24" variant="light" />
-                </div>
+              <div
+                id="profile-400-light"
+                className="w-[200px] h-[200px] rounded-full bg-gradient-to-br from-stone-50 to-stone-100 flex items-center justify-center"
+              >
+                <MothSVG className="w-28 h-24" variant="light" />
               </div>
               <DownloadButton elementId="profile-400-light" filename="Becoming-Profile-400-Light" scale={2} />
             </div>
@@ -576,13 +566,11 @@ export function BrandKit() {
               <div className="text-white/40 text-[10px] tracking-wider uppercase mb-3">
                 Dark Variant (400×400)
               </div>
-              <div className="bg-white/[0.02] border border-white/10 rounded-lg p-5">
-                <div
-                  id="profile-400-dark"
-                  className="w-[200px] h-[200px] rounded-full bg-gradient-to-br from-stone-800 to-stone-900 flex items-center justify-center shadow-xl"
-                >
-                  <MothSVG className="w-28 h-24" />
-                </div>
+              <div
+                id="profile-400-dark"
+                className="w-[200px] h-[200px] rounded-full bg-gradient-to-br from-stone-800 to-stone-900 flex items-center justify-center"
+              >
+                <MothSVG className="w-28 h-24" />
               </div>
               <DownloadButton elementId="profile-400-dark" filename="Becoming-Profile-400-Dark" scale={2} />
             </div>
@@ -592,20 +580,18 @@ export function BrandKit() {
               <div className="text-white/40 text-[10px] tracking-wider uppercase mb-3">
                 Twitter / Instagram (180×180)
               </div>
-              <div className="bg-white/[0.02] border border-white/10 rounded-lg p-5">
-                <div
-                  id="profile-180"
-                  className="w-[120px] h-[120px] rounded-full bg-gradient-to-br from-stone-50 to-stone-100 flex items-center justify-center shadow-xl"
-                >
-                  <MothSVG className="w-16 h-14" variant="light" />
-                </div>
+              <div
+                id="profile-180"
+                className="w-[120px] h-[120px] rounded-full bg-gradient-to-br from-stone-50 to-stone-100 flex items-center justify-center"
+              >
+                <MothSVG className="w-16 h-14" variant="light" />
               </div>
             </div>
           </div>
         </section>
 
         {/* ==================== SECTION 04: COLORS ==================== */}
-        <section className="mb-20 pb-16 border-b border-white/10">
+        <section className="mb-16 pb-12 border-b border-white/10">
           <div className="flex items-center gap-4 mb-8">
             <span className="text-5xl font-extralight text-white/20">04</span>
             <span className="text-sm font-medium tracking-[3px] uppercase text-white">Color Palette</span>
@@ -622,22 +608,22 @@ export function BrandKit() {
             </div>
           ))}
 
-          {/* Gradients */}
-          <h3 className="text-sm font-medium text-white/70 mt-10 mb-4">Brand Gradients</h3>
+          {/* Accents */}
+          <h3 className="text-sm font-medium text-white/70 mt-10 mb-4">Accent Colors</h3>
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="rounded-xl p-6 bg-gradient-to-r from-teal-600 via-teal-500 to-rose-500 text-white">
-              <span className="text-sm font-medium">Primary Gradient</span>
-              <p className="text-xs opacity-80 mt-1">Teal → Rose (horizontal)</p>
+            <div className="rounded-xl border border-white/10 p-6 bg-teal-500 text-stone-950">
+              <span className="text-sm font-semibold">Signal Accent</span>
+              <p className="text-xs opacity-80 mt-1">Teal — CTAs, focus states, active signals</p>
             </div>
-            <div className="rounded-xl p-6 bg-gradient-to-br from-teal-600 to-rose-600 text-white">
-              <span className="text-sm font-medium">Logo Gradient</span>
-              <p className="text-xs opacity-80 mt-1">Teal → Rose (diagonal)</p>
+            <div className="rounded-xl border border-white/10 p-6 bg-violet-600 text-white">
+              <span className="text-sm font-semibold">AI Accent</span>
+              <p className="text-xs opacity-80 mt-1">Violet — AI-generated content</p>
             </div>
           </div>
         </section>
 
         {/* ==================== SECTION 05: TYPOGRAPHY ==================== */}
-        <section className="mb-20 pb-16 border-b border-white/10">
+        <section className="mb-24 pb-20 border-b border-white/10">
           <div className="flex items-center gap-4 mb-8">
             <span className="text-5xl font-extralight text-white/20">05</span>
             <span className="text-sm font-medium tracking-[3px] uppercase text-white">Typography</span>
@@ -669,7 +655,7 @@ export function BrandKit() {
         </section>
 
         {/* ==================== SECTION 06: LOGO USAGE ==================== */}
-        <section className="mb-20 pb-16 border-b border-white/10">
+        <section className="mb-16 pb-12 border-b border-white/10">
           <div className="flex items-center gap-4 mb-8">
             <span className="text-5xl font-extralight text-white/20">06</span>
             <span className="text-sm font-medium tracking-[3px] uppercase text-white">Logo & Wordmark</span>
@@ -685,9 +671,9 @@ export function BrandKit() {
               <MothLogo size="xl" />
               <span className="text-xs text-stone-400">On Dark</span>
             </div>
-            <div className="rounded-xl bg-gradient-to-br from-teal-600 to-rose-600 p-8 flex flex-col items-center justify-center gap-4">
+            <div className="rounded-xl bg-teal-600 p-8 flex flex-col items-center justify-center gap-4">
               <MothLogo size="xl" />
-              <span className="text-xs text-white/70">On Gradient</span>
+              <span className="text-xs text-white/80">On Accent</span>
             </div>
           </div>
 
@@ -722,7 +708,7 @@ export function BrandKit() {
         </section>
 
         {/* ==================== SECTION 07: TAGLINES ==================== */}
-        <section className="mb-20 pb-16 border-b border-white/10">
+        <section className="mb-24 pb-20 border-b border-white/10">
           <div className="flex items-center gap-4 mb-8">
             <span className="text-5xl font-extralight text-white/20">07</span>
             <span className="text-sm font-medium tracking-[3px] uppercase text-white">Taglines</span>
@@ -757,18 +743,18 @@ export function BrandKit() {
 
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
             {[
-              "Don't rotate the logo",
-              "Don't stretch or distort",
-              "Don't change gradient colors",
-              "Don't add effects/shadows",
-              "Don't place on busy backgrounds",
-              "Don't use low contrast",
+              "Don’t rotate the logo",
+              "Don’t stretch or distort",
+              "Don’t change accent colors",
+              "Don’t add effects/shadows",
+              "Don’t place on busy backgrounds",
+              "Don’t use low contrast",
             ].map((rule, i) => (
               <div
                 key={i}
-                className="rounded-lg bg-rose-500/10 border border-rose-500/20 p-4 text-center"
+                className="rounded-lg bg-teal-500/10 border border-teal-500/20 p-4 text-center"
               >
-                <span className="text-sm text-rose-400">{rule}</span>
+                <span className="text-sm text-teal-400">{rule}</span>
               </div>
             ))}
           </div>

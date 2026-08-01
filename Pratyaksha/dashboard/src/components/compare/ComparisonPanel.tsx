@@ -70,15 +70,12 @@ export function ComparisonPanel({
     <div
       className={cn(
         "flex flex-col h-full rounded-xl border bg-card p-4",
-        side === "left" ? "border-blue-200 dark:border-blue-900" : "border-purple-200 dark:border-purple-900",
+        side === "left" ? "border-teal-500/30" : "border-violet-500/30",
         className
       )}
     >
       {/* Period Selector */}
-      <div className={cn(
-        "mb-4 pb-3 border-b",
-        side === "left" ? "border-blue-100 dark:border-blue-900/50" : "border-purple-100 dark:border-purple-900/50"
-      )}>
+      <div className="mb-4 pb-3 border-b border-border/60">
         <PeriodSelector
           date={date}
           granularity={granularity}

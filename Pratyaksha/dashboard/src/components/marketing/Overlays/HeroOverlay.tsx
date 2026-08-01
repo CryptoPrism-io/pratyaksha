@@ -34,7 +34,7 @@ export function HeroOverlay({ isVisible, onNext, transitionOpacity, isPreloading
 
         {/* Ambient floating orbs */}
         {ORBS.map((orb, i) => (
-          <motion.div
+          <div
             key={i}
             className="absolute rounded-full pointer-events-none"
             style={{
@@ -44,16 +44,6 @@ export function HeroOverlay({ isVisible, onNext, transitionOpacity, isPreloading
               top: orb.y,
               background: orb.color,
               filter: `blur(${orb.blur}px)`,
-            }}
-            animate={{
-              x: [0, 30, -20, 0],
-              y: [0, -20, 30, 0],
-              scale: [1, 1.1, 0.95, 1],
-            }}
-            transition={{
-              duration: 8 + i * 2,
-              repeat: Infinity,
-              ease: 'easeInOut',
             }}
           />
         ))}
@@ -65,34 +55,13 @@ export function HeroOverlay({ isVisible, onNext, transitionOpacity, isPreloading
           transition={{ duration: 0.8, ease: 'easeOut' }}
           className="relative mb-2 sm:mb-4"
         >
-          {/* Glow effect behind text */}
-          <motion.div
-            className="absolute inset-0 blur-2xl"
-            animate={{
-              opacity: [0.3, 0.6, 0.3],
-            }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-          >
-            <span className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-bold text-purple-500/50">
-              प्रत्यक्ष
-            </span>
-          </motion.div>
-
-          {/* Main Sanskrit text */}
-          <motion.h1
+          {/* Main Sanskrit text - solid, no glow */}
+          <h1
             className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-bold text-white relative"
             style={{ fontFamily: 'serif' }}
-            animate={{
-              textShadow: [
-                '0 0 20px rgba(255,255,255,0.3)',
-                '0 0 40px rgba(255,255,255,0.5)',
-                '0 0 20px rgba(255,255,255,0.3)',
-              ],
-            }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
           >
             प्रत्यक्ष
-          </motion.h1>
+          </h1>
         </motion.div>
 
         {/* English transliteration */}
@@ -147,31 +116,21 @@ export function HeroOverlay({ isVisible, onNext, transitionOpacity, isPreloading
         >
           {/* Primary Actions */}
           <div className="flex flex-col sm:flex-row items-center gap-3">
-            <motion.div
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.98 }}
+            <Link
+              to="/dashboard"
+              className="px-6 py-2.5 rounded-full bg-white text-gray-900 font-medium text-sm flex items-center gap-2 hover:bg-white/90 transition-colors"
             >
-              <Link
-                to="/dashboard"
-                className="px-6 py-2.5 rounded-full bg-white text-gray-900 font-medium text-sm flex items-center gap-2 hover:bg-white/90 transition-colors"
-              >
-                Explore Dashboard
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </motion.div>
+              Explore Dashboard
+              <ArrowRight className="w-4 h-4" />
+            </Link>
 
-            <motion.div
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.98 }}
+            <Link
+              to="/logs"
+              className="px-6 py-2.5 rounded-full border border-white/30 text-white font-medium text-sm flex items-center gap-2 hover:bg-white/10 transition-colors"
             >
-              <Link
-                to="/logs"
-                className="px-6 py-2.5 rounded-full border border-white/30 text-white font-medium text-sm flex items-center gap-2 hover:bg-white/10 transition-colors"
-              >
-                <Play className="w-4 h-4" />
-                Start Journaling
-              </Link>
-            </motion.div>
+              <Play className="w-4 h-4" />
+              Start Journaling
+            </Link>
           </div>
 
           {/* Scroll indicator */}
@@ -180,57 +139,31 @@ export function HeroOverlay({ isVisible, onNext, transitionOpacity, isPreloading
             className="mt-4 group flex flex-col items-center gap-1 text-white/50 hover:text-white/70 transition-colors"
           >
             <span className="text-xs tracking-wide">or scroll to explore</span>
-            <motion.div
-              animate={{ y: [0, 5, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-            >
-              <ChevronDown className="w-4 h-4" />
-            </motion.div>
+            <ChevronDown className="w-4 h-4" />
           </button>
         </motion.div>
 
         {/* Floating particles */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {PARTICLES.map((particle) => (
-            <motion.div
+            <div
               key={particle.id}
-              className="absolute rounded-full bg-white"
+              className="absolute rounded-full bg-white/30"
               style={{
                 width: particle.size,
                 height: particle.size,
                 left: `${particle.x}%`,
                 top: `${particle.y}%`,
               }}
-              animate={{
-                y: [0, -100, 0],
-                x: [0, Math.random() * 40 - 20, 0],
-                opacity: [0, 0.6, 0],
-                scale: [0.5, 1, 0.5],
-              }}
-              transition={{
-                duration: particle.duration,
-                repeat: Infinity,
-                delay: particle.delay,
-                ease: 'easeInOut',
-              }}
             />
           ))}
         </div>
 
-        {/* Radial glow at center */}
-        <motion.div
+        {/* Radial glow at center - static */}
+        <div
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] pointer-events-none"
           style={{
             background: 'radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%)',
-          }}
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.5, 0.8, 0.5],
-          }}
-          transition={{
-            duration: 4,
-            repeat: Infinity,
-            ease: 'easeInOut',
           }}
         />
       </div>
