@@ -1,4 +1,4 @@
-import { Page, expect } from '@playwright/test';
+import { Page } from '@playwright/test';
 
 export interface ViewportInfo {
   name: string;
@@ -13,6 +13,30 @@ export const VIEWPORT_BREAKPOINTS = {
   desktop: { min: 1025 },
 };
 
+const MAX_SCREENSHOT_DIMENSION = 32767;
+
+export async function capturePageScreenshot(page: Page, screenshotPath: string): Promise<void> {
+  const pageSize = await page.evaluate(() => ({
+    width: document.documentElement.scrollWidth,
+    height: document.documentElement.scrollHeight,
+  }));
+
+  const canCaptureFullPage =
+    pageSize.width <= MAX_SCREENSHOT_DIMENSION &&
+    pageSize.height <= MAX_SCREENSHOT_DIMENSION;
+
+  if (!canCaptureFullPage) {
+    console.warn(
+      `Page is ${pageSize.width}x${pageSize.height}; capturing the viewport because Playwright screenshots are limited to ${MAX_SCREENSHOT_DIMENSION}px per dimension.`
+    );
+  }
+
+  await page.screenshot({
+    path: screenshotPath,
+    fullPage: canCaptureFullPage,
+  });
+}
+
 export function getViewportCategory(width: number): 'desktop' | 'tablet' | 'mobile' {
   if (width <= VIEWPORT_BREAKPOINTS.mobile.max) return 'mobile';
   if (width <= VIEWPORT_BREAKPOINTS.tablet.max) return 'tablet';
@@ -25,7 +49,7 @@ export async function takeResponsiveScreenshots(
   viewportInfo: ViewportInfo
 ): Promise<void> {
   const screenshotPath = `screenshots/${testName}-${viewportInfo.name}-${viewportInfo.width}x${viewportInfo.height}.png`;
-  await page.screenshot({ path: screenshotPath, fullPage: true });
+  await capturePageScreenshot(page, screenshotPath);
 }
 
 export async function checkResponsiveLayout(page: Page): Promise<{
