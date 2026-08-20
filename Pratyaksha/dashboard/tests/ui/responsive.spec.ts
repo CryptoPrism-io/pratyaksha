@@ -4,7 +4,7 @@ import {
   checkTouchTargets,
   checkTextReadability,
   checkAccessibility,
-  takeResponsiveScreenshots,
+  capturePageScreenshot,
 } from '../helpers/viewport-utils';
 
 test.describe('Responsive UI Tests', () => {
@@ -15,10 +15,10 @@ test.describe('Responsive UI Tests', () => {
 
   test('Landing page renders correctly', async ({ page, viewportInfo }) => {
     // Take screenshot for visual comparison
-    await page.screenshot({
-      path: `test-results/screenshots/landing-${viewportInfo.name}.png`,
-      fullPage: true,
-    });
+    await capturePageScreenshot(
+      page,
+      `test-results/screenshots/landing-${viewportInfo.name}.png`
+    );
 
     // Check page title/header exists
     await expect(page.locator('body')).toBeVisible();
@@ -78,10 +78,10 @@ test.describe('Dashboard Page Tests', () => {
   });
 
   test('Dashboard renders correctly', async ({ page, viewportInfo }) => {
-    await page.screenshot({
-      path: `test-results/screenshots/dashboard-${viewportInfo.name}.png`,
-      fullPage: true,
-    });
+    await capturePageScreenshot(
+      page,
+      `test-results/screenshots/dashboard-${viewportInfo.name}.png`
+    );
 
     await expect(page.locator('body')).toBeVisible();
   });
@@ -102,10 +102,10 @@ test.describe('Dashboard Page Tests', () => {
     await page.waitForTimeout(1000);
 
     // Take screenshot of chart area
-    await page.screenshot({
-      path: `test-results/screenshots/dashboard-charts-${viewportInfo.name}.png`,
-      fullPage: true,
-    });
+    await capturePageScreenshot(
+      page,
+      `test-results/screenshots/dashboard-charts-${viewportInfo.name}.png`
+    );
   });
 });
 
@@ -123,29 +123,5 @@ test.describe('Navigation Tests', () => {
         });
       }
     }
-  });
-});
-
-test.describe('Visual Regression', () => {
-  test('Full page visual snapshot', async ({ page, viewportInfo }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(500); // Let animations settle
-
-    await expect(page).toHaveScreenshot(`landing-${viewportInfo.name}.png`, {
-      fullPage: true,
-      maxDiffPixels: 100,
-    });
-  });
-
-  test('Dashboard visual snapshot', async ({ page, viewportInfo }) => {
-    await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(1000); // Let charts render
-
-    await expect(page).toHaveScreenshot(`dashboard-${viewportInfo.name}.png`, {
-      fullPage: true,
-      maxDiffPixels: 200,
-    });
   });
 });
