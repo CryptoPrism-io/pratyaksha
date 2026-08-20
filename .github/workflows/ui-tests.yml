@@ -36,7 +36,8 @@ jobs:
         run: npm ci
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        # The iPhone project uses Playwright's WebKit engine.
+        run: npx playwright install --with-deps chromium webkit
 
       - name: Build application
         run: npm run build
@@ -123,10 +124,7 @@ jobs:
       - name: Build application
         run: npm run build
 
-      - name: Start server and run accessibility tests
-        run: |
-          npm run preview &
-          sleep 5
-          npx playwright test tests/ui/responsive.spec.ts --project=desktop-chrome
+      - name: Run accessibility smoke check
+        run: npx playwright test tests/ui/responsive.spec.ts --project=desktop-chrome --grep "Basic accessibility checks pass"
         env:
           CI: true

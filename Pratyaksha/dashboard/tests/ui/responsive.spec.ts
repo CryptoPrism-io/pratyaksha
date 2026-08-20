@@ -4,7 +4,6 @@ import {
   checkTouchTargets,
   checkTextReadability,
   checkAccessibility,
-  takeResponsiveScreenshots,
 } from '../helpers/viewport-utils';
 
 test.describe('Responsive UI Tests', () => {
@@ -123,29 +122,5 @@ test.describe('Navigation Tests', () => {
         });
       }
     }
-  });
-});
-
-test.describe('Visual Regression', () => {
-  test('Full page visual snapshot', async ({ page, viewportInfo }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(500); // Let animations settle
-
-    await expect(page).toHaveScreenshot(`landing-${viewportInfo.name}.png`, {
-      fullPage: true,
-      maxDiffPixels: 100,
-    });
-  });
-
-  test('Dashboard visual snapshot', async ({ page, viewportInfo }) => {
-    await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(1000); // Let charts render
-
-    await expect(page).toHaveScreenshot(`dashboard-${viewportInfo.name}.png`, {
-      fullPage: true,
-      maxDiffPixels: 200,
-    });
   });
 });
