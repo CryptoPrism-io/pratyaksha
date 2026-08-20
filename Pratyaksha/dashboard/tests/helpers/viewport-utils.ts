@@ -20,12 +20,15 @@ export async function capturePageScreenshot(page: Page, screenshotPath: string):
     width: document.documentElement.scrollWidth,
     height: document.documentElement.scrollHeight,
   }));
+  const viewport = page.viewportSize();
+  const isMobileOrTablet = viewport !== null && viewport.width <= VIEWPORT_BREAKPOINTS.tablet.max;
 
   const canCaptureFullPage =
+    !isMobileOrTablet &&
     pageSize.width <= MAX_SCREENSHOT_DIMENSION &&
     pageSize.height <= MAX_SCREENSHOT_DIMENSION;
 
-  if (!canCaptureFullPage) {
+  if (!canCaptureFullPage && !isMobileOrTablet) {
     console.warn(
       `Page is ${pageSize.width}x${pageSize.height}; capturing the viewport because Playwright screenshots are limited to ${MAX_SCREENSHOT_DIMENSION}px per dimension.`
     );
