@@ -1,14 +1,15 @@
-name: Deploy Pratyaksha Frontend (Firebase Hosting)
+name: Deploy Pratyaksha Frontend (S3 + CloudFront)
 
-# Frontend (React/Vite) -> Firebase Hosting site "ai-becoming"
-# (canonical https://ai-becoming.web.app) in project social-data-pipeline-and-push.
+# Frontend (React/Vite) -> private S3 bucket behind CloudFront (OAC)
+# (canonical https://dghabvfczocs9.cloudfront.net) in AWS account 405633560616.
+# Infra is the CloudFormation stack `pratyaksha-frontend` (us-east-1).
 #
-# Auth: Workload Identity Federation (KEYLESS) — reuses the WIF_PROVIDER /
-# WIF_SERVICE_ACCOUNT secrets the pre-migration Cloud Run deploy already used
-# (see commit ae857a4). google-github-actions/auth writes Application Default
-# Credentials that firebase-tools picks up — no service-account JSON, no token to
-# rotate. If the WIF service account lacks the "Firebase Hosting Admin" role on
-# the project, grant it once in IAM (that is the only possible one-time step).
+# Auth: GitHub OIDC (KEYLESS) -> IAM role gha-pratyaksha-frontend-deploy, scoped
+# to this repo's main branch and to this bucket + distribution only.
+#
+# Firebase is still used for Auth + Cloud Messaging (VITE_FIREBASE_* config),
+# only hosting moved off Firebase. The old ai-becoming.web.app site is no
+# longer updated by this workflow.
 #
 # Backend (Lightsail) deploys separately via deploy-backend.yml.
 
@@ -21,16 +22,23 @@ on:
       - '.github/workflows/deploy-pratyaksha.yml'
 
 env:
-  FIREBASE_PROJECT_ID: social-data-pipeline-and-push
+  AWS_REGION: us-east-1
+  AWS_ROLE_ARN: arn:aws:iam::405633560616:role/gha-pratyaksha-frontend-deploy
+  S3_BUCKET: pratyaksha-frontend-prod-405633560616
+  CLOUDFRONT_DISTRIBUTION_ID: E1R3GEECO4ZCMK
   # Backend origin baked into the bundle (public Lightsail URL — hardcoded, not a secret).
   VITE_API_BASE_URL: https://pratyaksha.8xy5d1tats0s8.us-east-1.cs.amazonlightsail.com
+
+concurrency:
+  group: deploy-pratyaksha-frontend
+  cancel-in-progress: false
 
 jobs:
   deploy-frontend:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write        # required for WIF
+      id-token: write        # required for AWS OIDC
     defaults:
       run:
         working-directory: Pratyaksha/dashboard
@@ -38,12 +46,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Authenticate to Google Cloud (WIF, keyless)
-        uses: google-github-actions/auth@v2
+      - name: Configure AWS credentials (OIDC, keyless)
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
-          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
-          # exports GOOGLE_APPLICATION_CREDENTIALS for firebase-tools (ADC)
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -66,12 +73,29 @@ jobs:
           npm ci
           npm run build
 
-      - name: Deploy to Firebase Hosting (ADC from WIF)
+      # Cache headers mirror the old firebase.ai-becoming.json:
+      # hashed assets immutable, entry points / service workers never cached.
+      - name: Upload to S3
         run: |
-          npx firebase-tools deploy --only hosting \
-            --project "$FIREBASE_PROJECT_ID" \
-            --config firebase.ai-becoming.json \
-            --non-interactive
+          aws s3 sync dist/assets "s3://$S3_BUCKET/assets" \
+            --cache-control "public, max-age=31536000, immutable"
+          aws s3 sync dist/ "s3://$S3_BUCKET/" --delete \
+            --exclude "assets/*" \
+            --exclude index.html --exclude sw.js \
+            --exclude firebase-messaging-sw.js --exclude manifest.json \
+            --cache-control "public, max-age=86400"
+          for f in index.html sw.js firebase-messaging-sw.js manifest.json; do
+            if [ -f "dist/$f" ]; then
+              aws s3 cp "dist/$f" "s3://$S3_BUCKET/$f" \
+                --cache-control "no-cache, no-store, must-revalidate"
+            fi
+          done
+
+      - name: Invalidate CloudFront
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" \
+            --paths "/index.html" "/sw.js" "/firebase-messaging-sw.js" "/manifest.json" "/"
 
       - name: Display URL
-        run: echo "Frontend deployed -> https://ai-becoming.web.app"
+        run: echo "Frontend deployed -> https://dghabvfczocs9.cloudfront.net"
