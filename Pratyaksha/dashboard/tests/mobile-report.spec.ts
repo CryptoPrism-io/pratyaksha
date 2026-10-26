@@ -5,6 +5,7 @@ import {
   checkResponsiveLayout,
   checkTouchTargets,
   checkTextReadability,
+  capturePageScreenshot,
 } from './helpers/viewport-utils';
 
 const mobileDevices = [
@@ -22,7 +23,7 @@ const testPages = [
 ];
 
 const outputDir = 'test-results/mobile-report';
-const testResults: any[] = [];
+const testResults: Array<Record<string, unknown>> = [];
 
 if (!fs.existsSync(outputDir)) {
   fs.mkdirSync(outputDir, { recursive: true });
@@ -44,10 +45,7 @@ for (const deviceConfig of mobileDevices) {
       await page.waitForTimeout(2000);
       
       const screenshotName = `${pageConfig.name}-${deviceConfig.name}-${deviceConfig.width}x${deviceConfig.height}-2026-01-08.png`;
-      await page.screenshot({ 
-        path: path.join(outputDir, screenshotName),
-        fullPage: true 
-      });
+      await capturePageScreenshot(page, path.join(outputDir, screenshotName));
       
       const touchCheck = await checkTouchTargets(page);
       const textCheck = await checkTextReadability(page);
