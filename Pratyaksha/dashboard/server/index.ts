@@ -125,7 +125,8 @@ app.post("/api/cache/clean", async (_req, res) => {
 // __dirname is available in CommonJS modules
 // In production, static files are in dist/ at the same level as dist/server/.
 // The API-only image (Dockerfile.api) has no client bundle, so skip it there.
-const clientPath = path.resolve(__dirname, "..")
+// (__dirname exists only in the compiled CommonJS build, not under tsx in dev.)
+const clientPath = isProduction ? path.resolve(__dirname, "..") : ""
 if (isProduction && fs.existsSync(path.join(clientPath, "index.html"))) {
   app.use(express.static(clientPath))
 

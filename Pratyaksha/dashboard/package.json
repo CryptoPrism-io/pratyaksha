@@ -17,6 +17,8 @@
     "test:desktop": "playwright test --project=desktop-chrome --project=desktop-firefox --project=desktop-safari",
     "test:ipad": "playwright test --project=ipad-pro-landscape --project=ipad-pro-portrait --project=ipad-mini",
     "test:mobile": "playwright test --project=mobile-iphone-14-pro-max --project=mobile-iphone-14 --project=mobile-iphone-se --project=mobile-pixel-7 --project=mobile-galaxy-s23",
+    "test:unit": "playwright test -c playwright.api.config.ts --project=unit",
+    "test:api": "playwright test -c playwright.api.config.ts --project=api",
     "test:report": "playwright show-report test-results/html-report"
   },
   "dependencies": {
