@@ -1,0 +1,40 @@
+name: Backend Cron (notifications + keep warm)
+
+# Replaces Google Cloud Scheduler, which stopped when GCP billing was closed.
+# Calls the API's cron endpoints and, as a side effect, wakes the free-tier
+# Render service so the next user request is fast.
+#
+# GitHub delays and skips scheduled runs under load, so this is best effort.
+#
+# Needs repo secret CRON_SECRET (same value as on Render) and, optionally,
+# repo variable PRATYAKSHA_API_URL (defaults to the Render URL below).
+
+on:
+  schedule:
+    - cron: '7 * * * *'      # hourly
+  workflow_dispatch:
+
+env:
+  API_URL: ${{ vars.PRATYAKSHA_API_URL || 'https://pratyaksha-api.onrender.com' }}
+
+jobs:
+  cron:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Wake the API
+        run: |
+          for i in 1 2 3 4 5 6; do
+            if curl -fsS -m 60 "$API_URL/health"; then echo; exit 0; fi
+            echo "not up yet (attempt $i), retrying in 15s"; sleep 15
+          done
+          echo "::error::API did not answer /health at $API_URL"; exit 1
+
+      - name: Send due notifications
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          curl -fsS -m 120 -X POST -H "x-cron-secret: $CRON_SECRET" "$API_URL/api/cron/notifications" | head -c 500; echo
+
+      - name: Clean expired cache
+        run: curl -fsS -m 60 -X POST "$API_URL/api/cache/clean"; echo

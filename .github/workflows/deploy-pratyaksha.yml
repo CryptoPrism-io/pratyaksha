@@ -11,7 +11,8 @@ name: Deploy Pratyaksha Frontend (S3 + CloudFront)
 # only hosting moved off Firebase. The old ai-becoming.web.app site is no
 # longer updated by this workflow.
 #
-# Backend (Lightsail) deploys separately via deploy-backend.yml.
+# Backend (Express API) runs on Render's free tier, see render.yaml. It deploys
+# itself on push; this workflow only bakes its URL into the bundle.
 
 on:
   workflow_dispatch:
@@ -26,8 +27,9 @@ env:
   AWS_ROLE_ARN: arn:aws:iam::405633560616:role/gha-pratyaksha-frontend-deploy
   S3_BUCKET: pratyaksha-frontend-prod-405633560616
   CLOUDFRONT_DISTRIBUTION_ID: E1R3GEECO4ZCMK
-  # Backend origin baked into the bundle (public Lightsail URL — hardcoded, not a secret).
-  VITE_API_BASE_URL: https://pratyaksha.8xy5d1tats0s8.us-east-1.cs.amazonlightsail.com
+  # Backend origin baked into the bundle (public URL, not a secret). Set repo
+  # variable PRATYAKSHA_API_URL if Render assigns a different hostname.
+  VITE_API_BASE_URL: ${{ vars.PRATYAKSHA_API_URL || 'https://pratyaksha-api.onrender.com' }}
 
 concurrency:
   group: deploy-pratyaksha-frontend

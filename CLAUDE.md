@@ -99,14 +99,14 @@ Available slash commands (see `.claude/skills/`):
 - `/ux-review` - Comprehensive UX audit
 - `/shadcn-suggest` - Suggest shadcn components
 
-## Deployment (Cloud Run)
+## Deployment
 
-```bash
-# Deploy to Cloud Run (from repo root)
-cd Pratyaksha/dashboard && source .env && gcloud builds submit --config=cloudbuild.yaml --substitutions="_VITE_AIRTABLE_API_KEY=$VITE_AIRTABLE_API_KEY,_VITE_AIRTABLE_BASE_ID=$VITE_AIRTABLE_BASE_ID,_VITE_AIRTABLE_TABLE_ID=$VITE_AIRTABLE_TABLE_ID,_OPENROUTER_API_KEY=$OPENROUTER_API_KEY,_GROQ_API_KEY=$GROQ_API_KEY"
-```
-
-**Live URL**: https://pratyaksha-963362833537.asia-south1.run.app
+- **Frontend**: S3 + CloudFront, https://dghabvfczocs9.cloudfront.net. Deployed by `.github/workflows/deploy-pratyaksha.yml` on push to `main`.
+- **Backend API**: Render free tier (`render.yaml`, `Pratyaksha/dashboard/Dockerfile.api`), https://pratyaksha-api.onrender.com. Render redeploys on push to `main`. Sleeps after ~15 min idle; first request then takes ~30-60 s.
+- **Cron**: `.github/workflows/backend-cron.yml` (hourly) calls `/api/cron/notifications` and `/api/cache/clean`.
+- **Database**: PostgreSQL on RDS `dbcp-aws` (us-east-1).
+- The backend URL is baked into the frontend at build time from repo variable `PRATYAKSHA_API_URL` (falls back to the Render URL above).
+- History: Cloud Run (until GCP billing closed, 2026-07) → AWS Lightsail (2026-07 to 2026-11, shut down for cost) → Render.
 
 ## Critical Guidelines
 

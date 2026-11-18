@@ -3,6 +3,7 @@ import "dotenv/config"
 import express from "express"
 import cors from "cors"
 import path from "path"
+import fs from "fs"
 import { processEntry, updateEntry, deleteEntry, toggleBookmark } from "./routes/entry"
 import { getWeeklySummary } from "./routes/weeklySummary"
 import { getDailySummary } from "./routes/dailySummary"
@@ -122,9 +123,10 @@ app.post("/api/cache/clean", async (_req, res) => {
 
 // Serve static files in production
 // __dirname is available in CommonJS modules
-if (isProduction) {
-  // In production, static files are in dist/ at the same level as dist/server/
-  const clientPath = path.resolve(__dirname, "..")
+// In production, static files are in dist/ at the same level as dist/server/.
+// The API-only image (Dockerfile.api) has no client bundle, so skip it there.
+const clientPath = path.resolve(__dirname, "..")
+if (isProduction && fs.existsSync(path.join(clientPath, "index.html"))) {
   app.use(express.static(clientPath))
 
   // SPA fallback - serve index.html for non-API routes
