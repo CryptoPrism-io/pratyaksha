@@ -1,0 +1,29 @@
+# Pratyaksha API (Express backend only)
+#
+# The frontend is served from S3 + CloudFront, so this image does not build or
+# serve it. That keeps the build small enough for free-tier hosts (Render).
+
+# Stage 1: compile the server
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --no-audit --no-fund
+COPY server ./server
+RUN npm run build:server
+
+# Stage 2: runtime
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --omit=dev --no-audit --no-fund && npm cache clean --force
+COPY --from=builder /app/dist/server ./dist/server
+RUN echo '{"type": "commonjs"}' > dist/server/package.json
+
+ENV NODE_ENV=production
+ENV PORT=8080
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:${PORT}/health || exit 1
+
+CMD ["node", "dist/server/index.js"]

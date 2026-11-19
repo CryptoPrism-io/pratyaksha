@@ -1,0 +1,58 @@
+# Render Blueprint for the Pratyaksha API (free tier, $0/month).
+#
+# Replaces the AWS Lightsail container service, which was shut down to cut AWS
+# costs. The frontend stays on S3 + CloudFront and the data stays in RDS
+# `dbcp-aws` (shared with the rest of the fleet).
+#
+# Free-tier trade-off: the service sleeps after ~15 min without traffic and the
+# first request afterwards takes ~30-60 s while it wakes up.
+#
+# Set up once: Render dashboard -> New -> Blueprint -> pick this repo. Render
+# asks for every `sync: false` value below; copy them from AWS Secrets Manager
+# (/cryptoprism/pratyaksha/<NAME>). Pushes to main then redeploy automatically.
+
+services:
+  - type: web
+    name: pratyaksha-api
+    runtime: docker
+    plan: free
+    region: virginia            # same region as RDS dbcp-aws (us-east-1)
+    branch: main
+    rootDir: Pratyaksha/dashboard
+    dockerfilePath: ./Dockerfile.api
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeploy: true
+    buildFilter:
+      paths:
+        - Pratyaksha/dashboard/server/**
+        - Pratyaksha/dashboard/package.json
+        - Pratyaksha/dashboard/package-lock.json
+        - Pratyaksha/dashboard/Dockerfile.api
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_HOST            # also switches on SSL for the Postgres client
+        value: dbcp-aws.ci348o64i4ep.us-east-1.rds.amazonaws.com
+      - key: VITE_FIREBASE_PROJECT_ID
+        value: pratyaksha-3f089
+      - key: DATABASE_URL
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: AIRTABLE_API_KEY
+        sync: false
+      - key: AIRTABLE_BASE_ID
+        sync: false
+      - key: AIRTABLE_TABLE_ID
+        sync: false
+      - key: AIRTABLE_USER_PROFILES_TABLE_ID
+        sync: false
+      - key: AIRTABLE_NOTIFICATIONS_TABLE_ID
+        sync: false
+      - key: CRON_SECRET
+        sync: false
